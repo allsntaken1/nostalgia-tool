@@ -87,6 +87,17 @@ function normalizeSubmissionItem(raw: unknown): SubmissionItem {
   };
 }
 
+async function readResponseJson(response: Response) {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: text };
+  }
+}
+
 export default function AdminArchivePage() {
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [adminPasscode, setAdminPasscode] = useState('');
@@ -127,8 +138,8 @@ export default function AdminArchivePage() {
         if (!archiveResponse.ok) throw new Error('Could not load archive.');
         if (!submissionResponse.ok) throw new Error('Could not load submissions.');
 
-        const archiveData = await archiveResponse.json();
-        const submissionData = await submissionResponse.json();
+      const archiveData = await readResponseJson(archiveResponse);
+      const submissionData = await readResponseJson(submissionResponse);
 
         setItems(Array.isArray(archiveData) ? archiveData.map(normalizeSavedItem) : []);
         setSubmissions(Array.isArray(submissionData) ? submissionData.map(normalizeSubmissionItem) : []);
@@ -204,12 +215,12 @@ export default function AdminArchivePage() {
     });
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
+      const data = await readResponseJson(response);
       setActionError(data?.error || 'Could not approve submission.');
       return;
     }
 
-    const saved = normalizeSavedItem(await response.json());
+    const saved = normalizeSavedItem(await readResponseJson(response));
     setItems((archiveItems) => [saved, ...archiveItems]);
     setSubmissions((pendingItems) => pendingItems.filter((item) => item.id !== id));
   };
@@ -224,7 +235,7 @@ export default function AdminArchivePage() {
     });
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
+      const data = await readResponseJson(response);
       setActionError(data?.error || 'Could not reject submission.');
       return;
     }
