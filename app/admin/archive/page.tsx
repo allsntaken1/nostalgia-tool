@@ -294,7 +294,7 @@ export default function AdminArchivePage() {
       decade: replaceMainTags || autoTagItem.decade === 'Not Sure' ? suggestion.decade : autoTagItem.decade,
       category: replaceMainTags || autoTagItem.category === 'Unsorted' ? suggestion.category : autoTagItem.category,
       subTags: uniqueValues([...autoTagItem.subTags, ...suggestion.subTags]),
-      extraTags: uniqueValues([...autoTagItem.extraTags, ...suggestion.extraTags]),
+      extraTags: uniqueValues([...autoTagItem.extraTags, ...suggestion.extraTags, 'AI Tagged']),
     };
 
     const response = await fetch('/api/archive', {
