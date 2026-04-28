@@ -265,7 +265,7 @@ export async function listArchiveItems() {
 export async function createArchiveItem(item: ArchiveItem) {
   const savedItem = {
     ...item,
-    id: item.id.includes('-') ? `${item.id}-${Date.now()}` : item.id,
+    id: `${item.id}-${Date.now()}`,
     savedAt: new Date().toLocaleString(),
   };
 
