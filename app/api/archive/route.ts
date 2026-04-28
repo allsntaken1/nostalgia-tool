@@ -9,13 +9,19 @@ import {
 import { requireAdmin } from '@/app/lib/safety';
 
 export async function GET() {
-  const items = await listArchiveItems();
+  try {
+    const items = await listArchiveItems();
 
-  return NextResponse.json(items, {
-    headers: {
-      'Cache-Control': 'no-store',
-    },
-  });
+    return NextResponse.json(items, {
+      headers: {
+        'Cache-Control': 'no-store',
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Could not load archive.';
+
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
