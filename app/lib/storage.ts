@@ -205,9 +205,17 @@ async function writeJson(filePath: string, items: unknown[]) {
 }
 
 function supabaseConfig() {
-  const url = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const rawUrl = process.env.SUPABASE_URL?.trim().replace(/\/$/, '');
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const bucket = process.env.SUPABASE_STORAGE_BUCKET;
+  let url = rawUrl;
+
+  if (url) {
+    url = url
+      .replace(/\/rest\/v1$/i, '')
+      .replace(/\/storage\/v1$/i, '')
+      .replace(/\/auth\/v1$/i, '');
+  }
 
   return url && serviceRoleKey && bucket ? { url, serviceRoleKey, bucket } : null;
 }
