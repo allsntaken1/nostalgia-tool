@@ -135,6 +135,53 @@ function extractOutputText(data: unknown) {
   return '';
 }
 
+function findJsonText(value: unknown): string {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('{') || trimmed.includes('{')) return trimmed;
+    return '';
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findJsonText(item);
+      if (found) return found;
+    }
+    return '';
+  }
+
+  if (!value || typeof value !== 'object') return '';
+
+  const record = value as Record<string, unknown>;
+  for (const key of ['parsed', 'json', 'text', 'output_text']) {
+    const found = findJsonText(record[key]);
+    if (found) return found;
+  }
+
+  for (const child of Object.values(record)) {
+    const found = findJsonText(child);
+    if (found) return found;
+  }
+
+  return '';
+}
+
+function parseJsonCandidate(text: string) {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const start = trimmed.indexOf('{');
+    const end = trimmed.lastIndexOf('}');
+
+    if (start === -1 || end === -1 || end <= start) return null;
+
+    return JSON.parse(trimmed.slice(start, end + 1));
+  }
+}
+
 async function fileToDataUrl(file: File) {
   const buffer = Buffer.from(await file.arrayBuffer());
   return `data:${file.type};base64,${buffer.toString('base64')}`;
@@ -246,7 +293,7 @@ Use OUTDOORS for outside/outdoor scenes and CARS & ROAD LIFE for cars. If uncert
           },
         },
       },
-      max_output_tokens: 450,
+      max_output_tokens: 1200,
     }),
   });
 
@@ -260,13 +307,28 @@ Use OUTDOORS for outside/outdoor scenes and CARS & ROAD LIFE for cars. If uncert
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const outputText = extractOutputText(data);
+  const responseStatus = data && typeof data === 'object' ? (data as Record<string, unknown>).status : '';
+  const outputText = extractOutputText(data) || findJsonText(data);
   let parsed: unknown = null;
 
   try {
-    parsed = outputText ? JSON.parse(outputText) : null;
+    parsed = parseJsonCandidate(outputText);
   } catch {
     return NextResponse.json({ error: 'OpenAI returned malformed tag JSON.' }, { status: 502 });
+  }
+
+  if (!parsed) {
+    const details = data && typeof data === 'object'
+      ? JSON.stringify({
+          status: responseStatus,
+          incomplete_details: (data as Record<string, unknown>).incomplete_details,
+        })
+      : 'No response body.';
+
+    return NextResponse.json(
+      { error: `OpenAI did not return tag JSON. ${details}` },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json(normalizeSuggestion(parsed));
