@@ -112,6 +112,29 @@ export default function AdminArchivePage() {
 
   const expectedAdminPasscode = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'nostalgia';
 
+  const refreshArchiveItems = async () => {
+    const archiveResponse = await fetch('/api/archive', { cache: 'no-store' });
+
+    if (!archiveResponse.ok) throw new Error('Could not load archive.');
+
+    const archiveData = await readResponseJson(archiveResponse);
+    setItems(Array.isArray(archiveData) ? archiveData.map(normalizeSavedItem) : []);
+  };
+
+  const refreshSubmissionItems = async (secret: string) => {
+    const submissionResponse = await fetch('/api/submissions', {
+      cache: 'no-store',
+      headers: {
+        'x-admin-secret': secret,
+      },
+    });
+
+    if (!submissionResponse.ok) throw new Error('Could not load submissions.');
+
+    const submissionData = await readResponseJson(submissionResponse);
+    setSubmissions(Array.isArray(submissionData) ? submissionData.map(normalizeSubmissionItem) : []);
+  };
+
   useEffect(() => {
     const storedSecret = sessionStorage.getItem('nostalgia-admin-secret') || '';
     if (sessionStorage.getItem('nostalgia-admin-unlocked') === 'true' && storedSecret) {
@@ -125,24 +148,8 @@ export default function AdminArchivePage() {
   useEffect(() => {
     const loadArchive = async () => {
       try {
-        const [archiveResponse, submissionResponse] = await Promise.all([
-          fetch('/api/archive', { cache: 'no-store' }),
-          fetch('/api/submissions', {
-            cache: 'no-store',
-            headers: {
-              'x-admin-secret': adminSecret,
-            },
-          }),
-        ]);
-
-        if (!archiveResponse.ok) throw new Error('Could not load archive.');
-        if (!submissionResponse.ok) throw new Error('Could not load submissions.');
-
-      const archiveData = await readResponseJson(archiveResponse);
-      const submissionData = await readResponseJson(submissionResponse);
-
-        setItems(Array.isArray(archiveData) ? archiveData.map(normalizeSavedItem) : []);
-        setSubmissions(Array.isArray(submissionData) ? submissionData.map(normalizeSubmissionItem) : []);
+        await refreshArchiveItems();
+        if (adminSecret) await refreshSubmissionItems(adminSecret);
       } catch {
         setItems([]);
         setSubmissions([]);
@@ -220,9 +227,8 @@ export default function AdminArchivePage() {
       return;
     }
 
-    const saved = normalizeSavedItem(await readResponseJson(response));
-    setItems((archiveItems) => [saved, ...archiveItems]);
     setSubmissions((pendingItems) => pendingItems.filter((item) => item.id !== id));
+    await refreshArchiveItems().catch(() => undefined);
   };
 
   const rejectSubmission = async (id: string) => {
