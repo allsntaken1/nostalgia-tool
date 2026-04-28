@@ -5,6 +5,7 @@ import {
   findDuplicateArchiveItem,
   listArchiveItems,
   normalizeArchiveItem,
+  updateArchiveItem,
 } from '@/app/lib/storage';
 import { requireAdmin } from '@/app/lib/safety';
 
@@ -64,4 +65,24 @@ export async function DELETE(request: Request) {
   await deleteArchiveItem(id);
 
   return NextResponse.json({ ok: true });
+}
+
+export async function PATCH(request: Request) {
+  const unauthorized = requireAdmin(request);
+  if (unauthorized) return unauthorized;
+
+  const body = await request.json().catch(() => null);
+  const id = body && typeof body.id === 'string' ? body.id : '';
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing archive item id.' }, { status: 400 });
+  }
+
+  const item = await updateArchiveItem(id, body);
+
+  if (!item) {
+    return NextResponse.json({ error: 'Archive item not found.' }, { status: 404 });
+  }
+
+  return NextResponse.json(item);
 }

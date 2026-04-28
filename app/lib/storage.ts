@@ -301,6 +301,65 @@ export async function deleteArchiveItem(id: string) {
   });
 }
 
+export async function updateArchiveItem(id: string, updates: Partial<ArchiveItem>) {
+  const normalizedUpdates = normalizeArchiveItem({
+    ...updates,
+    id,
+  });
+  const patch: Partial<ArchiveItem> = {};
+
+  if (typeof updates.title === 'string') patch.title = normalizedUpdates.title;
+  if (typeof updates.imageUrl === 'string') patch.imageUrl = normalizedUpdates.imageUrl;
+  if (typeof updates.thumbUrl === 'string') patch.thumbUrl = normalizedUpdates.thumbUrl;
+  if (typeof updates.source === 'string') patch.source = normalizedUpdates.source;
+  if (typeof updates.sourceUrl === 'string') patch.sourceUrl = normalizedUpdates.sourceUrl;
+  if (typeof updates.originalQuery === 'string') patch.originalQuery = normalizedUpdates.originalQuery;
+  if (typeof updates.decade === 'string') patch.decade = normalizedUpdates.decade;
+  if (typeof updates.category === 'string') patch.category = normalizedUpdates.category;
+  if (Array.isArray(updates.subTags)) patch.subTags = normalizedUpdates.subTags;
+  if (Array.isArray(updates.extraTags)) patch.extraTags = normalizedUpdates.extraTags;
+  if (typeof updates.savedAt === 'string') patch.savedAt = normalizedUpdates.savedAt;
+
+  if (!supabaseConfig()) {
+    const items = await listArchiveItems();
+    let updatedItem: ArchiveItem | null = null;
+    const updated = items.map((item) => {
+      if (item.id !== id) return item;
+      updatedItem = { ...item, ...patch };
+      return updatedItem;
+    });
+
+    if (!updatedItem) return null;
+
+    await writeJson(archivePath, updated);
+    return updatedItem;
+  }
+
+  const rowPatch: Partial<SupabaseArchiveRow> = {};
+  if (patch.title !== undefined) rowPatch.title = patch.title;
+  if (patch.imageUrl !== undefined) rowPatch.image_url = patch.imageUrl;
+  if (patch.thumbUrl !== undefined) rowPatch.thumb_url = patch.thumbUrl;
+  if (patch.source !== undefined) rowPatch.source = patch.source;
+  if (patch.sourceUrl !== undefined) rowPatch.source_url = patch.sourceUrl;
+  if (patch.originalQuery !== undefined) rowPatch.original_query = patch.originalQuery;
+  if (patch.decade !== undefined) rowPatch.decade = patch.decade;
+  if (patch.category !== undefined) rowPatch.category = patch.category;
+  if (patch.subTags !== undefined) rowPatch.sub_tags = patch.subTags;
+  if (patch.extraTags !== undefined) rowPatch.extra_tags = patch.extraTags;
+  if (patch.savedAt !== undefined) rowPatch.saved_at = patch.savedAt;
+
+  const rows = await supabaseRequest<SupabaseArchiveRow[]>(
+    `/rest/v1/archive_items?id=eq.${encodeURIComponent(id)}&select=*`,
+    {
+      method: 'PATCH',
+      headers: supabaseHeaders('return=representation'),
+      body: JSON.stringify(rowPatch),
+    }
+  );
+
+  return rows[0] ? normalizeArchiveItem(rows[0]) : null;
+}
+
 export async function listSubmissionItems() {
   if (!supabaseConfig()) return readJsonArray(submissionsPath, normalizeSubmissionItem);
 

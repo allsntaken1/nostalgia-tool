@@ -6,6 +6,7 @@ import {
   FolderOpen,
   LockKeyhole,
   Search,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
@@ -616,13 +617,22 @@ export default function AdminToolPage() {
             <div>Nostalgia.exe Admin</div>
             <div className="text-xs font-black uppercase tracking-[0.12em] text-black/65">Sourcing Tool</div>
           </div>
-          <Link
-            href="/admin/archive"
-            className="flex h-10 items-center gap-2 border-2 border-white bg-white px-3 text-xs font-black text-black hover:border-black"
-          >
-            <FolderOpen size={16} />
-            SAVED ARCHIVES
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/auto-tag"
+              className="flex h-10 items-center gap-2 border-2 border-white bg-white px-3 text-xs font-black text-black hover:border-black"
+            >
+              <Sparkles size={16} />
+              AUTO TAGGER
+            </Link>
+            <Link
+              href="/admin/archive"
+              className="flex h-10 items-center gap-2 border-2 border-white bg-white px-3 text-xs font-black text-black hover:border-black"
+            >
+              <FolderOpen size={16} />
+              SAVED ARCHIVES
+            </Link>
+          </div>
         </header>
 
         <section className="grid gap-0 lg:grid-cols-[360px_1fr]">
