@@ -496,40 +496,6 @@ const GUIDE_ITEMS: Record<string, string[]> = {
 
 const homeGuideItems = channelData.map((channel) => `CH ${channel.number} ${channel.title}`);
 
-const FALLBACK_IMAGE_SEEDS: Record<string, string[]> = {
-  STORES: ['stores-aisles', 'toy-store', 'electronics-store'],
-  MALLS: ['mall-food-court', 'mall-escalator', 'mall-directory'],
-  'THEME PARKS': ['theme-park-ride', 'theme-park-map', 'theme-park-queue'],
-  RESTAURANTS: ['fast-food-counter', 'pizza-place', 'diner-booth'],
-  'HOME LIFE': ['living-room-tv', 'bedroom-computer', 'basement-game-room'],
-  SCHOOLS: ['school-classroom', 'school-hallway', 'school-library'],
-  'ARCADES & GAMING': ['arcade-cabinets', 'console-room', 'game-store-kiosk'],
-  'MOVIES & ENTERTAINMENT': ['movie-theater-lobby', 'video-store', 'concession-counter'],
-  'TRAVEL & VACATION': ['airport-terminal', 'hotel-lobby', 'roadside-stop'],
-  OUTDOORS: ['neighborhood-park', 'public-pool', 'playground'],
-  'CARS & ROAD LIFE': ['car-dashboard', 'road-trip', 'parking-lot'],
-  'EVERYDAY SPACES': ['waiting-room', 'laundromat', 'office-lobby'],
-};
-
-function makeFallbackItems(channel: Channel): SavedItem[] {
-  const seeds = FALLBACK_IMAGE_SEEDS[channel.category] ?? [channel.id];
-
-  return seeds.map((seed, index) => ({
-    id: `fallback-${channel.id}-${index}`,
-    title: `${channel.title} Signal ${index + 1}`,
-    imageUrl: `https://picsum.photos/seed/nostalgia-${seed}/1400/900`,
-    thumbUrl: `https://picsum.photos/seed/nostalgia-${seed}/600/400`,
-    source: 'Channel signal',
-    sourceUrl: '',
-    originalQuery: channel.title,
-    decade: 'Archive',
-    category: channel.category,
-    subTags: [channel.subs[index % channel.subs.length]],
-    extraTags: [],
-    savedAt: 'Channel signal',
-  }));
-}
-
 function toStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string');
@@ -566,7 +532,7 @@ function normalizeSavedItem(raw: unknown): SavedItem {
 
 export default function PublicPage() {
   const [page, setPage] = useState<'home' | 'channel'>('home');
-  const [selectedIndex, setSelectedIndex] = useState(1);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [era, setEra] = useState<Era>('90s');
@@ -591,8 +557,8 @@ export default function PublicPage() {
   const selectedChannel = channelData[selectedIndex];
   const theme = eraThemes[era];
   const channelItems = savedItems.filter((item) => item.category === selectedChannel.category);
-  const featuredItems = channelItems.length > 0 ? channelItems : makeFallbackItems(selectedChannel);
-  const currentItem = featuredItems[viewerIndex % Math.max(featuredItems.length, 1)];
+  const featuredItems = channelItems;
+  const currentItem = featuredItems.length > 0 ? featuredItems[viewerIndex % featuredItems.length] : undefined;
   const channelGuideItems = GUIDE_ITEMS[selectedChannel.category] ?? selectedChannel.subs;
   useEffect(() => {
     if (featuredItems.length < 2) return;
@@ -741,7 +707,16 @@ function HomeScreen({
                   className="h-full w-full object-cover opacity-85 contrast-[1.08] saturate-[0.92]"
                 />
               ) : (
-                <div className={`h-full w-full bg-gradient-to-br ${selectedChannel.color}`} />
+                <div className="flex h-full w-full items-center justify-center bg-[#030712] p-8 text-center">
+                  <div>
+                    <div className="text-sm font-black uppercase tracking-[0.18em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_7px_#39ff14]">
+                      NO ARCHIVED SIGNAL
+                    </div>
+                    <div className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/55">
+                      CH {selectedChannel.number} {selectedChannel.title}
+                    </div>
+                  </div>
+                </div>
               )}
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.42)_100%)]" />
               <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 to-transparent" />
@@ -763,7 +738,7 @@ function HomeScreen({
               Browse memories from everyday life from the 80s, 90s, and 2000s.
             </p>
             <div className={`mt-3 w-fit px-2 py-1 text-xs font-black uppercase tracking-[0.12em] ${theme.accentBlock}`}>
-              Previewing {previewItems.length} signals
+              {previewItems.length > 0 ? `Previewing ${previewItems.length} signals` : 'Awaiting archived signal'}
             </div>
             <button
               onClick={() => onSelect(selectedIndex)}
