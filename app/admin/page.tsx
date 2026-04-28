@@ -318,6 +318,16 @@ function uniqueValues(values: string[]) {
   return Array.from(new Set(values.filter(Boolean)));
 }
 
+function addSearchTerm(query: string, term: string) {
+  const cleanTerm = term.trim();
+  if (!cleanTerm) return query;
+  const queryTerms = query.toLowerCase().split(/\s+/);
+
+  if (queryTerms.includes(cleanTerm.toLowerCase())) return query;
+
+  return `${query.trim()} ${cleanTerm}`.trim();
+}
+
 export default function AdminToolPage() {
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [adminPasscode, setAdminPasscode] = useState('');
@@ -338,6 +348,7 @@ export default function AdminToolPage() {
   const [extraTagInput, setExtraTagInput] = useState('');
   const [presetCategory, setPresetCategory] = useState(channelData[1].category);
   const [presetSubTags, setPresetSubTags] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState('');
 
   const expectedAdminPasscode = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'nostalgia';
   const selectedChannel = channelData.find((channel) => channel.id === selectedChannelId) ?? channelData[1];
@@ -360,6 +371,34 @@ export default function AdminToolPage() {
     () => results.filter((item) => !isAlreadyArchived(item, archivedImageKeys)),
     [archivedImageKeys, results]
   );
+  const tagLibrary = useMemo(() => {
+    const counts = new Map<string, number>();
+    const register = (tag: string, count = 0) => {
+      const cleanTag = tag.trim();
+      if (!cleanTag) return;
+      counts.set(cleanTag, Math.max(counts.get(cleanTag) ?? 0, count));
+    };
+
+    Object.values(CATEGORY_TREE).flat().forEach((tag) => register(tag));
+    channelData.forEach((channel) => {
+      register(channel.title);
+      register(channel.category);
+    });
+    savedItems.forEach((item) => {
+      [item.category, item.decade, ...item.subTags, ...item.extraTags].forEach((tag) => {
+        const cleanTag = tag.trim();
+        if (!cleanTag) return;
+        counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + 1);
+      });
+    });
+
+    const needle = tagFilter.trim().toLowerCase();
+
+    return Array.from(counts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .filter((entry) => !needle || entry.tag.toLowerCase().includes(needle))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  }, [savedItems, tagFilter]);
 
   useEffect(() => {
     const storedSecret = sessionStorage.getItem('nostalgia-admin-secret') || '';
@@ -639,6 +678,31 @@ export default function AdminToolPage() {
                     className="border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-1 text-xs font-black text-[#2b2d42] hover:border-black"
                   >
                     {sub}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 border-2 border-[#8d99ae] bg-white p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Tag Library</div>
+                <div className="text-[11px] font-black text-[#6c757d]">{tagLibrary.length} tags</div>
+              </div>
+              <input
+                value={tagFilter}
+                onChange={(event) => setTagFilter(event.target.value)}
+                className="mt-3 h-10 w-full border-2 border-[#8d99ae] bg-[#edf2f4] px-3 text-xs font-bold outline-none focus:border-black"
+                placeholder="filter tags..."
+              />
+              <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
+                {tagLibrary.map((entry) => (
+                  <button
+                    key={entry.tag}
+                    onClick={() => setQuery((currentQuery) => addSearchTerm(currentQuery, entry.tag))}
+                    className="flex min-h-9 w-full items-center justify-between gap-3 border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-1 text-left text-xs font-black text-[#2b2d42] hover:border-black hover:bg-white"
+                  >
+                    <span>{entry.tag}</span>
+                    <span className="shrink-0 text-[10px] text-[#6c757d]">{entry.count > 0 ? entry.count : 'preset'}</span>
                   </button>
                 ))}
               </div>
