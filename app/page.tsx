@@ -2,7 +2,7 @@
 
 import { ArrowRight, Home, Shuffle } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type SavedItem = {
   id: string;
@@ -909,31 +909,12 @@ function HomeScreen({
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
           <div className="flex h-full max-h-full max-w-full items-center gap-3">
           <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
-            <div className="relative h-full w-full">
-              {currentPreviewItem ? (
-                <img
-                  src={currentPreviewItem.imageUrl || currentPreviewItem.thumbUrl}
-                  alt={currentPreviewItem.title}
-                  className="h-full w-full object-cover opacity-85 contrast-[1.08] saturate-[0.92]"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[#030712] p-8 text-center">
-                  <div>
-                    <div className="text-sm font-black uppercase tracking-[0.18em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_7px_#39ff14]">
-                      NO ARCHIVED SIGNAL
-                    </div>
-                    <div className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/55">
-                      CH {selectedChannel.number} {selectedChannel.title}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.42)_100%)]" />
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 to-transparent" />
-              <div className="absolute left-5 top-5 px-1 text-3xl tracking-[0.12em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_6px_#39ff14,0_0_14px_rgba(57,255,20,0.85)] md:text-4xl">
-                CH {selectedChannel.number}
-              </div>
-            </div>
+            <ChannelImageSignal
+              src={currentPreviewItem?.imageUrl || currentPreviewItem?.thumbUrl}
+              alt={currentPreviewItem?.title || selectedChannel.title}
+              channelNumber={selectedChannel.number}
+              channelTitle={selectedChannel.title}
+            />
           </div>
           <FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />
           </div>
@@ -1104,31 +1085,12 @@ function ChannelScreen({
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
           <div className="flex h-full max-h-full max-w-full items-center gap-3">
             <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
-            <div className="relative h-full w-full">
-              {currentItem ? (
-                <img
-                  src={currentItem.imageUrl || currentItem.thumbUrl}
-                  alt={currentItem.title}
-                  className="h-full w-full object-cover opacity-85 contrast-[1.08] saturate-[0.92]"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[#030712] p-8 text-center">
-                  <div>
-                    <div className="text-sm font-black uppercase tracking-[0.18em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_7px_#39ff14]">
-                      NO ARCHIVED SIGNAL
-                    </div>
-                    <div className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/55">
-                      CH {channel.number} {channel.title}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.42)_100%)]" />
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 to-transparent" />
-              <div className="absolute left-5 top-5 px-1 text-3xl tracking-[0.12em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_6px_#39ff14,0_0_14px_rgba(57,255,20,0.85)] md:text-4xl">
-                CH {channel.number}
-              </div>
-            </div>
+            <ChannelImageSignal
+              src={currentItem?.imageUrl || currentItem?.thumbUrl}
+              alt={currentItem?.title || channel.title}
+              channelNumber={channel.number}
+              channelTitle={channel.title}
+            />
             </div>
 
             <FauxRemoteControl onUp={prev} onDown={next} disabled={filteredItems.length < 2} />
@@ -1334,6 +1296,75 @@ function DirectoryButton({
       <span className="min-w-0 truncate">{label}</span>
       <span className={`shrink-0 ${active ? 'text-white/75' : 'text-[#6c757d]'}`}>{count}</span>
     </button>
+  );
+}
+
+function ChannelImageSignal({
+  src,
+  alt,
+  channelNumber,
+  channelTitle,
+}: {
+  src?: string;
+  alt: string;
+  channelNumber: string;
+  channelTitle: string;
+}) {
+  const signalKey = `${src || 'no-signal'}|${alt}|${channelNumber}`;
+  const signalKeyRef = useRef(signalKey);
+  const [displaySignal, setDisplaySignal] = useState({ src, alt, channelNumber, channelTitle });
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  useEffect(() => {
+    if (signalKeyRef.current === signalKey) return;
+
+    setIsSwitching(true);
+
+    const swapTimer = window.setTimeout(() => {
+      signalKeyRef.current = signalKey;
+      setDisplaySignal({ src, alt, channelNumber, channelTitle });
+    }, 250);
+
+    const doneTimer = window.setTimeout(() => {
+      setIsSwitching(false);
+    }, 620);
+
+    return () => {
+      window.clearTimeout(swapTimer);
+      window.clearTimeout(doneTimer);
+    };
+  }, [alt, channelNumber, channelTitle, signalKey, src]);
+
+  return (
+    <div className={`relative h-full w-full bg-black ${isSwitching ? 'channel-tube-active' : ''}`}>
+      <div className={`channel-picture-content relative h-full w-full ${isSwitching ? 'channel-picture-switching' : ''}`}>
+        {displaySignal.src ? (
+          <img
+            src={displaySignal.src}
+            alt={displaySignal.alt}
+            className="h-full w-full object-cover opacity-85 contrast-[1.08] saturate-[0.92]"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-[#030712] p-8 text-center">
+            <div>
+              <div className="text-sm font-black uppercase tracking-[0.18em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_7px_#39ff14]">
+                NO ARCHIVED SIGNAL
+              </div>
+              <div className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/55">
+                CH {displaySignal.channelNumber} {displaySignal.channelTitle}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.42)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 to-transparent" />
+        <div className="absolute left-5 top-5 px-1 text-3xl tracking-[0.12em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_6px_#39ff14,0_0_14px_rgba(57,255,20,0.85)] md:text-4xl">
+          CH {displaySignal.channelNumber}
+        </div>
+      </div>
+      <div className="channel-static-burst pointer-events-none absolute inset-0" />
+      <div className="channel-tube-line pointer-events-none absolute left-0 right-0 top-1/2" />
+    </div>
   );
 }
 
