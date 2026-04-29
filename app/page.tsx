@@ -1247,7 +1247,7 @@ function ChannelScreen({
                       No deeper tags yet for this category.
                     </div>
                   ) : (
-                    <div className="grid max-h-full gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                    <div className="grid max-h-64 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-4">
                       {nestedTagOptions.map((option) => (
                         <DirectoryButton
                           key={option.tag}
@@ -1293,13 +1293,15 @@ function DirectoryButton({
   onClick: () => void;
   variant?: 'black' | 'purple';
 }) {
-  const activeClass = variant === 'purple' ? 'border-black bg-[#3a0ca3] text-white' : 'border-black bg-black text-white';
+  const activeClass = variant === 'purple'
+    ? 'border-black bg-[#ff4d6d] text-white shadow-[4px_4px_0_#3a0ca3]'
+    : 'border-black bg-[#ffd166] text-black shadow-[4px_4px_0_#3a0ca3]';
 
   return (
     <button
       onClick={onClick}
-      className={`flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black ${
-        active ? activeClass : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
+      className={`tag-button-90s flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black transition hover:-translate-y-[1px] ${
+        active ? activeClass : 'border-[#2b2d42] bg-[#f8f9fa] text-[#2b2d42] shadow-[3px_3px_0_#8d99ae] hover:border-black hover:bg-white'
       }`}
     >
       <span className="min-w-0 truncate">{label}</span>
