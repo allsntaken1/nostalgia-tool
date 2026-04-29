@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, ArrowRight, Home, Shuffle } from 'lucide-react';
+import { ArrowRight, Home, Shuffle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -772,38 +772,49 @@ function ChannelScreen({
   theme: EraTheme;
 }) {
   const [activeTag, setActiveTag] = useState('All');
+  const [activeMainTag, setActiveMainTag] = useState('All');
   const [localIndex, setLocalIndex] = useState(0);
 
-  const tagOptions = useMemo(() => {
+  const nestedTagOptions = useMemo(() => {
     const counts = new Map<string, number>();
-    const register = (tag: string, count = 0) => {
-      const cleanTag = tag.trim();
-      if (!cleanTag) return;
-      counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + count);
-    };
-
-    channel.subs.forEach((sub) => register(sub, 0));
     items.forEach((item) => {
-      [...item.subTags, ...item.extraTags].forEach((tag) => register(tag, 1));
+      const matchesMain = activeMainTag === 'All' || item.subTags.includes(activeMainTag);
+      if (!matchesMain) return;
+
+      item.extraTags.forEach((tag) => {
+        const cleanTag = tag.trim();
+        if (!cleanTag) return;
+        counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + 1);
+      });
     });
 
-    return [
+    return Array.from(counts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  }, [activeMainTag, items]);
+
+  const mainTagOptions = useMemo(
+    () => [
       { tag: 'All', count: items.length },
-      ...Array.from(counts.entries())
-        .map(([tag, count]) => ({ tag, count }))
-        .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag)),
-    ];
-  }, [channel.subs, items]);
+      ...channel.subs.map((sub) => ({
+        tag: sub,
+        count: items.filter((item) => item.subTags.includes(sub)).length,
+      })),
+    ],
+    [channel.subs, items]
+  );
 
   const filteredItems = useMemo(() => {
-    if (activeTag === 'All') return items;
+    if (activeMainTag === 'All' && activeTag === 'All') return items;
 
     return items.filter((item) =>
-      [...item.subTags, ...item.extraTags, item.title].some((tag) =>
-        tag.toLowerCase().includes(activeTag.toLowerCase())
-      )
+      (activeMainTag === 'All' || item.subTags.includes(activeMainTag)) &&
+      (activeTag === 'All' ||
+        [...item.extraTags, item.title].some((tag) =>
+          tag.toLowerCase().includes(activeTag.toLowerCase())
+        ))
     );
-  }, [activeTag, items]);
+  }, [activeMainTag, activeTag, items]);
 
   const currentItem = filteredItems.length > 0 ? filteredItems[localIndex % filteredItems.length] : undefined;
 
@@ -828,7 +839,8 @@ function ChannelScreen({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
-          <div className="aspect-[4/3] h-full max-h-full max-w-full overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
+          <div className="flex h-full max-h-full max-w-full items-center gap-3">
+            <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
             <div className="relative h-full w-full">
               {currentItem ? (
                 <img
@@ -853,25 +865,27 @@ function ChannelScreen({
               <div className="absolute left-5 top-5 px-1 text-3xl tracking-[0.12em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_6px_#39ff14,0_0_14px_rgba(57,255,20,0.85)] md:text-4xl">
                 CH {channel.number}
               </div>
+            </div>
+            </div>
 
-              {filteredItems.length > 1 ? (
-                <>
-                <button
-                  onClick={prev}
-                  className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-black/75 text-white hover:bg-black"
-                  title="Previous memory"
-                >
-                  <ArrowLeft size={18} />
-                </button>
-                <button
-                  onClick={next}
-                  className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-black/75 text-white hover:bg-black"
-                  title="Next memory"
-                >
-                  <ArrowRight size={18} />
-                </button>
-                </>
-              ) : null}
+            <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-3">
+              <button
+                onClick={prev}
+                disabled={filteredItems.length < 2}
+                className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+                title="Channel up"
+              >
+                ▲
+              </button>
+              <div className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/50">CH</div>
+              <button
+                onClick={next}
+                disabled={filteredItems.length < 2}
+                className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+                title="Channel down"
+              >
+                ▼
+              </button>
             </div>
           </div>
         </div>
@@ -900,54 +914,66 @@ function ChannelScreen({
             </button>
             </div>
 
-            <div className="mb-3 grid grid-cols-3 gap-2">
-              <div className="border-2 border-[#8d99ae] bg-white p-2">
-                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Archive</div>
-                <div className="mt-1 text-xl font-black text-[#2b2d42]">{items.length}</div>
-              </div>
-              <div className="border-2 border-[#8d99ae] bg-white p-2">
-                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Showing</div>
-                <div className="mt-1 text-xl font-black text-[#2b2d42]">{filteredItems.length}</div>
-              </div>
-              <div className="border-2 border-[#8d99ae] bg-white p-2">
-                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Filter</div>
-                <div className="mt-1 truncate text-sm font-black text-[#2b2d42]">{activeTag}</div>
-              </div>
-            </div>
-
             <div className="min-h-0 flex-1 overflow-hidden border-4 border-[#8d99ae] bg-white p-3">
-              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">Sort By Channel Tags</div>
-              <div className="grid max-h-full gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                {tagOptions.map((option) => (
+              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">Main Categories</div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {mainTagOptions.map((option) => (
                   <button
                     key={option.tag}
                     onClick={() => {
-                      setActiveTag(option.tag);
+                      setActiveMainTag(option.tag);
+                      setActiveTag('All');
                       setLocalIndex(0);
                     }}
                     className={`flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black ${
-                      activeTag === option.tag
+                      activeMainTag === option.tag
                         ? 'border-black bg-black text-white'
                         : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
                     }`}
                   >
                     <span className="min-w-0 truncate">{option.tag}</span>
-                    <span className={`shrink-0 ${activeTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
+                    <span className={`shrink-0 ${activeMainTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
                       {option.count}
                     </span>
                   </button>
                 ))}
               </div>
-            </div>
 
-            {currentItem ? (
-              <div className="mt-3 border-2 border-[#8d99ae] bg-white px-3 py-2">
-                <div className="truncate text-sm font-black text-[#2b2d42]">{currentItem.title}</div>
-                <div className="mt-1 text-xs font-bold text-[#6c757d]">
-                  {currentItem.decade} / {localIndex + 1} of {filteredItems.length}
+              <div className="mt-4 border-t-2 border-[#8d99ae] pt-3">
+                <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">
+                  {activeMainTag === 'All' ? 'Matching Tags' : `${activeMainTag} Tags`}
+                </div>
+                <div className="min-h-20">
+                  {nestedTagOptions.length === 0 ? (
+                    <div className="border-2 border-dashed border-[#8d99ae] bg-[#edf2f4] p-3 text-xs font-bold text-[#6c757d]">
+                      No deeper tags yet for this category.
+                    </div>
+                  ) : (
+                    <div className="grid max-h-36 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                      {nestedTagOptions.map((option) => (
+                        <button
+                          key={option.tag}
+                          onClick={() => {
+                            setActiveTag(option.tag);
+                            setLocalIndex(0);
+                          }}
+                          className={`flex min-h-9 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black transition ${
+                            activeTag === option.tag
+                              ? 'border-black bg-[#3a0ca3] text-white'
+                              : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
+                          }`}
+                        >
+                          <span className="min-w-0 truncate">{option.tag}</span>
+                          <span className={`shrink-0 ${activeTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
+                            {option.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
       </section>
