@@ -918,6 +918,13 @@ function Header({
         >
           VOL
         </Link>
+        <Link
+          href="/pokemon"
+          className="flex h-8 items-center justify-center border-2 border-black/35 bg-white/85 px-2 text-xs font-black text-black shadow-[2px_2px_0_rgba(0,0,0,0.45)] transition hover:-translate-y-[1px] hover:border-black"
+          title="Pokémon Archive"
+        >
+          Pokémon Archive
+        </Link>
         <div className="flex items-center gap-1.5" aria-label="Era theme">
           {(['80s', '90s', '2000s'] as Era[]).map((option) => (
             <button
