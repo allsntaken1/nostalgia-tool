@@ -32,8 +32,14 @@ body {
 }
 
 .era-title-80s {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Arial Black", Impact, fantasy;
   letter-spacing: 0.04em;
+  color: #181033;
+  text-shadow:
+    3px 3px 0 #fff36d,
+    6px 6px 0 #ff4fae,
+    9px 9px 0 #54f5ff;
+  transform: rotate(-1deg);
 }
 
 .era-title-90s {
@@ -59,4 +65,50 @@ body {
 .tv-guide-scroll {
   animation: tv-guide-scroll 34s linear infinite;
   will-change: transform;
+}
+
+.era-panel-80s {
+  background:
+    radial-gradient(circle at 88% 18%, #fff36d 0 18px, transparent 19px),
+    radial-gradient(circle at 12% 82%, #54f5ff 0 12px, transparent 13px),
+    repeating-radial-gradient(circle at 78% 70%, rgba(255, 79, 174, 0.18) 0 2px, transparent 3px 8px),
+    linear-gradient(135deg, #fffbce 0%, #fff7a8 42%, #aef7ff 100%);
+}
+
+.era-panel-80s::before {
+  content: "";
+  position: absolute;
+  inset: 10px auto auto 18px;
+  width: 82px;
+  height: 82px;
+  pointer-events: none;
+  background: #ff8a2a;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 56%,
+    79% 91%,
+    50% 69%,
+    21% 91%,
+    32% 56%,
+    2% 35%,
+    39% 35%
+  );
+  opacity: 0.42;
+  transform: rotate(-12deg);
+}
+
+.era-panel-80s::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  width: 130px;
+  height: 52px;
+  pointer-events: none;
+  border: 5px solid #181033;
+  background: repeating-linear-gradient(135deg, #65e85d 0 12px, #fff36d 12px 24px);
+  opacity: 0.26;
+  transform: rotate(5deg) skew(-8deg);
 }

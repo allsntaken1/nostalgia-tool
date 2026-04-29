@@ -37,6 +37,7 @@ type EraTheme = {
   frameBg: string;
   header: string;
   copyPanel: string;
+  panelExtra: string;
   stripe: string;
   titleClass: string;
   accentBlock: string;
@@ -58,26 +59,27 @@ type EraTheme = {
 const eraThemes: Record<Era, EraTheme> = {
   '80s': {
     label: '80s',
-    pageBg: 'bg-[radial-gradient(circle_at_10%_0%,#ff4fd8_0%,#6437ff_30%,#10105c_62%,#050015_100%)]',
-    frameBg: 'bg-[#fff1ff]',
-    header: 'bg-gradient-to-r from-[#ff4fd8] via-[#00e5ff] to-[#fff200]',
-    copyPanel: 'bg-[#f9e6ff]',
-    stripe: 'bg-[repeating-linear-gradient(90deg,#ff4fd8_0_48px,#00e5ff_48px_96px,#fff200_96px_144px,#7cff00_144px_192px)]',
+    pageBg: 'bg-[#1a0b4a] bg-[radial-gradient(circle_at_14%_10%,#fff36d_0_4%,transparent_5%),radial-gradient(circle_at_85%_18%,#54f5ff_0_5%,transparent_6%),linear-gradient(135deg,#ff5fb7_0%,#7a4cff_36%,#1827a8_68%,#0c0633_100%)]',
+    frameBg: 'bg-[#fff7c2]',
+    header: 'bg-[#fff36d]',
+    copyPanel: 'bg-[#fffbce]',
+    panelExtra: 'era-panel-80s',
+    stripe: 'bg-[repeating-linear-gradient(90deg,#ff4fae_0_34px,#fff36d_34px_68px,#54f5ff_68px_102px,#65e85d_102px_136px,#ff8a2a_136px_170px)]',
     titleClass: 'era-title-80s',
-    accentBlock: 'bg-[#2714a8] text-[#fff200]',
-    primaryButton: 'bg-[#ff4fd8] text-white shadow-[5px_5px_0_#00e5ff] hover:bg-[#fff200] hover:text-black',
-    secondaryButton: 'bg-white text-black shadow-[5px_5px_0_#00e5ff] hover:bg-[#fff200]',
-    shapeOne: 'border-[#ff4fd8]',
-    shapeTwo: 'bg-[#fff200]',
-    shapeThree: 'bg-[#00e5ff]',
-    guideOuter: 'bg-[#ff4fd8]',
-    guideInner: 'bg-[#150052]',
-    guideHeader: 'border-[#00e5ff]/70 bg-[#07002d] text-[#fff200]',
-    guideLive: 'border-[#fff200] bg-[#fff200] text-black',
-    guideEven: 'border-[#00e5ff] bg-[#1b3bbf] text-white',
-    guideOdd: 'border-[#ff4fd8] bg-[#5a168c] text-white',
-    guideFocus: 'focus:ring-[#fff200]',
-    ticker: 'bg-[#150052] text-white',
+    accentBlock: 'bg-[#ff4fae] text-white shadow-[4px_4px_0_#111827]',
+    primaryButton: 'bg-[#ff4fae] text-white shadow-[5px_5px_0_#54f5ff] hover:bg-[#fff36d] hover:text-black',
+    secondaryButton: 'bg-[#fff36d] text-black shadow-[5px_5px_0_#ff4fae] hover:bg-[#54f5ff]',
+    shapeOne: 'border-[#ff4fae]',
+    shapeTwo: 'bg-[#fff36d]',
+    shapeThree: 'bg-[#54f5ff]',
+    guideOuter: 'bg-[#ff8a2a]',
+    guideInner: 'bg-[#25105f]',
+    guideHeader: 'border-[#fff36d]/80 bg-[#120733] text-[#fff36d]',
+    guideLive: 'border-[#fff36d] bg-[#fff36d] text-black',
+    guideEven: 'border-[#54f5ff] bg-[#2a4fc9] text-white',
+    guideOdd: 'border-[#ff4fae] bg-[#8f2aa8] text-white',
+    guideFocus: 'focus:ring-[#fff36d]',
+    ticker: 'bg-[#25105f] text-white',
   },
   '90s': {
     label: '90s',
@@ -85,6 +87,7 @@ const eraThemes: Record<Era, EraTheme> = {
     frameBg: 'bg-[#fff8e8]',
     header: 'bg-gradient-to-r from-[#ff4d6d] via-[#ffbe0b] to-[#7bdff2]',
     copyPanel: 'bg-[#dff7ff]',
+    panelExtra: '',
     stripe: 'bg-[repeating-linear-gradient(90deg,#ff4d6d_0_42px,#ffbe0b_42px_84px,#7bdff2_84px_126px,#90be6d_126px_168px)]',
     titleClass: 'era-title-90s',
     accentBlock: 'bg-[#3a0ca3] text-[#ffd166]',
@@ -108,6 +111,7 @@ const eraThemes: Record<Era, EraTheme> = {
     frameBg: 'bg-[#eef8ff]',
     header: 'bg-gradient-to-r from-[#d7f7ff] via-[#9db7ff] to-[#b8ff4d]',
     copyPanel: 'bg-[#edf6ff]',
+    panelExtra: '',
     stripe: 'bg-[repeating-linear-gradient(90deg,#c7ddff_0_52px,#ffffff_52px_104px,#b8ff4d_104px_156px,#7aa7ff_156px_208px)]',
     titleClass: 'era-title-2000s',
     accentBlock: 'bg-[#1f4ed8] text-white',
@@ -839,18 +843,23 @@ function Header({
     <div className={`flex min-h-10 flex-wrap items-center justify-between gap-2 border-b-2 border-white px-3 py-1.5 font-bold text-black ${theme.header}`}>
       <span>Nostalgia.exe</span>
       <div className="flex items-center gap-2 text-sm">
-        <label className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.08em]">
-          <span className="hidden sm:inline">Era</span>
-          <select
-            value={era}
-            onChange={(event) => onEra(event.target.value as Era)}
-            className="h-8 border-2 border-black/35 bg-white/85 px-2 text-xs font-black text-black outline-none focus:border-black"
-          >
-            <option value="80s">80s</option>
-            <option value="90s">90s</option>
-            <option value="2000s">2000s</option>
-          </select>
-        </label>
+        <div className="flex items-center gap-1.5" aria-label="Era theme">
+          {(['80s', '90s', '2000s'] as Era[]).map((option) => (
+            <button
+              key={option}
+              onClick={() => onEra(option)}
+              className={`h-8 min-w-14 border-2 px-2 text-xs font-black shadow-[2px_2px_0_rgba(0,0,0,0.45)] transition hover:-translate-y-[1px] ${
+                era === option
+                  ? 'border-black bg-black text-[#39ff14]'
+                  : 'border-black/35 bg-white/85 text-black hover:border-black'
+              }`}
+              aria-pressed={era === option}
+              title={`${option} theme`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
         {page !== 'home' ? (
           <button
             onClick={onHome}
@@ -930,7 +939,7 @@ function HomeScreen({
           </div>
         </div>
 
-        <div className={`relative flex min-h-0 flex-col justify-center overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-8 lg:border-b-0 ${theme.copyPanel}`}>
+        <div className={`relative flex min-h-0 flex-col justify-center overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-8 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
           <div className={`pointer-events-none absolute inset-x-0 top-0 h-3 ${theme.stripe}`} />
           <div className={`pointer-events-none absolute bottom-4 right-5 h-16 w-16 rotate-12 border-4 opacity-25 ${theme.shapeOne}`} />
           <div className={`pointer-events-none absolute right-16 top-8 h-9 w-9 rounded-full opacity-35 ${theme.shapeTwo}`} />
@@ -1109,7 +1118,7 @@ function ChannelScreen({
           </div>
         </div>
 
-        <div className={`relative flex min-h-0 flex-col overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-6 lg:border-b-0 ${theme.copyPanel}`}>
+        <div className={`relative flex min-h-0 flex-col overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-6 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
           <div className={`pointer-events-none absolute inset-x-0 top-0 h-3 ${theme.stripe}`} />
           <div className={`pointer-events-none absolute bottom-4 right-5 h-16 w-16 rotate-12 border-4 opacity-25 ${theme.shapeOne}`} />
           <div className={`pointer-events-none absolute right-12 top-10 h-9 w-9 rounded-full opacity-35 ${theme.shapeTwo}`} />
