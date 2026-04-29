@@ -36,15 +36,22 @@ function cleanString(value: unknown, fallback = '') {
   return typeof value === 'string' ? value.trim() : fallback;
 }
 
+function cleanTagLabel(value: string) {
+  return value
+    .replace(/[^\w\s&'-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function cleanTags(value: unknown) {
   if (Array.isArray(value)) {
     return Array.from(
-      new Set(value.filter((tag): tag is string => typeof tag === 'string').map((tag) => tag.trim()).filter(Boolean))
+      new Set(value.filter((tag): tag is string => typeof tag === 'string').map(cleanTagLabel).filter(Boolean))
     );
   }
 
   if (typeof value === 'string') {
-    return Array.from(new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean)));
+    return Array.from(new Set(value.split(',').map(cleanTagLabel).filter(Boolean)));
   }
 
   return [];

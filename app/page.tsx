@@ -495,6 +495,22 @@ const GUIDE_ITEMS: Record<string, string[]> = {
 };
 
 const homeGuideItems = channelData.map((channel) => `CH ${channel.number} ${channel.title}`);
+const HIDDEN_PUBLIC_TAGS = new Set(['chrome extension', 'saved by: admin']);
+
+function cleanPublicTag(tag: string) {
+  return tag
+    .replace(/^saved by:\s*/i, 'saved by ')
+    .replace(/[^\w\s&'-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function publicTags(tags: string[]) {
+  return tags
+    .filter((tag) => !HIDDEN_PUBLIC_TAGS.has(tag.trim().toLowerCase()))
+    .map(cleanPublicTag)
+    .filter(Boolean);
+}
 
 function toStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -796,7 +812,7 @@ function ChannelScreen({
       const matchesMain = activeMainTag === 'All' || item.subTags.includes(activeMainTag);
       if (!matchesDecade || !matchesMain) return;
 
-      item.extraTags.forEach((tag) => {
+      publicTags(item.extraTags).forEach((tag) => {
         const cleanTag = tag.trim();
         if (!cleanTag) return;
         counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + 1);
@@ -840,7 +856,7 @@ function ChannelScreen({
       (activeDecade === 'All' || item.decade === activeDecade) &&
       (activeMainTag === 'All' || item.subTags.includes(activeMainTag)) &&
       (activeTag === 'All' ||
-        [...item.extraTags, item.title].some((tag) =>
+        [...publicTags(item.extraTags), cleanPublicTag(item.title)].some((tag) =>
           tag.toLowerCase().includes(activeTag.toLowerCase())
         ))
     );
@@ -1166,7 +1182,7 @@ function TvGuidePanel({
             const matchingMemoryCount = items.filter((memory) =>
               [
                 ...(memory.subTags ?? []),
-                ...(memory.extraTags ?? []),
+                ...publicTags(memory.extraTags ?? []),
                 memory.title,
               ].some((tag) => {
                 if (typeof tag !== 'string') return false;
