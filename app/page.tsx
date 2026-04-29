@@ -1549,61 +1549,10 @@ function TvGuidePanel({
   theme?: EraTheme;
   onGuideSelect?: (index: number) => void;
 }) {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const isInteractingRef = useRef(false);
-  const autoScrollRef = useRef(false);
-  const repeatedGuideItems = Array.from({ length: 6 }, () => guideItems).flat();
-  const guideRows = repeatedGuideItems.map((name, index) => ({
+  const guideRows = [...guideItems, ...guideItems].map((name, index) => ({
     name,
     index: index % guideItems.length,
   }));
-
-  useEffect(() => {
-    let frameId = 0;
-    let previousTime = performance.now();
-    const speed = 18;
-
-    const tick = (time: number) => {
-      const container = scrollRef.current;
-      const delta = time - previousTime;
-      previousTime = time;
-
-      if (container && !isInteractingRef.current && guideItems.length > 0) {
-        const loopPoint = container.scrollHeight / 6;
-
-        autoScrollRef.current = true;
-        container.scrollTop += (delta / 1000) * speed;
-        if (loopPoint > 0 && container.scrollTop >= loopPoint) {
-          container.scrollTop -= loopPoint;
-        }
-        window.setTimeout(() => {
-          autoScrollRef.current = false;
-        }, 0);
-      }
-
-      frameId = window.requestAnimationFrame(tick);
-    };
-
-    frameId = window.requestAnimationFrame(tick);
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, [guideItems.length]);
-
-  const normalizeManualScroll = () => {
-    const container = scrollRef.current;
-    if (!container || autoScrollRef.current) return;
-
-    const loopPoint = container.scrollHeight / 6;
-    if (loopPoint <= 0) return;
-
-    if (container.scrollTop >= loopPoint) {
-      container.scrollTop -= loopPoint;
-    } else if (container.scrollTop <= 0) {
-      container.scrollTop += loopPoint;
-    }
-  };
 
   return (
     <section className={`shrink-0 border-t-4 border-[#111827] p-2 text-white ${theme.guideOuter}`}>
@@ -1614,38 +1563,15 @@ function TvGuidePanel({
           <span className="text-right">Signal</span>
         </div>
 
-        <div
-          ref={scrollRef}
-          onMouseEnter={() => {
-            isInteractingRef.current = true;
-          }}
-          onMouseLeave={() => {
-            isInteractingRef.current = false;
-          }}
-          onFocus={() => {
-            isInteractingRef.current = true;
-          }}
-          onBlur={() => {
-            isInteractingRef.current = false;
-          }}
-          onPointerDown={() => {
-            isInteractingRef.current = true;
-          }}
-          onPointerUp={() => {
-            isInteractingRef.current = false;
-          }}
-          onTouchStart={() => {
-            isInteractingRef.current = true;
-          }}
-          onTouchEnd={() => {
-            isInteractingRef.current = false;
-          }}
-          onScroll={normalizeManualScroll}
-          className="relative h-[258px] overflow-y-auto pt-2 [scrollbar-color:#7bdff2_#0b0636] [scrollbar-width:thin]"
-        >
+        <div className="relative h-[258px] overflow-hidden pt-2">
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-gradient-to-b from-black/50 to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="space-y-1 pr-1">
+          <div
+            className="space-y-1"
+            style={{
+              animation: `tv-guide-scroll ${Math.max(34, guideItems.length * 3.2)}s linear infinite`,
+            }}
+          >
           {guideRows.map((item, rowIndex) => {
             const matchingMemoryCount = items.filter((memory) =>
               [
