@@ -1550,10 +1550,10 @@ function TvGuidePanel({
   onGuideSelect?: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const resumeTimerRef = useRef<number | null>(null);
-  const manualScrollRef = useRef(false);
+  const isInteractingRef = useRef(false);
   const autoScrollRef = useRef(false);
-  const guideRows = [...guideItems, ...guideItems].map((name, index) => ({
+  const repeatedGuideItems = Array.from({ length: 6 }, () => guideItems).flat();
+  const guideRows = repeatedGuideItems.map((name, index) => ({
     name,
     index: index % guideItems.length,
   }));
@@ -1568,8 +1568,8 @@ function TvGuidePanel({
       const delta = time - previousTime;
       previousTime = time;
 
-      if (container && !manualScrollRef.current && guideItems.length > 0) {
-        const loopPoint = container.scrollHeight / 2;
+      if (container && !isInteractingRef.current && guideItems.length > 0) {
+        const loopPoint = container.scrollHeight / 6;
 
         autoScrollRef.current = true;
         container.scrollTop += (delta / 1000) * speed;
@@ -1588,25 +1588,14 @@ function TvGuidePanel({
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
     };
   }, [guideItems.length]);
-
-  const pauseForManualScroll = () => {
-    manualScrollRef.current = true;
-
-    if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
-
-    resumeTimerRef.current = window.setTimeout(() => {
-      manualScrollRef.current = false;
-    }, 1800);
-  };
 
   const normalizeManualScroll = () => {
     const container = scrollRef.current;
     if (!container || autoScrollRef.current) return;
 
-    const loopPoint = container.scrollHeight / 2;
+    const loopPoint = container.scrollHeight / 6;
     if (loopPoint <= 0) return;
 
     if (container.scrollTop >= loopPoint) {
@@ -1627,9 +1616,30 @@ function TvGuidePanel({
 
         <div
           ref={scrollRef}
-          onWheel={pauseForManualScroll}
-          onPointerDown={pauseForManualScroll}
-          onTouchStart={pauseForManualScroll}
+          onMouseEnter={() => {
+            isInteractingRef.current = true;
+          }}
+          onMouseLeave={() => {
+            isInteractingRef.current = false;
+          }}
+          onFocus={() => {
+            isInteractingRef.current = true;
+          }}
+          onBlur={() => {
+            isInteractingRef.current = false;
+          }}
+          onPointerDown={() => {
+            isInteractingRef.current = true;
+          }}
+          onPointerUp={() => {
+            isInteractingRef.current = false;
+          }}
+          onTouchStart={() => {
+            isInteractingRef.current = true;
+          }}
+          onTouchEnd={() => {
+            isInteractingRef.current = false;
+          }}
           onScroll={normalizeManualScroll}
           className="relative h-[258px] overflow-y-auto pt-2 [scrollbar-color:#7bdff2_#0b0636] [scrollbar-width:thin]"
         >
