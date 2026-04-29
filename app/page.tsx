@@ -1081,6 +1081,23 @@ function ChannelScreen({
     setLocalIndex(nextIndex);
   };
 
+  const canStepBack = directoryLevel !== 'decade';
+  const stepBack = () => {
+    if (directoryLevel === 'deep') {
+      setDirectoryLevel('main');
+      setActiveTag('All');
+      setLocalIndex(0);
+      return;
+    }
+
+    if (directoryLevel === 'main') {
+      setDirectoryLevel('decade');
+      setActiveMainTag('All');
+      setActiveTag('All');
+      setLocalIndex(0);
+    }
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
@@ -1191,14 +1208,24 @@ function ChannelScreen({
             </div>
 
             <div className="min-h-0 flex-1 overflow-hidden border-4 border-[#8d99ae] bg-white p-3">
-              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">
-                {directoryLevel === 'decade'
-                  ? 'Choose Decade'
-                  : directoryLevel === 'main'
-                    ? 'Choose Category'
-                    : activeMainTag === 'All'
-                      ? 'Choose Matching Tag'
-                      : `${activeMainTag} Tags`}
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">
+                  {directoryLevel === 'decade'
+                    ? 'Choose Decade'
+                    : directoryLevel === 'main'
+                      ? 'Choose Category'
+                      : activeMainTag === 'All'
+                        ? 'Choose Matching Tag'
+                        : `${activeMainTag} Tags`}
+                </div>
+                <button
+                  onClick={stepBack}
+                  disabled={!canStepBack}
+                  className="min-h-8 border-2 border-[#2b2d42] bg-[#edf2f4] px-3 text-[11px] font-black text-[#2b2d42] shadow-[3px_3px_0_#8d99ae] hover:border-black hover:bg-white disabled:opacity-35"
+                  title="Back one directory level"
+                >
+                  BACK
+                </button>
               </div>
 
               {directoryLevel === 'decade' ? (
