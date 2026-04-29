@@ -462,6 +462,7 @@ export default function AdminToolPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [activeImage, setActiveImage] = useState<SearchResult | null>(null);
+  const [sourceFocus, setSourceFocus] = useState<'facebook' | 'all'>('facebook');
   const [selectedDecade, setSelectedDecade] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(channelData[1].category);
   const [selectedSubTags, setSelectedSubTags] = useState<string[]>([]);
@@ -585,7 +586,7 @@ export default function AdminToolPage() {
     setNotice('');
 
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&source=${sourceFocus}`);
 
       if (!response.ok) {
         const data = await response.json().catch(() => null);
@@ -792,6 +793,26 @@ export default function AdminToolPage() {
                 placeholder="Click tags above to build a search..."
               />
             </label>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {[
+                { value: 'facebook', label: 'FACEBOOK BOOST' },
+                { value: 'all', label: 'ALL WEB' },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setSourceFocus(option.value as 'facebook' | 'all')}
+                  className={`min-h-10 border-2 px-2 text-xs font-black shadow-[2px_2px_0_#8d99ae] ${
+                    sourceFocus === option.value
+                      ? 'border-black bg-black text-[#39ff14]'
+                      : 'border-[#8d99ae] bg-white text-[#2b2d42] hover:border-black'
+                  }`}
+                  aria-pressed={sourceFocus === option.value}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
 
             <button
               onClick={runSearch}
