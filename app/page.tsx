@@ -985,7 +985,7 @@ function HomeScreen({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <section className="grid min-h-0 flex-1 overflow-y-auto gap-0 lg:grid-cols-[1.08fr_0.92fr] lg:overflow-hidden">
-        <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
+        <div className="flex min-h-[340px] items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 sm:min-h-[420px] lg:min-h-0 lg:border-b-0 lg:border-r-4">
           <MediaStage
             image={
               <ChannelImageSignal
@@ -1173,7 +1173,7 @@ function ChannelScreen({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <section className="grid min-h-0 flex-1 overflow-y-auto gap-0 lg:grid-cols-[1.08fr_0.92fr] lg:overflow-hidden">
-        <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
+        <div className="flex min-h-[340px] items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 sm:min-h-[420px] lg:min-h-0 lg:border-b-0 lg:border-r-4">
           <MediaStage
             image={
               <ChannelImageSignal
@@ -1476,12 +1476,12 @@ function MediaStage({
   channelControl: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full max-h-full w-full max-w-full flex-col items-center justify-center gap-2 sm:max-w-[94vw] lg:flex-row lg:gap-3">
+    <div className="flex w-full max-w-full flex-col items-center justify-center gap-3 sm:max-w-[94vw] lg:h-full lg:max-h-full lg:flex-row lg:gap-3">
       <div className="order-2 flex w-full max-w-[520px] items-center justify-between gap-3 px-2 lg:order-1 lg:w-16 lg:max-w-none lg:px-0">
         {volumeControl}
         <div className="lg:hidden">{channelControl}</div>
       </div>
-      <div className="order-1 aspect-[4/3] w-full max-w-[min(72vh,680px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner sm:max-w-[520px] lg:order-2 lg:h-full lg:max-h-full lg:w-auto lg:max-w-[calc(100%-152px)]">
+      <div className="order-1 aspect-[4/3] w-full max-w-[520px] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner lg:order-2 lg:h-full lg:max-h-full lg:w-auto lg:max-w-[calc(100%-152px)]">
         {image}
       </div>
       <div className="order-3 hidden lg:block">{channelControl}</div>
