@@ -244,8 +244,6 @@ const CATEGORY_TREE = {
     'Play Places',
     'Buffets',
     'Drive-Thru',
-    ...FAST_FOOD_PRESETS,
-    ...CASUAL_RESTAURANT_PRESETS,
   ],
   MALLS: [
     'Mall Interiors',
@@ -254,17 +252,37 @@ const CATEGORY_TREE = {
     'Specialty Shops',
     'Kiosks',
     'Mall Events',
-    ...MALL_FOOD_COURT_PRESETS,
   ],
 } as Record<string, string[]>;
 
 const CHANNEL_DEEP_TAG_PRESETS: Record<string, Record<string, string[]>> = {
   STORES: {
-    'Big Box': ['Walmart', 'Kmart', 'Target', 'Ames', 'Hills', 'Service Merchandise', 'Woolworth'],
-    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys'],
-    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA'],
-    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway'],
-    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward'],
+    'Big Box': [
+      'Walmart',
+      'Kmart',
+      'Target',
+      'Ames',
+      'Hills',
+      'Bradlees',
+      'Caldor',
+      'Venture',
+      'Zayre',
+      'Jamesway',
+      'Meijer',
+      'Fred Meyer',
+      'ShopKo',
+      'Service Merchandise',
+      'Woolworth',
+      'Woolco',
+      'Korvettes',
+      'Gemco',
+      'Two Guys',
+      'FedMart',
+    ],
+    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys', 'FAO Schwarz', 'Child World', "Children's Palace", 'Lionel Kiddie City'],
+    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA', 'The Wiz', 'Nobody Beats the Wiz', 'Good Guys', 'Fry\'s Electronics', 'Tweeter'],
+    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway', 'Food Lion', 'Piggly Wiggly', 'Dominick\'s', 'Eagle Food Centers', 'Grand Union'],
+    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward', 'Mervyns', 'Dayton Hudson', 'Hecht\'s', 'Filene\'s', 'Foley\'s', 'Burdines', 'The Bon-Ton'],
     'Video Stores': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery'],
   },
   MALLS: {
@@ -436,7 +454,7 @@ export default function AdminToolPage() {
   const [adminSecret, setAdminSecret] = useState('');
   const [adminError, setAdminError] = useState('');
   const [selectedChannelId, setSelectedChannelId] = useState('malls');
-  const [query, setQuery] = useState(channelData[1].query);
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -460,6 +478,13 @@ export default function AdminToolPage() {
   const selectedChannel = channelData.find((channel) => channel.id === selectedChannelId) ?? channelData[1];
   const categoryOptions = channelData.map((channel) => channel.category);
   const availableSubTags = selectedCategory ? CATEGORY_TREE[selectedCategory] ?? [] : [];
+  const availableDeepTags = selectedCategory
+    ? Array.from(
+        new Set(
+          selectedSubTags.flatMap((tag) => CHANNEL_DEEP_TAG_PRESETS[selectedCategory]?.[tag] ?? [])
+        )
+      )
+    : [];
   const channelSavedCount = useMemo(
     () => savedItems.filter((item) => item.category === selectedChannel.category).length,
     [savedItems, selectedChannel.category]
@@ -520,7 +545,7 @@ export default function AdminToolPage() {
     setSelectedChannelId(channel.id);
     setTagNavChannelId(channel.id);
     setTagNavMainTag('');
-    setQuery(channel.query);
+    setQuery('');
     setSelectedCategory(channel.category);
     setSelectedSubTags([]);
     setPresetCategory(channel.category);
@@ -710,8 +735,8 @@ export default function AdminToolPage() {
           </div>
         </header>
 
-        <section className="grid gap-0 lg:grid-cols-[360px_1fr]">
-          <aside className="border-b-4 border-[#8d99ae] bg-[#edf2f4] p-4 lg:border-b-0 lg:border-r-4">
+        <section className="grid gap-0 xl:grid-cols-[420px_1fr]">
+          <aside className="border-b-4 border-[#8d99ae] bg-[#edf2f4] p-3 sm:p-4 xl:border-b-0 xl:border-r-4">
             <div className="mb-4 text-sm font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Search Setup</div>
 
             <label className="block text-sm font-black text-[#2b2d42]">
@@ -728,28 +753,6 @@ export default function AdminToolPage() {
                 ))}
               </select>
             </label>
-
-            <label className="mt-4 block text-sm font-black text-[#2b2d42]">
-              Query
-              <textarea
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="mt-2 min-h-28 w-full resize-y border-2 border-[#8d99ae] bg-white p-3 text-sm font-bold outline-none focus:border-black"
-                placeholder="Search images..."
-              />
-            </label>
-
-            <button
-              onClick={runSearch}
-              disabled={loading || !query.trim()}
-              className="mt-4 flex h-12 w-full items-center justify-center gap-2 border-2 border-black bg-black px-4 text-sm font-black text-white disabled:opacity-50"
-            >
-              <Search size={16} />
-              {loading ? 'SEARCHING' : 'SEARCH IMAGES'}
-            </button>
-
-            {error ? <div className="mt-4 border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
-            {notice ? <div className="mt-4 border-2 border-[#7bdff2] bg-[#e8fbff] p-3 text-sm font-bold text-[#1b2a52]">{notice}</div> : null}
 
             <AdminTagNavigator
               channelData={channelData}
@@ -780,9 +783,31 @@ export default function AdminToolPage() {
               onDeepTag={(tag) => applyNavigatorSelection({ mainTag: tagNavMainTag, deepTag: tag })}
             />
 
+            <label className="mt-4 block text-sm font-black text-[#2b2d42]">
+              Query
+              <textarea
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                className="mt-2 min-h-24 w-full resize-y border-2 border-[#8d99ae] bg-white p-3 text-sm font-bold outline-none focus:border-black"
+                placeholder="Click tags above to build a search..."
+              />
+            </label>
+
+            <button
+              onClick={runSearch}
+              disabled={loading || !query.trim()}
+              className="mt-4 flex h-12 w-full items-center justify-center gap-2 border-2 border-black bg-black px-4 text-sm font-black text-white disabled:opacity-50"
+            >
+              <Search size={16} />
+              {loading ? 'SEARCHING' : 'SEARCH IMAGES'}
+            </button>
+
+            {error ? <div className="mt-4 border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
+            {notice ? <div className="mt-4 border-2 border-[#7bdff2] bg-[#e8fbff] p-3 text-sm font-bold text-[#1b2a52]">{notice}</div> : null}
+
           </aside>
 
-          <section className="bg-[#dfe8f6] p-4">
+          <section className="bg-[#dfe8f6] p-3 sm:p-4">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Search Results</div>
@@ -846,6 +871,7 @@ export default function AdminToolPage() {
           extraTagInput={extraTagInput}
           categoryOptions={categoryOptions}
           availableSubTags={availableSubTags}
+          availableDeepTags={availableDeepTags}
           onClose={() => setActiveImage(null)}
           onSave={saveImage}
           saving={saving}
@@ -870,6 +896,7 @@ function SaveModal({
   extraTagInput,
   categoryOptions,
   availableSubTags,
+  availableDeepTags,
   onClose,
   onSave,
   saving,
@@ -885,6 +912,7 @@ function SaveModal({
   extraTagInput: string;
   categoryOptions: string[];
   availableSubTags: string[];
+  availableDeepTags: string[];
   onClose: () => void;
   onSave: () => void;
   saving: boolean;
@@ -959,6 +987,9 @@ function SaveModal({
             <TagButtonGroup title="Channel" options={categoryOptions} selected={[selectedCategory]} onPick={onCategory} />
             {selectedCategory ? (
               <TagButtonGroup title="Sub-tags" options={availableSubTags} selected={selectedSubTags} onPick={onToggleSubTag} multi />
+            ) : null}
+            {availableDeepTags.length > 0 ? (
+              <TagButtonGroup title="Specific Tags" options={availableDeepTags} selected={selectedSubTags} onPick={onToggleSubTag} multi />
             ) : null}
 
             <label className="block text-sm font-black uppercase tracking-[0.12em] text-[#3a0ca3]">
@@ -1106,7 +1137,7 @@ function AdminTagNavigator({
         <div className="text-[11px] font-black text-[#6c757d]">{visibleOptions.length} options</div>
       </div>
 
-      <div className="mt-3 grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1">
+      <div className="mt-3 grid max-h-72 grid-cols-1 gap-2 overflow-y-auto pr-1 min-[380px]:grid-cols-2">
         {visibleOptions.length > 0 ? (
           visibleOptions.map((option) => {
             const optionId = 'id' in option && typeof option.id === 'string' ? option.id : '';
@@ -1172,7 +1203,7 @@ function TagButtonGroup({
             <button
               key={option}
               onClick={() => onPick(option)}
-              className={`min-h-10 border-2 px-3 text-sm font-bold ${
+              className={`min-h-10 max-w-full border-2 px-3 text-left text-xs font-bold sm:text-sm ${
                 active ? 'border-black bg-black text-white' : 'border-[#8d99ae] bg-white text-black hover:border-black'
               }`}
               aria-pressed={multi ? active : undefined}

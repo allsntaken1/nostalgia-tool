@@ -508,11 +508,11 @@ const homeGuideItems = channelData.map((channel) => `CH ${channel.number} ${chan
 const HIDDEN_PUBLIC_TAGS = new Set(['chrome extension', 'extension save', 'saved by: admin']);
 const CHANNEL_DEEP_TAG_PRESETS: Record<string, Record<string, string[]>> = {
   STORES: {
-    'Big Box': ['Walmart', 'Kmart', 'Target', 'Ames', 'Hills', 'Service Merchandise', 'Woolworth'],
-    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys'],
-    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA'],
-    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway'],
-    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward'],
+    'Big Box': ['Walmart', 'Kmart', 'Target', 'Ames', 'Hills', 'Bradlees', 'Caldor', 'Venture', 'Zayre', 'Jamesway', 'Meijer', 'Fred Meyer', 'ShopKo', 'Service Merchandise', 'Woolworth', 'Woolco', 'Korvettes', 'Gemco', 'Two Guys', 'FedMart'],
+    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys', 'FAO Schwarz', 'Child World', "Children's Palace", 'Lionel Kiddie City'],
+    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA', 'The Wiz', 'Nobody Beats the Wiz', 'Good Guys', "Fry's Electronics", 'Tweeter'],
+    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway', 'Food Lion', 'Piggly Wiggly', "Dominick's", 'Eagle Food Centers', 'Grand Union'],
+    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward', 'Mervyns', 'Dayton Hudson', "Hecht's", "Filene's", "Foley's", 'Burdines', 'The Bon-Ton'],
     'Video Stores': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery'],
   },
   MALLS: {
