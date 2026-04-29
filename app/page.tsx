@@ -495,7 +495,191 @@ const GUIDE_ITEMS: Record<string, string[]> = {
 };
 
 const homeGuideItems = channelData.map((channel) => `CH ${channel.number} ${channel.title}`);
-const HIDDEN_PUBLIC_TAGS = new Set(['chrome extension', 'saved by: admin']);
+const HIDDEN_PUBLIC_TAGS = new Set(['chrome extension', 'extension save', 'saved by: admin']);
+const CHANNEL_DEEP_TAG_PRESETS: Record<string, Record<string, string[]>> = {
+  STORES: {
+    'Big Box': ['Walmart', 'Kmart', 'Target', 'Ames', 'Hills', 'Service Merchandise', 'Woolworth'],
+    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys'],
+    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA'],
+    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway'],
+    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward'],
+    'Video Stores': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery'],
+  },
+  MALLS: {
+    'Mall Interiors': ['Fountains', 'Escalators', 'Skylights', 'Directories', 'Seating Areas'],
+    'Food Courts': [
+      "Auntie Anne's",
+      'Cinnabon',
+      'Orange Julius',
+      'Hot Dog on a Stick',
+      "Wetzel's Pretzels",
+      'Great American Cookies',
+      'Mrs. Fields',
+      'Charleys Philly Steaks',
+      'Villa Italian Kitchen',
+      'Johnny Rockets',
+      "Nathan's Famous",
+      'TCBY',
+    ],
+    'Anchor Stores': ['Sears', 'JCPenney', "Macy's", "Dillard's", 'Nordstrom'],
+    'Specialty Shops': ['Sam Goody', 'KB Toys', 'Waldenbooks', 'Suncoast', 'Spencer Gifts'],
+    Kiosks: ['Calendar Kiosks', 'Phone Cases', 'Perfume Carts', 'Pretzel Stands'],
+    'Mall Events': ['Santa Display', 'Easter Bunny', 'Car Giveaways', 'Center Court Events'],
+  },
+  RESTAURANTS: {
+    'Fast Food': [
+      'A&W Restaurants',
+      "Arby's",
+      'Back Yard Burgers',
+      'Blimpie',
+      'Bojangles',
+      'Boston Market',
+      'Burger Chef',
+      'Burger King',
+      "Captain D's",
+      "Carl's Jr.",
+      'Checkers',
+      "Rally's",
+      "Church's Chicken",
+      "Culver's",
+      'Dairy Queen',
+      'Del Taco',
+      "Domino's Pizza",
+      'El Pollo Loco',
+      'Five Guys',
+      "Hardee's",
+      'In-N-Out Burger',
+      'Jack in the Box',
+      'KFC',
+      'Krystal',
+      'Little Caesars',
+      "Long John Silver's",
+      "McDonald's",
+      'Panda Express',
+      "Papa John's",
+      'Pizza Hut',
+      'Popeyes',
+      'Quiznos',
+      'Roy Rogers Restaurants',
+      'Sbarro',
+      "Schlotzsky's",
+      'Sonic Drive-In',
+      "Steak 'n Shake",
+      'Subway',
+      'Taco Bell',
+      "Wendy's",
+      'Whataburger',
+      'White Castle',
+      'Wingstop',
+      "Zaxby's",
+    ],
+    'Pizza Places': ["Domino's Pizza", 'Little Caesars', "Papa John's", 'Pizza Hut', 'Sbarro'],
+    'Casual Dining': [
+      "Applebee's",
+      "Bennigan's",
+      'Bob Evans',
+      'Buffalo Wild Wings',
+      'California Pizza Kitchen',
+      "Chili's",
+      'Cracker Barrel',
+      "Denny's",
+      "Friendly's",
+      'Golden Corral',
+      'Hooters',
+      'IHOP',
+      "Marie Callender's",
+      'Olive Garden',
+      'Outback Steakhouse',
+      'Perkins Restaurant & Bakery',
+      'Ponderosa Steakhouse',
+      'Bonanza Steakhouse',
+      'Red Lobster',
+      'Red Robin',
+      'Ruby Tuesday',
+      "Shoney's",
+      'Sizzler',
+      'Steak and Ale',
+      'TGI Fridays',
+      "Tony Roma's",
+      'Waffle House',
+    ],
+    'Play Places': ["McDonald's PlayPlace", 'Burger King Kids Club', 'Chuck E. Cheese'],
+    Buffets: ['Golden Corral', 'Ponderosa Steakhouse', 'Bonanza Steakhouse', "Shoney's", 'Sizzler'],
+    'Drive-Thru': ["McDonald's", 'Burger King', "Wendy's", 'Taco Bell', 'Sonic Drive-In', "Arby's"],
+  },
+  'THEME PARKS': {
+    Rides: ['Dark Rides', 'Roller Coasters', 'Water Rides', 'Flat Rides'],
+    'Park Areas': ['Main Street', 'Midways', 'Kiddie Areas', 'Water Parks'],
+    Resorts: ['Hotel Lobbies', 'Pools', 'Arcades', 'Food Courts'],
+    'Food & Dining': ['Counter Service', 'Character Dining', 'Snack Stands', 'Food Courts'],
+    Queues: ['Switchbacks', 'Pre-Shows', 'Ride Signage', 'Loading Stations'],
+    'Maps & Signage': ['Park Maps', 'Directional Signs', 'Entrance Signs', 'Menu Boards'],
+  },
+  'HOME LIFE': {
+    'Living Rooms': ['TV Stands', 'VHS Shelves', 'Sectional Sofas', 'Carpeted Rooms'],
+    Bedrooms: ['Posters', 'Toy Shelves', 'Computer Desks', 'Bunk Beds'],
+    Kitchens: ['Wallpaper Kitchens', 'Breakfast Nooks', 'Formica Counters', 'Appliances'],
+    Basements: ['Rec Rooms', 'Wood Paneling', 'Game Tables', 'Carpeted Stairs'],
+    'Game Rooms': ['Console Setups', 'Board Games', 'Arcade Cabinets', 'Bean Bags'],
+    'Home Computers': ['Computer Desks', 'CRT Monitors', 'Dial-Up Setups', 'Printer Stations'],
+  },
+  SCHOOLS: {
+    Classrooms: ['Chalkboards', 'Overhead Projectors', 'Desks', 'Bulletin Boards'],
+    Cafeterias: ['Lunch Lines', 'Milk Cartons', 'Tray Returns', 'Fold-Out Tables'],
+    Hallways: ['Lockers', 'Trophy Cases', 'Water Fountains', 'Posters'],
+    Playgrounds: ['Slides', 'Swings', 'Monkey Bars', 'Blacktop Games'],
+    Libraries: ['Card Catalogs', 'Book Fairs', 'Reading Corners', 'Computer Stations'],
+    'School Events': ['Science Fairs', 'Pep Rallies', 'Auditoriums', 'Field Days'],
+  },
+  'ARCADES & GAMING': {
+    Arcades: ['Fighting Cabinets', 'Racing Cabinets', 'Light Gun Games', 'Pinball Rows'],
+    'Store Kiosks': ['Demo Stations', 'Nintendo Kiosks', 'PlayStation Kiosks', 'GameCube Kiosks'],
+    'LAN Setups': ['PC Rooms', 'CRT Monitors', 'Network Parties', 'Internet Cafes'],
+    'Console Rooms': ['TV Carts', 'Bean Bags', 'Console Shelves', 'Controller Piles'],
+    'Prize Areas': ['Ticket Counters', 'Prize Walls', 'Token Machines', 'Redemption Games'],
+    'Game Corners': ['Basement Setups', 'Bedroom Setups', 'Store Corners', 'Arcade Corners'],
+  },
+  'MOVIES & ENTERTAINMENT': {
+    'Movie Theaters': ['Cinema Lobbies', 'Ticket Booths', 'Poster Halls', 'Auditoriums'],
+    'Drive-Ins': ['Concession Stands', 'Car Rows', 'Speaker Posts', 'Screens'],
+    'Video Rentals': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery', 'VHS Shelves'],
+    'Home Media': ['VHS Collections', 'DVD Walls', 'Entertainment Centers', 'Rental Cases'],
+    Concessions: ['Popcorn Counters', 'Soda Machines', 'Candy Displays', 'Menu Boards'],
+    'Lobby Spaces': ['Arcade Corners', 'Carpeted Lobbies', 'Neon Signs', 'Standee Displays'],
+  },
+  'TRAVEL & VACATION': {
+    Airports: ['Terminals', 'Gate Areas', 'Baggage Claim', 'Ticket Counters'],
+    Airplanes: ['Cabins', 'Tray Tables', 'Overhead Bins', 'Window Views'],
+    Hotels: ['Lobbies', 'Rooms', 'Pools', 'Breakfast Areas'],
+    Motels: ['Roadside Signs', 'Rooms', 'Parking Lots', 'Ice Machines'],
+    'Roadside Stops': ['Rest Areas', 'Gas Stations', 'Diners', 'Souvenir Shops'],
+    'Travel Interiors': ['Rental Counters', 'Luggage Carts', 'Shuttle Buses', 'Waiting Areas'],
+  },
+  OUTDOORS: {
+    Parks: ['Picnic Shelters', 'Basketball Courts', 'Tennis Courts', 'Walking Paths'],
+    Neighborhoods: ['Cul-de-sacs', 'Driveways', 'Sidewalks', 'Front Yards'],
+    Pools: ['Public Pools', 'Hotel Pools', 'Diving Boards', 'Snack Bars'],
+    Playgrounds: ['Slides', 'Swings', 'Monkey Bars', 'Wooden Playsets'],
+    Campgrounds: ['Cabins', 'Camp Stores', 'Fire Pits', 'Picnic Tables'],
+    'Skate Parks': ['Ramps', 'Rails', 'Half Pipes', 'Concrete Parks'],
+  },
+  'CARS & ROAD LIFE': {
+    'Car Interiors': ['Back Seats', 'Dashboards', 'Cup Holders', 'Cassette Decks'],
+    'Road Trips': ['Highways', 'Rest Stops', 'Maps', 'Backseat Views'],
+    'Parking Lots': ['Mall Lots', 'Store Lots', 'Drive-Ins', 'Car Meets'],
+    Dealerships: ['Showrooms', 'Lots', 'Service Bays', 'Sales Offices'],
+    'Dashboard Views': ['Analog Gauges', 'Tape Decks', 'Steering Wheels', 'Air Vents'],
+    'Car Culture': ['Car Shows', 'Cruise Nights', 'Drive-Thrus', 'Gas Pumps'],
+  },
+  'EVERYDAY SPACES': {
+    'Waiting Rooms': ['Doctor Offices', 'Dentist Offices', 'Chairs', 'Magazine Tables'],
+    'Doctor Offices': ['Exam Rooms', 'Reception Desks', 'Waiting Areas', 'Posters'],
+    Laundromats: ['Washers', 'Dryers', 'Folding Tables', 'Vending Machines'],
+    Bathrooms: ['Tile Walls', 'Sinks', 'Hand Dryers', 'Stalls'],
+    'Government Buildings': ['DMV', 'Post Offices', 'Courthouses', 'Waiting Lines'],
+    'Misc. Spaces': ['Banks', 'Hair Salons', 'Church Halls', 'Community Centers'],
+  },
+};
 
 function cleanPublicTag(tag: string) {
   return tag
@@ -807,6 +991,13 @@ function ChannelScreen({
 
   const nestedTagOptions = useMemo(() => {
     const counts = new Map<string, number>();
+    const presets =
+      activeMainTag === 'All'
+        ? Object.values(CHANNEL_DEEP_TAG_PRESETS[channel.category] ?? {}).flat()
+        : CHANNEL_DEEP_TAG_PRESETS[channel.category]?.[activeMainTag] ?? [];
+
+    presets.forEach((tag) => counts.set(cleanPublicTag(tag), 0));
+
     items.forEach((item) => {
       const matchesDecade = activeDecade === 'All' || item.decade === activeDecade;
       const matchesMain = activeMainTag === 'All' || item.subTags.includes(activeMainTag);
@@ -822,7 +1013,7 @@ function ChannelScreen({
     return Array.from(counts.entries())
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-  }, [activeDecade, activeMainTag, items]);
+  }, [activeDecade, activeMainTag, channel.category, items]);
 
   const mainTagOptions = useMemo(
     () => [
