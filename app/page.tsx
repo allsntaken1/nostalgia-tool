@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Home, Shuffle } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type SavedItem = {
   id: string;
@@ -581,13 +581,6 @@ export default function PublicPage() {
     setViewerIndex(0);
   };
 
-  const randomMemory = () => {
-    if (featuredItems.length < 2) return;
-    let next = Math.floor(Math.random() * featuredItems.length);
-    if (next === viewerIndex) next = (next + 1) % featuredItems.length;
-    setViewerIndex(next);
-  };
-
   return (
     <main className={`h-screen overflow-hidden font-mono text-black ${theme.pageBg}`}>
       <div className={`flex h-screen min-h-0 flex-col overflow-hidden border-4 border-white ${theme.frameBg} shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18)]`}>
@@ -615,13 +608,11 @@ export default function PublicPage() {
           />
         ) : (
           <ChannelScreen
+            key={selectedChannel.id}
             channel={selectedChannel}
             items={featuredItems}
-            currentItem={currentItem}
             guideItems={channelGuideItems}
-            onPrev={() => setViewerIndex((index) => (index - 1 + featuredItems.length) % featuredItems.length)}
-            onNext={() => setViewerIndex((index) => (index + 1) % featuredItems.length)}
-            onRandom={randomMemory}
+            theme={theme}
           />
         )}
 
@@ -772,110 +763,202 @@ function HomeScreen({
 function ChannelScreen({
   channel,
   items,
-  currentItem,
   guideItems,
-  onPrev,
-  onNext,
-  onRandom,
+  theme,
 }: {
   channel: Channel;
   items: SavedItem[];
-  currentItem?: SavedItem;
   guideItems: string[];
-  onPrev: () => void;
-  onNext: () => void;
-  onRandom: () => void;
+  theme: EraTheme;
 }) {
-  return (
-    <>
-      <section className="grid gap-0 lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="border-b-4 border-[#8d99ae] bg-[#edf2f4] p-4 lg:border-b-0 lg:border-r-4">
-          <div className="mb-3 text-sm font-bold text-[#3a0ca3]">
-            CHANNEL {channel.number} :: {channel.title.toUpperCase()}
-          </div>
-          <div className="relative min-h-[420px] overflow-hidden border-4 border-[#8d99ae] bg-black">
-            {currentItem ? (
-              <img
-                src={currentItem.imageUrl || currentItem.thumbUrl}
-                alt={currentItem.title}
-                className="h-[420px] w-full object-cover opacity-85"
-              />
-            ) : (
-              <div className={`h-[420px] w-full bg-gradient-to-br ${channel.color}`} />
-            )}
+  const [activeTag, setActiveTag] = useState('All');
+  const [localIndex, setLocalIndex] = useState(0);
 
-            {items.length > 1 ? (
-              <>
+  const tagOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    const register = (tag: string, count = 0) => {
+      const cleanTag = tag.trim();
+      if (!cleanTag) return;
+      counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + count);
+    };
+
+    channel.subs.forEach((sub) => register(sub, 0));
+    items.forEach((item) => {
+      [...item.subTags, ...item.extraTags].forEach((tag) => register(tag, 1));
+    });
+
+    return [
+      { tag: 'All', count: items.length },
+      ...Array.from(counts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag)),
+    ];
+  }, [channel.subs, items]);
+
+  const filteredItems = useMemo(() => {
+    if (activeTag === 'All') return items;
+
+    return items.filter((item) =>
+      [...item.subTags, ...item.extraTags, item.title].some((tag) =>
+        tag.toLowerCase().includes(activeTag.toLowerCase())
+      )
+    );
+  }, [activeTag, items]);
+
+  const currentItem = filteredItems.length > 0 ? filteredItems[localIndex % filteredItems.length] : undefined;
+
+  const prev = () => {
+    if (filteredItems.length < 2) return;
+    setLocalIndex((index) => (index - 1 + filteredItems.length) % filteredItems.length);
+  };
+
+  const next = () => {
+    if (filteredItems.length < 2) return;
+    setLocalIndex((index) => (index + 1) % filteredItems.length);
+  };
+
+  const random = () => {
+    if (filteredItems.length < 2) return;
+    let nextIndex = Math.floor(Math.random() * filteredItems.length);
+    if (nextIndex === localIndex) nextIndex = (nextIndex + 1) % filteredItems.length;
+    setLocalIndex(nextIndex);
+  };
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
+        <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
+          <div className="aspect-[4/3] h-full max-h-full max-w-full overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
+            <div className="relative h-full w-full">
+              {currentItem ? (
+                <img
+                  src={currentItem.imageUrl || currentItem.thumbUrl}
+                  alt={currentItem.title}
+                  className="h-full w-full object-cover opacity-85 contrast-[1.08] saturate-[0.92]"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[#030712] p-8 text-center">
+                  <div>
+                    <div className="text-sm font-black uppercase tracking-[0.18em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_7px_#39ff14]">
+                      NO ARCHIVED SIGNAL
+                    </div>
+                    <div className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/55">
+                      CH {channel.number} {channel.title}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.42)_100%)]" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 to-transparent" />
+              <div className="absolute left-5 top-5 px-1 text-3xl tracking-[0.12em] text-[#39ff14] [font-family:'VCR_OSD_Mono',monospace] [text-shadow:0_0_6px_#39ff14,0_0_14px_rgba(57,255,20,0.85)] md:text-4xl">
+                CH {channel.number}
+              </div>
+
+              {filteredItems.length > 1 ? (
+                <>
                 <button
-                  onClick={onPrev}
+                  onClick={prev}
                   className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-black/75 text-white hover:bg-black"
                   title="Previous memory"
                 >
                   <ArrowLeft size={18} />
                 </button>
                 <button
-                  onClick={onNext}
+                  onClick={next}
                   className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-black/75 text-white hover:bg-black"
                   title="Next memory"
                 >
                   <ArrowRight size={18} />
                 </button>
-              </>
-            ) : null}
-
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-5 text-white">
-              <div className="text-xs font-black tracking-[0.2em] text-[#ffd166]">ARCHIVE VIEW</div>
-              <h1 className="mt-2 text-4xl font-black">{channel.title.toUpperCase()}</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/85 md:text-base">
-                {currentItem?.title || channel.description}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                <span className="border border-white/60 bg-black/30 px-2 py-1">{items.length} Memories</span>
-                <span className="border border-white/60 bg-black/30 px-2 py-1">{currentItem?.decade || 'Open Archive'}</span>
-                <span className="border border-white/60 bg-black/30 px-2 py-1">
-                  {currentItem?.subTags.slice(0, 2).join(' / ') || channel.subs.slice(0, 2).join(' / ')}
-                </span>
-              </div>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <div className="bg-[#dfe8f6] p-4">
-          <div className="mb-3 flex items-center justify-between gap-3 text-sm font-bold text-[#3a0ca3]">
-            <span>CHANNEL DIRECTORY</span>
+        <div className={`relative flex min-h-0 flex-col overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-6 lg:border-b-0 ${theme.copyPanel}`}>
+          <div className={`pointer-events-none absolute inset-x-0 top-0 h-3 ${theme.stripe}`} />
+          <div className={`pointer-events-none absolute bottom-4 right-5 h-16 w-16 rotate-12 border-4 opacity-25 ${theme.shapeOne}`} />
+          <div className={`pointer-events-none absolute right-12 top-10 h-9 w-9 rounded-full opacity-35 ${theme.shapeTwo}`} />
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className={`w-fit px-2 py-1 text-xs font-black uppercase tracking-[0.12em] ${theme.accentBlock}`}>
+                  CH {channel.number}
+                </div>
+                <h1 className={`mt-3 text-3xl font-black md:text-4xl ${theme.titleClass}`}>{channel.title}</h1>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-[#2b2d42]">{channel.description}</p>
+              </div>
             <button
-              onClick={onRandom}
-              className="flex h-9 items-center gap-2 border-2 border-[#8d99ae] bg-white px-3 text-xs font-black text-black hover:border-black"
+                onClick={random}
+                disabled={filteredItems.length < 2}
+                className={`flex h-10 items-center gap-2 border-4 border-black px-4 text-xs font-black disabled:opacity-45 ${theme.secondaryButton}`}
               title="Random memory"
             >
               <Shuffle size={15} />
               RANDOM
             </button>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {channel.subs.map((sub) => {
-              const count = items.filter((item) => item.subTags.includes(sub)).length;
+            </div>
 
-              return (
-                <div
-                  key={sub}
-                  className="min-h-[92px] border-2 border-[#8d99ae] bg-white p-4 text-left shadow-[4px_4px_0_rgba(141,153,174,0.55)]"
-                >
-                  <div className="text-lg font-black text-[#2b2d42]">{sub}</div>
-                  <div className="mt-2 text-xs leading-5 text-[#495057]">{count} archived memories</div>
+            <div className="mb-3 grid grid-cols-3 gap-2">
+              <div className="border-2 border-[#8d99ae] bg-white p-2">
+                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Archive</div>
+                <div className="mt-1 text-xl font-black text-[#2b2d42]">{items.length}</div>
+              </div>
+              <div className="border-2 border-[#8d99ae] bg-white p-2">
+                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Showing</div>
+                <div className="mt-1 text-xl font-black text-[#2b2d42]">{filteredItems.length}</div>
+              </div>
+              <div className="border-2 border-[#8d99ae] bg-white p-2">
+                <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6c757d]">Filter</div>
+                <div className="mt-1 truncate text-sm font-black text-[#2b2d42]">{activeTag}</div>
+              </div>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-hidden border-4 border-[#8d99ae] bg-white p-3">
+              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">Sort By Channel Tags</div>
+              <div className="grid max-h-full gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                {tagOptions.map((option) => (
+                  <button
+                    key={option.tag}
+                    onClick={() => {
+                      setActiveTag(option.tag);
+                      setLocalIndex(0);
+                    }}
+                    className={`flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black ${
+                      activeTag === option.tag
+                        ? 'border-black bg-black text-white'
+                        : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
+                    }`}
+                  >
+                    <span className="min-w-0 truncate">{option.tag}</span>
+                    <span className={`shrink-0 ${activeTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
+                      {option.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {currentItem ? (
+              <div className="mt-3 border-2 border-[#8d99ae] bg-white px-3 py-2">
+                <div className="truncate text-sm font-black text-[#2b2d42]">{currentItem.title}</div>
+                <div className="mt-1 text-xs font-bold text-[#6c757d]">
+                  {currentItem.decade} / {localIndex + 1} of {filteredItems.length}
                 </div>
-              );
-            })}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
 
       <TvGuidePanel
         channel={channel}
-        items={items}
+        items={filteredItems}
         guideItems={guideItems}
+        theme={theme}
       />
-    </>
+    </div>
   );
 }
 
