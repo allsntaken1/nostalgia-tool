@@ -685,11 +685,21 @@ function HomeScreen({
   onSelect: (index: number) => void;
   onPreviewChannel: (index: number) => void;
 }) {
+  const prevChannel = () => {
+    const nextIndex = selectedIndex === 0 ? channelData.length - 1 : selectedIndex - 1;
+    onPreviewChannel(nextIndex);
+  };
+  const nextChannel = () => {
+    const nextIndex = selectedIndex === channelData.length - 1 ? 0 : selectedIndex + 1;
+    onPreviewChannel(nextIndex);
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
-          <div className="aspect-[4/3] h-full max-h-full max-w-full overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
+          <div className="flex h-full max-h-full max-w-full items-center gap-3">
+          <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
             <div className="relative h-full w-full">
               {currentPreviewItem ? (
                 <img
@@ -715,6 +725,8 @@ function HomeScreen({
                 CH {selectedChannel.number}
               </div>
             </div>
+          </div>
+          <FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />
           </div>
         </div>
 
@@ -868,25 +880,7 @@ function ChannelScreen({
             </div>
             </div>
 
-            <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-3">
-              <button
-                onClick={prev}
-                disabled={filteredItems.length < 2}
-                className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
-                title="Channel up"
-              >
-                ▲
-              </button>
-              <div className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/50">CH</div>
-              <button
-                onClick={next}
-                disabled={filteredItems.length < 2}
-                className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
-                title="Channel down"
-              >
-                ▼
-              </button>
-            </div>
+            <FauxRemoteControl onUp={prev} onDown={next} disabled={filteredItems.length < 2} />
           </div>
         </div>
 
@@ -984,6 +978,38 @@ function ChannelScreen({
         guideItems={guideItems}
         theme={theme}
       />
+    </div>
+  );
+}
+
+function FauxRemoteControl({
+  onUp,
+  onDown,
+  disabled = false,
+}: {
+  onUp: () => void;
+  onDown: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-3">
+      <button
+        onClick={onUp}
+        disabled={disabled}
+        className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        title="Channel up"
+      >
+        ▲
+      </button>
+      <div className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/50">CH</div>
+      <button
+        onClick={onDown}
+        disabled={disabled}
+        className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        title="Channel down"
+      >
+        ▼
+      </button>
     </div>
   );
 }
