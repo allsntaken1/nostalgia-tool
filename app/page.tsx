@@ -19,6 +19,12 @@ type SavedItem = {
   savedAt: string;
 };
 
+type VolumeStats = {
+  id: string;
+  volumeUp: number;
+  volumeDown: number;
+};
+
 type Channel = {
   id: string;
   number: string;
@@ -107,27 +113,27 @@ const eraThemes: Record<Era, EraTheme> = {
   },
   '2000s': {
     label: '2000s',
-    pageBg: 'bg-[radial-gradient(circle_at_15%_0%,#d7f7ff_0%,#7aa7ff_30%,#2855d9_62%,#071844_100%)]',
-    frameBg: 'bg-[#eef8ff]',
-    header: 'bg-gradient-to-r from-[#d7f7ff] via-[#9db7ff] to-[#b8ff4d]',
-    copyPanel: 'bg-[#edf6ff]',
-    panelExtra: '',
-    stripe: 'bg-[repeating-linear-gradient(90deg,#c7ddff_0_52px,#ffffff_52px_104px,#b8ff4d_104px_156px,#7aa7ff_156px_208px)]',
+    pageBg: 'bg-[#001f3f] bg-[radial-gradient(circle_at_12%_16%,#00f5d4_0_5%,transparent_6%),radial-gradient(circle_at_88%_14%,#ff4fd8_0_4%,transparent_5%),linear-gradient(135deg,#b5f8ff_0%,#3a86ff_32%,#0437a0_62%,#00132e_100%)]',
+    frameBg: 'bg-[#e9fbff]',
+    header: 'bg-gradient-to-r from-[#7df9ff] via-[#ffffff] to-[#ff4fd8]',
+    copyPanel: 'bg-[#e6fbff]',
+    panelExtra: 'era-panel-2000s',
+    stripe: 'bg-[repeating-linear-gradient(90deg,#7df9ff_0_40px,#ffffff_40px_80px,#ff4fd8_80px_120px,#b8ff4d_120px_160px,#3a86ff_160px_200px)]',
     titleClass: 'era-title-2000s',
-    accentBlock: 'bg-[#1f4ed8] text-white',
-    primaryButton: 'bg-[#1f4ed8] text-white shadow-[5px_5px_0_#8fc7ff] hover:bg-[#b8ff4d] hover:text-black',
-    secondaryButton: 'bg-white text-black shadow-[5px_5px_0_#8fc7ff] hover:bg-[#b8ff4d]',
-    shapeOne: 'border-[#7aa7ff]',
+    accentBlock: 'bg-[#001f3f] text-[#7df9ff]',
+    primaryButton: 'bg-[#ff4fd8] text-white shadow-[5px_5px_0_#3a86ff] hover:bg-[#b8ff4d] hover:text-black',
+    secondaryButton: 'bg-white text-black shadow-[5px_5px_0_#7df9ff] hover:bg-[#ff4fd8] hover:text-white',
+    shapeOne: 'border-[#ff4fd8]',
     shapeTwo: 'bg-[#b8ff4d]',
-    shapeThree: 'bg-[#8fc7ff]',
-    guideOuter: 'bg-[#9db7ff]',
-    guideInner: 'bg-[#061d5a]',
-    guideHeader: 'border-[#b8ff4d]/70 bg-[#03113c] text-[#b8ff4d]',
+    shapeThree: 'bg-[#7df9ff]',
+    guideOuter: 'bg-[#ff4fd8]',
+    guideInner: 'bg-[#001f3f]',
+    guideHeader: 'border-[#7df9ff]/80 bg-[#00132e] text-[#b8ff4d]',
     guideLive: 'border-[#b8ff4d] bg-[#b8ff4d] text-black',
-    guideEven: 'border-[#8fc7ff] bg-[#1946ad] text-white',
-    guideOdd: 'border-[#9db7ff] bg-[#1a2f7c] text-white',
-    guideFocus: 'focus:ring-[#b8ff4d]',
-    ticker: 'bg-[#071844] text-white',
+    guideEven: 'border-[#7df9ff] bg-[#053e9f] text-white',
+    guideOdd: 'border-[#ff4fd8] bg-[#11246d] text-white',
+    guideFocus: 'focus:ring-[#ff4fd8]',
+    ticker: 'bg-[#00132e] text-[#7df9ff]',
   },
 };
 
@@ -738,6 +744,7 @@ export default function PublicPage() {
   const [page, setPage] = useState<'home' | 'channel'>('home');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
+  const [volumeStats, setVolumeStats] = useState<Record<string, VolumeStats>>({});
   const [viewerIndex, setViewerIndex] = useState(0);
   const [era, setEra] = useState<Era>('90s');
 
@@ -756,6 +763,29 @@ export default function PublicPage() {
     };
 
     loadArchive();
+  }, []);
+
+  useEffect(() => {
+    const loadVolume = async () => {
+      try {
+        const response = await fetch('/api/volume', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Could not load volume.');
+        const data = await response.json();
+        const stats = Array.isArray(data) ? data : [];
+
+        setVolumeStats(
+          Object.fromEntries(
+            stats
+              .filter((item): item is VolumeStats => typeof item?.id === 'string')
+              .map((item) => [item.id, item])
+          )
+        );
+      } catch {
+        setVolumeStats({});
+      }
+    };
+
+    loadVolume();
   }, []);
 
   const selectedChannel = channelData[selectedIndex];
@@ -785,6 +815,30 @@ export default function PublicPage() {
     setViewerIndex(0);
   };
 
+  const voteOnItem = async (itemId: string, vote: 1 | -1) => {
+    const storageKey = `repeat-volume:${itemId}`;
+    const previousVote = typeof window !== 'undefined' ? Number(window.localStorage.getItem(storageKey) || 0) : 0;
+    const normalizedPreviousVote = previousVote === 1 || previousVote === -1 ? previousVote : 0;
+
+    if (normalizedPreviousVote === vote) return;
+
+    try {
+      const response = await fetch('/api/volume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: itemId, vote, previousVote: normalizedPreviousVote }),
+      });
+
+      if (!response.ok) throw new Error('Could not update volume.');
+      const stats: VolumeStats = await response.json();
+
+      setVolumeStats((currentStats) => ({ ...currentStats, [itemId]: stats }));
+      window.localStorage.setItem(storageKey, String(vote));
+    } catch {
+      setVolumeStats((currentStats) => currentStats);
+    }
+  };
+
   return (
     <main className={`h-screen overflow-hidden font-mono text-black ${theme.pageBg}`}>
       <div className={`flex h-screen min-h-0 flex-col overflow-hidden border-4 border-white ${theme.frameBg} shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18)]`}>
@@ -805,18 +859,22 @@ export default function PublicPage() {
             selectedIndex={selectedIndex}
             previewItems={featuredItems}
             currentPreviewItem={currentItem}
+            currentVolume={currentItem ? volumeStats[currentItem.id] : undefined}
             guideItems={homeGuideItems}
             theme={theme}
             onSelect={pickChannel}
             onPreviewChannel={previewChannel}
+            onVote={voteOnItem}
           />
         ) : (
           <ChannelScreen
             key={selectedChannel.id}
             channel={selectedChannel}
             items={featuredItems}
+            volumeStats={volumeStats}
             guideItems={channelGuideItems}
             theme={theme}
+            onVote={voteOnItem}
           />
         )}
 
@@ -853,6 +911,13 @@ function Header({
         >
           IG
         </a>
+        <Link
+          href="/volume"
+          className="flex h-8 items-center justify-center border-2 border-black/35 bg-white/85 px-2 text-xs font-black text-black shadow-[2px_2px_0_rgba(0,0,0,0.45)] transition hover:-translate-y-[1px] hover:border-black"
+          title="Highest volume photos"
+        >
+          VOL
+        </Link>
         <div className="flex items-center gap-1.5" aria-label="Era theme">
           {(['80s', '90s', '2000s'] as Era[]).map((option) => (
             <button
@@ -890,19 +955,23 @@ function HomeScreen({
   selectedIndex,
   previewItems,
   currentPreviewItem,
+  currentVolume,
   guideItems,
   theme,
   onSelect,
   onPreviewChannel,
+  onVote,
 }: {
   selectedChannel: Channel;
   selectedIndex: number;
   previewItems: SavedItem[];
   currentPreviewItem?: SavedItem;
+  currentVolume?: VolumeStats;
   guideItems: string[];
   theme: EraTheme;
   onSelect: (index: number) => void;
   onPreviewChannel: (index: number) => void;
+  onVote: (itemId: string, vote: 1 | -1) => void;
 }) {
   const prevChannel = () => {
     const nextIndex = selectedIndex === 0 ? channelData.length - 1 : selectedIndex - 1;
@@ -918,7 +987,13 @@ function HomeScreen({
       <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
           <div className="flex h-full max-h-full max-w-full items-center gap-3">
-          <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
+          <FauxVolumeControl
+            stats={currentVolume}
+            disabled={!currentPreviewItem}
+            onUp={() => currentPreviewItem && onVote(currentPreviewItem.id, 1)}
+            onDown={() => currentPreviewItem && onVote(currentPreviewItem.id, -1)}
+          />
+          <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-152px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
             <ChannelImageSignal
               src={currentPreviewItem?.imageUrl || currentPreviewItem?.thumbUrl}
               alt={currentPreviewItem?.title || selectedChannel.title}
@@ -975,13 +1050,17 @@ function HomeScreen({
 function ChannelScreen({
   channel,
   items,
+  volumeStats,
   guideItems,
   theme,
+  onVote,
 }: {
   channel: Channel;
   items: SavedItem[];
+  volumeStats: Record<string, VolumeStats>;
   guideItems: string[];
   theme: EraTheme;
+  onVote: (itemId: string, vote: 1 | -1) => void;
 }) {
   const [activeDecade, setActiveDecade] = useState('All');
   const [activeMainTag, setActiveMainTag] = useState('All');
@@ -1094,7 +1173,13 @@ function ChannelScreen({
       <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
           <div className="flex h-full max-h-full max-w-full items-center gap-3">
-            <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-76px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
+            <FauxVolumeControl
+              stats={currentItem ? volumeStats[currentItem.id] : undefined}
+              disabled={!currentItem}
+              onUp={() => currentItem && onVote(currentItem.id, 1)}
+              onDown={() => currentItem && onVote(currentItem.id, -1)}
+            />
+            <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-152px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
             <ChannelImageSignal
               src={currentItem?.imageUrl || currentItem?.thumbUrl}
               alt={currentItem?.title || channel.title}
@@ -1405,6 +1490,45 @@ function FauxRemoteControl({
         title="Channel down"
       >
         ▼
+      </button>
+    </div>
+  );
+}
+
+function FauxVolumeControl({
+  stats,
+  disabled = false,
+  onUp,
+  onDown,
+}: {
+  stats?: VolumeStats;
+  disabled?: boolean;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  const score = (stats?.volumeUp ?? 0) - (stats?.volumeDown ?? 0);
+
+  return (
+    <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-2">
+      <button
+        onClick={onUp}
+        disabled={disabled}
+        className="flex h-14 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        title="Volume up"
+      >
+        +
+      </button>
+      <div className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
+        VOL
+        <div className="mt-1 text-[#39ff14]">{score}</div>
+      </div>
+      <button
+        onClick={onDown}
+        disabled={disabled}
+        className="flex h-14 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        title="Volume down"
+      >
+        -
       </button>
     </div>
   );

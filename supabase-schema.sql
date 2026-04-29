@@ -33,5 +33,13 @@ create index if not exists archive_items_saved_at_idx on public.archive_items (s
 create index if not exists submissions_submitted_at_idx on public.submissions (submitted_at desc);
 create index if not exists submissions_status_idx on public.submissions (status);
 
+create table if not exists public.archive_volume (
+  id text primary key references public.archive_items(id) on delete cascade,
+  volume_up integer not null default 0,
+  volume_down integer not null default 0
+);
+
+create index if not exists archive_volume_score_idx on public.archive_volume ((volume_up - volume_down) desc);
+
 -- Create a public Supabase Storage bucket named `nostalgia-uploads` in the dashboard.
 -- The app uploads pending community images to `pending/<id>.<ext>` inside that bucket.

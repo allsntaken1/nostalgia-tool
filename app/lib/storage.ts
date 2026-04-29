@@ -16,6 +16,12 @@ export type ArchiveItem = {
   savedAt: string;
 };
 
+export type VolumeStats = {
+  id: string;
+  volumeUp: number;
+  volumeDown: number;
+};
+
 export type SubmissionItem = Omit<ArchiveItem, 'savedAt'> & {
   submittedAt: string;
   status: 'pending';
@@ -41,8 +47,15 @@ type SupabaseSubmissionRow = Omit<SupabaseArchiveRow, 'saved_at'> & {
   status: 'pending';
 };
 
+type SupabaseVolumeRow = {
+  id: string;
+  volume_up: number;
+  volume_down: number;
+};
+
 const archivePath = path.join(process.cwd(), 'data', 'archive.json');
 const submissionsPath = path.join(process.cwd(), 'data', 'submissions.json');
+const volumePath = path.join(process.cwd(), 'data', 'volume.json');
 const pendingUploadsDir = path.join(process.cwd(), 'public', 'uploads', 'pending');
 
 function toStringArray(value: unknown): string[] {
@@ -125,6 +138,26 @@ export function normalizeSubmissionItem(raw: unknown): SubmissionItem {
           ? rawItem.submitted_at
           : item.savedAt,
     status: 'pending',
+  };
+}
+
+function normalizeVolumeStats(raw: unknown): VolumeStats {
+  const item = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+
+  return {
+    id: typeof item.id === 'string' ? item.id : '',
+    volumeUp:
+      typeof item.volumeUp === 'number'
+        ? item.volumeUp
+        : typeof item.volume_up === 'number'
+          ? item.volume_up
+          : 0,
+    volumeDown:
+      typeof item.volumeDown === 'number'
+        ? item.volumeDown
+        : typeof item.volume_down === 'number'
+          ? item.volume_down
+          : 0,
   };
 }
 
@@ -362,6 +395,76 @@ export async function updateArchiveItem(id: string, updates: Partial<ArchiveItem
   );
 
   return rows[0] ? normalizeArchiveItem(rows[0]) : null;
+}
+
+export async function listVolumeStats() {
+  if (!supabaseConfig()) return readJsonArray(volumePath, normalizeVolumeStats);
+
+  const rows = await supabaseRequest<SupabaseVolumeRow[]>('/rest/v1/archive_volume?select=*', {
+    headers: supabaseHeaders(),
+  });
+
+  return rows.map(normalizeVolumeStats);
+}
+
+export async function updateVolumeStats(id: string, vote: 1 | -1, previousVote: 1 | -1 | 0) {
+  const upDelta = (vote === 1 ? 1 : 0) - (previousVote === 1 ? 1 : 0);
+  const downDelta = (vote === -1 ? 1 : 0) - (previousVote === -1 ? 1 : 0);
+
+  if (!supabaseConfig()) {
+    const stats = await listVolumeStats();
+    const existing = stats.find((item) => item.id === id) ?? { id, volumeUp: 0, volumeDown: 0 };
+    const updatedItem = {
+      id,
+      volumeUp: Math.max(0, existing.volumeUp + upDelta),
+      volumeDown: Math.max(0, existing.volumeDown + downDelta),
+    };
+    const updated = stats.some((item) => item.id === id)
+      ? stats.map((item) => (item.id === id ? updatedItem : item))
+      : [updatedItem, ...stats];
+
+    await writeJson(volumePath, updated);
+    return updatedItem;
+  }
+
+  const rows = await supabaseRequest<SupabaseVolumeRow[]>(
+    `/rest/v1/archive_volume?id=eq.${encodeURIComponent(id)}&select=*`,
+    { headers: supabaseHeaders() }
+  );
+  const existing = rows[0] ? normalizeVolumeStats(rows[0]) : { id, volumeUp: 0, volumeDown: 0 };
+  const nextStats = {
+    id,
+    volumeUp: Math.max(0, existing.volumeUp + upDelta),
+    volumeDown: Math.max(0, existing.volumeDown + downDelta),
+  };
+
+  if (!rows[0]) {
+    const insertedRows = await supabaseRequest<SupabaseVolumeRow[]>('/rest/v1/archive_volume?select=*', {
+      method: 'POST',
+      headers: supabaseHeaders('return=representation'),
+      body: JSON.stringify({
+        id,
+        volume_up: nextStats.volumeUp,
+        volume_down: nextStats.volumeDown,
+      }),
+    });
+
+    return normalizeVolumeStats(insertedRows[0]);
+  }
+
+  const updatedRows = await supabaseRequest<SupabaseVolumeRow[]>(
+    `/rest/v1/archive_volume?id=eq.${encodeURIComponent(id)}&select=*`,
+    {
+      method: 'PATCH',
+      headers: supabaseHeaders('return=representation'),
+      body: JSON.stringify({
+        volume_up: nextStats.volumeUp,
+        volume_down: nextStats.volumeDown,
+      }),
+    }
+  );
+
+  return normalizeVolumeStats(updatedRows[0]);
 }
 
 export async function listSubmissionItems() {
