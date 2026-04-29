@@ -841,7 +841,7 @@ export default function PublicPage() {
 
   return (
     <main className={`h-screen overflow-hidden font-mono text-black ${theme.pageBg}`}>
-      <div className={`flex h-screen min-h-0 flex-col overflow-hidden border-4 border-white ${theme.frameBg} shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18)]`}>
+      <div className={`flex h-screen min-h-0 flex-col overflow-y-auto border-4 border-white ${theme.frameBg} shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18)] lg:overflow-hidden`}>
         <Header
           page={page}
           era={era}
@@ -984,34 +984,36 @@ function HomeScreen({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="grid min-h-0 flex-1 overflow-y-auto gap-0 lg:grid-cols-[1.08fr_0.92fr] lg:overflow-hidden">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
-          <div className="flex h-full max-h-full max-w-full items-center gap-3">
-          <FauxVolumeControl
-            stats={currentVolume}
-            disabled={!currentPreviewItem}
-            onUp={() => currentPreviewItem && onVote(currentPreviewItem.id, 1)}
-            onDown={() => currentPreviewItem && onVote(currentPreviewItem.id, -1)}
+          <MediaStage
+            image={
+              <ChannelImageSignal
+                src={currentPreviewItem?.imageUrl || currentPreviewItem?.thumbUrl}
+                alt={currentPreviewItem?.title || selectedChannel.title}
+                channelNumber={selectedChannel.number}
+                channelTitle={selectedChannel.title}
+              />
+            }
+            volumeControl={
+              <FauxVolumeControl
+                stats={currentVolume}
+                disabled={!currentPreviewItem}
+                onUp={() => currentPreviewItem && onVote(currentPreviewItem.id, 1)}
+                onDown={() => currentPreviewItem && onVote(currentPreviewItem.id, -1)}
+              />
+            }
+            channelControl={<FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />}
           />
-          <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-152px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
-            <ChannelImageSignal
-              src={currentPreviewItem?.imageUrl || currentPreviewItem?.thumbUrl}
-              alt={currentPreviewItem?.title || selectedChannel.title}
-              channelNumber={selectedChannel.number}
-              channelTitle={selectedChannel.title}
-            />
-          </div>
-          <FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />
-          </div>
         </div>
 
-        <div className={`relative flex min-h-0 flex-col justify-center overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-8 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
+        <div className={`relative flex min-h-[280px] flex-col justify-center overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-8 lg:min-h-0 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
           <div className={`pointer-events-none absolute inset-x-0 top-0 h-3 ${theme.stripe}`} />
           <div className={`pointer-events-none absolute bottom-4 right-5 h-16 w-16 rotate-12 border-4 opacity-25 ${theme.shapeOne}`} />
           <div className={`pointer-events-none absolute right-16 top-8 h-9 w-9 rounded-full opacity-35 ${theme.shapeTwo}`} />
           <div className={`pointer-events-none absolute bottom-20 right-24 h-7 w-16 -rotate-12 opacity-45 ${theme.shapeThree}`} />
           <div className="relative z-10">
-            <h1 className={`max-w-xl text-3xl font-black md:text-4xl ${theme.titleClass}`}>REMEMBER BEING THERE?</h1>
+            <h1 className={`max-w-xl text-2xl font-black sm:text-3xl md:text-4xl ${theme.titleClass}`}>REMEMBER BEING THERE?</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 md:text-base">
               Browse memories from everyday life from the 80s, 90s, and 2000s.
             </p>
@@ -1020,14 +1022,14 @@ function HomeScreen({
             </div>
             <button
               onClick={() => onSelect(selectedIndex)}
-              className={`mt-4 flex h-10 w-fit items-center gap-2 border-4 border-black px-5 text-sm font-black ${theme.primaryButton}`}
+              className={`mt-4 flex min-h-10 w-full max-w-xs items-center justify-center gap-2 border-4 border-black px-5 text-sm font-black sm:w-fit ${theme.primaryButton}`}
             >
               <ArrowRight size={18} />
               ENTER CHANNEL
             </button>
             <Link
               href="/submit"
-              className={`mt-3 flex h-10 w-fit items-center gap-2 border-4 border-black px-5 text-sm font-black ${theme.secondaryButton}`}
+              className={`mt-3 flex min-h-10 w-full max-w-xs items-center justify-center gap-2 border-4 border-black px-5 text-sm font-black sm:w-fit ${theme.secondaryButton}`}
             >
               SUBMIT A MEMORY
             </Link>
@@ -1170,29 +1172,30 @@ function ChannelScreen({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <section className="grid min-h-0 flex-1 overflow-hidden gap-0 lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="grid min-h-0 flex-1 overflow-y-auto gap-0 lg:grid-cols-[1.08fr_0.92fr] lg:overflow-hidden">
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b-4 border-[#8d99ae] bg-black p-2 lg:border-b-0 lg:border-r-4">
-          <div className="flex h-full max-h-full max-w-full items-center gap-3">
-            <FauxVolumeControl
-              stats={currentItem ? volumeStats[currentItem.id] : undefined}
-              disabled={!currentItem}
-              onUp={() => currentItem && onVote(currentItem.id, 1)}
-              onDown={() => currentItem && onVote(currentItem.id, -1)}
-            />
-            <div className="aspect-[4/3] h-full max-h-full max-w-[calc(100%-152px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner">
-            <ChannelImageSignal
-              src={currentItem?.imageUrl || currentItem?.thumbUrl}
-              alt={currentItem?.title || channel.title}
-              channelNumber={channel.number}
-              channelTitle={channel.title}
-            />
-            </div>
-
-            <FauxRemoteControl onUp={prev} onDown={next} disabled={filteredItems.length < 2} />
-          </div>
+          <MediaStage
+            image={
+              <ChannelImageSignal
+                src={currentItem?.imageUrl || currentItem?.thumbUrl}
+                alt={currentItem?.title || channel.title}
+                channelNumber={channel.number}
+                channelTitle={channel.title}
+              />
+            }
+            volumeControl={
+              <FauxVolumeControl
+                stats={currentItem ? volumeStats[currentItem.id] : undefined}
+                disabled={!currentItem}
+                onUp={() => currentItem && onVote(currentItem.id, 1)}
+                onDown={() => currentItem && onVote(currentItem.id, -1)}
+              />
+            }
+            channelControl={<FauxRemoteControl onUp={prev} onDown={next} disabled={filteredItems.length < 2} />}
+          />
         </div>
 
-        <div className={`relative flex min-h-0 flex-col overflow-hidden border-b-4 border-[#8d99ae] p-5 md:p-6 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
+        <div className={`relative flex min-h-[360px] flex-col overflow-hidden border-b-4 border-[#8d99ae] p-4 sm:p-5 md:p-6 lg:min-h-0 lg:border-b-0 ${theme.copyPanel} ${theme.panelExtra}`}>
           <div className={`pointer-events-none absolute inset-x-0 top-0 h-3 ${theme.stripe}`} />
           <div className={`pointer-events-none absolute bottom-4 right-5 h-16 w-16 rotate-12 border-4 opacity-25 ${theme.shapeOne}`} />
           <div className={`pointer-events-none absolute right-12 top-10 h-9 w-9 rounded-full opacity-35 ${theme.shapeTwo}`} />
@@ -1463,6 +1466,29 @@ function ChannelImageSignal({
   );
 }
 
+function MediaStage({
+  image,
+  volumeControl,
+  channelControl,
+}: {
+  image: React.ReactNode;
+  volumeControl: React.ReactNode;
+  channelControl: React.ReactNode;
+}) {
+  return (
+    <div className="flex h-full max-h-full w-full max-w-full flex-col items-center justify-center gap-2 sm:max-w-[94vw] lg:flex-row lg:gap-3">
+      <div className="order-2 flex w-full max-w-[520px] items-center justify-between gap-3 px-2 lg:order-1 lg:w-16 lg:max-w-none lg:px-0">
+        {volumeControl}
+        <div className="lg:hidden">{channelControl}</div>
+      </div>
+      <div className="order-1 aspect-[4/3] w-full max-w-[min(72vh,680px)] overflow-hidden border-4 border-[#2b2d42] bg-black text-white shadow-inner sm:max-w-[520px] lg:order-2 lg:h-full lg:max-h-full lg:w-auto lg:max-w-[calc(100%-152px)]">
+        {image}
+      </div>
+      <div className="order-3 hidden lg:block">{channelControl}</div>
+    </div>
+  );
+}
+
 function FauxRemoteControl({
   onUp,
   onDown,
@@ -1473,11 +1499,11 @@ function FauxRemoteControl({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-3">
+    <div className="flex shrink-0 flex-row items-center justify-center gap-2 lg:w-16 lg:flex-col lg:gap-3">
       <button
         onClick={onUp}
         disabled={disabled}
-        className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-16 lg:w-14"
         title="Channel up"
       >
         ▲
@@ -1486,7 +1512,7 @@ function FauxRemoteControl({
       <button
         onClick={onDown}
         disabled={disabled}
-        className="flex h-16 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-16 lg:w-14"
         title="Channel down"
       >
         ▼
@@ -1509,11 +1535,11 @@ function FauxVolumeControl({
   const score = (stats?.volumeUp ?? 0) - (stats?.volumeDown ?? 0);
 
   return (
-    <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-2">
+    <div className="flex shrink-0 flex-row items-center justify-center gap-2 lg:w-16 lg:flex-col">
       <button
         onClick={onUp}
         disabled={disabled}
-        className="flex h-14 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-14 lg:w-14"
         title="Volume up"
       >
         +
@@ -1525,7 +1551,7 @@ function FauxVolumeControl({
       <button
         onClick={onDown}
         disabled={disabled}
-        className="flex h-14 w-14 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35"
+        className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-14 lg:w-14"
         title="Volume down"
       >
         -
@@ -1563,7 +1589,7 @@ function TvGuidePanel({
           <span className="text-right">Signal</span>
         </div>
 
-        <div className="relative h-[258px] overflow-hidden pt-2">
+        <div className="relative h-[234px] overflow-hidden pt-2 sm:h-[258px]">
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-gradient-to-b from-black/50 to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-gradient-to-t from-black/50 to-transparent" />
           <div
