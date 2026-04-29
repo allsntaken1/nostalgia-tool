@@ -783,15 +783,18 @@ function ChannelScreen({
   guideItems: string[];
   theme: EraTheme;
 }) {
-  const [activeTag, setActiveTag] = useState('All');
+  const [activeDecade, setActiveDecade] = useState('All');
   const [activeMainTag, setActiveMainTag] = useState('All');
+  const [activeTag, setActiveTag] = useState('All');
+  const [directoryLevel, setDirectoryLevel] = useState<'decade' | 'main' | 'deep'>('decade');
   const [localIndex, setLocalIndex] = useState(0);
 
   const nestedTagOptions = useMemo(() => {
     const counts = new Map<string, number>();
     items.forEach((item) => {
+      const matchesDecade = activeDecade === 'All' || item.decade === activeDecade;
       const matchesMain = activeMainTag === 'All' || item.subTags.includes(activeMainTag);
-      if (!matchesMain) return;
+      if (!matchesDecade || !matchesMain) return;
 
       item.extraTags.forEach((tag) => {
         const cleanTag = tag.trim();
@@ -803,30 +806,45 @@ function ChannelScreen({
     return Array.from(counts.entries())
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-  }, [activeMainTag, items]);
+  }, [activeDecade, activeMainTag, items]);
 
   const mainTagOptions = useMemo(
     () => [
-      { tag: 'All', count: items.length },
+      {
+        tag: 'All',
+        count: items.filter((item) => activeDecade === 'All' || item.decade === activeDecade).length,
+      },
       ...channel.subs.map((sub) => ({
         tag: sub,
-        count: items.filter((item) => item.subTags.includes(sub)).length,
+        count: items.filter((item) =>
+          (activeDecade === 'All' || item.decade === activeDecade) && item.subTags.includes(sub)
+        ).length,
       })),
     ],
-    [channel.subs, items]
+    [activeDecade, channel.subs, items]
+  );
+
+  const decadeOptions = useMemo(
+    () =>
+      ['80s', '90s', '2000s', 'All'].map((decade) => ({
+        tag: decade,
+        count: decade === 'All' ? items.length : items.filter((item) => item.decade === decade).length,
+      })),
+    [items]
   );
 
   const filteredItems = useMemo(() => {
-    if (activeMainTag === 'All' && activeTag === 'All') return items;
+    if (activeDecade === 'All' && activeMainTag === 'All' && activeTag === 'All') return items;
 
     return items.filter((item) =>
+      (activeDecade === 'All' || item.decade === activeDecade) &&
       (activeMainTag === 'All' || item.subTags.includes(activeMainTag)) &&
       (activeTag === 'All' ||
         [...item.extraTags, item.title].some((tag) =>
           tag.toLowerCase().includes(activeTag.toLowerCase())
         ))
     );
-  }, [activeMainTag, activeTag, items]);
+  }, [activeDecade, activeMainTag, activeTag, items]);
 
   const currentItem = filteredItems.length > 0 ? filteredItems[localIndex % filteredItems.length] : undefined;
 
@@ -897,76 +915,140 @@ function ChannelScreen({
                 <h1 className={`mt-3 text-3xl font-black md:text-4xl ${theme.titleClass}`}>{channel.title}</h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-[#2b2d42]">{channel.description}</p>
               </div>
-            <button
+              <button
                 onClick={random}
                 disabled={filteredItems.length < 2}
                 className={`flex h-10 items-center gap-2 border-4 border-black px-4 text-xs font-black disabled:opacity-45 ${theme.secondaryButton}`}
-              title="Random memory"
-            >
-              <Shuffle size={15} />
-              RANDOM
-            </button>
+                title="Random memory"
+              >
+                <Shuffle size={15} />
+                RANDOM
+              </button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-hidden border-4 border-[#8d99ae] bg-white p-3">
-              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">Main Categories</div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {mainTagOptions.map((option) => (
+            <div className="mb-3 flex flex-wrap gap-2 border-2 border-[#8d99ae] bg-white px-3 py-2 text-xs font-black text-[#2b2d42]">
+              <button
+                onClick={() => {
+                  setDirectoryLevel('decade');
+                  setActiveDecade('All');
+                  setActiveMainTag('All');
+                  setActiveTag('All');
+                  setLocalIndex(0);
+                }}
+                className="hover:underline"
+              >
+                {channel.title}
+              </button>
+              <span>/</span>
+              <button
+                onClick={() => {
+                  setDirectoryLevel('decade');
+                  setActiveMainTag('All');
+                  setActiveTag('All');
+                  setLocalIndex(0);
+                }}
+                className="hover:underline"
+              >
+                {activeDecade}
+              </button>
+              {directoryLevel !== 'decade' ? (
+                <>
+                  <span>/</span>
                   <button
-                    key={option.tag}
                     onClick={() => {
-                      setActiveMainTag(option.tag);
+                      setDirectoryLevel('main');
                       setActiveTag('All');
                       setLocalIndex(0);
                     }}
-                    className={`flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black ${
-                      activeMainTag === option.tag
-                        ? 'border-black bg-black text-white'
-                        : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
-                    }`}
+                    className="hover:underline"
                   >
-                    <span className="min-w-0 truncate">{option.tag}</span>
-                    <span className={`shrink-0 ${activeMainTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
-                      {option.count}
-                    </span>
+                    {activeMainTag}
                   </button>
-                ))}
+                </>
+              ) : null}
+              {directoryLevel === 'deep' && activeTag !== 'All' ? (
+                <>
+                  <span>/</span>
+                  <button className="hover:underline">{activeTag}</button>
+                </>
+              ) : null}
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-hidden border-4 border-[#8d99ae] bg-white p-3">
+              <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">
+                {directoryLevel === 'decade'
+                  ? 'Choose Decade'
+                  : directoryLevel === 'main'
+                    ? 'Choose Category'
+                    : activeMainTag === 'All'
+                      ? 'Choose Matching Tag'
+                      : `${activeMainTag} Tags`}
               </div>
 
-              <div className="mt-4 border-t-2 border-[#8d99ae] pt-3">
-                <div className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">
-                  {activeMainTag === 'All' ? 'Matching Tags' : `${activeMainTag} Tags`}
+              {directoryLevel === 'decade' ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {decadeOptions.map((option) => (
+                    <DirectoryButton
+                      key={option.tag}
+                      label={option.tag}
+                      count={option.count}
+                      active={activeDecade === option.tag}
+                      onClick={() => {
+                        setActiveDecade(option.tag);
+                        setActiveMainTag('All');
+                        setActiveTag('All');
+                        setDirectoryLevel('main');
+                        setLocalIndex(0);
+                      }}
+                    />
+                  ))}
                 </div>
-                <div className="min-h-20">
+              ) : null}
+
+              {directoryLevel === 'main' ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {mainTagOptions.map((option) => (
+                    <DirectoryButton
+                      key={option.tag}
+                      label={option.tag}
+                      count={option.count}
+                      active={activeMainTag === option.tag}
+                      onClick={() => {
+                        setActiveMainTag(option.tag);
+                        setActiveTag('All');
+                        setDirectoryLevel('deep');
+                        setLocalIndex(0);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : null}
+
+              {directoryLevel === 'deep' ? (
+                <div>
                   {nestedTagOptions.length === 0 ? (
                     <div className="border-2 border-dashed border-[#8d99ae] bg-[#edf2f4] p-3 text-xs font-bold text-[#6c757d]">
                       No deeper tags yet for this category.
                     </div>
                   ) : (
-                    <div className="grid max-h-36 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                    <div className="grid max-h-full gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                       {nestedTagOptions.map((option) => (
-                        <button
+                        <DirectoryButton
                           key={option.tag}
+                          label={option.tag}
+                          count={option.count}
+                          active={activeTag === option.tag}
                           onClick={() => {
                             setActiveTag(option.tag);
                             setLocalIndex(0);
                           }}
-                          className={`flex min-h-9 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black transition ${
-                            activeTag === option.tag
-                              ? 'border-black bg-[#3a0ca3] text-white'
-                              : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
-                          }`}
-                        >
-                          <span className="min-w-0 truncate">{option.tag}</span>
-                          <span className={`shrink-0 ${activeTag === option.tag ? 'text-white/75' : 'text-[#6c757d]'}`}>
-                            {option.count}
-                          </span>
-                        </button>
+                          variant="purple"
+                        />
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -979,6 +1061,34 @@ function ChannelScreen({
         theme={theme}
       />
     </div>
+  );
+}
+
+function DirectoryButton({
+  label,
+  count,
+  active,
+  onClick,
+  variant = 'black',
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+  variant?: 'black' | 'purple';
+}) {
+  const activeClass = variant === 'purple' ? 'border-black bg-[#3a0ca3] text-white' : 'border-black bg-black text-white';
+
+  return (
+    <button
+      onClick={onClick}
+      className={`flex min-h-10 items-center justify-between gap-3 border-2 px-3 py-2 text-left text-xs font-black ${
+        active ? activeClass : 'border-[#8d99ae] bg-[#edf2f4] text-[#2b2d42] hover:border-black hover:bg-white'
+      }`}
+    >
+      <span className="min-w-0 truncate">{label}</span>
+      <span className={`shrink-0 ${active ? 'text-white/75' : 'text-[#6c757d]'}`}>{count}</span>
+    </button>
   );
 }
 
