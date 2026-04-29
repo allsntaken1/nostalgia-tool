@@ -38,6 +38,8 @@ type Channel = {
   subs: string[];
 };
 
+type TagNavLevel = 'decade' | 'channel' | 'main' | 'deep';
+
 const DECADE_OPTIONS = ['80s', '90s', '2000s', 'Not Sure'];
 
 const FAST_FOOD_PRESETS = [
@@ -256,6 +258,105 @@ const CATEGORY_TREE = {
   ],
 } as Record<string, string[]>;
 
+const CHANNEL_DEEP_TAG_PRESETS: Record<string, Record<string, string[]>> = {
+  STORES: {
+    'Big Box': ['Walmart', 'Kmart', 'Target', 'Ames', 'Hills', 'Service Merchandise', 'Woolworth'],
+    'Toy Stores': ['Toys R Us', 'KB Toys', 'Kay-Bee Toys'],
+    Electronics: ['Circuit City', 'RadioShack', 'Best Buy', 'CompUSA'],
+    Grocery: ['ShopRite', 'Kroger', 'Publix', 'Winn-Dixie', 'Pathmark', 'A&P', 'Albertsons', 'Safeway'],
+    Department: ['Sears', 'JCPenney', "Macy's", 'Montgomery Ward'],
+    'Video Stores': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery'],
+  },
+  MALLS: {
+    'Mall Interiors': ['Fountains', 'Escalators', 'Skylights', 'Directories', 'Seating Areas'],
+    'Food Courts': MALL_FOOD_COURT_PRESETS,
+    'Anchor Stores': ['Sears', 'JCPenney', "Macy's", "Dillard's", 'Nordstrom'],
+    'Specialty Shops': ['Sam Goody', 'KB Toys', 'Waldenbooks', 'Suncoast', 'Spencer Gifts'],
+    Kiosks: ['Calendar Kiosks', 'Phone Cases', 'Perfume Carts', 'Pretzel Stands'],
+    'Mall Events': ['Santa Display', 'Easter Bunny', 'Car Giveaways', 'Center Court Events'],
+  },
+  RESTAURANTS: {
+    'Fast Food': FAST_FOOD_PRESETS,
+    'Pizza Places': ["Domino's Pizza", 'Little Caesars', "Papa John's", 'Pizza Hut', 'Sbarro'],
+    'Casual Dining': CASUAL_RESTAURANT_PRESETS,
+    'Play Places': ["McDonald's PlayPlace", 'Burger King Kids Club', 'Chuck E. Cheese'],
+    Buffets: ['Golden Corral', 'Ponderosa Steakhouse', 'Bonanza Steakhouse', "Shoney's", 'Sizzler'],
+    'Drive-Thru': ["McDonald's", 'Burger King', "Wendy's", 'Taco Bell', 'Sonic Drive-In', "Arby's"],
+  },
+  'THEME PARKS': {
+    Rides: ['Dark Rides', 'Roller Coasters', 'Water Rides', 'Flat Rides'],
+    'Park Areas': ['Main Street', 'Midways', 'Kiddie Areas', 'Water Parks'],
+    Resorts: ['Hotel Lobbies', 'Pools', 'Arcades', 'Food Courts'],
+    'Food & Dining': ['Counter Service', 'Character Dining', 'Snack Stands', 'Food Courts'],
+    Queues: ['Switchbacks', 'Pre-Shows', 'Ride Signage', 'Loading Stations'],
+    'Maps & Signage': ['Park Maps', 'Directional Signs', 'Entrance Signs', 'Menu Boards'],
+  },
+  'HOME LIFE': {
+    'Living Rooms': ['TV Stands', 'VHS Shelves', 'Sectional Sofas', 'Carpeted Rooms'],
+    Bedrooms: ['Posters', 'Toy Shelves', 'Computer Desks', 'Bunk Beds'],
+    Kitchens: ['Wallpaper Kitchens', 'Breakfast Nooks', 'Formica Counters', 'Appliances'],
+    Basements: ['Rec Rooms', 'Wood Paneling', 'Game Tables', 'Carpeted Stairs'],
+    'Game Rooms': ['Console Setups', 'Board Games', 'Arcade Cabinets', 'Bean Bags'],
+    'Home Computers': ['Computer Desks', 'CRT Monitors', 'Dial-Up Setups', 'Printer Stations'],
+  },
+  SCHOOLS: {
+    Classrooms: ['Chalkboards', 'Overhead Projectors', 'Desks', 'Bulletin Boards'],
+    Cafeterias: ['Lunch Lines', 'Milk Cartons', 'Tray Returns', 'Fold-Out Tables'],
+    Hallways: ['Lockers', 'Trophy Cases', 'Water Fountains', 'Posters'],
+    Playgrounds: ['Slides', 'Swings', 'Monkey Bars', 'Blacktop Games'],
+    Libraries: ['Card Catalogs', 'Book Fairs', 'Reading Corners', 'Computer Stations'],
+    'School Events': ['Science Fairs', 'Pep Rallies', 'Auditoriums', 'Field Days'],
+  },
+  'ARCADES & GAMING': {
+    Arcades: ['Fighting Cabinets', 'Racing Cabinets', 'Light Gun Games', 'Pinball Rows'],
+    'Store Kiosks': ['Demo Stations', 'Nintendo Kiosks', 'PlayStation Kiosks', 'GameCube Kiosks'],
+    'LAN Setups': ['PC Rooms', 'CRT Monitors', 'Network Parties', 'Internet Cafes'],
+    'Console Rooms': ['TV Carts', 'Bean Bags', 'Console Shelves', 'Controller Piles'],
+    'Prize Areas': ['Ticket Counters', 'Prize Walls', 'Token Machines', 'Redemption Games'],
+    'Game Corners': ['Basement Setups', 'Bedroom Setups', 'Store Corners', 'Arcade Corners'],
+  },
+  'MOVIES & ENTERTAINMENT': {
+    'Movie Theaters': ['Cinema Lobbies', 'Ticket Booths', 'Poster Halls', 'Auditoriums'],
+    'Drive-Ins': ['Concession Stands', 'Car Rows', 'Speaker Posts', 'Screens'],
+    'Video Rentals': ['Blockbuster Video', 'Hollywood Video', 'Movie Gallery', 'VHS Shelves'],
+    'Home Media': ['VHS Collections', 'DVD Walls', 'Entertainment Centers', 'Rental Cases'],
+    Concessions: ['Popcorn Counters', 'Soda Machines', 'Candy Displays', 'Menu Boards'],
+    'Lobby Spaces': ['Arcade Corners', 'Carpeted Lobbies', 'Neon Signs', 'Standee Displays'],
+  },
+  'TRAVEL & VACATION': {
+    Airports: ['Terminals', 'Gate Areas', 'Baggage Claim', 'Ticket Counters'],
+    Airplanes: ['Cabins', 'Tray Tables', 'Overhead Bins', 'Window Views'],
+    Hotels: ['Lobbies', 'Rooms', 'Pools', 'Breakfast Areas'],
+    Motels: ['Roadside Signs', 'Rooms', 'Parking Lots', 'Ice Machines'],
+    'Roadside Stops': ['Rest Areas', 'Gas Stations', 'Diners', 'Souvenir Shops'],
+    'Travel Interiors': ['Rental Counters', 'Luggage Carts', 'Shuttle Buses', 'Waiting Areas'],
+  },
+  OUTDOORS: {
+    Parks: ['Picnic Shelters', 'Basketball Courts', 'Tennis Courts', 'Walking Paths'],
+    Neighborhoods: ['Cul-de-sacs', 'Driveways', 'Sidewalks', 'Front Yards'],
+    Pools: ['Public Pools', 'Hotel Pools', 'Diving Boards', 'Snack Bars'],
+    Playgrounds: ['Slides', 'Swings', 'Monkey Bars', 'Wooden Playsets'],
+    Campgrounds: ['Cabins', 'Camp Stores', 'Fire Pits', 'Picnic Tables'],
+    'Skate Parks': ['Ramps', 'Rails', 'Half Pipes', 'Concrete Parks'],
+  },
+  'CARS & ROAD LIFE': {
+    'Car Interiors': ['Back Seats', 'Dashboards', 'Cup Holders', 'Cassette Decks'],
+    'Road Trips': ['Highways', 'Rest Stops', 'Maps', 'Backseat Views'],
+    'Parking Lots': ['Mall Lots', 'Store Lots', 'Drive-Ins', 'Car Meets'],
+    Dealerships: ['Showrooms', 'Lots', 'Service Bays', 'Sales Offices'],
+    'Dashboard Views': ['Analog Gauges', 'Tape Decks', 'Steering Wheels', 'Air Vents'],
+    'Car Culture': ['Car Shows', 'Cruise Nights', 'Drive-Thrus', 'Gas Pumps'],
+  },
+  'EVERYDAY SPACES': {
+    'Waiting Rooms': ['Doctor Offices', 'Dentist Offices', 'Chairs', 'Magazine Tables'],
+    'Doctor Offices': ['Exam Rooms', 'Reception Desks', 'Waiting Areas', 'Posters'],
+    Laundromats: ['Washers', 'Dryers', 'Folding Tables', 'Vending Machines'],
+    Bathrooms: ['Tile Walls', 'Sinks', 'Hand Dryers', 'Stalls'],
+    'Government Buildings': ['DMV', 'Post Offices', 'Courthouses', 'Waiting Lines'],
+    'Misc. Spaces': ['Banks', 'Hair Salons', 'Church Halls', 'Community Centers'],
+  },
+};
+
 function normalizeTagInput(value: string) {
   return value
     .split(',')
@@ -347,9 +448,13 @@ export default function AdminToolPage() {
   const [selectedCategory, setSelectedCategory] = useState(channelData[1].category);
   const [selectedSubTags, setSelectedSubTags] = useState<string[]>([]);
   const [extraTagInput, setExtraTagInput] = useState('');
+  const [presetDecade, setPresetDecade] = useState('');
   const [presetCategory, setPresetCategory] = useState(channelData[1].category);
   const [presetSubTags, setPresetSubTags] = useState<string[]>([]);
-  const [tagFilter, setTagFilter] = useState('');
+  const [tagNavLevel, setTagNavLevel] = useState<TagNavLevel>('decade');
+  const [tagNavDecade, setTagNavDecade] = useState('');
+  const [tagNavChannelId, setTagNavChannelId] = useState(channelData[1].id);
+  const [tagNavMainTag, setTagNavMainTag] = useState('');
 
   const expectedAdminPasscode = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'nostalgia';
   const selectedChannel = channelData.find((channel) => channel.id === selectedChannelId) ?? channelData[1];
@@ -372,35 +477,6 @@ export default function AdminToolPage() {
     () => results.filter((item) => !isAlreadyArchived(item, archivedImageKeys)),
     [archivedImageKeys, results]
   );
-  const tagLibrary = useMemo(() => {
-    const counts = new Map<string, number>();
-    const register = (tag: string, count = 0) => {
-      const cleanTag = tag.trim();
-      if (!cleanTag) return;
-      counts.set(cleanTag, Math.max(counts.get(cleanTag) ?? 0, count));
-    };
-
-    Object.values(CATEGORY_TREE).flat().forEach((tag) => register(tag));
-    channelData.forEach((channel) => {
-      register(channel.title);
-      register(channel.category);
-    });
-    savedItems.forEach((item) => {
-      [item.category, item.decade, ...item.subTags, ...item.extraTags].forEach((tag) => {
-        const cleanTag = tag.trim();
-        if (!cleanTag) return;
-        counts.set(cleanTag, (counts.get(cleanTag) ?? 0) + 1);
-      });
-    });
-
-    const needle = tagFilter.trim().toLowerCase();
-
-    return Array.from(counts.entries())
-      .map(([tag, count]) => ({ tag, count }))
-      .filter((entry) => !needle || entry.tag.toLowerCase().includes(needle))
-      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-  }, [savedItems, tagFilter]);
-
   useEffect(() => {
     const storedSecret = sessionStorage.getItem('nostalgia-admin-secret') || '';
     if (sessionStorage.getItem('nostalgia-admin-unlocked') === 'true' && storedSecret) {
@@ -442,6 +518,8 @@ export default function AdminToolPage() {
   const chooseChannel = (channelId: string) => {
     const channel = channelData.find((item) => item.id === channelId) ?? channelData[1];
     setSelectedChannelId(channel.id);
+    setTagNavChannelId(channel.id);
+    setTagNavMainTag('');
     setQuery(channel.query);
     setSelectedCategory(channel.category);
     setSelectedSubTags([]);
@@ -451,30 +529,27 @@ export default function AdminToolPage() {
     setNotice('');
   };
 
-  const applyPreset = (name: string, group: 'fast-food' | 'restaurant' | 'mall-food-court') => {
-    const presetConfig = {
-      'fast-food': {
-        category: 'RESTAURANTS',
-        tags: ['Fast Food', name],
-        queryContext: 'fast food restaurant interior',
-      },
-      restaurant: {
-        category: 'RESTAURANTS',
-        tags: ['Casual Dining', name],
-        queryContext: 'restaurant interior dining room',
-      },
-      'mall-food-court': {
-        category: 'MALLS',
-        tags: ['Food Courts', name],
-        queryContext: 'mall food court storefront',
-      },
-    }[group];
+  const applyNavigatorSelection = ({
+    decade = tagNavDecade,
+    channelId = tagNavChannelId,
+    mainTag = tagNavMainTag,
+    deepTag = '',
+  }: {
+    decade?: string;
+    channelId?: string;
+    mainTag?: string;
+    deepTag?: string;
+  }) => {
+    const channel = channelData.find((item) => item.id === channelId) ?? selectedChannel;
+    const terms = [decade && decade !== 'Not Sure' ? decade : '', channel.title, mainTag, deepTag].filter(Boolean);
 
-    setQuery(`90s ${name} ${presetConfig.queryContext}`);
-    setSelectedCategory(presetConfig.category);
-    setSelectedSubTags(presetConfig.tags);
-    setPresetCategory(presetConfig.category);
-    setPresetSubTags(presetConfig.tags);
+    setSelectedChannelId(channel.id);
+    setSelectedCategory(channel.category);
+    setPresetDecade(decade);
+    setPresetCategory(channel.category);
+    setSelectedSubTags([mainTag, deepTag].filter(Boolean));
+    setPresetSubTags([mainTag, deepTag].filter(Boolean));
+    setQuery((currentQuery) => terms.reduce((nextQuery, term) => addSearchTerm(nextQuery, term), currentQuery));
   };
 
   const runSearch = async () => {
@@ -504,7 +579,7 @@ export default function AdminToolPage() {
 
   const openSaveModal = (item: SearchResult) => {
     setActiveImage(item);
-    setSelectedDecade('');
+    setSelectedDecade(presetDecade);
     setSelectedCategory(presetCategory || selectedChannel.category);
     setSelectedSubTags(presetSubTags);
     setExtraTagInput('');
@@ -676,72 +751,35 @@ export default function AdminToolPage() {
             {error ? <div className="mt-4 border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
             {notice ? <div className="mt-4 border-2 border-[#7bdff2] bg-[#e8fbff] p-3 text-sm font-bold text-[#1b2a52]">{notice}</div> : null}
 
-            <div className="mt-5 border-2 border-[#8d99ae] bg-white p-3">
-              <div className="text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Current Channel</div>
-              <div className="mt-2 text-2xl font-black text-[#2b2d42]">{selectedChannel.title}</div>
-              <div className="mt-2 text-sm font-bold text-[#495057]">{channelSavedCount} saved memories</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedChannel.subs.map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setQuery(`${selectedChannel.query} ${sub}`)}
-                    className="border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-1 text-xs font-black text-[#2b2d42] hover:border-black"
-                  >
-                    {sub}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <AdminTagNavigator
+              channelData={channelData}
+              savedItems={savedItems}
+              selectedChannel={selectedChannel}
+              selectedDecade={tagNavDecade}
+              selectedChannelId={tagNavChannelId}
+              selectedMainTag={tagNavMainTag}
+              level={tagNavLevel}
+              channelSavedCount={channelSavedCount}
+              onLevel={setTagNavLevel}
+              onDecade={(decade) => {
+                setTagNavDecade(decade);
+                setTagNavLevel('channel');
+                applyNavigatorSelection({ decade });
+              }}
+              onChannel={(channelId) => {
+                setTagNavChannelId(channelId);
+                setTagNavMainTag('');
+                setTagNavLevel('main');
+                applyNavigatorSelection({ channelId, mainTag: '', deepTag: '' });
+              }}
+              onMainTag={(tag) => {
+                setTagNavMainTag(tag);
+                setTagNavLevel('deep');
+                applyNavigatorSelection({ mainTag: tag, deepTag: '' });
+              }}
+              onDeepTag={(tag) => applyNavigatorSelection({ mainTag: tagNavMainTag, deepTag: tag })}
+            />
 
-            <div className="mt-5 border-2 border-[#8d99ae] bg-white p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Tag Library</div>
-                <div className="text-[11px] font-black text-[#6c757d]">{tagLibrary.length} tags</div>
-              </div>
-              <input
-                value={tagFilter}
-                onChange={(event) => setTagFilter(event.target.value)}
-                className="mt-3 h-10 w-full border-2 border-[#8d99ae] bg-[#edf2f4] px-3 text-xs font-bold outline-none focus:border-black"
-                placeholder="filter tags..."
-              />
-              <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
-                {tagLibrary.map((entry) => (
-                  <button
-                    key={entry.tag}
-                    onClick={() => setQuery((currentQuery) => addSearchTerm(currentQuery, entry.tag))}
-                    className="flex min-h-9 w-full items-center justify-between gap-3 border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-1 text-left text-xs font-black text-[#2b2d42] hover:border-black hover:bg-white"
-                  >
-                    <span>{entry.tag}</span>
-                    <span className="shrink-0 text-[10px] text-[#6c757d]">{entry.count > 0 ? entry.count : 'preset'}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {selectedChannel.id === 'restaurants' ? (
-              <div className="mt-5 space-y-4">
-                <PresetGroup
-                  title="Fast Food"
-                  items={FAST_FOOD_PRESETS}
-                  onPick={(name) => applyPreset(name, 'fast-food')}
-                />
-                <PresetGroup
-                  title="Restaurants"
-                  items={CASUAL_RESTAURANT_PRESETS}
-                  onPick={(name) => applyPreset(name, 'restaurant')}
-                />
-              </div>
-            ) : null}
-
-            {selectedChannel.id === 'malls' ? (
-              <div className="mt-5">
-                <PresetGroup
-                  title="Mall Food Court"
-                  items={MALL_FOOD_COURT_PRESETS}
-                  onPick={(name) => applyPreset(name, 'mall-food-court')}
-                />
-              </div>
-            ) : null}
           </aside>
 
           <section className="bg-[#dfe8f6] p-4">
@@ -948,28 +986,164 @@ function SaveModal({
   );
 }
 
-function PresetGroup({
-  title,
-  items,
-  onPick,
+function AdminTagNavigator({
+  channelData,
+  savedItems,
+  selectedChannel,
+  selectedDecade,
+  selectedChannelId,
+  selectedMainTag,
+  level,
+  channelSavedCount,
+  onLevel,
+  onDecade,
+  onChannel,
+  onMainTag,
+  onDeepTag,
 }: {
-  title: string;
-  items: string[];
-  onPick: (name: string) => void;
+  channelData: Channel[];
+  savedItems: SavedItem[];
+  selectedChannel: Channel;
+  selectedDecade: string;
+  selectedChannelId: string;
+  selectedMainTag: string;
+  level: TagNavLevel;
+  channelSavedCount: number;
+  onLevel: (level: TagNavLevel) => void;
+  onDecade: (decade: string) => void;
+  onChannel: (channelId: string) => void;
+  onMainTag: (tag: string) => void;
+  onDeepTag: (tag: string) => void;
 }) {
+  const navChannel = channelData.find((channel) => channel.id === selectedChannelId) ?? selectedChannel;
+  const deepTags = CHANNEL_DEEP_TAG_PRESETS[navChannel.category]?.[selectedMainTag] ?? [];
+
+  const countFor = (match: (item: SavedItem) => boolean) => savedItems.filter(match).length;
+  const decadeOptions = DECADE_OPTIONS.map((decade) => ({
+    label: decade,
+    count: countFor((item) => item.decade === decade),
+  }));
+  const channelOptions = channelData.map((channel) => ({
+    label: channel.title,
+    id: channel.id,
+    count: countFor((item) => item.category === channel.category),
+  }));
+  const mainOptions = navChannel.subs.map((tag) => ({
+    label: tag,
+    count: countFor((item) => item.category === navChannel.category && item.subTags.includes(tag)),
+  }));
+  const deepOptions = deepTags.map((tag) => ({
+    label: tag,
+    count: countFor(
+      (item) =>
+        item.category === navChannel.category &&
+        (item.subTags.includes(tag) || item.extraTags.includes(tag) || item.title.toLowerCase().includes(tag.toLowerCase()))
+    ),
+  }));
+
+  const canGoBack = level !== 'decade';
+  const goBack = () => {
+    if (level === 'deep') onLevel('main');
+    if (level === 'main') onLevel('channel');
+    if (level === 'channel') onLevel('decade');
+  };
+
+  const visibleOptions =
+    level === 'decade'
+      ? decadeOptions
+      : level === 'channel'
+        ? channelOptions
+        : level === 'main'
+          ? mainOptions
+          : deepOptions;
+  const heading =
+    level === 'decade'
+      ? 'Choose Decade'
+      : level === 'channel'
+        ? 'Choose Channel'
+        : level === 'main'
+          ? 'Choose Category'
+          : selectedMainTag
+            ? `${selectedMainTag} Tags`
+            : 'Choose Tag';
+
   return (
-    <section className="border-2 border-[#8d99ae] bg-white p-3">
-      <div className="mb-3 text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">{title}</div>
-      <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-        {items.map((item) => (
-          <button
-            key={item}
-            onClick={() => onPick(item)}
-            className="min-h-9 w-full border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-1 text-left text-xs font-black text-[#2b2d42] hover:border-black hover:bg-white"
-          >
-            {item}
-          </button>
-        ))}
+    <section className="mt-5 border-2 border-[#8d99ae] bg-white p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">Search Tag Navigator</div>
+          <div className="mt-1 text-[11px] font-black text-[#6c757d]">{selectedChannel.title}: {channelSavedCount} saved</div>
+        </div>
+        <button
+          onClick={goBack}
+          disabled={!canGoBack}
+          className="h-8 border-2 border-[#2b2d42] bg-[#edf2f4] px-3 text-[11px] font-black text-[#2b2d42] shadow-[2px_2px_0_#8d99ae] hover:border-black hover:bg-white disabled:opacity-35"
+        >
+          BACK
+        </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5 border-2 border-[#8d99ae] bg-[#edf2f4] px-2 py-2 text-[11px] font-black text-[#2b2d42]">
+        <button onClick={() => onLevel('decade')} className="hover:underline">
+          {selectedDecade || 'Decade'}
+        </button>
+        <span>/</span>
+        <button onClick={() => onLevel('channel')} className="hover:underline">
+          {navChannel.title}
+        </button>
+        {selectedMainTag ? (
+          <>
+            <span>/</span>
+            <button onClick={() => onLevel('main')} className="hover:underline">
+              {selectedMainTag}
+            </button>
+          </>
+        ) : null}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="text-xs font-black uppercase tracking-[0.12em] text-[#3a0ca3]">{heading}</div>
+        <div className="text-[11px] font-black text-[#6c757d]">{visibleOptions.length} options</div>
+      </div>
+
+      <div className="mt-3 grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1">
+        {visibleOptions.length > 0 ? (
+          visibleOptions.map((option) => {
+            const optionId = 'id' in option && typeof option.id === 'string' ? option.id : '';
+            const optionKey = optionId || option.label;
+            const optionActive =
+              (level === 'decade' && option.label === selectedDecade) ||
+              (level === 'channel' && optionId === selectedChannelId) ||
+              (level === 'main' && option.label === selectedMainTag);
+            const onClick =
+              level === 'decade'
+                ? () => onDecade(option.label)
+                : level === 'channel' && optionId
+                  ? () => onChannel(optionId)
+                  : level === 'main'
+                    ? () => onMainTag(option.label)
+                    : () => onDeepTag(option.label);
+
+            return (
+              <button
+                key={optionKey}
+                onClick={onClick}
+                className={`tag-button-90s flex min-h-10 items-center justify-between gap-2 border-2 px-2 py-2 text-left text-[11px] font-black transition hover:-translate-y-[1px] ${
+                  optionActive
+                    ? 'border-black bg-[#ffd166] text-black shadow-[3px_3px_0_#3a0ca3]'
+                    : 'border-[#2b2d42] bg-[#f8f9fa] text-[#2b2d42] shadow-[2px_2px_0_#8d99ae] hover:border-black hover:bg-white'
+                }`}
+              >
+                <span className="min-w-0 truncate">{option.label}</span>
+                <span className="shrink-0 text-[#6c757d]">{option.count}</span>
+              </button>
+            );
+          })
+        ) : (
+          <div className="col-span-2 border-2 border-dashed border-[#8d99ae] bg-[#edf2f4] p-3 text-xs font-bold text-[#495057]">
+            No deeper tags yet. Use this category as-is.
+          </div>
+        )}
       </div>
     </section>
   );
