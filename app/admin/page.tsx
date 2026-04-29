@@ -650,7 +650,7 @@ export default function AdminToolPage() {
       <main className="flex min-h-screen items-center justify-center bg-[#101426] p-4 font-mono text-black">
         <section className="w-full max-w-md border-4 border-white bg-[#f8f9fa] shadow-[8px_8px_0_rgba(0,0,0,0.45)]">
           <div className="bg-gradient-to-r from-[#ff4d6d] via-[#ffbe0b] to-[#7bdff2] px-3 py-2 font-bold">
-            Nostalgia.exe Admin
+            The Repeat Channel Admin
           </div>
           <div className="p-5">
             <div className="mb-4 flex h-14 w-14 items-center justify-center border-4 border-[#8d99ae] bg-[#1b2a52] text-white">
@@ -689,7 +689,7 @@ export default function AdminToolPage() {
       <div className="mx-auto max-w-7xl border-4 border-white bg-[#f8f9fa] shadow-[8px_8px_0_rgba(0,0,0,0.45)]">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b-4 border-[#8d99ae] bg-gradient-to-r from-[#ff4d6d] via-[#ffbe0b] to-[#7bdff2] px-3 py-2 font-bold">
           <div>
-            <div>Nostalgia.exe Admin</div>
+            <div>The Repeat Channel Admin</div>
             <div className="text-xs font-black uppercase tracking-[0.12em] text-black/65">Sourcing Tool</div>
           </div>
           <div className="flex flex-wrap gap-2">

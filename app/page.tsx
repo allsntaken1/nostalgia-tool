@@ -841,8 +841,18 @@ function Header({
 }) {
   return (
     <div className={`flex min-h-10 flex-wrap items-center justify-between gap-2 border-b-2 border-white px-3 py-1.5 font-bold text-black ${theme.header}`}>
-      <span>Nostalgia.exe</span>
+      <span>The Repeat Channel</span>
       <div className="flex items-center gap-2 text-sm">
+        <a
+          href="https://www.instagram.com/the90srepeat/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-8 min-w-10 items-center justify-center border-2 border-black/35 bg-white/85 px-2 text-xs font-black text-black shadow-[2px_2px_0_rgba(0,0,0,0.45)] transition hover:-translate-y-[1px] hover:border-black"
+          title="Instagram"
+          aria-label="Instagram"
+        >
+          IG
+        </a>
         <div className="flex items-center gap-1.5" aria-label="Era theme">
           {(['80s', '90s', '2000s'] as Era[]).map((option) => (
             <button

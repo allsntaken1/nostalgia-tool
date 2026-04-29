@@ -184,7 +184,7 @@ export default function SubmitMemoryPage() {
       <div className="mx-auto max-w-7xl overflow-hidden border-4 border-white bg-[#fff8e8] shadow-[8px_8px_0_rgba(0,0,0,0.48)]">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b-4 border-[#8d99ae] bg-gradient-to-r from-[#ff4d6d] via-[#ffbe0b] to-[#7bdff2] px-3 py-2 font-bold">
           <div>
-            <div>Nostalgia.exe</div>
+            <div>The Repeat Channel</div>
             <div className="text-xs font-black uppercase tracking-[0.12em] text-black/65">Community Upload</div>
           </div>
           <Link
