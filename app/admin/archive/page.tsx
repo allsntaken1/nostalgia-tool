@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ExternalLink, LockKeyhole, Search, Sparkles, Trash2, Wrench, X } from 'lucide-react';
+import { Check, Edit3, ExternalLink, LockKeyhole, Search, Sparkles, Trash2, Wrench, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -152,6 +152,8 @@ export default function AdminArchivePage() {
   const [autoTagSuggestion, setAutoTagSuggestion] = useState<AutoTagSuggestion | null>(null);
   const [autoTagLoading, setAutoTagLoading] = useState(false);
   const [autoTagError, setAutoTagError] = useState('');
+  const [editItem, setEditItem] = useState<SavedItem | null>(null);
+  const [editError, setEditError] = useState('');
 
   const expectedAdminPasscode = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'nostalgia';
 
@@ -316,6 +318,28 @@ export default function AdminArchivePage() {
     setItems((archiveItems) => archiveItems.map((item) => (item.id === updated.id ? updated : item)));
     setAutoTagItem(null);
     setAutoTagSuggestion(null);
+  };
+
+  const saveArchiveEdits = async (updates: Pick<SavedItem, 'id' | 'decade' | 'category' | 'subTags' | 'extraTags'>) => {
+    setEditError('');
+    const response = await fetch('/api/archive', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-secret': adminSecret,
+      },
+      body: JSON.stringify(updates),
+    });
+    const data = await readResponseJson(response);
+
+    if (!response.ok) {
+      setEditError(data?.error || 'Could not save tag edits.');
+      return;
+    }
+
+    const updated = normalizeSavedItem(data);
+    setItems((archiveItems) => archiveItems.map((item) => (item.id === updated.id ? updated : item)));
+    setEditItem(null);
   };
 
   const approveSubmission = async (id: string) => {
@@ -568,6 +592,16 @@ export default function AdminArchivePage() {
                         </a>
                       ) : null}
                       <button
+                        onClick={() => {
+                          setEditItem(item);
+                          setEditError('');
+                        }}
+                        className="flex h-10 flex-1 items-center justify-center gap-2 border-2 border-[#8d99ae] bg-white px-3 text-xs font-black text-black hover:border-black"
+                      >
+                        <Edit3 size={15} />
+                        EDIT
+                      </button>
+                      <button
                         onClick={() => runAutoTag(item)}
                         className="flex h-10 flex-1 items-center justify-center gap-2 border-2 border-[#8d99ae] bg-white px-3 text-xs font-black text-black hover:border-black"
                       >
@@ -606,7 +640,112 @@ export default function AdminArchivePage() {
           onAccept={acceptAutoTag}
         />
       ) : null}
+
+      {editItem ? (
+        <EditTagsModal
+          item={editItem}
+          error={editError}
+          onClose={() => {
+            setEditItem(null);
+            setEditError('');
+          }}
+          onSave={saveArchiveEdits}
+        />
+      ) : null}
     </main>
+  );
+}
+
+function EditTagsModal({
+  item,
+  error,
+  onClose,
+  onSave,
+}: {
+  item: SavedItem;
+  error: string;
+  onClose: () => void;
+  onSave: (updates: Pick<SavedItem, 'id' | 'decade' | 'category' | 'subTags' | 'extraTags'>) => void;
+}) {
+  const [decade, setDecade] = useState(item.decade);
+  const [category, setCategory] = useState(item.category);
+  const [subTags, setSubTags] = useState(item.subTags);
+  const [extraTags, setExtraTags] = useState(item.extraTags.join(', '));
+  const availableSubTags = CHANNEL_TAGS[category] ?? [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+      <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto border-4 border-white bg-[#f8f9fa] p-4 text-black shadow-[8px_8px_0_rgba(0,0,0,0.55)] md:p-6">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.14em] text-[#3a0ca3]">Edit Archive Tags</div>
+            <h2 className="mt-1 text-2xl font-black">{item.title}</h2>
+          </div>
+          <button onClick={onClose} className="border-2 border-[#8d99ae] bg-white px-3 py-1 text-sm font-black hover:border-black">
+            CLOSE
+          </button>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <div className="overflow-hidden border-4 border-[#8d99ae] bg-black">
+              <img src={item.thumbUrl || item.imageUrl} alt={item.title} className="aspect-[4/3] w-full object-contain" />
+            </div>
+            <p className="mt-3 text-xs font-bold text-[#6c757d]">Source: {item.source}</p>
+          </div>
+
+          <div className="space-y-4">
+            {error ? <div className="border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
+
+            <EditableSingleChoice title="Decade" options={DECADE_OPTIONS} value={decade} onPick={setDecade} />
+            <EditableSingleChoice
+              title="Channel"
+              options={CATEGORY_OPTIONS}
+              value={category}
+              onPick={(nextCategory) => {
+                setCategory(nextCategory);
+                setSubTags([]);
+              }}
+            />
+
+            {availableSubTags.length > 0 ? (
+              <EditableChipGroup
+                title="Subcategory Tags"
+                options={availableSubTags}
+                values={subTags}
+                onPick={(tag) => setSubTags((tags) => toggleValue(tags, tag))}
+              />
+            ) : null}
+
+            <label className="block text-sm font-black uppercase tracking-[0.12em] text-[#3a0ca3]">
+              Extra Tags
+              <textarea
+                value={extraTags}
+                onChange={(event) => setExtraTags(event.target.value)}
+                className="mt-2 min-h-24 w-full border-2 border-[#8d99ae] bg-white p-3 text-sm normal-case tracking-normal outline-none focus:border-black"
+                placeholder="comma-separated tags"
+              />
+            </label>
+
+            <button
+              onClick={() =>
+                onSave({
+                  id: item.id,
+                  decade,
+                  category,
+                  subTags,
+                  extraTags: splitTags(extraTags),
+                })
+              }
+              className="flex h-11 items-center gap-2 border-2 border-black bg-black px-4 text-xs font-black text-white"
+            >
+              <Check size={15} />
+              SAVE TAGS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

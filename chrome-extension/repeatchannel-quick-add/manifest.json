@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "RepeatChannel Quick Add",
+  "description": "Right-click nostalgia images and save them into the RepeatChannel archive.",
+  "version": "0.1.0",
+  "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "RepeatChannel Quick Add",
+    "default_popup": "quick-add.html"
+  }
+}

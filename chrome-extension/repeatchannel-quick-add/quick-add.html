@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RepeatChannel Quick Add</title>
+    <link rel="stylesheet" href="quick-add.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <div>
+          <div class="brand">RepeatChannel</div>
+          <div class="sub">Quick Add</div>
+        </div>
+        <button id="settingsToggle" class="icon-button" type="button" title="Settings">API</button>
+      </header>
+
+      <section id="settingsPanel" class="panel hidden">
+        <label>
+          API endpoint
+          <input id="apiEndpoint" placeholder="https://repeatchannel.com/api/extension-save" />
+        </label>
+        <label>
+          Admin passcode
+          <input id="adminSecret" type="password" placeholder="RepeatChannel admin passcode" />
+        </label>
+        <button id="saveSettings" class="secondary" type="button">Save Settings</button>
+      </section>
+
+      <section class="preview-card">
+        <div class="image-frame">
+          <img id="preview" alt="Selected image preview" />
+          <div id="emptyPreview" class="empty">Right-click an image first</div>
+        </div>
+        <div class="source-lines">
+          <div><span>Image</span><p id="imageUrl">No image selected</p></div>
+          <div><span>Source</span><p id="sourceUrl">No page selected</p></div>
+        </div>
+      </section>
+
+      <form id="quickAddForm" class="form">
+        <label>
+          Title
+          <input id="title" placeholder="Store aisle, 1998" />
+        </label>
+
+        <div class="grid two">
+          <label>
+            Decade
+            <select id="decade"></select>
+          </label>
+          <label>
+            Channel
+            <select id="category"></select>
+          </label>
+        </div>
+
+        <section>
+          <div class="label-row">Subcategory Tags</div>
+          <div id="subTagChips" class="chips"></div>
+        </section>
+
+        <label>
+          Custom tags
+          <input id="customTags" placeholder="Walmart, checkout lanes" />
+        </label>
+
+        <label>
+          Notes
+          <textarea id="notes" rows="3" placeholder="Anything useful for attribution or cleanup"></textarea>
+        </label>
+
+        <button id="saveButton" class="primary" type="submit">Save to Archive</button>
+        <div id="status" class="status"></div>
+      </form>
+    </main>
+
+    <script src="quick-add.js"></script>
+  </body>
+</html>

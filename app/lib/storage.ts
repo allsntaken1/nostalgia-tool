@@ -173,9 +173,13 @@ function normalizeComparableUrl(value?: string) {
 }
 
 function getArchiveKeys(item: Pick<ArchiveItem, 'imageUrl' | 'thumbUrl' | 'sourceUrl'>) {
-  const imageKeys = [normalizeComparableUrl(item.imageUrl), normalizeComparableUrl(item.thumbUrl)].filter(Boolean);
+  const imageKeys = [
+    normalizeComparableUrl(item.imageUrl),
+    normalizeComparableUrl(item.thumbUrl),
+    normalizeComparableUrl(item.sourceUrl),
+  ].filter(Boolean);
 
-  return imageKeys.length > 0 ? imageKeys : [normalizeComparableUrl(item.sourceUrl)].filter(Boolean);
+  return imageKeys;
 }
 
 export function findDuplicateArchiveItem(item: ArchiveItem, items: ArchiveItem[]) {
