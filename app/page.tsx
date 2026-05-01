@@ -19,12 +19,6 @@ type SavedItem = {
   savedAt: string;
 };
 
-type VolumeStats = {
-  id: string;
-  volumeUp: number;
-  volumeDown: number;
-};
-
 type Channel = {
   id: string;
   number: string;
@@ -744,7 +738,6 @@ export default function PublicPage() {
   const [page, setPage] = useState<'home' | 'channel'>('home');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
-  const [volumeStats, setVolumeStats] = useState<Record<string, VolumeStats>>({});
   const [viewerIndex, setViewerIndex] = useState(0);
   const [era, setEra] = useState<Era>('90s');
 
@@ -763,29 +756,6 @@ export default function PublicPage() {
     };
 
     loadArchive();
-  }, []);
-
-  useEffect(() => {
-    const loadVolume = async () => {
-      try {
-        const response = await fetch('/api/volume', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Could not load volume.');
-        const data = await response.json();
-        const stats = Array.isArray(data) ? data : [];
-
-        setVolumeStats(
-          Object.fromEntries(
-            stats
-              .filter((item): item is VolumeStats => typeof item?.id === 'string')
-              .map((item) => [item.id, item])
-          )
-        );
-      } catch {
-        setVolumeStats({});
-      }
-    };
-
-    loadVolume();
   }, []);
 
   const selectedChannel = channelData[selectedIndex];
@@ -815,28 +785,14 @@ export default function PublicPage() {
     setViewerIndex(0);
   };
 
-  const voteOnItem = async (itemId: string, vote: 1 | -1) => {
-    const storageKey = `repeat-volume:${itemId}`;
-    const previousVote = typeof window !== 'undefined' ? Number(window.localStorage.getItem(storageKey) || 0) : 0;
-    const normalizedPreviousVote = previousVote === 1 || previousVote === -1 ? previousVote : 0;
+  const prevHomePicture = () => {
+    if (featuredItems.length < 2) return;
+    setViewerIndex((index) => (index - 1 + featuredItems.length) % featuredItems.length);
+  };
 
-    if (normalizedPreviousVote === vote) return;
-
-    try {
-      const response = await fetch('/api/volume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: itemId, vote, previousVote: normalizedPreviousVote }),
-      });
-
-      if (!response.ok) throw new Error('Could not update volume.');
-      const stats: VolumeStats = await response.json();
-
-      setVolumeStats((currentStats) => ({ ...currentStats, [itemId]: stats }));
-      window.localStorage.setItem(storageKey, String(vote));
-    } catch {
-      setVolumeStats((currentStats) => currentStats);
-    }
+  const nextHomePicture = () => {
+    if (featuredItems.length < 2) return;
+    setViewerIndex((index) => (index + 1) % featuredItems.length);
   };
 
   return (
@@ -859,22 +815,22 @@ export default function PublicPage() {
             selectedIndex={selectedIndex}
             previewItems={featuredItems}
             currentPreviewItem={currentItem}
-            currentVolume={currentItem ? volumeStats[currentItem.id] : undefined}
             guideItems={homeGuideItems}
             theme={theme}
             onSelect={pickChannel}
             onPreviewChannel={previewChannel}
-            onVote={voteOnItem}
+            onPrevPicture={prevHomePicture}
+            onNextPicture={nextHomePicture}
           />
         ) : (
           <ChannelScreen
             key={selectedChannel.id}
             channel={selectedChannel}
+            selectedIndex={selectedIndex}
             items={featuredItems}
-            volumeStats={volumeStats}
             guideItems={channelGuideItems}
             theme={theme}
-            onVote={voteOnItem}
+            onPreviewChannel={previewChannel}
           />
         )}
 
@@ -918,13 +874,6 @@ function Header({
         >
           VOL
         </Link>
-        <Link
-          href="/pokemon"
-          className="flex h-8 items-center justify-center border-2 border-black/35 bg-white/85 px-2 text-xs font-black text-black shadow-[2px_2px_0_rgba(0,0,0,0.45)] transition hover:-translate-y-[1px] hover:border-black"
-          title="Pokémon Archive"
-        >
-          Pokémon Archive
-        </Link>
         <div className="flex items-center gap-1.5" aria-label="Era theme">
           {(['80s', '90s', '2000s'] as Era[]).map((option) => (
             <button
@@ -962,23 +911,23 @@ function HomeScreen({
   selectedIndex,
   previewItems,
   currentPreviewItem,
-  currentVolume,
   guideItems,
   theme,
   onSelect,
   onPreviewChannel,
-  onVote,
+  onPrevPicture,
+  onNextPicture,
 }: {
   selectedChannel: Channel;
   selectedIndex: number;
   previewItems: SavedItem[];
   currentPreviewItem?: SavedItem;
-  currentVolume?: VolumeStats;
   guideItems: string[];
   theme: EraTheme;
   onSelect: (index: number) => void;
   onPreviewChannel: (index: number) => void;
-  onVote: (itemId: string, vote: 1 | -1) => void;
+  onPrevPicture: () => void;
+  onNextPicture: () => void;
 }) {
   const prevChannel = () => {
     const nextIndex = selectedIndex === 0 ? channelData.length - 1 : selectedIndex - 1;
@@ -1004,10 +953,9 @@ function HomeScreen({
             }
             volumeControl={
               <FauxVolumeControl
-                stats={currentVolume}
-                disabled={!currentPreviewItem}
-                onUp={() => currentPreviewItem && onVote(currentPreviewItem.id, 1)}
-                onDown={() => currentPreviewItem && onVote(currentPreviewItem.id, -1)}
+                disabled={previewItems.length < 2}
+                onUp={onPrevPicture}
+                onDown={onNextPicture}
               />
             }
             channelControl={<FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />}
@@ -1058,18 +1006,18 @@ function HomeScreen({
 
 function ChannelScreen({
   channel,
+  selectedIndex,
   items,
-  volumeStats,
   guideItems,
   theme,
-  onVote,
+  onPreviewChannel,
 }: {
   channel: Channel;
+  selectedIndex: number;
   items: SavedItem[];
-  volumeStats: Record<string, VolumeStats>;
   guideItems: string[];
   theme: EraTheme;
-  onVote: (itemId: string, vote: 1 | -1) => void;
+  onPreviewChannel: (index: number) => void;
 }) {
   const [activeDecade, setActiveDecade] = useState('All');
   const [activeMainTag, setActiveMainTag] = useState('All');
@@ -1143,14 +1091,24 @@ function ChannelScreen({
 
   const currentItem = filteredItems.length > 0 ? filteredItems[localIndex % filteredItems.length] : undefined;
 
-  const prev = () => {
+  const prevPicture = () => {
     if (filteredItems.length < 2) return;
     setLocalIndex((index) => (index - 1 + filteredItems.length) % filteredItems.length);
   };
 
-  const next = () => {
+  const nextPicture = () => {
     if (filteredItems.length < 2) return;
     setLocalIndex((index) => (index + 1) % filteredItems.length);
+  };
+
+  const prevChannel = () => {
+    const nextIndex = selectedIndex === 0 ? channelData.length - 1 : selectedIndex - 1;
+    onPreviewChannel(nextIndex);
+  };
+
+  const nextChannel = () => {
+    const nextIndex = selectedIndex === channelData.length - 1 ? 0 : selectedIndex + 1;
+    onPreviewChannel(nextIndex);
   };
 
   const random = () => {
@@ -1192,13 +1150,12 @@ function ChannelScreen({
             }
             volumeControl={
               <FauxVolumeControl
-                stats={currentItem ? volumeStats[currentItem.id] : undefined}
-                disabled={!currentItem}
-                onUp={() => currentItem && onVote(currentItem.id, 1)}
-                onDown={() => currentItem && onVote(currentItem.id, -1)}
+                disabled={filteredItems.length < 2}
+                onUp={prevPicture}
+                onDown={nextPicture}
               />
             }
-            channelControl={<FauxRemoteControl onUp={prev} onDown={next} disabled={filteredItems.length < 2} />}
+            channelControl={<FauxRemoteControl onUp={prevChannel} onDown={nextChannel} />}
           />
         </div>
 
@@ -1529,37 +1486,33 @@ function FauxRemoteControl({
 }
 
 function FauxVolumeControl({
-  stats,
   disabled = false,
   onUp,
   onDown,
 }: {
-  stats?: VolumeStats;
   disabled?: boolean;
   onUp: () => void;
   onDown: () => void;
 }) {
-  const score = (stats?.volumeUp ?? 0) - (stats?.volumeDown ?? 0);
-
   return (
     <div className="flex shrink-0 flex-row items-center justify-center gap-2 lg:w-16 lg:flex-col">
       <button
         onClick={onUp}
         disabled={disabled}
         className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-14 lg:w-14"
-        title="Volume up"
+        title="Previous picture"
       >
         +
       </button>
       <div className="text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
         VOL
-        <div className="mt-1 text-[#39ff14]">{score}</div>
+        <div className="mt-1 text-[#39ff14]">PIC</div>
       </div>
       <button
         onClick={onDown}
         disabled={disabled}
         className="flex h-12 w-12 items-center justify-center border-4 border-[#2b2d42] bg-[#111827] text-lg font-black text-[#39ff14] shadow-[4px_4px_0_rgba(255,255,255,0.12)] hover:bg-black disabled:opacity-35 lg:h-14 lg:w-14"
-        title="Volume down"
+        title="Next picture"
       >
         -
       </button>
