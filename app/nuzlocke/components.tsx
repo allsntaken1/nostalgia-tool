@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Plus, Skull } from 'lucide-react';
 import {
   gameGroups,
+  getAbilityOptions,
+  natureOptions,
   nuzlockeStorageKey,
   pokemonTypes,
   runTypes,
@@ -332,7 +334,7 @@ function NuzlockeDashboard({
             <h2 className="text-3xl font-black">{run.runName}</h2>
           </div>
           <button onClick={onNewRun} className="border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.2)]">
-            New Run
+            Back to Game Chooser
           </button>
         </div>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
@@ -415,48 +417,73 @@ function TeamTracker({
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
+  const caughtEncounters = (run.encounters || []).filter((encounter) => encounter.status === 'Caught');
+  const encounterIdsOnTeam = new Set((run.team || []).map((pokemon) => pokemon.encounterId).filter(Boolean));
+  const availableEncounters = caughtEncounters.filter((encounter) => !encounterIdsOnTeam.has(encounter.id));
+  const initialEncounter = availableEncounters[0] ?? caughtEncounters[0];
   const [form, setForm] = useState({
-    species: '',
-    nickname: '',
-    level: '5',
-    typeOne: 'Normal' as PokemonType,
-    typeTwo: '',
-    nature: '',
-    ability: '',
+    encounterId: initialEncounter?.id ?? '',
+    nickname: initialEncounter?.nickname ?? '',
+    level: String(initialEncounter?.levelMet ?? 5),
+    nature: initialEncounter?.nature || 'Not Sure',
+    ability: initialEncounter?.ability || getAbilityOptions(initialEncounter?.pokemon ?? '')[0],
     status: 'Party' as PokemonStatus,
     notes: '',
   });
 
+  const selectedEncounter =
+    caughtEncounters.find((encounter) => encounter.id === form.encounterId) ?? availableEncounters[0] ?? caughtEncounters[0];
+  const selectedAbilityOptions = getAbilityOptions(selectedEncounter?.pokemon ?? '');
+
+  const chooseEncounter = (encounterId: string) => {
+    const encounter = caughtEncounters.find((item) => item.id === encounterId);
+    setForm((current) => ({
+      ...current,
+      encounterId,
+      nickname: encounter?.nickname ?? '',
+      level: String(encounter?.levelMet ?? 5),
+      nature: encounter?.nature || 'Not Sure',
+      ability: encounter?.ability || getAbilityOptions(encounter?.pokemon ?? '')[0],
+    }));
+  };
+
   const addPokemon = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!form.species.trim()) return;
+    if (!selectedEncounter?.pokemon) return;
 
-    const types = [form.typeOne, form.typeTwo].filter(Boolean) as PokemonType[];
     const pokemon: NuzlockePokemon = {
       id: makeId('pokemon'),
-      species: form.species.trim(),
+      encounterId: selectedEncounter.id,
+      metLocation: selectedEncounter.location,
+      species: selectedEncounter.pokemon,
       nickname: form.nickname.trim(),
       level: safeNumber(form.level),
-      types,
-      nature: form.nature.trim(),
-      ability: form.ability.trim(),
+      types: selectedEncounter.types || [],
+      nature: form.nature,
+      ability: form.ability,
       status: form.status,
       notes: form.notes.trim(),
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, team: [pokemon, ...(current.team || [])] }, 'Pokemon Added', `${pokemon.nickname || pokemon.species} joined the run.`));
-    setForm((current) => ({ ...current, species: '', nickname: '', level: '5', notes: '' }));
+    const nextEncounter = availableEncounters.find((encounter) => encounter.id !== selectedEncounter.id);
+    setForm((current) => ({
+      ...current,
+      encounterId: nextEncounter?.id ?? '',
+      nickname: nextEncounter?.nickname ?? '',
+      level: String(nextEncounter?.levelMet ?? 5),
+      nature: nextEncounter?.nature || 'Not Sure',
+      ability: nextEncounter?.ability || getAbilityOptions(nextEncounter?.pokemon ?? '')[0],
+      notes: '',
+    }));
   };
 
   const markDead = (pokemon: NuzlockePokemon) => {
-    const causeOfDeath = window.prompt('Cause of death?') || 'Not recorded';
-    const deathLocation = window.prompt('Where did it happen?') || 'Not recorded';
-
     updateRun(run.id, (current) => addTimeline({
       ...current,
       team: (current.team || []).map((item) =>
         item.id === pokemon.id
-          ? { ...item, status: 'Dead', levelDied: item.level, causeOfDeath, deathLocation }
+          ? { ...item, status: 'Dead', levelDied: item.level, causeOfDeath: 'Quick marked dead', deathLocation: item.metLocation || 'Not recorded' }
           : item
       ),
     }, 'Pokemon Died', `${pokemon.nickname || pokemon.species} died at level ${pokemon.level}.`));
@@ -469,62 +496,96 @@ function TeamTracker({
   return (
     <section className="grid gap-4 lg:grid-cols-[360px_1fr]">
       <form onSubmit={addPokemon} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
-        <div className="mb-3 flex items-center gap-2 text-sm font-black"><Plus size={16} /> Add Pokemon</div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-black"><Plus size={16} /> Add from Caught Encounters</div>
         <div className="grid gap-3">
-          <input value={form.species} onChange={(event) => setForm({ ...form, species: event.target.value })} placeholder="Species" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <input value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })} placeholder="Level" type="number" min="1" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <div className="grid grid-cols-2 gap-2">
-            <TypeSelect value={form.typeOne} onChange={(value) => value && setForm({ ...form, typeOne: value })} />
-            <TypeSelect value={form.typeTwo} onChange={(value) => setForm({ ...form, typeTwo: value })} optional />
+          {caughtEncounters.length === 0 ? (
+            <div className="border-2 border-dashed border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black text-[#506078]">
+              Catch an encounter first. Caught Pokemon will show up here automatically.
+            </div>
+          ) : null}
+          <select value={form.encounterId} onChange={(event) => chooseEncounter(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {availableEncounters.length === 0 ? <option value="">No unused caught encounters</option> : null}
+            {availableEncounters.map((encounter) => (
+              <option key={encounter.id} value={encounter.id}>
+                {encounter.pokemon} / {encounter.location}
+              </option>
+            ))}
+          </select>
+          <div className="border-2 border-[#9baec8] bg-[#f8fbff] p-3">
+            <div className="text-xs font-black text-[#3f7fbf]">{selectedEncounter?.location || 'No encounter selected'}</div>
+            <div className="mt-1 text-xl font-black">{selectedEncounter?.pokemon || 'Waiting on a catch'}</div>
+            <div className="mt-2 flex flex-wrap gap-2">{(selectedEncounter?.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
           </div>
-          <input value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} placeholder="Nature" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <input value={form.ability} onChange={(event) => setForm({ ...form, ability: event.target.value })} placeholder="Ability" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
+          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname, optional" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
+          <input value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })} placeholder="Level" type="number" min="1" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
+          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
+          </select>
+          <select value={form.ability} onChange={(event) => setForm({ ...form, ability: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {selectedAbilityOptions.map((ability) => <option key={ability}>{ability}</option>)}
+          </select>
           <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PokemonStatus })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
             {(['Party', 'Boxed', 'Dead', 'Released'] as PokemonStatus[]).map((status) => <option key={status}>{status}</option>)}
           </select>
           <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className="min-h-20 border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <button className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf]">Add to Team</button>
+          <button disabled={!selectedEncounter || availableEncounters.length === 0} className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf] disabled:opacity-45">Add to Team</button>
         </div>
       </form>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {(run.team || []).map((pokemon) => (
-          <article key={pokemon.id} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)]">
-            <div className="flex items-start gap-3">
-              <MonsterToken species={pokemon.species} status={pokemon.status} />
-              <div className="min-w-0">
-                <h3 className="truncate text-lg font-black">{pokemon.nickname || pokemon.species}</h3>
-                <div className="text-xs font-bold text-[#506078]">{pokemon.species} / Lv {pokemon.level}</div>
-              </div>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
-            <div className="mt-3 text-xs font-bold text-[#506078]">{pokemon.nature || 'No nature'} / {pokemon.ability || 'No ability'}</div>
-            <p className="mt-2 text-sm font-bold leading-6">{pokemon.notes}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <select value={pokemon.status} onChange={(event) => setStatus(pokemon.id, event.target.value as PokemonStatus)} className="border-2 border-[#9baec8] bg-white px-2 py-1 text-xs font-black">
-                {(['Party', 'Boxed', 'Dead', 'Released'] as PokemonStatus[]).map((status) => <option key={status}>{status}</option>)}
-              </select>
-              {pokemon.status !== 'Dead' ? (
-                <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 border-2 border-[#ef5350] bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
-                  <Skull size={13} />
-                  Mark Dead
+      <div className="grid gap-4">
+        <div className="border-4 border-[#182a40] bg-[#f8fbff] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.12)]">
+          <div className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Available Caught Pokemon</div>
+          {availableEncounters.length === 0 ? (
+            <div className="text-sm font-bold text-[#506078]">No unused catches available. Log a caught encounter or move someone off the team list.</div>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {availableEncounters.map((encounter) => (
+                <button
+                  key={encounter.id}
+                  onClick={() => chooseEncounter(encounter.id)}
+                  className={`border-2 p-3 text-left text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.12)] ${
+                    form.encounterId === encounter.id ? 'border-[#182a40] bg-[#ffe36e]' : 'border-[#9baec8] bg-white'
+                  }`}
+                >
+                  <span className="block text-sm">{encounter.pokemon}</span>
+                  <span className="block text-[#506078]">{encounter.location}</span>
+                  <span className="mt-2 flex flex-wrap gap-1">{(encounter.types || []).map((type) => <TypeBadge key={type} type={type} />)}</span>
                 </button>
-              ) : null}
+              ))}
             </div>
-          </article>
-        ))}
+          )}
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {(run.team || []).map((pokemon) => (
+            <article key={pokemon.id} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)]">
+              <div className="flex items-start gap-3">
+                <MonsterToken species={pokemon.species} status={pokemon.status} />
+                <div className="min-w-0">
+                  <h3 className="truncate text-lg font-black">{pokemon.nickname || pokemon.species}</h3>
+                  <div className="text-xs font-bold text-[#506078]">{pokemon.species} / Lv {pokemon.level}</div>
+                  <div className="mt-1 text-[11px] font-black text-[#3f7fbf]">{pokemon.metLocation || 'Unknown area'}</div>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
+              <div className="mt-3 text-xs font-bold text-[#506078]">{pokemon.nature || 'No nature'} / {pokemon.ability || 'No ability'}</div>
+              <p className="mt-2 text-sm font-bold leading-6">{pokemon.notes}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <select value={pokemon.status} onChange={(event) => setStatus(pokemon.id, event.target.value as PokemonStatus)} className="border-2 border-[#9baec8] bg-white px-2 py-1 text-xs font-black">
+                  {(['Party', 'Boxed', 'Dead', 'Released'] as PokemonStatus[]).map((status) => <option key={status}>{status}</option>)}
+                </select>
+                {pokemon.status !== 'Dead' ? (
+                  <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 border-2 border-[#ef5350] bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
+                    <Skull size={13} />
+                    Dead
+                  </button>
+                ) : null}
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
-  );
-}
-
-function TypeSelect({ value, onChange, optional = false }: { value: PokemonType | string; onChange: (value: PokemonType | '') => void; optional?: boolean }) {
-  return (
-    <select value={value} onChange={(event) => onChange(event.target.value as PokemonType | '')} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
-      {optional ? <option value="">No second type</option> : null}
-      {pokemonTypes.map((type) => <option key={type} value={type}>{type}</option>)}
-    </select>
   );
 }
 
@@ -537,40 +598,65 @@ function EncounterTracker({
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
+  const caughtLocations = new Set((run.encounters || []).filter((encounter) => encounter.status === 'Caught').map((encounter) => encounter.location));
+  const firstOpenLocation = scarletVioletLocations.find((location) => !caughtLocations.has(location)) ?? scarletVioletLocations[0];
+  const initialOptions = scarletVioletEncounterOptions[firstOpenLocation] ?? [];
   const [form, setForm] = useState({
-    location: scarletVioletLocations[0],
-    pokemon: scarletVioletEncounterOptions[scarletVioletLocations[0]]?.[0]?.species ?? '',
+    location: firstOpenLocation,
+    pokemon: initialOptions[0]?.species ?? '',
     nickname: '',
     levelMet: '5',
     status: 'Caught' as EncounterStatus,
-    types: scarletVioletEncounterOptions[scarletVioletLocations[0]]?.[0]?.types ?? (['Normal'] as PokemonType[]),
+    types: initialOptions[0]?.types ?? (['Normal'] as PokemonType[]),
+    nature: 'Not Sure',
+    ability: getAbilityOptions(initialOptions[0]?.species ?? '')[0],
     notes: '',
   });
+  const [showWaterMethods, setShowWaterMethods] = useState(false);
 
   const encounterOptions = scarletVioletEncounterOptions[form.location] ?? [];
+  const visibleEncounterOptions = encounterOptions.filter((option) => showWaterMethods || !option.waterMethod);
+  const selectedAbilityOptions = getAbilityOptions(form.pokemon);
+  const locationAlreadyCaught = caughtLocations.has(form.location);
 
   const chooseLocation = (location: string) => {
-    const firstOption = scarletVioletEncounterOptions[location]?.[0];
+    const options = (scarletVioletEncounterOptions[location] ?? []).filter((option) => showWaterMethods || !option.waterMethod);
+    const firstOption = options[0];
     setForm((current) => ({
       ...current,
       location,
       pokemon: firstOption?.species ?? '',
       types: firstOption?.types ?? (['Normal'] as PokemonType[]),
+      ability: getAbilityOptions(firstOption?.species ?? '')[0],
     }));
   };
 
   const choosePokemon = (species: string) => {
-    const selected = encounterOptions.find((option) => option.species === species);
+    const selected = visibleEncounterOptions.find((option) => option.species === species);
     setForm((current) => ({
       ...current,
       pokemon: species,
       types: selected?.types ?? current.types,
+      ability: getAbilityOptions(species)[0],
     }));
   };
+
+  useEffect(() => {
+    const currentStillVisible = visibleEncounterOptions.some((option) => option.species === form.pokemon);
+    if (currentStillVisible) return;
+    const firstOption = visibleEncounterOptions[0];
+    setForm((current) => ({
+      ...current,
+      pokemon: firstOption?.species ?? '',
+      types: firstOption?.types ?? (['Normal'] as PokemonType[]),
+      ability: getAbilityOptions(firstOption?.species ?? '')[0],
+    }));
+  }, [form.pokemon, visibleEncounterOptions]);
 
   const addEncounter = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.location.trim()) return;
+    if (form.status === 'Caught' && locationAlreadyCaught) return;
 
     const encounter: NuzlockeEncounter = {
       id: makeId('encounter'),
@@ -580,11 +666,26 @@ function EncounterTracker({
       levelMet: safeNumber(form.levelMet),
       status: form.status,
       types: form.types,
+      nature: form.nature,
+      ability: form.ability,
       notes: form.notes.trim(),
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
-    setForm((current) => ({ ...current, nickname: '', levelMet: '5', notes: '' }));
+    const nextOpenLocation = scarletVioletLocations.find((location) => location !== form.location && !caughtLocations.has(location)) ?? form.location;
+    const nextOptions = (scarletVioletEncounterOptions[nextOpenLocation] ?? []).filter((option) => showWaterMethods || !option.waterMethod);
+    const firstOption = nextOptions[0];
+    setForm((current) => ({
+      ...current,
+      location: nextOpenLocation,
+      pokemon: firstOption?.species ?? '',
+      nickname: '',
+      levelMet: '5',
+      types: firstOption?.types ?? (['Normal'] as PokemonType[]),
+      nature: 'Not Sure',
+      ability: getAbilityOptions(firstOption?.species ?? '')[0],
+      notes: '',
+    }));
   };
 
   return (
@@ -592,11 +693,23 @@ function EncounterTracker({
       <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
+          <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
+            <input
+              type="checkbox"
+              checked={showWaterMethods}
+              onChange={(event) => setShowWaterMethods(event.target.checked)}
+            />
+            Show surf / fishing rod encounters
+          </label>
           <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
-            {scarletVioletLocations.map((location) => <option key={location}>{location}</option>)}
+            {scarletVioletLocations.map((location) => (
+              <option key={location} disabled={caughtLocations.has(location)} value={location}>
+                {location}{caughtLocations.has(location) ? ' - caught' : ''}
+              </option>
+            ))}
           </select>
           <select value={form.pokemon} onChange={(event) => choosePokemon(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
-            {(encounterOptions.length > 0 ? encounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]).map((option) => (
+            {(visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]).map((option) => (
               <option key={option.species} value={option.species}>{option.species}</option>
             ))}
           </select>
@@ -627,8 +740,19 @@ function EncounterTracker({
               {(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}
             </div>
           </div>
+          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
+          </select>
+          <select value={form.ability} onChange={(event) => setForm({ ...form, ability: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {selectedAbilityOptions.map((ability) => <option key={ability}>{ability}</option>)}
+          </select>
+          {locationAlreadyCaught && form.status === 'Caught' ? (
+            <div className="border-2 border-[#ef5350] bg-[#fff2f0] p-3 text-xs font-black text-[#9f2c24]">
+              This area already has a caught encounter. Change the result or choose another area.
+            </div>
+          ) : null}
           <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className="min-h-20 border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <button className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf]">Add Encounter</button>
+          <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf] disabled:opacity-45">Add Encounter</button>
         </div>
       </form>
 
@@ -639,6 +763,7 @@ function EncounterTracker({
               <div>
                 <h3 className="text-lg font-black">{encounter.location}</h3>
                 <div className="text-sm font-bold text-[#506078]">{encounter.pokemon || 'No Pokemon recorded'} {encounter.nickname ? `/ ${encounter.nickname}` : ''} / Lv {encounter.levelMet}</div>
+                <div className="mt-1 text-xs font-black text-[#3f7fbf]">{encounter.nature || 'Not Sure'} / {encounter.ability || 'Not Sure'}</div>
               </div>
               <span className="border-2 border-[#9baec8] bg-white px-2 py-1 text-xs font-black">{encounter.status}</span>
             </div>

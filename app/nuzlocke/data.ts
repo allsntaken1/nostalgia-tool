@@ -84,7 +84,74 @@ export const scarletVioletLocations = [
 export type EncounterOption = {
   species: string;
   types: PokemonType[];
+  abilities?: string[];
+  waterMethod?: boolean;
 };
+
+export const natureOptions = [
+  'Not Sure',
+  'Hardy',
+  'Lonely',
+  'Brave',
+  'Adamant',
+  'Naughty',
+  'Bold',
+  'Docile',
+  'Relaxed',
+  'Impish',
+  'Lax',
+  'Timid',
+  'Hasty',
+  'Serious',
+  'Jolly',
+  'Naive',
+  'Modest',
+  'Mild',
+  'Quiet',
+  'Bashful',
+  'Rash',
+  'Calm',
+  'Gentle',
+  'Sassy',
+  'Careful',
+  'Quirky',
+];
+
+export const commonAbilityOptions = [
+  'Not Sure',
+  'Primary Ability',
+  'Secondary Ability',
+  'Hidden Ability',
+];
+
+export const speciesAbilityOptions: Record<string, string[]> = {
+  Sprigatito: ['Overgrow', 'Protean', 'Not Sure'],
+  Fuecoco: ['Blaze', 'Unaware', 'Not Sure'],
+  Quaxly: ['Torrent', 'Moxie', 'Not Sure'],
+  Lechonk: ['Aroma Veil', 'Gluttony', 'Thick Fat', 'Not Sure'],
+  Tarountula: ['Insomnia', 'Stakeout', 'Not Sure'],
+  Fletchling: ['Big Pecks', 'Gale Wings', 'Not Sure'],
+  Hoppip: ['Chlorophyll', 'Leaf Guard', 'Infiltrator', 'Not Sure'],
+  Pawmi: ['Static', 'Natural Cure', 'Iron Fist', 'Not Sure'],
+  Scatterbug: ['Shield Dust', 'Compound Eyes', 'Friend Guard', 'Not Sure'],
+  Yungoos: ['Stakeout', 'Strong Jaw', 'Adaptability', 'Not Sure'],
+  Fidough: ['Own Tempo', 'Klutz', 'Not Sure'],
+  Smoliv: ['Early Bird', 'Harvest', 'Not Sure'],
+  Mareep: ['Static', 'Plus', 'Not Sure'],
+  Maschiff: ['Intimidate', 'Run Away', 'Stakeout', 'Not Sure'],
+  Shinx: ['Rivalry', 'Intimidate', 'Guts', 'Not Sure'],
+  Ralts: ['Synchronize', 'Trace', 'Telepathy', 'Not Sure'],
+  Nacli: ['Purifying Salt', 'Sturdy', 'Clear Body', 'Not Sure'],
+  Charcadet: ['Flash Fire', 'Flame Body', 'Not Sure'],
+  Tinkatink: ['Mold Breaker', 'Own Tempo', 'Pickpocket', 'Not Sure'],
+  Cyclizar: ['Shed Skin', 'Regenerator', 'Not Sure'],
+  Frigibax: ['Thermal Exchange', 'Ice Body', 'Not Sure'],
+  Gimmighoul: ['Rattled', 'Not Sure'],
+};
+
+export function getAbilityOptions(species: string) {
+  return speciesAbilityOptions[species] ?? commonAbilityOptions;
+}
 
 const starterOptions: EncounterOption[] = [
   { species: 'Sprigatito', types: ['Grass'] },
@@ -116,11 +183,11 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Fletchling', types: ['Normal', 'Flying'] },
     { species: 'Hoppip', types: ['Grass', 'Flying'] },
     { species: 'Scatterbug', types: ['Bug'] },
-    { species: 'Azurill', types: ['Normal', 'Fairy'] },
-    { species: 'Buizel', types: ['Water'] },
+    { species: 'Azurill', types: ['Normal', 'Fairy'], waterMethod: true },
+    { species: 'Buizel', types: ['Water'], waterMethod: true },
     { species: 'Wooper', types: ['Poison', 'Ground'] },
     { species: 'Ralts', types: ['Psychic', 'Fairy'] },
-    { species: 'Psyduck', types: ['Water'] },
+    { species: 'Psyduck', types: ['Water'], waterMethod: true },
   ],
   'South Province Area Two': [
     { species: 'Fidough', types: ['Fairy'] },
@@ -171,7 +238,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
   'West Province Area One': [
     { species: 'Nymble', types: ['Bug'] },
     { species: 'Wattrel', types: ['Electric', 'Flying'] },
-    { species: 'Finizen', types: ['Water'] },
+    { species: 'Finizen', types: ['Water'], waterMethod: true },
     { species: 'Maschiff', types: ['Dark'] },
     { species: 'Bombirdier', types: ['Flying', 'Dark'] },
     { species: 'Tadbulb', types: ['Electric'] },
@@ -201,7 +268,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Varoom', types: ['Steel', 'Poison'] },
     { species: 'Oricorio', types: ['Fire', 'Flying'] },
     { species: 'Murkrow', types: ['Dark', 'Flying'] },
-    { species: 'Mareanie', types: ['Poison', 'Water'] },
+    { species: 'Mareanie', types: ['Poison', 'Water'], waterMethod: true },
     { species: 'Toxel', types: ['Electric', 'Poison'] },
   ],
   'East Province Area Two': [
@@ -277,13 +344,13 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Greavard', types: ['Ghost'] },
   ],
   'Casseroya Lake': [
-    { species: 'Dondozo', types: ['Water'] },
-    { species: 'Tatsugiri', types: ['Dragon', 'Water'] },
-    { species: 'Veluza', types: ['Water', 'Psychic'] },
-    { species: 'Dratini', types: ['Dragon'] },
-    { species: 'Gyarados', types: ['Water', 'Flying'] },
-    { species: 'Slowpoke', types: ['Water', 'Psychic'] },
-    { species: 'Mareanie', types: ['Poison', 'Water'] },
+    { species: 'Dondozo', types: ['Water'], waterMethod: true },
+    { species: 'Tatsugiri', types: ['Dragon', 'Water'], waterMethod: true },
+    { species: 'Veluza', types: ['Water', 'Psychic'], waterMethod: true },
+    { species: 'Dratini', types: ['Dragon'], waterMethod: true },
+    { species: 'Gyarados', types: ['Water', 'Flying'], waterMethod: true },
+    { species: 'Slowpoke', types: ['Water', 'Psychic'], waterMethod: true },
+    { species: 'Mareanie', types: ['Poison', 'Water'], waterMethod: true },
   ],
   'Socarrat Trail': [
     { species: 'Zorua', types: ['Dark'] },
@@ -310,7 +377,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Great Tusk', types: ['Ground', 'Fighting'] },
     { species: 'Iron Treads', types: ['Ground', 'Steel'] },
     { species: 'Scream Tail', types: ['Fairy', 'Psychic'] },
-    { species: 'Iron Bundle', types: ['Ice', 'Water'] },
+    { species: 'Iron Bundle', types: ['Ice', 'Water'], waterMethod: true },
     { species: 'Roaring Moon', types: ['Dragon', 'Dark'] },
     { species: 'Iron Valiant', types: ['Fairy', 'Fighting'] },
   ],

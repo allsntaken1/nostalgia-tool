@@ -82,6 +82,8 @@ export type NuzlockeRules = {
 
 export type NuzlockePokemon = {
   id: string;
+  encounterId?: string;
+  metLocation?: string;
   species: string;
   nickname: string;
   level: number;
@@ -103,6 +105,8 @@ export type NuzlockeEncounter = {
   levelMet: number;
   status: EncounterStatus;
   types: PokemonType[];
+  nature: string;
+  ability: string;
   notes: string;
 };
 
