@@ -612,15 +612,18 @@ function EncounterTracker({
     ability: getAbilityOptions(initialOptions[0]?.species ?? '')[0],
     notes: '',
   });
-  const [showWaterMethods, setShowWaterMethods] = useState(false);
+  const [showSurfEncounters, setShowSurfEncounters] = useState(false);
+  const [showFishingEncounters, setShowFishingEncounters] = useState(false);
 
   const encounterOptions = scarletVioletEncounterOptions[form.location] ?? [];
-  const visibleEncounterOptions = encounterOptions.filter((option) => showWaterMethods || !option.waterMethod);
+  const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
+    (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
+  const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
   const selectedAbilityOptions = getAbilityOptions(form.pokemon);
   const locationAlreadyCaught = caughtLocations.has(form.location);
 
   const chooseLocation = (location: string) => {
-    const options = (scarletVioletEncounterOptions[location] ?? []).filter((option) => showWaterMethods || !option.waterMethod);
+    const options = (scarletVioletEncounterOptions[location] ?? []).filter(canShowEncounterOption);
     const firstOption = options[0];
     setForm((current) => ({
       ...current,
@@ -673,7 +676,7 @@ function EncounterTracker({
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
     const nextOpenLocation = scarletVioletLocations.find((location) => location !== form.location && !caughtLocations.has(location)) ?? form.location;
-    const nextOptions = (scarletVioletEncounterOptions[nextOpenLocation] ?? []).filter((option) => showWaterMethods || !option.waterMethod);
+    const nextOptions = (scarletVioletEncounterOptions[nextOpenLocation] ?? []).filter(canShowEncounterOption);
     const firstOption = nextOptions[0];
     setForm((current) => ({
       ...current,
@@ -693,14 +696,24 @@ function EncounterTracker({
       <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
-          <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
-            <input
-              type="checkbox"
-              checked={showWaterMethods}
-              onChange={(event) => setShowWaterMethods(event.target.checked)}
-            />
-            Show surf / fishing rod encounters
-          </label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
+              <input
+                type="checkbox"
+                checked={showSurfEncounters}
+                onChange={(event) => setShowSurfEncounters(event.target.checked)}
+              />
+              Show surf encounters
+            </label>
+            <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
+              <input
+                type="checkbox"
+                checked={showFishingEncounters}
+                onChange={(event) => setShowFishingEncounters(event.target.checked)}
+              />
+              Show fishing rod encounters
+            </label>
+          </div>
           <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
             {scarletVioletLocations.map((location) => (
               <option key={location} disabled={caughtLocations.has(location)} value={location}>

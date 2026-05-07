@@ -85,7 +85,8 @@ export type EncounterOption = {
   species: string;
   types: PokemonType[];
   abilities?: string[];
-  waterMethod?: boolean;
+  surfMethod?: boolean;
+  fishingMethod?: boolean;
 };
 
 export const natureOptions = [
@@ -183,11 +184,11 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Fletchling', types: ['Normal', 'Flying'] },
     { species: 'Hoppip', types: ['Grass', 'Flying'] },
     { species: 'Scatterbug', types: ['Bug'] },
-    { species: 'Azurill', types: ['Normal', 'Fairy'], waterMethod: true },
-    { species: 'Buizel', types: ['Water'], waterMethod: true },
+    { species: 'Azurill', types: ['Normal', 'Fairy'], surfMethod: true },
+    { species: 'Buizel', types: ['Water'], surfMethod: true },
     { species: 'Wooper', types: ['Poison', 'Ground'] },
     { species: 'Ralts', types: ['Psychic', 'Fairy'] },
-    { species: 'Psyduck', types: ['Water'], waterMethod: true },
+    { species: 'Psyduck', types: ['Water'], surfMethod: true },
   ],
   'South Province Area Two': [
     { species: 'Fidough', types: ['Fairy'] },
@@ -238,7 +239,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
   'West Province Area One': [
     { species: 'Nymble', types: ['Bug'] },
     { species: 'Wattrel', types: ['Electric', 'Flying'] },
-    { species: 'Finizen', types: ['Water'], waterMethod: true },
+    { species: 'Finizen', types: ['Water'], surfMethod: true },
     { species: 'Maschiff', types: ['Dark'] },
     { species: 'Bombirdier', types: ['Flying', 'Dark'] },
     { species: 'Tadbulb', types: ['Electric'] },
@@ -268,7 +269,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Varoom', types: ['Steel', 'Poison'] },
     { species: 'Oricorio', types: ['Fire', 'Flying'] },
     { species: 'Murkrow', types: ['Dark', 'Flying'] },
-    { species: 'Mareanie', types: ['Poison', 'Water'], waterMethod: true },
+    { species: 'Mareanie', types: ['Poison', 'Water'], fishingMethod: true },
     { species: 'Toxel', types: ['Electric', 'Poison'] },
   ],
   'East Province Area Two': [
@@ -344,13 +345,13 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Greavard', types: ['Ghost'] },
   ],
   'Casseroya Lake': [
-    { species: 'Dondozo', types: ['Water'], waterMethod: true },
-    { species: 'Tatsugiri', types: ['Dragon', 'Water'], waterMethod: true },
-    { species: 'Veluza', types: ['Water', 'Psychic'], waterMethod: true },
-    { species: 'Dratini', types: ['Dragon'], waterMethod: true },
-    { species: 'Gyarados', types: ['Water', 'Flying'], waterMethod: true },
-    { species: 'Slowpoke', types: ['Water', 'Psychic'], waterMethod: true },
-    { species: 'Mareanie', types: ['Poison', 'Water'], waterMethod: true },
+    { species: 'Dondozo', types: ['Water'], surfMethod: true },
+    { species: 'Tatsugiri', types: ['Dragon', 'Water'], surfMethod: true },
+    { species: 'Veluza', types: ['Water', 'Psychic'], surfMethod: true },
+    { species: 'Dratini', types: ['Dragon'], fishingMethod: true },
+    { species: 'Gyarados', types: ['Water', 'Flying'], fishingMethod: true },
+    { species: 'Slowpoke', types: ['Water', 'Psychic'], surfMethod: true },
+    { species: 'Mareanie', types: ['Poison', 'Water'], fishingMethod: true },
   ],
   'Socarrat Trail': [
     { species: 'Zorua', types: ['Dark'] },
@@ -377,7 +378,7 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
     { species: 'Great Tusk', types: ['Ground', 'Fighting'] },
     { species: 'Iron Treads', types: ['Ground', 'Steel'] },
     { species: 'Scream Tail', types: ['Fairy', 'Psychic'] },
-    { species: 'Iron Bundle', types: ['Ice', 'Water'], waterMethod: true },
+    { species: 'Iron Bundle', types: ['Ice', 'Water'], surfMethod: true },
     { species: 'Roaring Moon', types: ['Dragon', 'Dark'] },
     { species: 'Iron Valiant', types: ['Fairy', 'Fighting'] },
   ],
