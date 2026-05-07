@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable react-hooks/set-state-in-effect */
-import { FormEvent, useEffect, useState } from 'react';
+import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Plus, Skull } from 'lucide-react';
 import {
   type EncounterOption,
@@ -56,6 +56,44 @@ const ruleLabels: { key: keyof NuzlockeRules; label: string }[] = [
   { key: 'staticEncountersAllowed', label: 'Static Encounters Allowed' },
   { key: 'teraRaidEncountersAllowed', label: 'Tera Raid Encounters Allowed' },
 ];
+
+const panelClass = 'rounded-2xl border border-white/75 bg-white/90 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur';
+const softPanelClass = 'rounded-xl bg-white/65 p-3 shadow-sm';
+const fieldClass = 'rounded-lg border border-[#c9d4e2] bg-white px-3 py-2 font-bold outline-none focus:border-[#182a40]';
+const smallButtonClass = 'rounded-lg border border-[#c9d4e2] bg-white px-3 py-2 text-xs font-black shadow-sm hover:-translate-y-0.5';
+
+function trackerTheme(game?: GameVersion | '') {
+  if (game === 'Scarlet') {
+    return 'bg-[linear-gradient(135deg,#ffe8ee_0%,#fff8dc_42%,#ffd6e1_100%)]';
+  }
+
+  if (game === 'Violet') {
+    return 'bg-[linear-gradient(135deg,#eee7ff_0%,#e4fbff_48%,#f6ddff_100%)]';
+  }
+
+  return 'bg-[linear-gradient(135deg,#eef8ff_0%,#fff7da_48%,#efffea_100%)]';
+}
+
+function trackerVars(game?: GameVersion | ''): CSSProperties {
+  if (game === 'Scarlet') {
+    return {
+      '--nuz-accent': '#e8415f',
+      '--nuz-accent-soft': '#ffe1e8',
+    } as CSSProperties;
+  }
+
+  if (game === 'Violet') {
+    return {
+      '--nuz-accent': '#7552ff',
+      '--nuz-accent-soft': '#eee7ff',
+    } as CSSProperties;
+  }
+
+  return {
+    '--nuz-accent': '#2f7bc7',
+    '--nuz-accent-soft': '#e6f3ff',
+  } as CSSProperties;
+}
 
 function makeId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -223,10 +261,10 @@ function ChoiceButtons<T extends string>({
           key={option}
           type="button"
           onClick={() => onChange(option)}
-          className={`border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
+          className={`rounded-lg px-3 py-2 text-xs font-black shadow-sm transition ${
             value === option
-              ? 'border-[#182a40] bg-[#182a40] text-white'
-              : 'border-[#c5d1df] bg-white text-[#182a40] hover:border-[#182a40]'
+              ? 'bg-[var(--nuz-accent)] text-white'
+              : 'bg-white text-[#182a40] hover:-translate-y-0.5'
           }`}
         >
           {option}
@@ -316,22 +354,25 @@ export function NuzlockeTracker() {
     setSelectedGame('');
   };
 
+  const currentGame = activeRun?.gameVersion ?? selectedGame;
+
   return (
-    <section className="mx-auto max-w-7xl p-3 sm:p-5">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#d3deea] bg-[#fffdf1] p-4 shadow-sm">
+    <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={trackerVars(currentGame)}>
+      <div className="mx-auto max-w-7xl p-3 sm:p-5">
+      <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
         <div>
-          <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">RepeatChannel Tool</div>
+          <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool</div>
           <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {runs.length > 0 ? (
-            <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className="rounded-md border border-[#9baec8] bg-white px-3 py-2 text-xs font-black">
+            <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className={fieldClass}>
               {runs.map((run) => (
                 <option key={run.id} value={run.id}>{run.runName}</option>
               ))}
             </select>
           ) : null}
-          <button onClick={() => setSelectedGame('')} className="rounded-md border border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-sm">
+          <button onClick={() => setSelectedGame('')} className={smallButtonClass}>
             New Run
           </button>
         </div>
@@ -340,29 +381,30 @@ export function NuzlockeTracker() {
       {!activeRun && !selectedGame ? <GameVersionPicker onSelect={setSelectedGame} /> : null}
       {!activeRun && selectedGame ? <RunSetupForm gameVersion={selectedGame} onBack={() => setSelectedGame('')} onCreate={createRun} /> : null}
       {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={() => setActiveRunId('')} /> : null}
+      </div>
     </section>
   );
 }
 
 function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void }) {
   return (
-    <section className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[8px_8px_0_rgba(24,42,64,0.2)]">
+    <section className={panelClass}>
       <h2 className="text-3xl font-black">Choose Your Game</h2>
       <p className="mt-2 text-sm font-bold text-[#506078]">Scarlet and Violet are fully wired first. The rest are parked here for later.</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {gameGroups.map((group) => (
-          <div key={group.generation} className="border-2 border-[#9baec8] bg-[#f8fbff] p-3">
-            <div className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">{group.generation}</div>
+          <div key={group.generation} className={softPanelClass}>
+            <div className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">{group.generation}</div>
             <div className="grid grid-cols-2 gap-2">
               {(group.games || []).map((game) => (
                 <button
                   key={game.name}
                   onClick={() => game.supported && onSelect(game.name)}
                   disabled={!game.supported}
-                  className={`min-h-12 border-2 px-2 text-sm font-black shadow-[3px_3px_0_rgba(24,42,64,0.16)] ${
+                  className={`min-h-12 rounded-xl border px-2 text-sm font-black shadow-sm transition ${
                     game.supported
-                      ? 'border-[#182a40] bg-[#ffe36e] hover:-translate-y-0.5'
-                      : 'border-[#c8d2df] bg-white text-[#8a97aa] opacity-75'
+                      ? 'border-[#182a40] bg-[var(--nuz-accent-soft)] hover:-translate-y-0.5'
+                      : 'border-[#d9e2ee] bg-white/75 text-[#8a97aa] opacity-75'
                   }`}
                 >
                   {game.name}
@@ -419,19 +461,19 @@ function RunSetupForm({
   };
 
   return (
-    <form onSubmit={create} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[8px_8px_0_rgba(24,42,64,0.2)]">
-      <button type="button" onClick={onBack} className="mb-4 border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black">Back to Games</button>
+    <form onSubmit={create} className={panelClass}>
+      <button type="button" onClick={onBack} className={`mb-4 ${smallButtonClass}`}>Back to Games</button>
       <h2 className="text-3xl font-black">Run Setup</h2>
-      <div className="mt-1 text-sm font-black text-[#3f7fbf]">{gameVersion}</div>
+      <div className="mt-1 text-sm font-black text-[var(--nuz-accent)]">{gameVersion}</div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <label className="grid gap-2 text-sm font-black">
           Run name
-          <input value={runName} onChange={(event) => setRunName(event.target.value)} className="border-4 border-[#9baec8] bg-white px-3 py-3 outline-none focus:border-[#182a40]" />
+          <input value={runName} onChange={(event) => setRunName(event.target.value)} className={fieldClass} />
         </label>
         <label className="grid gap-2 text-sm font-black">
           Run type
-          <select value={runType} onChange={(event) => setRunType(event.target.value as RunType)} className="border-4 border-[#9baec8] bg-white px-3 py-3">
+          <select value={runType} onChange={(event) => setRunType(event.target.value as RunType)} className={fieldClass}>
             {runTypes.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
         </label>
@@ -440,17 +482,17 @@ function RunSetupForm({
       {runType === 'Monotype' ? (
         <label className="mt-4 grid gap-2 text-sm font-black">
           Monotype
-          <select value={rules.monotype || 'Normal'} onChange={(event) => setRules((current) => ({ ...current, monotype: event.target.value as PokemonType }))} className="border-4 border-[#9baec8] bg-white px-3 py-3">
+          <select value={rules.monotype || 'Normal'} onChange={(event) => setRules((current) => ({ ...current, monotype: event.target.value as PokemonType }))} className={fieldClass}>
             {pokemonTypes.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
         </label>
       ) : null}
 
       <div className="mt-5">
-        <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Rules</div>
+        <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Rules</div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {ruleLabels.map((rule) => (
-            <label key={rule.key} className="flex items-center gap-2 border-2 border-[#9baec8] bg-white p-3 text-xs font-black">
+            <label key={rule.key} className="flex items-center gap-2 rounded-xl bg-white/75 p-3 text-xs font-black shadow-sm">
               <input
                 type="checkbox"
                 checked={Boolean(rules[rule.key])}
@@ -462,8 +504,8 @@ function RunSetupForm({
         </div>
       </div>
 
-      {error ? <div className="mt-3 border-2 border-[#ef5350] bg-[#fff2f0] p-2 text-sm font-black text-[#9f2c24]">{error}</div> : null}
-      <button className="mt-5 border-4 border-[#182a40] bg-[#ffe36e] px-5 py-3 text-sm font-black shadow-[5px_5px_0_#3f7fbf]">Create Run</button>
+      {error ? <div className="mt-3 rounded-lg bg-[#fff2f0] p-2 text-sm font-black text-[#9f2c24]">{error}</div> : null}
+      <button className="mt-5 rounded-xl bg-[var(--nuz-accent-soft)] px-5 py-3 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)]">Create Run</button>
     </form>
   );
 }
@@ -484,13 +526,13 @@ function NuzlockeDashboard({
 
   return (
     <div className="grid gap-4 pb-28">
-      <section className="rounded-lg border border-[#d3deea] bg-[#fffdf1] p-4 shadow-sm">
+      <section className={panelClass}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">{run.gameVersion} / {run.runType}</div>
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">{run.gameVersion} / {run.runType}</div>
             <h2 className="text-3xl font-black">{run.runName}</h2>
           </div>
-          <button onClick={onNewRun} className="rounded-md border border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-sm">
+          <button onClick={onNewRun} className={smallButtonClass}>
             Back to Game Chooser
           </button>
         </div>
@@ -499,8 +541,8 @@ function NuzlockeDashboard({
             <button
               key={item}
               onClick={() => setTab(item)}
-              className={`shrink-0 border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
-                tab === item ? 'border-[#182a40] bg-[#182a40] text-white' : 'border-[#c5d1df] bg-white'
+              className={`shrink-0 rounded-full px-4 py-2 text-xs font-black shadow-sm transition ${
+                tab === item ? 'bg-[#182a40] text-white' : 'bg-white/80 hover:bg-white'
               }`}
             >
               {item}
@@ -563,9 +605,9 @@ function CurrentTeamBar({
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t-4 border-[#182a40] bg-[#fffdf1]/95 px-3 py-2 shadow-[0_-8px_24px_rgba(24,42,64,0.18)] backdrop-blur">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/70 bg-white/85 px-3 py-2 shadow-[0_-14px_35px_rgba(24,42,64,0.12)] backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto">
-        <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Current Team</div>
+        <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Current Team</div>
         {slots.map((pokemon, index) => {
           const slotId = pokemon?.id ?? `empty-${index}`;
           const isActive = activeSlot === slotId;
@@ -575,24 +617,24 @@ function CurrentTeamBar({
               <button
                 type="button"
                 onClick={() => setActiveSlot(isActive ? null : slotId)}
-                className={`flex min-w-[150px] items-center gap-2 border-2 p-2 text-left ${
-                  pokemon ? 'border-[#9baec8] bg-white' : 'border-dashed border-[#c8d2df] bg-[#f8fbff] text-[#8a97aa]'
+                className={`flex min-w-[150px] items-center gap-2 rounded-xl p-2 text-left shadow-sm ${
+                  pokemon ? 'bg-white' : 'border border-dashed border-[#c8d2df] bg-white/55 text-[#8a97aa]'
                 }`}
               >
-                {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} compact /> : <div className="flex h-11 w-11 items-center justify-center rounded-full border-4 border-dashed border-[#9baec8] bg-white text-sm font-black">+</div>}
+                {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} compact /> : <div className="flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[#9baec8] bg-white text-sm font-black">+</div>}
                 <div className="min-w-0">
                   <div className="truncate text-xs font-black">{pokemon ? pokemon.nickname || pokemon.species : `Slot ${index + 1}`}</div>
                   <div className="text-[11px] font-bold text-[#506078]">{pokemon ? `Lv ${pokemon.level} / ${pokemon.species}` : 'Empty party spot'}</div>
                 </div>
               </button>
               {isActive ? (
-                <div className="absolute bottom-full left-0 z-40 mb-2 w-56 border-4 border-[#182a40] bg-white p-2 shadow-[5px_5px_0_rgba(24,42,64,0.2)]">
+                <div className="absolute bottom-full left-0 z-40 mb-2 w-56 rounded-xl bg-white p-2 shadow-[0_14px_35px_rgba(24,42,64,0.18)]">
                   {pokemon ? (
                     <div className="grid gap-2">
                       <div className="text-xs font-black">{pokemon.nickname || pokemon.species}</div>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className="border-2 border-[#9baec8] bg-[#f8fbff] px-3 py-2 text-xs font-black">Box It</button>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="border-2 border-[#ef5350] bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24]">Mark Dead</button>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Released')} className="border-2 border-[#9baec8] bg-white px-3 py-2 text-xs font-black">Release</button>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box It</button>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm">Mark Dead</button>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Released')} className={smallButtonClass}>Release</button>
                     </div>
                   ) : (
                     <div className="text-xs font-bold leading-5 text-[#506078]">Empty slot. Add a caught Pokemon from the Team tab and it will land here.</div>
@@ -619,7 +661,7 @@ function Overview({ run }: { run: NuzlockeRun }) {
 
   return (
     <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-      <div className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
+      <div className={panelClass}>
         <div className="grid gap-3 sm:grid-cols-2">
           <Stat label="Progress" value={`${completedBosses}/${bosses.length || 0}`} />
           <Stat label="Team Count" value={team.filter((pokemon) => pokemon.status === 'Party').length} />
@@ -634,8 +676,8 @@ function Overview({ run }: { run: NuzlockeRun }) {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="border-2 border-[#9baec8] bg-[#f8fbff] p-4">
-      <div className="text-xs font-black uppercase tracking-[0.16em] text-[#3f7fbf]">{label}</div>
+    <div className="rounded-xl bg-white/70 p-4 shadow-sm">
+      <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{label}</div>
       <div className="mt-2 text-3xl font-black">{value}</div>
     </div>
   );
@@ -643,10 +685,10 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 function RuleSummary({ rules, monotype }: { rules: string[]; monotype?: PokemonType }) {
   return (
-    <div className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
-      <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Rules Summary</div>
+    <div className={panelClass}>
+      <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Rules Summary</div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {(rules || []).map((rule) => <span key={rule} className="border-2 border-[#9baec8] bg-white px-2 py-1 text-xs font-black">{rule}</span>)}
+        {(rules || []).map((rule) => <span key={rule} className="rounded-full bg-white px-3 py-1 text-xs font-black shadow-sm">{rule}</span>)}
         {monotype ? <TypeBadge type={monotype} /> : null}
       </div>
     </div>
@@ -753,43 +795,43 @@ function TeamTracker({
 
   return (
     <section className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
-      <form onSubmit={addPokemon} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
+      <form onSubmit={addPokemon} className={panelClass}>
         <div className="mb-3 flex items-center gap-2 text-sm font-black"><Plus size={16} /> Add from Caught Encounters</div>
         <div className="grid gap-3">
           {caughtEncounters.length === 0 ? (
-            <div className="border-2 border-dashed border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black text-[#506078]">
+            <div className="rounded-xl border border-dashed border-[#c8d2df] bg-white/65 p-3 text-xs font-black text-[#506078]">
               Catch an encounter first. Caught Pokemon will show up here automatically.
             </div>
           ) : null}
-          <div className="border-2 border-[#9baec8] bg-[#f8fbff] p-3">
-            <div className="text-xs font-black text-[#3f7fbf]">{selectedEncounter?.location || 'No encounter selected'}</div>
+          <div className={softPanelClass}>
+            <div className="text-xs font-black text-[var(--nuz-accent)]">{selectedEncounter?.location || 'No encounter selected'}</div>
             <div className="mt-1 text-xl font-black">{selectedEncounter?.pokemon || 'Waiting on a catch'}</div>
             <div className="mt-2 flex flex-wrap gap-2">{(selectedEncounter?.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
           </div>
-          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname, optional" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <input value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })} placeholder="Level" type="number" min="1" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname, optional" className={fieldClass} />
+          <input value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })} placeholder="Level" type="number" min="1" className={fieldClass} />
+          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className={fieldClass}>
             {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
           </select>
-          <select value={form.heldItem} onChange={(event) => setForm({ ...form, heldItem: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+          <select value={form.heldItem} onChange={(event) => setForm({ ...form, heldItem: event.target.value })} className={fieldClass}>
             {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
           </select>
           <div className="grid gap-2 sm:grid-cols-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Ability</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
             <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
           </div>
           <div className="grid gap-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Status</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Status</div>
             <ChoiceButtons options={['Party', 'Boxed', 'Dead', 'Released'] as PokemonStatus[]} value={form.status} onChange={(status) => setForm({ ...form, status })} />
           </div>
-          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className="min-h-20 border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <button disabled={!selectedEncounter || availableEncounters.length === 0} className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf] disabled:opacity-45">Add to Team</button>
+          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className={`${fieldClass} min-h-20`} />
+          <button disabled={!selectedEncounter || availableEncounters.length === 0} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-3 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add to Team</button>
         </div>
       </form>
 
       <div className="grid gap-4">
-        <div className="border-4 border-[#182a40] bg-[#f8fbff] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.12)]">
-          <div className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Available Caught Pokemon</div>
+        <div className={panelClass}>
+          <div className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Available Caught Pokemon</div>
           {availableEncounters.length === 0 ? (
             <div className="text-sm font-bold text-[#506078]">No unused catches available. Log a caught encounter or move someone off the team list.</div>
           ) : (
@@ -798,15 +840,15 @@ function TeamTracker({
                 <button
                   key={encounter.id}
                   onClick={() => addPokemonFromEncounter(encounter)}
-                  className={`border-2 p-3 text-left text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.12)] ${
-                    form.encounterId === encounter.id ? 'border-[#182a40] bg-[#ffe36e]' : 'border-[#9baec8] bg-white'
+                  className={`rounded-xl p-3 text-left text-xs font-black shadow-sm transition ${
+                    form.encounterId === encounter.id ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white hover:-translate-y-0.5'
                   }`}
                   title="Add to team"
                 >
                   <span className="block text-sm">{encounter.pokemon}</span>
                   <span className="block text-[#506078]">{encounter.location}</span>
                   <span className="mt-2 flex flex-wrap gap-1">{(encounter.types || []).map((type) => <TypeBadge key={type} type={type} />)}</span>
-                  <span className="mt-2 block border-t border-[#9baec8] pt-2 text-[11px] text-[#3f7fbf]">Click to add</span>
+                  <span className="mt-2 block pt-2 text-[11px] text-[var(--nuz-accent)]">Click to add</span>
                 </button>
               ))}
             </div>
@@ -815,20 +857,20 @@ function TeamTracker({
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {(run.team || []).map((pokemon) => (
-            <article key={pokemon.id} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)]">
+            <article key={pokemon.id} className={panelClass}>
               <div className="flex items-start gap-3">
                 <MonsterToken species={pokemon.species} status={pokemon.status} />
                 <div className="min-w-0">
                   <h3 className="truncate text-lg font-black">{pokemon.nickname || pokemon.species}</h3>
                   <div className="text-xs font-bold text-[#506078]">{pokemon.species} / Lv {pokemon.level}</div>
-                  <div className="mt-1 text-[11px] font-black text-[#3f7fbf]">{pokemon.metLocation || 'Unknown area'}</div>
+                  <div className="mt-1 text-[11px] font-black text-[var(--nuz-accent)]">{pokemon.metLocation || 'Unknown area'}</div>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
               <div className="mt-3 text-xs font-bold text-[#506078]">{pokemon.nature || 'No nature'} / {pokemon.ability || 'No ability'}</div>
-              <label className="mt-3 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#3f7fbf]">
+              <label className="mt-3 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
                 Held item
-                <select value={pokemon.heldItem || 'None'} onChange={(event) => updatePokemon(pokemon.id, { heldItem: event.target.value })} className="border-2 border-[#9baec8] bg-white px-2 py-2 text-xs font-bold normal-case tracking-normal text-[#182a40]">
+                <select value={pokemon.heldItem || 'None'} onChange={(event) => updatePokemon(pokemon.id, { heldItem: event.target.value })} className={`${fieldClass} text-xs normal-case tracking-normal text-[#182a40]`}>
                   {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
                 </select>
               </label>
@@ -836,7 +878,7 @@ function TeamTracker({
               <div className="mt-3 flex flex-wrap gap-2">
                 <ChoiceButtons options={['Party', 'Boxed', 'Released'] as PokemonStatus[]} value={pokemon.status} onChange={(status) => setStatus(pokemon.id, status)} />
                 {pokemon.status !== 'Dead' ? (
-                  <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 border-2 border-[#ef5350] bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
+                  <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 rounded-lg bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
                     <Skull size={13} />
                     Dead
                   </button>
@@ -954,11 +996,11 @@ function EncounterTracker({
 
   return (
     <section className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
-      <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
+      <form onSubmit={addEncounter} className={panelClass}>
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex items-center gap-2 rounded-md border border-[#c5d1df] bg-[#f8fbff] p-3 text-xs font-black">
+            <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
               <input
                 type="checkbox"
                 checked={showSurfEncounters}
@@ -966,7 +1008,7 @@ function EncounterTracker({
               />
               Show surf encounters
             </label>
-            <label className="flex items-center gap-2 rounded-md border border-[#c5d1df] bg-[#f8fbff] p-3 text-xs font-black">
+            <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
               <input
                 type="checkbox"
                 checked={showFishingEncounters}
@@ -975,7 +1017,7 @@ function EncounterTracker({
               Show fishing rod encounters
             </label>
           </div>
-          <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+          <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className={fieldClass}>
             {scarletVioletLocations.map((location) => (
               <option key={location} disabled={caughtLocations.has(location)} value={location}>
                 {location}{caughtLocations.has(location) ? ' - caught' : ''}
@@ -987,20 +1029,20 @@ function EncounterTracker({
             onChange={choosePokemon}
             options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
           />
-          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Level met" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
+          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className={fieldClass} />
+          <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Level met" className={fieldClass} />
           <div className="grid gap-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Result</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Result</div>
             <div className="grid grid-cols-2 gap-2">
               {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setForm({ ...form, status })}
-                  className={`border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
+                  className={`rounded-lg px-3 py-2 text-xs font-black shadow-sm ${
                     form.status === status
-                      ? 'border-[#182a40] bg-[#182a40] text-white'
-                      : 'border-[#9baec8] bg-white text-[#182a40]'
+                      ? 'bg-[#182a40] text-white'
+                      : 'bg-white text-[#182a40]'
                   }`}
                 >
                   {status}
@@ -1008,39 +1050,39 @@ function EncounterTracker({
               ))}
             </div>
           </div>
-          <div className="border-2 border-[#9baec8] bg-[#f8fbff] p-3">
-            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Auto-filled typing</div>
+          <div className={softPanelClass}>
+            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Auto-filled typing</div>
             <div className="flex flex-wrap gap-2">
               {(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}
             </div>
           </div>
-          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className={fieldClass}>
             {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
           </select>
           <div className="grid gap-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Ability</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
             <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
           </div>
           {locationAlreadyCaught && form.status === 'Caught' ? (
-            <div className="border-2 border-[#ef5350] bg-[#fff2f0] p-3 text-xs font-black text-[#9f2c24]">
+            <div className="rounded-xl bg-[#fff2f0] p-3 text-xs font-black text-[#9f2c24]">
               This area already has a caught encounter. Change the result or choose another area.
             </div>
           ) : null}
-          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className="min-h-20 border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf] disabled:opacity-45">Add Encounter</button>
+          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className={`${fieldClass} min-h-20`} />
+          <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-3 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add Encounter</button>
         </div>
       </form>
 
       <div className="grid min-w-0 gap-3">
         {(run.encounters || []).map((encounter) => (
-          <article key={encounter.id} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)]">
+          <article key={encounter.id} className={panelClass}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-black">{encounter.location}</h3>
                 <div className="text-sm font-bold text-[#506078]">{encounter.pokemon || 'No Pokemon recorded'} {encounter.nickname ? `/ ${encounter.nickname}` : ''} / Lv {encounter.levelMet}</div>
-                <div className="mt-1 text-xs font-black text-[#3f7fbf]">{encounter.nature || 'Not Sure'} / {encounter.ability || 'Not Sure'}</div>
+                <div className="mt-1 text-xs font-black text-[var(--nuz-accent)]">{encounter.nature || 'Not Sure'} / {encounter.ability || 'Not Sure'}</div>
               </div>
-              <span className="border-2 border-[#9baec8] bg-white px-2 py-1 text-xs font-black">{encounter.status}</span>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black shadow-sm">{encounter.status}</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">{(encounter.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
             <p className="mt-2 text-sm font-bold leading-6">{encounter.notes}</p>
@@ -1085,12 +1127,12 @@ function BossTracker({
   return (
     <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {sortedBosses.map((boss) => (
-        <article key={boss.id} className={`rounded-lg border bg-[#fffdf1] p-4 shadow-sm ${boss.completed ? 'border-[#c5d1df] opacity-70' : 'border-[#d3deea]'}`}>
+        <article key={boss.id} className={`rounded-2xl border border-white/75 bg-white/90 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-start gap-3">
               <TrainerToken name={boss.name} category={boss.category} />
               <div className="min-w-0">
-                <div className="text-xs font-black uppercase tracking-[0.16em] text-[#3f7fbf]">{boss.category}</div>
+                <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{boss.category}</div>
                 <h3 className="mt-1 truncate text-lg font-black">{boss.name}</h3>
                 {boss.completed ? <div className="mt-1 text-xs font-black text-[#2f7d4f]">Completed / {boss.deaths} deaths</div> : null}
               </div>
@@ -1106,15 +1148,15 @@ function BossTracker({
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <label className="grid gap-1 text-xs font-black">
                   Level cap
-                  <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className="rounded-md border border-[#c5d1df] bg-white px-2 py-1" />
+                  <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className={fieldClass} />
                 </label>
                 <label className="grid gap-1 text-xs font-black">
                   Deaths
-                  <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className="rounded-md border border-[#c5d1df] bg-white px-2 py-1" />
+                  <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className={fieldClass} />
                 </label>
               </div>
-              <div className="mt-3 rounded-md bg-[#f8fbff] p-3">
-                <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Pokemon Used</div>
+              <div className={softPanelClass}>
+                <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Pokemon Used</div>
                 {(boss.pokemon || []).length > 0 ? (
                   <div className="grid gap-2">
                     {(boss.pokemon || []).map((pokemon) => <BossPokemonRow key={`${boss.id}-${pokemon.species}-${pokemon.level}`} pokemon={pokemon} bossId={boss.id} />)}
@@ -1123,7 +1165,7 @@ function BossTracker({
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
-              <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className="mt-3 min-h-20 w-full rounded-md border border-[#c5d1df] bg-white px-2 py-2 text-sm font-bold" />
+              <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className={`${fieldClass} mt-3 min-h-20 w-full text-sm`} />
             </>
           ) : null}
         </article>
@@ -1136,12 +1178,12 @@ function Graveyard({ run }: { run: NuzlockeRun }) {
   const deadPokemon = (run.team || []).filter((pokemon) => pokemon.status === 'Dead');
 
   return (
-    <section className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
+    <section className={panelClass}>
       <div className="mb-4 flex items-center gap-2 text-lg font-black"><Skull size={20} /> Graveyard</div>
       {deadPokemon.length === 0 ? <p className="text-sm font-bold text-[#506078]">No losses recorded. The notebook is mercifully quiet.</p> : null}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {deadPokemon.map((pokemon) => (
-          <article key={pokemon.id} className="border-4 border-[#182a40] bg-[#e9edf3] p-4">
+          <article key={pokemon.id} className="rounded-2xl bg-white/75 p-4 shadow-sm">
             <div className="flex items-start gap-3">
               <MonsterToken species={pokemon.species} status="Dead" />
               <div>
@@ -1161,12 +1203,12 @@ function Graveyard({ run }: { run: NuzlockeRun }) {
 
 function TimelineLog({ run }: { run: NuzlockeRun }) {
   return (
-    <section className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
+    <section className={panelClass}>
       <div className="mb-4 text-lg font-black">Timeline</div>
       <div className="grid gap-2">
         {(run.timeline || []).map((event) => (
-          <div key={event.id} className="border-2 border-[#9baec8] bg-white p-3">
-            <div className="text-xs font-black uppercase tracking-[0.16em] text-[#3f7fbf]">{event.type} / {event.createdAt}</div>
+          <div key={event.id} className="rounded-xl bg-white/75 p-3 shadow-sm">
+            <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{event.type} / {event.createdAt}</div>
             <div className="mt-1 text-sm font-bold">{event.message}</div>
           </div>
         ))}
