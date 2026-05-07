@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 import { FormEvent, useEffect, useState } from 'react';
-import { LogOut, Plus, Skull } from 'lucide-react';
+import { Plus, Skull } from 'lucide-react';
 import {
   gameGroups,
   nuzlockeStorageKey,
@@ -104,65 +104,6 @@ function MonsterToken({ species, status }: { species: string; status?: PokemonSt
   );
 }
 
-export function NuzlockeLogin() {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/nuzlocke-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(typeof body?.error === 'string' ? body.error : 'Could not unlock tracker.');
-      }
-
-      window.location.reload();
-    } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : 'Could not unlock tracker.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <section className="mx-auto flex min-h-screen max-w-lg items-center p-4">
-      <form onSubmit={submit} className="w-full border-4 border-[#182a40] bg-[#fffdf1] p-5 shadow-[8px_8px_0_rgba(24,42,64,0.25)]">
-        <div className="mb-3 inline-block bg-[#3f7fbf] px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-white">
-          Private Page
-        </div>
-        <h1 className="text-3xl font-black">Nuzlocke Tracker</h1>
-        <p className="mt-2 text-sm font-bold leading-6 text-[#506078]">
-          Hidden trainer notebook. Enter the private password to continue.
-        </p>
-        <label className="mt-5 grid gap-2 text-sm font-black">
-          Password
-          <input
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            type="password"
-            autoComplete="current-password"
-            className="border-4 border-[#9baec8] bg-white px-3 py-3 font-bold outline-none focus:border-[#182a40]"
-          />
-        </label>
-        {error ? <div className="mt-3 border-2 border-[#ef5350] bg-[#fff2f0] p-2 text-sm font-black text-[#9f2c24]">{error}</div> : null}
-        <button disabled={loading || !password.trim()} className="mt-5 w-full border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[5px_5px_0_#3f7fbf] disabled:opacity-50">
-          {loading ? 'Checking...' : 'Unlock Tracker'}
-        </button>
-      </form>
-    </section>
-  );
-}
-
 export function NuzlockeTracker() {
   const [runs, setRuns] = useState<NuzlockeRun[]>([]);
   const [activeRunId, setActiveRunId] = useState('');
@@ -215,16 +156,11 @@ export function NuzlockeTracker() {
     setSelectedGame('');
   };
 
-  const logout = async () => {
-    await fetch('/api/nuzlocke-logout', { method: 'POST' }).catch(() => undefined);
-    window.location.reload();
-  };
-
   return (
     <section className="mx-auto max-w-7xl p-3 sm:p-5">
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3 border-4 border-[#182a40] bg-[#fffdf1] p-3 shadow-[6px_6px_0_rgba(24,42,64,0.2)]">
         <div>
-          <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Private RepeatChannel Tool</div>
+          <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">RepeatChannel Tool</div>
           <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -237,10 +173,6 @@ export function NuzlockeTracker() {
           ) : null}
           <button onClick={() => setSelectedGame('')} className="border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.2)]">
             New Run
-          </button>
-          <button onClick={logout} className="flex items-center gap-2 border-2 border-[#182a40] bg-[#182a40] px-3 py-2 text-xs font-black text-white shadow-[3px_3px_0_rgba(24,42,64,0.2)]">
-            <LogOut size={14} />
-            Lock
           </button>
         </div>
       </header>
