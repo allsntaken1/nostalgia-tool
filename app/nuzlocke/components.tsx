@@ -4,6 +4,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Plus, Skull } from 'lucide-react';
 import {
+  type EncounterOption,
   gameGroups,
   getAbilityOptions,
   getPokemonSpriteUrl,
@@ -81,9 +82,22 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
   const mergeBossDefaults = (bosses: NuzlockeBoss[]) =>
     bosses.map((boss) => {
       const defaultBoss = scarletVioletBosses.find((item) => item.id === boss.id);
+      const defaultPokemon = defaultBoss?.pokemon ?? [];
+      const pokemon = Array.isArray(boss.pokemon) && boss.pokemon.length > 0
+        ? boss.pokemon.map((member) => {
+            const defaultMember = defaultPokemon.find((item) => item.species === member.species);
+            return {
+              ...member,
+              ability: cleanBossDetail(member.ability) || defaultMember?.ability || '',
+              item: cleanBossDetail(member.item) || defaultMember?.item || '',
+              nature: cleanBossDetail(member.nature) || defaultMember?.nature || '',
+            };
+          })
+        : defaultPokemon;
+
       return {
         ...boss,
-        pokemon: Array.isArray(boss.pokemon) && boss.pokemon.length > 0 ? boss.pokemon : defaultBoss?.pokemon ?? [],
+        pokemon,
       };
     });
 
@@ -101,8 +115,57 @@ function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`rounded-sm px-2 py-1 text-[11px] font-black ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
+function SpriteSelect({
+  options,
+  value,
+  onChange,
+}: {
+  options: EncounterOption[];
+  value: string;
+  onChange: (species: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((option) => option.species === value) ?? options[0];
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center justify-between gap-3 border-2 border-[#9baec8] bg-white px-3 py-2 text-left font-bold"
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          {selected ? <MonsterToken species={selected.species} compact /> : null}
+          <span className="truncate">{selected?.species || 'Not listed'}</span>
+        </span>
+        <span className="shrink-0 text-xs">▼</span>
+      </button>
+      {open ? (
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto border-4 border-[#182a40] bg-white shadow-[5px_5px_0_rgba(24,42,64,0.2)]">
+          {(options || []).map((option) => (
+            <button
+              key={option.species}
+              type="button"
+              onClick={() => {
+                onChange(option.species);
+                setOpen(false);
+              }}
+              className={`flex w-full items-center gap-3 border-b-2 border-[#d7e1ef] px-3 py-2 text-left font-black hover:bg-[#f8fbff] ${
+                option.species === value ? 'bg-[#e7f1ff]' : 'bg-white'
+              }`}
+            >
+              <MonsterToken species={option.species} compact />
+              <span>{option.species}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function cleanBossDetail(value: string) {
-  if (!value || value === 'Not listed' || value === 'None listed') return '';
+  if (!value || value === 'Not listed' || value === 'None listed' || value === 'N/A') return '';
   return value;
 }
 
@@ -152,7 +215,7 @@ function ChoiceButtons<T extends string>({
   );
 }
 
-function MonsterToken({ species, status }: { species: string; status?: PokemonStatus }) {
+function MonsterToken({ species, status, compact = false }: { species: string; status?: PokemonStatus; compact?: boolean }) {
   const spriteUrl = getPokemonSpriteUrl(species);
   const initials = species
     .split(/\s+/)
@@ -161,15 +224,18 @@ function MonsterToken({ species, status }: { species: string; status?: PokemonSt
     .map((part) => part[0]?.toUpperCase())
     .join('') || '?';
 
+  const tokenSize = compact ? 'h-11 w-11' : 'h-16 w-16';
+  const imageSize = compact ? 'h-10 w-10' : 'h-14 w-14';
+
   return (
-    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 border-[#182a40] text-sm font-black shadow-[3px_3px_0_rgba(24,42,64,0.25)] ${
-      status === 'Dead' ? 'bg-[#182a40] text-white' : 'bg-[#ffe36e] text-[#182a40]'
+    <div className={`flex ${tokenSize} shrink-0 items-center justify-center rounded-full border-4 text-sm font-black shadow-[3px_3px_0_rgba(24,42,64,0.25)] ${
+      status === 'Dead' ? 'border-[#ef5350] bg-white text-[#182a40]' : 'border-[#182a40] bg-white text-[#182a40]'
     }`}>
       {spriteUrl ? (
         <img
           src={spriteUrl}
           alt={species}
-          className={`h-10 w-10 object-contain ${status === 'Dead' ? 'grayscale opacity-70' : ''}`}
+          className={`${imageSize} object-contain ${status === 'Dead' ? 'grayscale opacity-75' : ''}`}
           style={{ imageRendering: 'pixelated' }}
         />
       ) : initials}
@@ -492,7 +558,7 @@ function CurrentTeamBar({
                   pokemon ? 'border-[#9baec8] bg-white' : 'border-dashed border-[#c8d2df] bg-[#f8fbff] text-[#8a97aa]'
                 }`}
               >
-                {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} /> : <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-dashed border-[#9baec8] text-sm font-black">+</div>}
+                {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} compact /> : <div className="flex h-11 w-11 items-center justify-center rounded-full border-4 border-dashed border-[#9baec8] bg-white text-sm font-black">+</div>}
                 <div className="min-w-0">
                   <div className="truncate text-xs font-black">{pokemon ? pokemon.nickname || pokemon.species : `Slot ${index + 1}`}</div>
                   <div className="text-[11px] font-bold text-[#506078]">{pokemon ? `Lv ${pokemon.level} / ${pokemon.species}` : 'Empty party spot'}</div>
@@ -687,7 +753,7 @@ function TeamTracker({
           <select value={form.heldItem} onChange={(event) => setForm({ ...form, heldItem: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
             {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
           </select>
-          <div className="grid gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Ability</div>
             <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
           </div>
@@ -895,11 +961,11 @@ function EncounterTracker({
               </option>
             ))}
           </select>
-          <select value={form.pokemon} onChange={(event) => choosePokemon(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
-            {(visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]).map((option) => (
-              <option key={option.species} value={option.species}>{option.species}</option>
-            ))}
-          </select>
+          <SpriteSelect
+            value={form.pokemon}
+            onChange={choosePokemon}
+            options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
+          />
           <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
           <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Level met" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
           <div className="grid gap-2">
