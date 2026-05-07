@@ -115,6 +115,27 @@ function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`rounded-sm px-2 py-1 text-[11px] font-black ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
+function TrainerToken({ name, category }: { name: string; category: string }) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || '?';
+  const accent =
+    category.includes('Gym') ? 'bg-[#ffe36e]' :
+    category.includes('Titan') ? 'bg-[#ffb98f]' :
+    category.includes('Starfall') ? 'bg-[#c7b7ff]' :
+    category.includes('League') ? 'bg-[#b9e5ff]' :
+    'bg-[#d8efc2]';
+
+  return (
+    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#182a40] ${accent} text-base font-black shadow-[2px_2px_0_rgba(24,42,64,0.12)]`}>
+      {initials}
+    </div>
+  );
+}
+
 function SpriteSelect({
   options,
   value,
@@ -132,7 +153,7 @@ function SpriteSelect({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex w-full items-center justify-between gap-3 border-2 border-[#9baec8] bg-white px-3 py-2 text-left font-bold"
+        className="flex w-full items-center justify-between gap-3 rounded-md border border-[#9baec8] bg-white px-3 py-2 text-left font-bold"
       >
         <span className="flex min-w-0 items-center gap-3">
           {selected ? <MonsterToken species={selected.species} compact /> : null}
@@ -141,7 +162,7 @@ function SpriteSelect({
         <span className="shrink-0 text-xs">▼</span>
       </button>
       {open ? (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto border-4 border-[#182a40] bg-white shadow-[5px_5px_0_rgba(24,42,64,0.2)]">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-md border-2 border-[#182a40] bg-white shadow-[0_12px_30px_rgba(24,42,64,0.16)]">
           {(options || []).map((option) => (
             <button
               key={option.species}
@@ -150,7 +171,7 @@ function SpriteSelect({
                 onChange(option.species);
                 setOpen(false);
               }}
-              className={`flex w-full items-center gap-3 border-b-2 border-[#d7e1ef] px-3 py-2 text-left font-black hover:bg-[#f8fbff] ${
+              className={`flex w-full items-center gap-3 border-b border-[#d7e1ef] px-3 py-2 text-left font-black hover:bg-[#f8fbff] ${
                 option.species === value ? 'bg-[#e7f1ff]' : 'bg-white'
               }`}
             >
@@ -173,8 +194,8 @@ function BossPokemonRow({ pokemon, bossId }: { pokemon: NonNullable<NuzlockeBoss
   const details = [cleanBossDetail(pokemon.nature), cleanBossDetail(pokemon.ability), cleanBossDetail(pokemon.item)].filter(Boolean);
 
   return (
-    <div key={`${bossId}-${pokemon.species}-${pokemon.level}`} className="flex items-center gap-3 border-2 border-white bg-white p-2 text-xs font-bold shadow-[2px_2px_0_rgba(24,42,64,0.08)]">
-      <MonsterToken species={pokemon.species} />
+    <div key={`${bossId}-${pokemon.species}-${pokemon.level}`} className="flex items-center gap-3 rounded-md bg-white p-2 text-xs font-bold shadow-sm">
+      <MonsterToken species={pokemon.species} compact />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2 font-black">
           <span className="truncate">{pokemon.species}</span>
@@ -205,7 +226,7 @@ function ChoiceButtons<T extends string>({
           className={`border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
             value === option
               ? 'border-[#182a40] bg-[#182a40] text-white'
-              : 'border-[#9baec8] bg-white text-[#182a40] hover:border-[#182a40]'
+              : 'border-[#c5d1df] bg-white text-[#182a40] hover:border-[#182a40]'
           }`}
         >
           {option}
@@ -228,7 +249,7 @@ function MonsterToken({ species, status, compact = false }: { species: string; s
   const imageSize = compact ? 'h-10 w-10' : 'h-14 w-14';
 
   return (
-    <div className={`flex ${tokenSize} shrink-0 items-center justify-center rounded-full border-4 text-sm font-black shadow-[3px_3px_0_rgba(24,42,64,0.25)] ${
+    <div className={`flex ${tokenSize} shrink-0 items-center justify-center rounded-full border-2 text-sm font-black shadow-[2px_2px_0_rgba(24,42,64,0.12)] ${
       status === 'Dead' ? 'border-[#ef5350] bg-white text-[#182a40]' : 'border-[#182a40] bg-white text-[#182a40]'
     }`}>
       {spriteUrl ? (
@@ -297,20 +318,20 @@ export function NuzlockeTracker() {
 
   return (
     <section className="mx-auto max-w-7xl p-3 sm:p-5">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 border-4 border-[#182a40] bg-[#fffdf1] p-3 shadow-[6px_6px_0_rgba(24,42,64,0.2)]">
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#d3deea] bg-[#fffdf1] p-4 shadow-sm">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">RepeatChannel Tool</div>
           <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {runs.length > 0 ? (
-            <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className="border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black">
+            <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className="rounded-md border border-[#9baec8] bg-white px-3 py-2 text-xs font-black">
               {runs.map((run) => (
                 <option key={run.id} value={run.id}>{run.runName}</option>
               ))}
             </select>
           ) : null}
-          <button onClick={() => setSelectedGame('')} className="border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.2)]">
+          <button onClick={() => setSelectedGame('')} className="rounded-md border border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-sm">
             New Run
           </button>
         </div>
@@ -463,13 +484,13 @@ function NuzlockeDashboard({
 
   return (
     <div className="grid gap-4 pb-28">
-      <section className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[8px_8px_0_rgba(24,42,64,0.2)]">
+      <section className="rounded-lg border border-[#d3deea] bg-[#fffdf1] p-4 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[#3f7fbf]">{run.gameVersion} / {run.runType}</div>
             <h2 className="text-3xl font-black">{run.runName}</h2>
           </div>
-          <button onClick={onNewRun} className="border-2 border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.2)]">
+          <button onClick={onNewRun} className="rounded-md border border-[#182a40] bg-white px-3 py-2 text-xs font-black shadow-sm">
             Back to Game Chooser
           </button>
         </div>
@@ -479,7 +500,7 @@ function NuzlockeDashboard({
               key={item}
               onClick={() => setTab(item)}
               className={`shrink-0 border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
-                tab === item ? 'border-[#182a40] bg-[#182a40] text-white' : 'border-[#9baec8] bg-white'
+                tab === item ? 'border-[#182a40] bg-[#182a40] text-white' : 'border-[#c5d1df] bg-white'
               }`}
             >
               {item}
@@ -936,8 +957,8 @@ function EncounterTracker({
       <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
-          <div className="grid gap-2">
-            <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center gap-2 rounded-md border border-[#c5d1df] bg-[#f8fbff] p-3 text-xs font-black">
               <input
                 type="checkbox"
                 checked={showSurfEncounters}
@@ -945,7 +966,7 @@ function EncounterTracker({
               />
               Show surf encounters
             </label>
-            <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
+            <label className="flex items-center gap-2 rounded-md border border-[#c5d1df] bg-[#f8fbff] p-3 text-xs font-black">
               <input
                 type="checkbox"
                 checked={showFishingEncounters}
@@ -1039,6 +1060,8 @@ function BossTracker({
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
+  const sortedBosses = [...(run.bosses || [])].sort((a, b) => Number(a.completed) - Number(b.completed));
+
   const toggleBoss = (boss: NuzlockeBoss) => {
     updateRun(run.id, (current) => {
       const nextCompleted = !boss.completed;
@@ -1061,39 +1084,48 @@ function BossTracker({
 
   return (
     <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {(run.bosses || []).map((boss) => (
-        <article key={boss.id} className={`border-4 p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)] ${boss.completed ? 'border-[#2f7d4f] bg-[#f1fff5]' : 'border-[#182a40] bg-[#fffdf1]'}`}>
+      {sortedBosses.map((boss) => (
+        <article key={boss.id} className={`rounded-lg border bg-[#fffdf1] p-4 shadow-sm ${boss.completed ? 'border-[#c5d1df] opacity-70' : 'border-[#d3deea]'}`}>
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-xs font-black uppercase tracking-[0.16em] text-[#3f7fbf]">{boss.category}</div>
-              <h3 className="mt-1 text-lg font-black">{boss.name}</h3>
+            <div className="flex min-w-0 items-start gap-3">
+              <TrainerToken name={boss.name} category={boss.category} />
+              <div className="min-w-0">
+                <div className="text-xs font-black uppercase tracking-[0.16em] text-[#3f7fbf]">{boss.category}</div>
+                <h3 className="mt-1 truncate text-lg font-black">{boss.name}</h3>
+                {boss.completed ? <div className="mt-1 text-xs font-black text-[#2f7d4f]">Completed / {boss.deaths} deaths</div> : null}
+              </div>
             </div>
             <label className="flex items-center gap-2 text-xs font-black">
               <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
               Done
             </label>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <label className="grid gap-1 text-xs font-black">
-              Level cap
-              <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className="border-2 border-[#9baec8] bg-white px-2 py-1" />
-            </label>
-            <label className="grid gap-1 text-xs font-black">
-              Deaths
-              <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className="border-2 border-[#9baec8] bg-white px-2 py-1" />
-            </label>
-          </div>
-          <div className="mt-3 border-2 border-[#9baec8] bg-[#f8fbff] p-3">
-            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Pokemon Used</div>
-            {(boss.pokemon || []).length > 0 ? (
-              <div className="grid gap-2">
-                {(boss.pokemon || []).map((pokemon) => <BossPokemonRow key={`${boss.id}-${pokemon.species}-${pokemon.level}`} pokemon={pokemon} bossId={boss.id} />)}
+
+          {!boss.completed ? (
+            <>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <label className="grid gap-1 text-xs font-black">
+                  Level cap
+                  <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className="rounded-md border border-[#c5d1df] bg-white px-2 py-1" />
+                </label>
+                <label className="grid gap-1 text-xs font-black">
+                  Deaths
+                  <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className="rounded-md border border-[#c5d1df] bg-white px-2 py-1" />
+                </label>
               </div>
-            ) : (
-              <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
-            )}
-          </div>
-          <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className="mt-3 min-h-20 w-full border-2 border-[#9baec8] bg-white px-2 py-2 text-sm font-bold" />
+              <div className="mt-3 rounded-md bg-[#f8fbff] p-3">
+                <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Pokemon Used</div>
+                {(boss.pokemon || []).length > 0 ? (
+                  <div className="grid gap-2">
+                    {(boss.pokemon || []).map((pokemon) => <BossPokemonRow key={`${boss.id}-${pokemon.species}-${pokemon.level}`} pokemon={pokemon} bossId={boss.id} />)}
+                  </div>
+                ) : (
+                  <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
+                )}
+              </div>
+              <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className="mt-3 min-h-20 w-full rounded-md border border-[#c5d1df] bg-white px-2 py-2 text-sm font-bold" />
+            </>
+          ) : null}
         </article>
       ))}
     </section>
