@@ -6,6 +6,7 @@ import { Plus, Skull } from 'lucide-react';
 import {
   gameGroups,
   getAbilityOptions,
+  getPokemonSpriteUrl,
   heldItemOptions,
   natureOptions,
   nuzlockeStorageKey,
@@ -100,6 +101,28 @@ function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`rounded-sm px-2 py-1 text-[11px] font-black ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
+function cleanBossDetail(value: string) {
+  if (!value || value === 'Not listed' || value === 'None listed') return '';
+  return value;
+}
+
+function BossPokemonRow({ pokemon, bossId }: { pokemon: NonNullable<NuzlockeBoss['pokemon']>[number]; bossId: string }) {
+  const details = [cleanBossDetail(pokemon.nature), cleanBossDetail(pokemon.ability), cleanBossDetail(pokemon.item)].filter(Boolean);
+
+  return (
+    <div key={`${bossId}-${pokemon.species}-${pokemon.level}`} className="flex items-center gap-3 border-2 border-white bg-white p-2 text-xs font-bold shadow-[2px_2px_0_rgba(24,42,64,0.08)]">
+      <MonsterToken species={pokemon.species} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2 font-black">
+          <span className="truncate">{pokemon.species}</span>
+          <span className="shrink-0">Lv {pokemon.level}</span>
+        </div>
+        {details.length > 0 ? <div className="mt-1 text-[11px] leading-5 text-[#506078]">{details.join(' / ')}</div> : null}
+      </div>
+    </div>
+  );
+}
+
 function ChoiceButtons<T extends string>({
   options,
   value,
@@ -130,6 +153,7 @@ function ChoiceButtons<T extends string>({
 }
 
 function MonsterToken({ species, status }: { species: string; status?: PokemonStatus }) {
+  const spriteUrl = getPokemonSpriteUrl(species);
   const initials = species
     .split(/\s+/)
     .filter(Boolean)
@@ -141,7 +165,14 @@ function MonsterToken({ species, status }: { species: string; status?: PokemonSt
     <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 border-[#182a40] text-sm font-black shadow-[3px_3px_0_rgba(24,42,64,0.25)] ${
       status === 'Dead' ? 'bg-[#182a40] text-white' : 'bg-[#ffe36e] text-[#182a40]'
     }`}>
-      {initials}
+      {spriteUrl ? (
+        <img
+          src={spriteUrl}
+          alt={species}
+          className={`h-10 w-10 object-contain ${status === 'Dead' ? 'grayscale opacity-70' : ''}`}
+          style={{ imageRendering: 'pixelated' }}
+        />
+      ) : initials}
     </div>
   );
 }
@@ -990,17 +1021,7 @@ function BossTracker({
             <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Pokemon Used</div>
             {(boss.pokemon || []).length > 0 ? (
               <div className="grid gap-2">
-                {(boss.pokemon || []).map((pokemon) => (
-                  <div key={`${boss.id}-${pokemon.species}-${pokemon.level}`} className="border-2 border-white bg-white p-2 text-xs font-bold shadow-[2px_2px_0_rgba(24,42,64,0.08)]">
-                    <div className="flex items-center justify-between gap-2 font-black">
-                      <span>{pokemon.species}</span>
-                      <span>Lv {pokemon.level}</span>
-                    </div>
-                    <div className="mt-1 text-[11px] leading-5 text-[#506078]">
-                      {pokemon.nature || 'Nature not listed'} / {pokemon.ability || 'Ability not listed'} / {pokemon.item || 'Item not listed'}
-                    </div>
-                  </div>
-                ))}
+                {(boss.pokemon || []).map((pokemon) => <BossPokemonRow key={`${boss.id}-${pokemon.species}-${pokemon.level}`} pokemon={pokemon} bossId={boss.id} />)}
               </div>
             ) : (
               <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
