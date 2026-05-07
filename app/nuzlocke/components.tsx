@@ -8,6 +8,7 @@ import {
   nuzlockeStorageKey,
   pokemonTypes,
   runTypes,
+  scarletVioletEncounterOptions,
   scarletVioletBosses,
   scarletVioletLocations,
   typeColors,
@@ -538,14 +539,34 @@ function EncounterTracker({
 }) {
   const [form, setForm] = useState({
     location: scarletVioletLocations[0],
-    pokemon: '',
+    pokemon: scarletVioletEncounterOptions[scarletVioletLocations[0]]?.[0]?.species ?? '',
     nickname: '',
     levelMet: '5',
     status: 'Caught' as EncounterStatus,
-    typeOne: 'Normal' as PokemonType,
-    typeTwo: '',
+    types: scarletVioletEncounterOptions[scarletVioletLocations[0]]?.[0]?.types ?? (['Normal'] as PokemonType[]),
     notes: '',
   });
+
+  const encounterOptions = scarletVioletEncounterOptions[form.location] ?? [];
+
+  const chooseLocation = (location: string) => {
+    const firstOption = scarletVioletEncounterOptions[location]?.[0];
+    setForm((current) => ({
+      ...current,
+      location,
+      pokemon: firstOption?.species ?? '',
+      types: firstOption?.types ?? (['Normal'] as PokemonType[]),
+    }));
+  };
+
+  const choosePokemon = (species: string) => {
+    const selected = encounterOptions.find((option) => option.species === species);
+    setForm((current) => ({
+      ...current,
+      pokemon: species,
+      types: selected?.types ?? current.types,
+    }));
+  };
 
   const addEncounter = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -558,12 +579,12 @@ function EncounterTracker({
       nickname: form.nickname.trim(),
       levelMet: safeNumber(form.levelMet),
       status: form.status,
-      types: [form.typeOne, form.typeTwo].filter(Boolean) as PokemonType[],
+      types: form.types,
       notes: form.notes.trim(),
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
-    setForm((current) => ({ ...current, pokemon: '', nickname: '', levelMet: '5', notes: '' }));
+    setForm((current) => ({ ...current, nickname: '', levelMet: '5', notes: '' }));
   };
 
   return (
@@ -571,18 +592,40 @@ function EncounterTracker({
       <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
-          <select value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+          <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
             {scarletVioletLocations.map((location) => <option key={location}>{location}</option>)}
           </select>
-          <input value={form.pokemon} onChange={(event) => setForm({ ...form, pokemon: event.target.value })} placeholder="Pokemon encountered" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
+          <select value={form.pokemon} onChange={(event) => choosePokemon(event.target.value)} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {(encounterOptions.length > 0 ? encounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]).map((option) => (
+              <option key={option.species} value={option.species}>{option.species}</option>
+            ))}
+          </select>
           <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
           <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Level met" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
-          <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as EncounterStatus })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
-            {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => <option key={status}>{status}</option>)}
-          </select>
-          <div className="grid grid-cols-2 gap-2">
-            <TypeSelect value={form.typeOne} onChange={(value) => setForm({ ...form, typeOne: value || 'Normal' })} />
-            <TypeSelect value={form.typeTwo} onChange={(value) => setForm({ ...form, typeTwo: value })} optional />
+          <div className="grid gap-2">
+            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Result</div>
+            <div className="grid grid-cols-2 gap-2">
+              {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => setForm({ ...form, status })}
+                  className={`border-2 px-3 py-2 text-xs font-black shadow-[3px_3px_0_rgba(24,42,64,0.14)] ${
+                    form.status === status
+                      ? 'border-[#182a40] bg-[#182a40] text-white'
+                      : 'border-[#9baec8] bg-white text-[#182a40]'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="border-2 border-[#9baec8] bg-[#f8fbff] p-3">
+            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Auto-filled typing</div>
+            <div className="flex flex-wrap gap-2">
+              {(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}
+            </div>
           </div>
           <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className="min-h-20 border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
           <button className="border-4 border-[#182a40] bg-[#ffe36e] px-4 py-3 text-sm font-black shadow-[4px_4px_0_#3f7fbf]">Add Encounter</button>
