@@ -90,6 +90,7 @@ export type NuzlockePokemon = {
   types: PokemonType[];
   nature: string;
   ability: string;
+  heldItem: string;
   status: PokemonStatus;
   notes: string;
   levelDied?: number;
@@ -118,6 +119,15 @@ export type NuzlockeBoss = {
   completed: boolean;
   notes: string;
   deaths: number;
+  pokemon?: NuzlockeBossPokemon[];
+};
+
+export type NuzlockeBossPokemon = {
+  species: string;
+  level: number;
+  nature: string;
+  ability: string;
+  item: string;
 };
 
 export type NuzlockeTimelineEvent = {

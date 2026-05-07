@@ -6,6 +6,7 @@ import { Plus, Skull } from 'lucide-react';
 import {
   gameGroups,
   getAbilityOptions,
+  heldItemOptions,
   natureOptions,
   nuzlockeStorageKey,
   pokemonTypes,
@@ -76,11 +77,20 @@ function isRun(value: unknown): value is NuzlockeRun {
 function normalizeRuns(value: unknown): NuzlockeRun[] {
   if (!Array.isArray(value)) return [];
 
+  const mergeBossDefaults = (bosses: NuzlockeBoss[]) =>
+    bosses.map((boss) => {
+      const defaultBoss = scarletVioletBosses.find((item) => item.id === boss.id);
+      return {
+        ...boss,
+        pokemon: Array.isArray(boss.pokemon) && boss.pokemon.length > 0 ? boss.pokemon : defaultBoss?.pokemon ?? [],
+      };
+    });
+
   return value.filter(isRun).map((run) => ({
     ...run,
-    team: Array.isArray(run.team) ? run.team : [],
+    team: Array.isArray(run.team) ? run.team.map((pokemon) => ({ ...pokemon, heldItem: pokemon.heldItem || 'None' })) : [],
     encounters: Array.isArray(run.encounters) ? run.encounters : [],
-    bosses: Array.isArray(run.bosses) ? run.bosses : [],
+    bosses: Array.isArray(run.bosses) ? mergeBossDefaults(run.bosses) : [],
     timeline: Array.isArray(run.timeline) ? run.timeline : [],
     rules: run.rules || defaultRules,
   }));
@@ -387,31 +397,93 @@ function NuzlockeDashboard({
       {tab === 'Badges / Bosses' ? <BossTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
       {tab === 'Graveyard' ? <Graveyard run={run} /> : null}
       {tab === 'Timeline' ? <TimelineLog run={run} /> : null}
-      <CurrentTeamBar run={run} />
+      <CurrentTeamBar run={run} updateRun={updateRun} addTimeline={addTimeline} />
     </div>
   );
 }
 
-function CurrentTeamBar({ run }: { run: NuzlockeRun }) {
+function CurrentTeamBar({
+  run,
+  updateRun,
+  addTimeline,
+}: {
+  run: NuzlockeRun;
+  updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
+  addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
+}) {
+  const [activeSlot, setActiveSlot] = useState<string | null>(null);
   const party = (run.team || []).filter((pokemon) => pokemon.status === 'Party').slice(0, 6);
+  const slots: (NuzlockePokemon | null)[] = [...party, ...Array.from({ length: Math.max(0, 6 - party.length) }, () => null)];
+
+  const updatePokemonStatus = (pokemon: NuzlockePokemon, status: PokemonStatus) => {
+    updateRun(run.id, (current) => {
+      const nextRun = {
+        ...current,
+        updatedAt: nowLabel(),
+        team: (current.team || []).map((item) =>
+          item.id === pokemon.id
+            ? {
+                ...item,
+                status,
+                ...(status === 'Dead'
+                  ? {
+                      levelDied: item.level,
+                      causeOfDeath: item.causeOfDeath || 'Team bar quick mark',
+                      deathLocation: item.deathLocation || item.metLocation || 'Not recorded',
+                    }
+                  : {}),
+              }
+            : item
+        ),
+      };
+
+      return status === 'Dead'
+        ? addTimeline(nextRun, 'Pokemon Died', `${pokemon.nickname || pokemon.species} was marked dead from the team bar.`)
+        : nextRun;
+    });
+    setActiveSlot(null);
+  };
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t-4 border-[#182a40] bg-[#fffdf1]/95 px-3 py-2 shadow-[0_-8px_24px_rgba(24,42,64,0.18)] backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto">
         <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[#3f7fbf]">Current Team</div>
-        {party.length === 0 ? (
-          <div className="shrink-0 text-xs font-bold text-[#506078]">No party members yet.</div>
-        ) : (
-          party.map((pokemon) => (
-            <div key={pokemon.id} className="flex min-w-[150px] shrink-0 items-center gap-2 border-2 border-[#9baec8] bg-white p-2">
-              <MonsterToken species={pokemon.species} status={pokemon.status} />
-              <div className="min-w-0">
-                <div className="truncate text-xs font-black">{pokemon.nickname || pokemon.species}</div>
-                <div className="text-[11px] font-bold text-[#506078]">Lv {pokemon.level} / {pokemon.species}</div>
-              </div>
+        {slots.map((pokemon, index) => {
+          const slotId = pokemon?.id ?? `empty-${index}`;
+          const isActive = activeSlot === slotId;
+
+          return (
+            <div key={slotId} className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveSlot(isActive ? null : slotId)}
+                className={`flex min-w-[150px] items-center gap-2 border-2 p-2 text-left ${
+                  pokemon ? 'border-[#9baec8] bg-white' : 'border-dashed border-[#c8d2df] bg-[#f8fbff] text-[#8a97aa]'
+                }`}
+              >
+                {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} /> : <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-dashed border-[#9baec8] text-sm font-black">+</div>}
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-black">{pokemon ? pokemon.nickname || pokemon.species : `Slot ${index + 1}`}</div>
+                  <div className="text-[11px] font-bold text-[#506078]">{pokemon ? `Lv ${pokemon.level} / ${pokemon.species}` : 'Empty party spot'}</div>
+                </div>
+              </button>
+              {isActive ? (
+                <div className="absolute bottom-full left-0 z-40 mb-2 w-56 border-4 border-[#182a40] bg-white p-2 shadow-[5px_5px_0_rgba(24,42,64,0.2)]">
+                  {pokemon ? (
+                    <div className="grid gap-2">
+                      <div className="text-xs font-black">{pokemon.nickname || pokemon.species}</div>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className="border-2 border-[#9baec8] bg-[#f8fbff] px-3 py-2 text-xs font-black">Box It</button>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="border-2 border-[#ef5350] bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24]">Mark Dead</button>
+                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Released')} className="border-2 border-[#9baec8] bg-white px-3 py-2 text-xs font-black">Release</button>
+                    </div>
+                  ) : (
+                    <div className="text-xs font-bold leading-5 text-[#506078]">Empty slot. Add a caught Pokemon from the Team tab and it will land here.</div>
+                  )}
+                </div>
+              ) : null}
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
     </div>
   );
@@ -482,6 +554,7 @@ function TeamTracker({
     level: String(initialEncounter?.levelMet ?? 5),
     nature: initialEncounter?.nature || 'Not Sure',
     ability: initialEncounter?.ability || getAbilityOptions(initialEncounter?.pokemon ?? '')[0],
+    heldItem: 'None',
     status: 'Party' as PokemonStatus,
     notes: '',
   });
@@ -492,7 +565,7 @@ function TeamTracker({
 
   const addPokemonFromEncounter = (
     encounter: NuzlockeEncounter | undefined,
-    details?: Partial<Pick<NuzlockePokemon, 'nickname' | 'level' | 'nature' | 'ability' | 'status' | 'notes'>>
+    details?: Partial<Pick<NuzlockePokemon, 'nickname' | 'level' | 'nature' | 'ability' | 'heldItem' | 'status' | 'notes'>>
   ) => {
     if (!encounter?.pokemon || encounterIdsOnTeam.has(encounter.id)) return;
     const pokemon: NuzlockePokemon = {
@@ -505,6 +578,7 @@ function TeamTracker({
       types: encounter.types || [],
       nature: details?.nature ?? encounter.nature ?? 'Not Sure',
       ability: details?.ability ?? encounter.ability ?? getAbilityOptions(encounter.pokemon)[0],
+      heldItem: details?.heldItem ?? 'None',
       status: details?.status ?? 'Party',
       notes: details?.notes?.trim() ?? encounter.notes,
     };
@@ -518,6 +592,7 @@ function TeamTracker({
       level: String(nextEncounter?.levelMet ?? 5),
       nature: nextEncounter?.nature || 'Not Sure',
       ability: nextEncounter?.ability || getAbilityOptions(nextEncounter?.pokemon ?? '')[0],
+      heldItem: 'None',
       notes: '',
     }));
   };
@@ -529,6 +604,7 @@ function TeamTracker({
       level: safeNumber(form.level),
       nature: form.nature,
       ability: form.ability,
+      heldItem: form.heldItem,
       status: form.status,
       notes: form.notes,
     });
@@ -549,8 +625,16 @@ function TeamTracker({
     updateRun(run.id, (current) => ({ ...current, updatedAt: nowLabel(), team: (current.team || []).map((pokemon) => pokemon.id === id ? { ...pokemon, status } : pokemon) }));
   };
 
+  const updatePokemon = (id: string, changes: Partial<NuzlockePokemon>) => {
+    updateRun(run.id, (current) => ({
+      ...current,
+      updatedAt: nowLabel(),
+      team: (current.team || []).map((pokemon) => (pokemon.id === id ? { ...pokemon, ...changes } : pokemon)),
+    }));
+  };
+
   return (
-    <section className="grid gap-4 lg:grid-cols-[360px_1fr]">
+    <section className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
       <form onSubmit={addPokemon} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 flex items-center gap-2 text-sm font-black"><Plus size={16} /> Add from Caught Encounters</div>
         <div className="grid gap-3">
@@ -568,6 +652,9 @@ function TeamTracker({
           <input value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })} placeholder="Level" type="number" min="1" className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold" />
           <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
             {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
+          </select>
+          <select value={form.heldItem} onChange={(event) => setForm({ ...form, heldItem: event.target.value })} className="border-2 border-[#9baec8] bg-white px-3 py-2 font-bold">
+            {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
           </select>
           <div className="grid gap-2">
             <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Ability</div>
@@ -621,6 +708,12 @@ function TeamTracker({
               </div>
               <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
               <div className="mt-3 text-xs font-bold text-[#506078]">{pokemon.nature || 'No nature'} / {pokemon.ability || 'No ability'}</div>
+              <label className="mt-3 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#3f7fbf]">
+                Held item
+                <select value={pokemon.heldItem || 'None'} onChange={(event) => updatePokemon(pokemon.id, { heldItem: event.target.value })} className="border-2 border-[#9baec8] bg-white px-2 py-2 text-xs font-bold normal-case tracking-normal text-[#182a40]">
+                  {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
+                </select>
+              </label>
               <p className="mt-2 text-sm font-bold leading-6">{pokemon.notes}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <ChoiceButtons options={['Party', 'Boxed', 'Released'] as PokemonStatus[]} value={pokemon.status} onChange={(status) => setStatus(pokemon.id, status)} />
@@ -742,11 +835,11 @@ function EncounterTracker({
   };
 
   return (
-    <section className="grid gap-4 lg:grid-cols-[360px_1fr]">
+    <section className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
       <form onSubmit={addEncounter} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[6px_6px_0_rgba(24,42,64,0.18)]">
         <div className="mb-3 text-sm font-black">Add Encounter</div>
         <div className="grid gap-3">
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2">
             <label className="flex items-center gap-2 border-2 border-[#9baec8] bg-[#f8fbff] p-3 text-xs font-black">
               <input
                 type="checkbox"
@@ -820,7 +913,7 @@ function EncounterTracker({
         </div>
       </form>
 
-      <div className="grid gap-3">
+      <div className="grid min-w-0 gap-3">
         {(run.encounters || []).map((encounter) => (
           <article key={encounter.id} className="border-4 border-[#182a40] bg-[#fffdf1] p-4 shadow-[5px_5px_0_rgba(24,42,64,0.16)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -892,6 +985,26 @@ function BossTracker({
               Deaths
               <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className="border-2 border-[#9baec8] bg-white px-2 py-1" />
             </label>
+          </div>
+          <div className="mt-3 border-2 border-[#9baec8] bg-[#f8fbff] p-3">
+            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#3f7fbf]">Pokemon Used</div>
+            {(boss.pokemon || []).length > 0 ? (
+              <div className="grid gap-2">
+                {(boss.pokemon || []).map((pokemon) => (
+                  <div key={`${boss.id}-${pokemon.species}-${pokemon.level}`} className="border-2 border-white bg-white p-2 text-xs font-bold shadow-[2px_2px_0_rgba(24,42,64,0.08)]">
+                    <div className="flex items-center justify-between gap-2 font-black">
+                      <span>{pokemon.species}</span>
+                      <span>Lv {pokemon.level}</span>
+                    </div>
+                    <div className="mt-1 text-[11px] leading-5 text-[#506078]">
+                      {pokemon.nature || 'Nature not listed'} / {pokemon.ability || 'Ability not listed'} / {pokemon.item || 'Item not listed'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
+            )}
           </div>
           <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className="mt-3 min-h-20 w-full border-2 border-[#9baec8] bg-white px-2 py-2 text-sm font-bold" />
         </article>
