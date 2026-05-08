@@ -175,8 +175,8 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
   if (!Array.isArray(value)) return [];
 
   const mergeBossDefaults = (bosses: NuzlockeBoss[], gameVersion: GameVersion) =>
-    bosses.map((boss) => {
-      const defaultBoss = getNuzlockeBosses(gameVersion).find((item) => item.id === boss.id);
+    getNuzlockeBosses(gameVersion).map((defaultBoss) => {
+      const boss = bosses.find((item) => item.id === defaultBoss.id) ?? defaultBoss;
       const defaultPokemon = defaultBoss?.pokemon ?? [];
       const pokemon = Array.isArray(boss.pokemon) && boss.pokemon.length > 0
         ? boss.pokemon.map((member) => {
@@ -193,6 +193,8 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
 
       return {
         ...boss,
+        category: defaultBoss.category,
+        levelCap: boss.levelCap || defaultBoss.levelCap,
         pokemon,
       };
     });
@@ -531,6 +533,29 @@ function pokemonTypesForSpecies(species: string) {
     Avalugg: ['Ice'],
     Kingambit: ['Dark', 'Steel'],
     Glimmora: ['Rock', 'Poison'],
+    Whiscash: ['Water', 'Ground'],
+    Camerupt: ['Fire', 'Ground'],
+    Donphan: ['Ground'],
+    Clodsire: ['Poison', 'Ground'],
+    Copperajah: ['Steel'],
+    Magnezone: ['Electric', 'Steel'],
+    Bronzong: ['Steel', 'Psychic'],
+    Tinkaton: ['Fairy', 'Steel'],
+    Haxorus: ['Dragon'],
+    Dragalge: ['Poison', 'Dragon'],
+    Flapple: ['Grass', 'Dragon'],
+    Baxcalibur: ['Dragon', 'Ice'],
+    Flamigo: ['Flying', 'Fighting'],
+    Meowscarada: ['Grass', 'Dark'],
+    Skeledirge: ['Fire', 'Ghost'],
+    Quaquaval: ['Water', 'Fighting'],
+    Umbreon: ['Dark'],
+    Vaporeon: ['Water'],
+    Jolteon: ['Electric'],
+    Flareon: ['Fire'],
+    Leafeon: ['Grass'],
+    Sylveon: ['Fairy'],
+    Hatterene: ['Psychic', 'Fairy'],
     'Starter Ace': ['Normal'],
   };
 
@@ -653,8 +678,12 @@ function bossTypes(boss: NuzlockeBoss) {
     atticus: ['Poison'],
     ortega: ['Fairy'],
     eri: ['Fighting'],
-    'elite-four': ['Ground', 'Steel'],
+    rika: ['Ground'],
+    poppy: ['Steel'],
+    'larry-e4': ['Flying'],
+    hassel: ['Dragon'],
     'champion-geeta': ['Rock', 'Poison'],
+    penny: ['Fairy', 'Dark'],
     'brock-rb': ['Rock'],
     'brock-y': ['Rock'],
     'misty-rb': ['Water'],
@@ -727,6 +756,55 @@ function strongAgainst(types: PokemonType[]) {
   return pokemonTypes.filter((defenderType) => (types || []).some((attackType) => (typeChart[attackType]?.[defenderType] ?? 1) > 1));
 }
 
+function normalizePokemonApiName(species: string) {
+  const cleanSpecies = species.split('/')[0]?.trim();
+  const mapped: Record<string, string> = {
+    MrMime: 'mr-mime',
+    NidoranF: 'nidoran-f',
+    NidoranM: 'nidoran-m',
+    'Great Tusk': 'great-tusk',
+    'Iron Treads': 'iron-treads',
+    'Segin Starmobile': 'revavroom',
+    'Schedar Starmobile': 'revavroom',
+    'Navi Starmobile': 'revavroom',
+    'Ruchbah Starmobile': 'revavroom',
+    'Caph Starmobile': 'revavroom',
+  };
+
+  return mapped[cleanSpecies] ?? cleanSpecies.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function usePublicPokemonTypes(species: string, fallbackTypes: PokemonType[]) {
+  const fallbackKey = fallbackTypes.join('|');
+  const [types, setTypes] = useState<PokemonType[]>(fallbackTypes);
+
+  useEffect(() => {
+    setTypes(fallbackTypes);
+    if (fallbackTypes.length > 0 || !species || species.includes('Team') || species.includes('Ace')) return;
+
+    let active = true;
+    fetch(`https://pokeapi.co/api/v2/pokemon/${normalizePokemonApiName(species)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!active || !data?.types) return;
+        const fetchedTypes = data.types
+          .map((entry: { type?: { name?: string } }) => {
+            const name = entry.type?.name;
+            return name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+          })
+          .filter((name: string): name is PokemonType => pokemonTypes.includes(name as PokemonType));
+        if (fetchedTypes.length > 0) setTypes(fetchedTypes);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [species, fallbackKey]);
+
+  return types;
+}
+
 function pokemonBaseStats(species: string) {
   const stats: Record<string, { hp: number; atk: number; def: number; spa: number; spd: number; spe: number }> = {
     Geodude: { hp: 40, atk: 80, def: 100, spa: 30, spd: 30, spe: 20 },
@@ -756,6 +834,38 @@ function defaultMoveHints(pokemon: NuzlockeBossPokemon): NuzlockeMove[] {
   if (pokemon.moves?.length) return pokemon.moves;
   const types = pokemonTypesForSpecies(pokemon.species);
   return types.slice(0, 2).map((type) => ({ name: `${type} attack`, type, power: null }));
+}
+
+function trainerSpriteSlug(name: string) {
+  const mapped: Record<string, string> = {
+    'Lt. Surge': 'ltsurge',
+    'Champion Rival': 'blue',
+    'Stony Cliff Titan': 'hiker',
+    'Open Sky Titan': 'birdkeeper',
+    'Lurking Steel Titan': 'worker-gen4dp',
+    'Quaking Earth Titan': 'backpacker-gen5',
+    'False Dragon Titan': 'fisherman-gen4dp',
+    'Nemona Rival Fights': 'nemona',
+    'Champion Geeta': 'geeta',
+  };
+
+  return mapped[name] ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function TrainerSprite({ name }: { name: string }) {
+  const slug = trainerSpriteSlug(name);
+  const src = `https://play.pokemonshowdown.com/sprites/trainers/${slug}.png`;
+
+  return (
+    <span className="flex h-16 w-16 shrink-0 items-end justify-center rounded-2xl bg-white/70 shadow-sm">
+      <img
+        src={src}
+        alt={`${name} trainer sprite`}
+        className="max-h-16 max-w-14 object-contain"
+        style={{ imageRendering: 'pixelated' }}
+      />
+    </span>
+  );
 }
 
 function MonsterToken({
@@ -1467,6 +1577,7 @@ function EncounterTracker({
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
             <h3 className="text-lg font-black">Pick an encounter area</h3>
+            <p className="mt-1 text-xs font-bold text-[#506078]">Click a route once to reveal its available Pokemon.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
@@ -1546,9 +1657,7 @@ function EncounterTracker({
                       </span>
                     )}
                   </div>
-                ) : (
-                  <div className="mt-2 text-xs font-bold text-[#506078]">Click to show available Pokemon.</div>
-                )}
+                ) : null}
               </div>
             );
           })}
@@ -1664,12 +1773,25 @@ function BossTracker({
     }));
   };
 
+  const toggleExpandedBoss = (bossId: string) => {
+    setExpandedBossId((current) => (current === bossId ? '' : bossId));
+  };
+
   return (
     <section className="grid gap-3">
       {sortedBosses.map((boss) => (
         <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => toggleExpandedBoss(boss.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') toggleExpandedBoss(boss.id);
+            }}
+            className="flex cursor-pointer flex-wrap items-start justify-between gap-3 rounded-2xl p-1 transition hover:bg-white/30"
+          >
             <div className="flex min-w-0 items-start gap-3">
+              <TrainerSprite name={boss.name} />
               <BadgeToken name={boss.name} types={bossTypes(boss)} />
               <div className="min-w-0">
                 <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{boss.category}</div>
@@ -1679,17 +1801,15 @@ function BossTracker({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setExpandedBossId(expandedBossId === boss.id ? '' : boss.id)} className={smallButtonClass}>
-                {expandedBossId === boss.id ? 'Hide Team' : 'Show Team'}
-              </button>
-              <label className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm">
+              <span className="rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm">{expandedBossId === boss.id ? 'Open' : 'Closed'}</span>
+              <label className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm" onClick={(event) => event.stopPropagation()}>
                 <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
                 Done
               </label>
             </div>
           </div>
 
-          {!boss.completed && expandedBossId === boss.id ? (
+          {expandedBossId === boss.id ? (
             <>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <label className="grid gap-1 text-xs font-black">
@@ -1730,7 +1850,7 @@ function BossTracker({
 }
 
 function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
-  const types = pokemonTypesForSpecies(pokemon.species);
+  const types = usePublicPokemonTypes(pokemon.species, pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
   const matchups = defensiveMatchups(types);
   const strong = strongAgainst(types);
