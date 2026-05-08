@@ -1195,16 +1195,20 @@ function CurrentTeamBar({
                 </div>
               </button>
               {isActive ? (
-                <div className="absolute bottom-full left-0 z-40 mb-2 w-56 rounded-xl bg-white p-2 shadow-[0_14px_35px_rgba(24,42,64,0.18)]">
+                <div className="absolute bottom-full left-0 z-40 mb-2 rounded-2xl bg-white/95 p-2 shadow-[0_14px_35px_rgba(24,42,64,0.18)]">
                   {pokemon ? (
-                    <div className="grid gap-2">
-                      <div className="text-xs font-black">{pokemon.nickname || pokemon.species}</div>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box It</button>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm">Mark Dead</button>
-                      <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Released')} className={smallButtonClass}>Release</button>
-                    </div>
+                    <TeamPokemonScout
+                      pokemon={pokemon}
+                      compact
+                      actions={
+                        <>
+                          <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box</button>
+                          <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm">Dead</button>
+                        </>
+                      }
+                    />
                   ) : (
-                    <div className="text-xs font-bold leading-5 text-[#506078]">Empty slot. Add a caught Pokemon from the Team tab and it will land here.</div>
+                    <div className="w-56 text-xs font-bold leading-5 text-[#506078]">Empty slot. Add a caught Pokemon from the Team tab and it will land here.</div>
                   )}
                 </div>
               ) : null}
@@ -1359,15 +1363,7 @@ function TeamTracker({
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {(run.team || []).map((pokemon) => (
             <article key={pokemon.id} className={panelClass}>
-              <div className="flex items-start gap-3">
-                <MonsterToken species={pokemon.species} status={pokemon.status} types={pokemon.types} />
-                <div className="min-w-0">
-                  <h3 className="truncate text-lg font-black">{pokemon.nickname || pokemon.species}</h3>
-                  <div className="text-xs font-bold text-[#506078]">{pokemon.species} / Lv {pokemon.level}</div>
-                  <div className="mt-1 text-[11px] font-black text-[var(--nuz-accent)]">{pokemon.metLocation || 'Unknown area'}</div>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
+              <TeamPokemonScout pokemon={pokemon} />
               {hasNatures || hasAbilities ? (
                 <div className="mt-3 text-xs font-bold text-[#506078]">
                   {[hasNatures ? pokemon.nature : '', hasAbilities ? pokemon.ability : ''].filter(Boolean).join(' / ')}
@@ -1895,6 +1891,77 @@ function MatchupRow({ label, types, empty }: { label: string; types: PokemonType
       <div className="flex flex-wrap gap-1">
         {types.length > 0 ? types.map((type) => <TypeBadge key={type} type={type} />) : <span className="text-[#6f7b8d]">{empty}</span>}
       </div>
+    </div>
+  );
+}
+
+function TeamPokemonScout({
+  pokemon,
+  compact = false,
+  actions,
+}: {
+  pokemon: NuzlockePokemon;
+  compact?: boolean;
+  actions?: React.ReactNode;
+}) {
+  const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+  const matchups = getDefensiveMatchups(types);
+  const item = pokemon.heldItem || 'None';
+
+  return (
+    <div className={`rounded-2xl bg-white p-3 shadow-sm ${compact ? 'w-[min(92vw,560px)]' : ''}`}>
+      <div className="flex items-start gap-3">
+        <MonsterToken species={pokemon.species} status={pokemon.status} types={types} />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 className="truncate text-base font-black">{pokemon.nickname || pokemon.species}</h3>
+              <div className="text-xs font-bold text-[#506078]">{pokemon.species} / Lv {pokemon.level} / {pokemon.status}</div>
+              <div className="mt-1 text-[11px] font-black text-[var(--nuz-accent)]">{pokemon.metLocation || 'Unknown area'}</div>
+            </div>
+            {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {types.map((type) => <TypeBadge key={type} type={type} />)}
+            {item !== 'None' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-black shadow-sm">
+                <ItemSprite item={item} />
+                {item}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="grid gap-2 text-xs font-bold text-[#506078]">
+          <div className="rounded-xl bg-[#f7f9fc] p-2">
+            <span className="font-black text-[#182a40]">Nature</span>
+            <span className="ml-2">{pokemon.nature || 'Not Sure'}</span>
+          </div>
+          <div className="rounded-xl bg-[#f7f9fc] p-2">
+            <span className="font-black text-[#182a40]">Ability</span>
+            <span className="ml-2">{pokemon.ability || 'Not Sure'}</span>
+          </div>
+          <div className="rounded-xl bg-[#f7f9fc] p-2">
+            <span className="font-black text-[#182a40]">Held</span>
+            <span className="ml-2">{item}</span>
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Defensive Matchups</div>
+          <div className="grid gap-2 text-[11px] font-black sm:grid-cols-2">
+            <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
+            <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
+            <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
+            <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
+            <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
+          </div>
+        </div>
+      </div>
+
+      {pokemon.notes ? <p className="mt-3 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
     </div>
   );
 }

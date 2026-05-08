@@ -84,7 +84,6 @@ export const scarletVioletLocations = [
 
 export const kantoLocations = [
   'Starter',
-  'Pallet Town',
   'Route 1',
   'Route 2',
   'Viridian Forest',
@@ -115,6 +114,7 @@ export const kantoLocations = [
   'Route 20',
   'Seafoam Islands',
   'Route 21',
+  'Pallet Town',
   'Pokemon Mansion',
   'Power Plant',
   'Route 22',
