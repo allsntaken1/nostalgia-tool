@@ -128,6 +128,13 @@ export type NuzlockeBossPokemon = {
   nature: string;
   ability: string;
   item: string;
+  moves?: NuzlockeMove[];
+};
+
+export type NuzlockeMove = {
+  name: string;
+  type: PokemonType;
+  power: number | null;
 };
 
 export type NuzlockeTimelineEvent = {

@@ -1,4 +1,4 @@
-import type { GameVersion, NuzlockeBoss, PokemonType, RunType } from './types';
+import type { GameVersion, NuzlockeBoss, NuzlockeMove, PokemonType, RunType } from './types';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
@@ -1153,18 +1153,21 @@ export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = 
   ],
 };
 
-const bossPokemon = (species: string, level: number, ability = 'Not listed', item = 'None listed', nature = 'Not listed') => ({
+const move = (name: string, type: PokemonType, power: number | null): NuzlockeMove => ({ name, type, power });
+
+const bossPokemon = (species: string, level: number, ability = 'Not listed', item = 'None listed', nature = 'Not listed', moves: NuzlockeMove[] = []) => ({
   species,
   level,
   ability,
   item,
   nature,
+  moves,
 });
 
 export const redBlueBosses: NuzlockeBoss[] = [
-  { id: 'brock-rb', name: 'Brock', category: 'Pewter Gym', levelCap: 14, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Geodude', 12), bossPokemon('Onix', 14)] },
-  { id: 'misty-rb', name: 'Misty', category: 'Cerulean Gym', levelCap: 21, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Staryu', 18), bossPokemon('Starmie', 21)] },
-  { id: 'surge-rb', name: 'Lt. Surge', category: 'Vermilion Gym', levelCap: 24, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Voltorb', 21), bossPokemon('Pikachu', 18), bossPokemon('Raichu', 24)] },
+  { id: 'brock-rb', name: 'Brock', category: 'Pewter Gym', levelCap: 14, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Geodude', 12, 'No abilities in Gen 1', 'None', '', [move('Tackle', 'Normal', 35), move('Defense Curl', 'Normal', null)]), bossPokemon('Onix', 14, 'No abilities in Gen 1', 'None', '', [move('Tackle', 'Normal', 35), move('Screech', 'Normal', null), move('Bide', 'Normal', null), move('Bind', 'Normal', 15)])] },
+  { id: 'misty-rb', name: 'Misty', category: 'Cerulean Gym', levelCap: 21, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Staryu', 18, 'No abilities in Gen 1', 'None', '', [move('Tackle', 'Normal', 35), move('Water Gun', 'Water', 40)]), bossPokemon('Starmie', 21, 'No abilities in Gen 1', 'None', '', [move('Tackle', 'Normal', 35), move('Water Gun', 'Water', 40), move('BubbleBeam', 'Water', 65), move('Recover', 'Normal', null)])] },
+  { id: 'surge-rb', name: 'Lt. Surge', category: 'Vermilion Gym', levelCap: 24, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Voltorb', 21, 'No abilities in Gen 1', 'None', '', [move('Tackle', 'Normal', 35), move('SonicBoom', 'Normal', null), move('Screech', 'Normal', null)]), bossPokemon('Pikachu', 18, 'No abilities in Gen 1', 'None', '', [move('ThunderShock', 'Electric', 40), move('Growl', 'Normal', null), move('Quick Attack', 'Normal', 40)]), bossPokemon('Raichu', 24, 'No abilities in Gen 1', 'None', '', [move('Thunderbolt', 'Electric', 95), move('Mega Punch', 'Normal', 80), move('Mega Kick', 'Normal', 120)])] },
   { id: 'erika-rb', name: 'Erika', category: 'Celadon Gym', levelCap: 29, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Victreebel', 29), bossPokemon('Tangela', 24), bossPokemon('Vileplume', 29)] },
   { id: 'koga-rb', name: 'Koga', category: 'Fuchsia Gym', levelCap: 43, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Koffing', 37), bossPokemon('Muk', 39), bossPokemon('Koffing', 37), bossPokemon('Weezing', 43)] },
   { id: 'sabrina-rb', name: 'Sabrina', category: 'Saffron Gym', levelCap: 43, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Kadabra', 38), bossPokemon('MrMime', 37), bossPokemon('Venomoth', 38), bossPokemon('Alakazam', 43)] },

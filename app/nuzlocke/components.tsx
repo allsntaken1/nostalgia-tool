@@ -23,7 +23,9 @@ import type {
   EncounterStatus,
   GameVersion,
   NuzlockeBoss,
+  NuzlockeBossPokemon,
   NuzlockeEncounter,
+  NuzlockeMove,
   NuzlockePokemon,
   NuzlockeRules,
   NuzlockeRun,
@@ -32,7 +34,7 @@ import type {
   RunType,
 } from './types';
 
-type Tab = 'Overview' | 'Team' | 'Encounters' | 'Badges / Bosses' | 'Graveyard' | 'Timeline';
+type Tab = 'Overview' | 'Team / Box' | 'Encounters' | 'Badges / Bosses' | 'Graveyard' | 'Timeline';
 
 const defaultRules: NuzlockeRules = {
   dupesClause: true,
@@ -81,22 +83,6 @@ const typeHex: Record<PokemonType, string> = {
   Dark: '#705746',
   Steel: '#B7B7CE',
   Fairy: '#D685AD',
-};
-
-const badgeShapes: Record<string, string> = {
-  Brock: 'polygon(50% 4%, 86% 22%, 96% 58%, 72% 92%, 28% 92%, 4% 58%, 14% 22%)',
-  Misty: 'polygon(50% 0%, 61% 32%, 95% 35%, 68% 55%, 79% 90%, 50% 69%, 21% 90%, 32% 55%, 5% 35%, 39% 32%)',
-  'Lt. Surge': 'polygon(48% 0%, 82% 0%, 64% 37%, 94% 37%, 39% 100%, 50% 56%, 16% 56%)',
-  Erika: 'circle(43% at 50% 50%)',
-  Koga: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-  Sabrina: 'polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)',
-  Blaine: 'polygon(50% 0%, 66% 32%, 100% 37%, 75% 61%, 81% 96%, 50% 78%, 19% 96%, 25% 61%, 0% 37%, 34% 32%)',
-  Giovanni: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-  Lorelei: 'polygon(50% 0%, 90% 18%, 100% 58%, 72% 100%, 28% 100%, 0% 58%, 10% 18%)',
-  Bruno: 'polygon(50% 0%, 100% 38%, 80% 100%, 20% 100%, 0% 38%)',
-  Agatha: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-  Lance: 'polygon(50% 0%, 92% 18%, 82% 100%, 50% 78%, 18% 100%, 8% 18%)',
-  'Champion Rival': 'polygon(50% 0%, 94% 24%, 82% 100%, 50% 82%, 18% 100%, 6% 24%)',
 };
 
 function trackerTheme(game?: GameVersion | '') {
@@ -199,6 +185,7 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
               ability: cleanBossDetail(member.ability) || defaultMember?.ability || '',
               item: cleanBossDetail(member.item) || defaultMember?.item || '',
               nature: cleanBossDetail(member.nature) || defaultMember?.nature || '',
+              moves: member.moves?.length ? member.moves : defaultMember?.moves,
             };
           })
         : defaultPokemon;
@@ -250,19 +237,17 @@ function BadgeToken({ name, types }: { name: string; types: PokemonType[] }) {
     .join('') || '?';
   const primary = types[0] ?? 'Normal';
   const secondary = types[1] ?? primary;
-  const shape = badgeShapes[name] ?? 'polygon(50% 0%, 95% 28%, 82% 100%, 50% 82%, 18% 100%, 5% 28%)';
 
   return (
-    <div className="relative h-14 w-14 shrink-0 drop-shadow-[2px_3px_0_rgba(24,42,64,0.18)]" title={name}>
+    <div
+      className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white shadow-[inset_0_0_0_3px_rgba(24,42,64,0.18),0_8px_20px_rgba(24,42,64,0.14)]"
+      title={name}
+      style={{ background: `linear-gradient(135deg, ${typeHex[primary]}, ${typeHex[secondary]})` }}
+    >
       <div
-        className="absolute inset-0 border-2 border-[#182a40]"
-        style={{
-          clipPath: shape,
-          background: `linear-gradient(135deg, ${typeHex[primary]}, ${typeHex[secondary]})`,
-        }}
+        className="absolute inset-[7px] rounded-full bg-white/42"
       />
-      <div className="absolute inset-[7px] bg-white/40" style={{ clipPath: shape }} />
-      <div className="absolute inset-x-0 top-[18px] text-center text-sm font-black text-[#182a40] drop-shadow-[1px_1px_0_rgba(255,255,255,0.6)]">
+      <div className="relative text-sm font-black text-[#182a40] drop-shadow-[1px_1px_0_rgba(255,255,255,0.65)]">
         {initials}
       </div>
     </div>
@@ -325,13 +310,74 @@ function cleanBossDetail(value: string) {
   return value;
 }
 
-function BossPokemonRow({ pokemon, bossId }: { pokemon: NonNullable<NuzlockeBoss['pokemon']>[number]; bossId: string }) {
+function itemSlug(item: string) {
+  return item
+    .toLowerCase()
+    .replace(/'/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function getItemSpriteUrl(item: string) {
+  if (!item || ['None', 'Not Sure', 'Other', 'Type-boosting Item'].includes(item)) return '';
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemSlug(item)}.png`;
+}
+
+function ItemSprite({ item }: { item: string }) {
+  const src = getItemSpriteUrl(item);
+  if (!src) return null;
+
+  return (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+      <img src={src} alt={item} className="h-8 w-8 object-contain" style={{ imageRendering: 'pixelated' }} />
+    </span>
+  );
+}
+
+function NatureEffect({ nature }: { nature: string }) {
+  const match = nature.match(/\(([^)]+)\)/);
+  const effect = match?.[1] ?? '';
+  if (!effect || effect === 'neutral') {
+    return <div className="text-[11px] font-black text-[#6f7b8d]">Neutral nature</div>;
+  }
+
+  const [up, down] = effect.split('/').map((piece) => piece.trim());
+
+  return (
+    <div className="flex flex-wrap gap-2 text-[11px] font-black">
+      {up ? <span className="rounded-full bg-[#e5f7df] px-2 py-1 text-[#267a38]">{up}</span> : null}
+      {down ? <span className="rounded-full bg-[#ffe2de] px-2 py-1 text-[#a43128]">{down}</span> : null}
+    </div>
+  );
+}
+
+function isGenOneGame(gameVersion: GameVersion) {
+  return gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow';
+}
+
+function BossPokemonRow({
+  pokemon,
+  bossId,
+  selected,
+  onSelect,
+}: {
+  pokemon: NonNullable<NuzlockeBoss['pokemon']>[number];
+  bossId: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const details = [cleanBossDetail(pokemon.nature), cleanBossDetail(pokemon.ability), cleanBossDetail(pokemon.item)].filter(Boolean);
   const types = pokemonTypesForSpecies(pokemon.species);
 
   return (
-    <div key={`${bossId}-${pokemon.species}-${pokemon.level}`} style={typeCardStyle(types)} className="flex items-center gap-3 rounded-md p-2 text-xs font-bold shadow-sm">
-      <MonsterToken species={pokemon.species} types={types} compact />
+    <button
+      type="button"
+      key={`${bossId}-${pokemon.species}-${pokemon.level}`}
+      style={typeCardStyle(types)}
+      onClick={onSelect}
+      className={`flex items-center gap-3 rounded-xl p-2 text-left text-xs font-bold shadow-sm transition hover:-translate-y-0.5 ${selected ? 'ring-2 ring-[var(--nuz-accent)]' : ''}`}
+    >
+      <MonsterToken species={pokemon.species} types={types} large />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2 font-black">
           <span className="truncate">{pokemon.species}</span>
@@ -340,7 +386,7 @@ function BossPokemonRow({ pokemon, bossId }: { pokemon: NonNullable<NuzlockeBoss
         {details.length > 0 ? <div className="mt-1 text-[11px] leading-5 text-[#506078]">{details.join(' / ')}</div> : null}
         {types.length > 0 ? <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div> : null}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -471,7 +517,91 @@ function bossTypes(boss: NuzlockeBoss) {
   return mapped[boss.id] ?? pokemonTypesForSpecies(boss.pokemon?.[0]?.species ?? '');
 }
 
-function MonsterToken({ species, status, compact = false, types = [] }: { species: string; status?: PokemonStatus; compact?: boolean; types?: PokemonType[] }) {
+const typeChart: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
+  Normal: { Rock: 0.5, Ghost: 0, Steel: 0.5 },
+  Fire: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 2, Bug: 2, Rock: 0.5, Dragon: 0.5, Steel: 2 },
+  Water: { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Rock: 2, Dragon: 0.5 },
+  Electric: { Water: 2, Electric: 0.5, Grass: 0.5, Ground: 0, Flying: 2, Dragon: 0.5 },
+  Grass: { Fire: 0.5, Water: 2, Grass: 0.5, Poison: 0.5, Ground: 2, Flying: 0.5, Bug: 0.5, Rock: 2, Dragon: 0.5, Steel: 0.5 },
+  Ice: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 0.5, Ground: 2, Flying: 2, Dragon: 2, Steel: 0.5 },
+  Fighting: { Normal: 2, Ice: 2, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2, Ghost: 0, Dark: 2, Steel: 2, Fairy: 0.5 },
+  Poison: { Grass: 2, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0, Fairy: 2 },
+  Ground: { Fire: 2, Electric: 2, Grass: 0.5, Poison: 2, Flying: 0, Bug: 0.5, Rock: 2, Steel: 2 },
+  Flying: { Electric: 0.5, Grass: 2, Fighting: 2, Bug: 2, Rock: 0.5, Steel: 0.5 },
+  Psychic: { Fighting: 2, Poison: 2, Psychic: 0.5, Dark: 0, Steel: 0.5 },
+  Bug: { Fire: 0.5, Grass: 2, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2, Ghost: 0.5, Dark: 2, Steel: 0.5, Fairy: 0.5 },
+  Rock: { Fire: 2, Ice: 2, Fighting: 0.5, Ground: 0.5, Flying: 2, Bug: 2, Steel: 0.5 },
+  Ghost: { Normal: 0, Psychic: 2, Ghost: 2, Dark: 0.5 },
+  Dragon: { Dragon: 2, Steel: 0.5, Fairy: 0 },
+  Dark: { Fighting: 0.5, Psychic: 2, Ghost: 2, Dark: 0.5, Fairy: 0.5 },
+  Steel: { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2, Rock: 2, Steel: 0.5, Fairy: 2 },
+  Fairy: { Fire: 0.5, Fighting: 2, Poison: 0.5, Dragon: 2, Dark: 2, Steel: 0.5 },
+};
+
+function attackMultiplier(attackType: PokemonType, defenderTypes: PokemonType[]) {
+  return (defenderTypes || []).reduce((total, defenderType) => total * (typeChart[attackType]?.[defenderType] ?? 1), 1);
+}
+
+function defensiveMatchups(types: PokemonType[]) {
+  const allTypes = pokemonTypes;
+  return {
+    weakTo: allTypes.filter((type) => attackMultiplier(type, types) > 1),
+    resists: allTypes.filter((type) => {
+      const multiplier = attackMultiplier(type, types);
+      return multiplier > 0 && multiplier < 1;
+    }),
+    immune: allTypes.filter((type) => attackMultiplier(type, types) === 0),
+  };
+}
+
+function strongAgainst(types: PokemonType[]) {
+  return pokemonTypes.filter((defenderType) => (types || []).some((attackType) => (typeChart[attackType]?.[defenderType] ?? 1) > 1));
+}
+
+function pokemonBaseStats(species: string) {
+  const stats: Record<string, { hp: number; atk: number; def: number; spa: number; spd: number; spe: number }> = {
+    Geodude: { hp: 40, atk: 80, def: 100, spa: 30, spd: 30, spe: 20 },
+    Onix: { hp: 35, atk: 45, def: 160, spa: 30, spd: 45, spe: 70 },
+    Staryu: { hp: 30, atk: 45, def: 55, spa: 70, spd: 55, spe: 85 },
+    Starmie: { hp: 60, atk: 75, def: 85, spa: 100, spd: 85, spe: 115 },
+    Voltorb: { hp: 40, atk: 30, def: 50, spa: 55, spd: 55, spe: 100 },
+    Pikachu: { hp: 35, atk: 55, def: 40, spa: 50, spd: 50, spe: 90 },
+    Raichu: { hp: 60, atk: 90, def: 55, spa: 90, spd: 80, spe: 110 },
+    Victreebel: { hp: 80, atk: 105, def: 65, spa: 100, spd: 70, spe: 70 },
+    Tangela: { hp: 65, atk: 55, def: 115, spa: 100, spd: 40, spe: 60 },
+    Vileplume: { hp: 75, atk: 80, def: 85, spa: 110, spd: 90, spe: 50 },
+    Koffing: { hp: 40, atk: 65, def: 95, spa: 60, spd: 45, spe: 35 },
+    Muk: { hp: 105, atk: 105, def: 75, spa: 65, spd: 100, spe: 50 },
+    Weezing: { hp: 65, atk: 90, def: 120, spa: 85, spd: 70, spe: 60 },
+    Kadabra: { hp: 40, atk: 35, def: 30, spa: 120, spd: 70, spe: 105 },
+    Alakazam: { hp: 55, atk: 50, def: 45, spa: 135, spd: 95, spe: 120 },
+    Venomoth: { hp: 70, atk: 65, def: 60, spa: 90, spd: 75, spe: 90 },
+    Gyarados: { hp: 95, atk: 125, def: 79, spa: 60, spd: 100, spe: 81 },
+    Dragonite: { hp: 91, atk: 134, def: 95, spa: 100, spd: 100, spe: 80 },
+  };
+
+  return stats[species];
+}
+
+function defaultMoveHints(pokemon: NuzlockeBossPokemon): NuzlockeMove[] {
+  if (pokemon.moves?.length) return pokemon.moves;
+  const types = pokemonTypesForSpecies(pokemon.species);
+  return types.slice(0, 2).map((type) => ({ name: `${type} attack`, type, power: null }));
+}
+
+function MonsterToken({
+  species,
+  status,
+  compact = false,
+  large = false,
+  types = [],
+}: {
+  species: string;
+  status?: PokemonStatus;
+  compact?: boolean;
+  large?: boolean;
+  types?: PokemonType[];
+}) {
   const spriteUrl = getPokemonSpriteUrl(species);
   const initials = species
     .split(/\s+/)
@@ -480,8 +610,8 @@ function MonsterToken({ species, status, compact = false, types = [] }: { specie
     .map((part) => part[0]?.toUpperCase())
     .join('') || '?';
 
-  const tokenSize = compact ? 'h-12 w-12' : 'h-20 w-20';
-  const imageSize = compact ? 'h-12 w-12' : 'h-[4.5rem] w-[4.5rem]';
+  const tokenSize = large ? 'h-24 w-24' : compact ? 'h-12 w-12' : 'h-20 w-20';
+  const imageSize = large ? 'h-24 w-24' : compact ? 'h-12 w-12' : 'h-[4.75rem] w-[4.75rem]';
   const style = {
     ...typeStyle(types),
     borderColor: status === 'Dead' ? '#ef5350' : typeHex[types[0] ?? 'Normal'],
@@ -726,7 +856,7 @@ function NuzlockeDashboard({
   onNewRun: () => void;
 }) {
   const [tab, setTab] = useState<Tab>('Overview');
-  const tabs: Tab[] = ['Overview', 'Team', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
+  const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
 
   return (
     <div className="grid gap-4 pb-28">
@@ -756,7 +886,7 @@ function NuzlockeDashboard({
       </section>
 
       {tab === 'Overview' ? <Overview run={run} /> : null}
-      {tab === 'Team' ? <TeamTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
+      {tab === 'Team / Box' ? <TeamTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
       {tab === 'Encounters' ? <EncounterTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
       {tab === 'Badges / Bosses' ? <BossTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
       {tab === 'Graveyard' ? <Graveyard run={run} /> : null}
@@ -911,6 +1041,8 @@ function TeamTracker({
   const caughtEncounters = (run.encounters || []).filter((encounter) => encounter.status === 'Caught');
   const encounterIdsOnTeam = new Set((run.team || []).map((pokemon) => pokemon.encounterId).filter(Boolean));
   const availableEncounters = caughtEncounters.filter((encounter) => !encounterIdsOnTeam.has(encounter.id));
+  const hasNatures = !isGenOneGame(run.gameVersion);
+  const hasAbilities = !isGenOneGame(run.gameVersion);
 
   const addPokemonFromEncounter = (encounter: NuzlockeEncounter | undefined) => {
     if (!encounter?.pokemon || encounterIdsOnTeam.has(encounter.id)) return;
@@ -1003,12 +1135,19 @@ function TeamTracker({
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">{(pokemon.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
-              <div className="mt-3 text-xs font-bold text-[#506078]">{pokemon.nature || 'No nature'} / {pokemon.ability || 'No ability'}</div>
+              {hasNatures || hasAbilities ? (
+                <div className="mt-3 text-xs font-bold text-[#506078]">
+                  {[hasNatures ? pokemon.nature : '', hasAbilities ? pokemon.ability : ''].filter(Boolean).join(' / ')}
+                </div>
+              ) : null}
               <label className="mt-3 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
                 Held item
-                <select value={pokemon.heldItem || 'None'} onChange={(event) => updatePokemon(pokemon.id, { heldItem: event.target.value })} className={`${fieldClass} text-xs normal-case tracking-normal text-[#182a40]`}>
-                  {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
-                </select>
+                <span className="flex items-center gap-2">
+                  <ItemSprite item={pokemon.heldItem || 'None'} />
+                  <select value={pokemon.heldItem || 'None'} onChange={(event) => updatePokemon(pokemon.id, { heldItem: event.target.value })} className={`${fieldClass} min-w-0 flex-1 text-xs normal-case tracking-normal text-[#182a40]`}>
+                    {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
+                  </select>
+                </span>
               </label>
               <p className="mt-2 text-sm font-bold leading-6">{pokemon.notes}</p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -1062,6 +1201,12 @@ function EncounterTracker({
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
   const selectedAbilityOptions = getAbilityOptions(form.pokemon);
   const locationAlreadyCaught = caughtLocations.has(form.location);
+  const hasNatures = !isGenOneGame(run.gameVersion);
+  const hasAbilities = !isGenOneGame(run.gameVersion) && selectedAbilityOptions.some((option) => option !== 'No abilities in Gen 1');
+  const loggedByLocation = new Map((run.encounters || []).map((encounter) => [encounter.location, encounter]));
+  const openLocations = locations.filter((location) => !loggedByLocation.has(location));
+  const completedLocations = locations.filter((location) => loggedByLocation.has(location));
+  const orderedLocations = [...openLocations, ...completedLocations];
 
   const chooseLocation = (location: string) => {
     const options = (encounterOptionsByLocation[location] ?? []).filter(canShowEncounterOption);
@@ -1116,7 +1261,7 @@ function EncounterTracker({
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
-    const nextOpenLocation = locations.find((location) => location !== form.location && !caughtLocations.has(location)) ?? form.location;
+    const nextOpenLocation = locations.find((location) => location !== form.location && !loggedByLocation.has(location)) ?? form.location;
     const nextOptions = (encounterOptionsByLocation[nextOpenLocation] ?? []).filter(canShowEncounterOption);
     const firstOption = nextOptions[0];
     setForm((current) => ({
@@ -1133,11 +1278,14 @@ function EncounterTracker({
   };
 
   return (
-    <section className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
-      <form onSubmit={addEncounter} className={panelClass}>
-        <div className="mb-3 text-sm font-black">Add Encounter</div>
-        <div className="grid gap-3">
-          <div className="grid grid-cols-2 gap-2">
+    <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className={panelClass}>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
+            <h3 className="text-lg font-black">Pick an encounter area</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
               <input
                 type="checkbox"
@@ -1155,29 +1303,76 @@ function EncounterTracker({
               Show fishing rod encounters
             </label>
           </div>
-          <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className={fieldClass}>
-            {locations.map((location) => (
-              <option key={location} disabled={caughtLocations.has(location)} value={location}>
-                {location}{caughtLocations.has(location) ? ' - caught' : ''}
-              </option>
-            ))}
-          </select>
+        </div>
+        <div className="grid gap-2 md:grid-cols-2">
+          {orderedLocations.map((location) => {
+            const logged = loggedByLocation.get(location);
+            const options = (encounterOptionsByLocation[location] ?? []).filter(canShowEncounterOption);
+            const isSelected = form.location === location;
+
+            return (
+              <button
+                key={location}
+                type="button"
+                onClick={() => chooseLocation(location)}
+                className={`rounded-xl p-3 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                  logged
+                    ? 'bg-white/55 opacity-70'
+                    : isSelected
+                      ? 'bg-[var(--nuz-accent-soft)] ring-2 ring-[var(--nuz-accent)]'
+                      : 'bg-white/75'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-black">{location}</span>
+                  {logged ? <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">{logged.status}</span> : null}
+                </div>
+                {logged ? (
+                  <div className="mt-2 flex items-center gap-2 text-xs font-bold text-[#506078]">
+                    <MonsterToken species={logged.pokemon || 'Unknown'} types={logged.types} compact />
+                    <span>{logged.pokemon || 'No Pokemon recorded'} / Lv {logged.levelMet}</span>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {options.slice(0, 6).map((option) => (
+                      <span key={option.species} className="flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">
+                        <MonsterToken species={option.species} types={option.types} compact />
+                        {option.species}
+                      </span>
+                    ))}
+                    {options.length > 6 ? <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">+{options.length - 6}</span> : null}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <form onSubmit={addEncounter} className={`${panelClass} xl:sticky xl:top-4 xl:self-start`}>
+        <div className="mb-3">
+          <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Add Encounter</div>
+          <h3 className="text-lg font-black">{form.location}</h3>
+        </div>
+        <div className="grid gap-3">
           <SpriteSelect
             value={form.pokemon}
             onChange={choosePokemon}
             options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
           />
-          <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className={fieldClass} />
-          <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Level met" className={fieldClass} />
+          <div className="grid gap-2 sm:grid-cols-[1fr_88px]">
+            <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className={fieldClass} />
+            <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Lv" className={fieldClass} />
+          </div>
           <div className="grid gap-2">
             <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Result</div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-4 gap-1">
               {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setForm({ ...form, status })}
-                  className={`rounded-lg px-3 py-2 text-xs font-black shadow-sm ${
+                  className={`rounded-lg px-2 py-2 text-[11px] font-black shadow-sm ${
                     form.status === status
                       ? 'bg-[#182a40] text-white'
                       : 'bg-white text-[#182a40]'
@@ -1194,13 +1389,20 @@ function EncounterTracker({
               {(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}
             </div>
           </div>
-          <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className={fieldClass}>
-            {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
-          </select>
-          <div className="grid gap-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
-            <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
-          </div>
+          {hasNatures ? (
+            <div className="grid gap-2">
+              <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className={fieldClass}>
+                {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
+              </select>
+              <NatureEffect nature={form.nature} />
+            </div>
+          ) : null}
+          {hasAbilities ? (
+            <div className="grid gap-2">
+              <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
+              <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
+            </div>
+          ) : null}
           {locationAlreadyCaught && form.status === 'Caught' ? (
             <div className="rounded-xl bg-[#fff2f0] p-3 text-xs font-black text-[#9f2c24]">
               This area already has a caught encounter. Change the result or choose another area.
@@ -1210,23 +1412,6 @@ function EncounterTracker({
           <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-3 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add Encounter</button>
         </div>
       </form>
-
-      <div className="grid min-w-0 gap-3">
-        {(run.encounters || []).map((encounter) => (
-          <article key={encounter.id} className={panelClass}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-black">{encounter.location}</h3>
-                <div className="text-sm font-bold text-[#506078]">{encounter.pokemon || 'No Pokemon recorded'} {encounter.nickname ? `/ ${encounter.nickname}` : ''} / Lv {encounter.levelMet}</div>
-                <div className="mt-1 text-xs font-black text-[var(--nuz-accent)]">{encounter.nature || 'Not Sure'} / {encounter.ability || 'Not Sure'}</div>
-              </div>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black shadow-sm">{encounter.status}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">{(encounter.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
-            <p className="mt-2 text-sm font-bold leading-6">{encounter.notes}</p>
-          </article>
-        ))}
-      </div>
     </section>
   );
 }
@@ -1241,6 +1426,7 @@ function BossTracker({
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
   const sortedBosses = [...(run.bosses || [])].sort((a, b) => Number(a.completed) - Number(b.completed));
+  const [selectedBossPokemon, setSelectedBossPokemon] = useState<{ bossId: string; pokemon: NuzlockeBossPokemon } | null>(null);
 
   const toggleBoss = (boss: NuzlockeBoss) => {
     updateRun(run.id, (current) => {
@@ -1298,18 +1484,92 @@ function BossTracker({
                 <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Pokemon Used</div>
                 {(boss.pokemon || []).length > 0 ? (
                   <div className="grid gap-2">
-                    {(boss.pokemon || []).map((pokemon) => <BossPokemonRow key={`${boss.id}-${pokemon.species}-${pokemon.level}`} pokemon={pokemon} bossId={boss.id} />)}
+                    {(boss.pokemon || []).map((pokemon) => (
+                      <BossPokemonRow
+                        key={`${boss.id}-${pokemon.species}-${pokemon.level}`}
+                        pokemon={pokemon}
+                        bossId={boss.id}
+                        selected={selectedBossPokemon?.bossId === boss.id && selectedBossPokemon.pokemon.species === pokemon.species && selectedBossPokemon.pokemon.level === pokemon.level}
+                        onSelect={() => setSelectedBossPokemon({ bossId: boss.id, pokemon })}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
+              {selectedBossPokemon?.bossId === boss.id ? <BossPokemonDetails pokemon={selectedBossPokemon.pokemon} /> : null}
               <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className={`${fieldClass} mt-3 min-h-20 w-full text-sm`} />
             </>
           ) : null}
         </article>
       ))}
     </section>
+  );
+}
+
+function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
+  const types = pokemonTypesForSpecies(pokemon.species);
+  const stats = pokemonBaseStats(pokemon.species);
+  const matchups = defensiveMatchups(types);
+  const strong = strongAgainst(types);
+  const moves = defaultMoveHints(pokemon);
+
+  return (
+    <div className="mt-3 rounded-2xl bg-white/78 p-3 shadow-sm">
+      <div className="flex items-start gap-3">
+        <MonsterToken species={pokemon.species} types={types} large />
+        <div className="min-w-0 flex-1">
+          <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
+          <h4 className="text-lg font-black">{pokemon.species}</h4>
+          <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+        </div>
+      </div>
+
+      {stats ? (
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px] font-black sm:grid-cols-6">
+          {Object.entries(stats).map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-white p-2 shadow-sm">
+              <div className="uppercase text-[#6f7b8d]">{label}</div>
+              <div className="text-sm text-[#182a40]">{value}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-3">
+        <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {moves.map((moveInfo) => (
+            <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-xl bg-white p-2 shadow-sm">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-black">{moveInfo.name}</span>
+                <TypeBadge type={moveInfo.type} />
+              </div>
+              <div className="mt-1 text-[11px] font-bold text-[#506078]">Power: {moveInfo.power ?? 'Status'}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-2 text-[11px] font-black">
+        <MatchupRow label="Weak to" types={matchups.weakTo} empty="No clear weaknesses" />
+        <MatchupRow label="Resists" types={matchups.resists} empty="No listed resists" />
+        <MatchupRow label="Immune" types={matchups.immune} empty="No immunities" />
+        <MatchupRow label="STAB strong into" types={strong} empty="No super-effective STAB hits" />
+      </div>
+    </div>
+  );
+}
+
+function MatchupRow({ label, types, empty }: { label: string; types: PokemonType[]; empty: string }) {
+  return (
+    <div className="rounded-xl bg-white p-2 shadow-sm">
+      <div className="mb-2 text-[10px] uppercase tracking-[0.14em] text-[#6f7b8d]">{label}</div>
+      <div className="flex flex-wrap gap-1">
+        {types.length > 0 ? types.map((type) => <TypeBadge key={type} type={type} />) : <span className="text-[#6f7b8d]">{empty}</span>}
+      </div>
+    </div>
   );
 }
 
