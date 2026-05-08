@@ -1829,51 +1829,60 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
 
   return (
     <div className={`${embedded ? 'mt-3 border-t border-white/80 pt-3' : 'mt-3 rounded-2xl bg-white/78 p-3 shadow-sm'}`}>
-      <div className="flex items-start gap-3">
+      <div className="flex flex-wrap items-start gap-3">
         {!embedded ? <MonsterToken species={pokemon.species} types={types} large /> : null}
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
-          <h4 className="text-lg font-black">{pokemon.species}</h4>
-          <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
-          {pokemon.teraType ? <div className="mt-2 text-xs font-black">Tera: <TypeBadge type={pokemon.teraType} /></div> : null}
-          {pokemon.notes ? <p className="mt-2 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h4 className="text-base font-black">{pokemon.species}</h4>
+            {types.map((type) => <TypeBadge key={type} type={type} />)}
+            {pokemon.teraType ? <span className="text-xs font-black">Tera <TypeBadge type={pokemon.teraType} /></span> : null}
+          </div>
+          {pokemon.notes ? <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
         </div>
       </div>
 
-      {stats ? (
-        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px] font-black sm:grid-cols-6">
-          {Object.entries(stats).map(([label, value]) => (
-            <div key={label} className="rounded-xl bg-white p-2 shadow-sm">
-              <div className="uppercase text-[#6f7b8d]">{label}</div>
-              <div className="text-sm text-[#182a40]">{value}</div>
+      <div className="mt-3 grid gap-3 xl:grid-cols-[0.85fr_1fr_1.35fr]">
+        {stats ? (
+          <div>
+            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Stats</div>
+            <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-black xl:grid-cols-2">
+              {Object.entries(stats).map(([label, value]) => (
+                <div key={label} className="rounded-xl bg-white p-2 shadow-sm">
+                  <div className="uppercase text-[#6f7b8d]">{label}</div>
+                  <div className="text-sm text-[#182a40]">{value}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ) : null}
+          </div>
+        ) : null}
 
-      <div className="mt-3">
-        <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {moves.map((moveInfo) => (
-            <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-xl bg-white p-2 shadow-sm">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-black">{moveInfo.name}</span>
-                <MoveTypeBadge type={moveInfo.type} defenderTypes={types} />
+        <div>
+          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
+          <div className="grid gap-2">
+            {moves.map((moveInfo) => (
+              <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-xl bg-white p-2 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-black">{moveInfo.name}</span>
+                  <MoveTypeBadge type={moveInfo.type} defenderTypes={types} />
+                </div>
+                <div className="mt-1 text-[11px] font-bold text-[#506078]">Power: {moveInfo.power ?? 'Status'}</div>
               </div>
-              <div className="mt-1 text-[11px] font-bold text-[#506078]">Power: {moveInfo.power ?? 'Status'}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-3 grid gap-2 text-[11px] font-black">
-        <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
-        <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
-        <MatchupRow label="Neutral 1x" types={matchups.neutral1x} empty="None" />
-        <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
-        <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
-        <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
-        <MatchupRow label="STAB strong into" types={strong} empty="No super-effective STAB hits" />
+        <div>
+          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Matchups</div>
+          <div className="grid gap-2 text-[11px] font-black sm:grid-cols-2">
+            <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
+            <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
+            <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
+            <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
+            <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
+            <MatchupRow label="STAB strong into" types={strong} empty="None" />
+          </div>
+        </div>
       </div>
     </div>
   );
