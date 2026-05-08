@@ -83,6 +83,22 @@ const typeHex: Record<PokemonType, string> = {
   Fairy: '#D685AD',
 };
 
+const trainerProfiles: Record<string, { hair: string; skin: string; shirt: string }> = {
+  Brock: { hair: '#2d2119', skin: '#c98d5a', shirt: '#b87b35' },
+  Misty: { hair: '#f27a24', skin: '#f0bd8e', shirt: '#ffd34e' },
+  'Lt. Surge': { hair: '#f0d45b', skin: '#e8b37e', shirt: '#6ca65c' },
+  Erika: { hair: '#2f2a2b', skin: '#f0c7a3', shirt: '#e56cae' },
+  Koga: { hair: '#31223f', skin: '#d9a681', shirt: '#5f4bb6' },
+  Sabrina: { hair: '#25304d', skin: '#e2b28d', shirt: '#b0528a' },
+  Blaine: { hair: '#ffffff', skin: '#e6b58a', shirt: '#d84535' },
+  Giovanni: { hair: '#2a2a2a', skin: '#d6a174', shirt: '#4d4d52' },
+  Lorelei: { hair: '#b24539', skin: '#efbf93', shirt: '#55a9d8' },
+  Bruno: { hair: '#1f1b18', skin: '#bd8054', shirt: '#94613c' },
+  Agatha: { hair: '#d8d6e8', skin: '#d1a184', shirt: '#7d5aa6' },
+  Lance: { hair: '#d34c3f', skin: '#e7b587', shirt: '#4969c9' },
+  'Champion Rival': { hair: '#7a4b2e', skin: '#e6b184', shirt: '#5b8ed8' },
+};
+
 function trackerTheme(game?: GameVersion | '') {
   if (game === 'Red') {
     return 'bg-[linear-gradient(135deg,#ffdce1_0%,#fff1c7_45%,#ffe3e7_100%)]';
@@ -238,10 +254,17 @@ function TrainerToken({ name, category }: { name: string; category: string }) {
     category.includes('Starfall') ? 'bg-[#c7b7ff]' :
     category.includes('League') ? 'bg-[#b9e5ff]' :
     'bg-[#d8efc2]';
+  const profile = trainerProfiles[name] ?? trainerProfiles[category] ?? { hair: '#3f2f27', skin: '#f2c7a0', shirt: '#6f7fbf' };
 
   return (
-    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#182a40] ${accent} text-base font-black shadow-[2px_2px_0_rgba(24,42,64,0.12)]`}>
-      {initials}
+    <div className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#182a40] ${accent} shadow-[2px_2px_0_rgba(24,42,64,0.12)]`} title={name}>
+      <div className="absolute inset-x-1 top-1 h-7 rounded-t-full" style={{ backgroundColor: profile.hair }} />
+      <div className="absolute left-1/2 top-4 h-7 w-8 -translate-x-1/2 rounded-full" style={{ backgroundColor: profile.skin }} />
+      <div className="absolute left-[18px] top-[27px] h-1 w-1 rounded-full bg-[#182a40]" />
+      <div className="absolute right-[18px] top-[27px] h-1 w-1 rounded-full bg-[#182a40]" />
+      <div className="absolute left-1/2 top-[34px] h-1 w-3 -translate-x-1/2 rounded-full bg-[#b06d6d]" />
+      <div className="absolute inset-x-2 bottom-0 h-4 rounded-t-xl" style={{ backgroundColor: profile.shirt }} />
+      <div className="absolute bottom-0 right-1 rounded bg-white/80 px-1 text-[9px] font-black text-[#182a40]">{initials}</div>
     </div>
   );
 }
@@ -457,8 +480,8 @@ function MonsterToken({ species, status, compact = false, types = [] }: { specie
     .map((part) => part[0]?.toUpperCase())
     .join('') || '?';
 
-  const tokenSize = compact ? 'h-11 w-11' : 'h-16 w-16';
-  const imageSize = compact ? 'h-10 w-10' : 'h-14 w-14';
+  const tokenSize = compact ? 'h-12 w-12' : 'h-20 w-20';
+  const imageSize = compact ? 'h-12 w-12' : 'h-[4.5rem] w-[4.5rem]';
   const style = {
     ...typeStyle(types),
     borderColor: status === 'Dead' ? '#ef5350' : typeHex[types[0] ?? 'Normal'],
