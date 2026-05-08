@@ -4,7 +4,7 @@
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Skull } from 'lucide-react';
 import { getAttackMultiplier, getDefensiveMatchups, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
-import { getMoveData, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
+import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
 import {
   type EncounterOption,
   gameGroups,
@@ -1057,37 +1057,42 @@ export function NuzlockeTracker() {
   };
 
   const currentGame = activeRun?.gameVersion ?? selectedGame;
+  const runToolbar = (
+    <>
+      {runs.length > 0 ? (
+        <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className={fieldClass}>
+          {runs.map((run) => (
+            <option key={run.id} value={run.id}>{run.runName}</option>
+          ))}
+        </select>
+      ) : null}
+      {activeRun ? (
+        <button onClick={() => deleteRun(activeRun.id)} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm hover:-translate-y-0.5">
+          Delete Run
+        </button>
+      ) : null}
+      <button onClick={startNewRun} className={smallButtonClass}>
+        New Run
+      </button>
+    </>
+  );
 
   return (
     <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={{ ...trackerVars(currentGame), fontFamily: readableFont }}>
       <div className="mx-auto max-w-7xl p-3 sm:p-5">
-      <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
-        <div>
-          <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool</div>
-          <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {runs.length > 0 ? (
-            <select value={activeRunId} onChange={(event) => setActiveRunId(event.target.value)} className={fieldClass}>
-              {runs.map((run) => (
-                <option key={run.id} value={run.id}>{run.runName}</option>
-              ))}
-            </select>
-          ) : null}
-          {activeRun ? (
-            <button onClick={() => deleteRun(activeRun.id)} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm hover:-translate-y-0.5">
-              Delete Run
-            </button>
-          ) : null}
-          <button onClick={startNewRun} className={smallButtonClass}>
-            New Run
-          </button>
-        </div>
-      </header>
+      {!activeRun ? (
+        <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool</div>
+            <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">{runToolbar}</div>
+        </header>
+      ) : null}
 
       {!activeRun && !selectedGame ? <GameVersionPicker onSelect={setSelectedGame} /> : null}
       {!activeRun && selectedGame ? <RunSetupForm gameVersion={selectedGame} onBack={() => setSelectedGame('')} onCreate={createRun} /> : null}
-      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={startNewRun} /> : null}
+      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={startNewRun} toolbar={runToolbar} /> : null}
       </div>
     </section>
   );
@@ -1222,11 +1227,13 @@ function NuzlockeDashboard({
   updateRun,
   addTimeline,
   onNewRun,
+  toolbar,
 }: {
   run: NuzlockeRun;
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
   onNewRun: () => void;
+  toolbar?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>('Overview');
   const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
@@ -1236,12 +1243,11 @@ function NuzlockeDashboard({
       <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">{run.gameVersion} / {run.runType}</div>
-            <h2 className="text-2xl font-black">{run.runName}</h2>
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool / {run.gameVersion} / {run.runType}</div>
+            <h1 className="text-2xl font-black">Pokemon Nuzlocke Tracker</h1>
+            <div className="mt-1 text-sm font-black text-[#506078]">{run.runName}</div>
           </div>
-          <button onClick={onNewRun} className={smallButtonClass}>
-            Back to Game Chooser
-          </button>
+          <div className="flex flex-wrap items-center gap-2">{toolbar}</div>
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {tabs.map((item) => (
@@ -1504,7 +1510,7 @@ function TeamTracker({
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {(run.team || []).map((pokemon) => (
             <article key={pokemon.id} className="rounded-2xl border border-white/75 bg-white/90 p-3 shadow-[0_12px_32px_rgba(24,42,64,0.08)] backdrop-blur">
-              <TeamPokemonScout pokemon={pokemon} showDetails={false} showNatureAbility={hasNatures || hasAbilities} />
+              <TeamPokemonScout pokemon={pokemon} showDetails showHeldDetail={false} showNatureAbility={hasNatures || hasAbilities} />
               <label className="mt-2 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
                 Held item
                 <span className="flex items-center gap-2">
@@ -1571,13 +1577,14 @@ function EncounterTracker({
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
+  const [manualAbilityOptions, setManualAbilityOptions] = useState<string[]>([]);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
   const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
     (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
-  const selectedAbilityOptions = getAbilityOptions(form.pokemon);
+  const selectedAbilityOptions = manualEntry && manualAbilityOptions.length > 0 ? manualAbilityOptions : getAbilityOptions(form.pokemon);
   const locationAlreadyCaught = caughtLocations.has(form.location);
   const hasNatures = !isGenOneGame(run.gameVersion);
   const hasAbilities = !isGenOneGame(run.gameVersion) && selectedAbilityOptions.some((option) => option !== 'No abilities in Gen 1');
@@ -1599,6 +1606,7 @@ function EncounterTracker({
       ability: getAbilityOptions(firstOption?.species ?? '')[0],
     }));
     setManualEntry(false);
+    setManualAbilityOptions([]);
   };
 
   const choosePokemon = (species: string) => {
@@ -1611,6 +1619,7 @@ function EncounterTracker({
       ability: getAbilityOptions(species)[0],
     }));
     setManualEntry(false);
+    setManualAbilityOptions([]);
   };
 
   const typeManualPokemon = (species: string) => {
@@ -1652,6 +1661,14 @@ function EncounterTracker({
           })
           .filter((name: string): name is PokemonType => pokemonTypes.includes(name as PokemonType));
         if (fetchedTypes.length > 0) setForm((current) => ({ ...current, types: fetchedTypes }));
+        const fetchedAbilities = (data.abilities || [])
+          .map((entry: { ability?: { name?: string } }) => entry.ability?.name)
+          .filter(Boolean)
+          .map((name: string) => name.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' '));
+        if (fetchedAbilities.length > 0) {
+          setManualAbilityOptions([...fetchedAbilities, 'Not Sure']);
+          setForm((current) => current.ability && current.ability !== 'Primary Ability' ? current : { ...current, ability: fetchedAbilities[0] });
+        }
       })
       .catch(() => undefined);
 
@@ -1694,6 +1711,7 @@ function EncounterTracker({
       notes: '',
     }));
     setManualEntry(false);
+    setManualAbilityOptions([]);
   };
 
   return (
@@ -2027,13 +2045,37 @@ function useMoveData(moveNames: string[]) {
   return moves;
 }
 
+function usePokemonLevelMoves(species: string, level: number, enabled: boolean) {
+  const [moves, setMoves] = useState<PokemonMove[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    if (!enabled || !species) {
+      setMoves([]);
+      return;
+    }
+
+    getPokemonLevelMoves(species, level).then((results) => {
+      if (active) setMoves(results);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [species, level, enabled]);
+
+  return moves;
+}
+
 function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBossPokemon; embedded?: boolean }) {
   const types = usePublicPokemonTypes(pokemon.species, pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
   const matchups = getDefensiveMatchups(types);
   const strong = getStabStrongAgainst(types);
   const listedMoves = defaultMoveHints(pokemon).map((move) => move.name);
-  const moves = useMoveData(listedMoves);
+  const listedMoveData = useMoveData(listedMoves);
+  const fallbackMoveData = usePokemonLevelMoves(pokemon.species, pokemon.level, listedMoves.length === 0);
+  const moves = listedMoves.length > 0 ? listedMoveData : fallbackMoveData;
 
   return (
     <div className={`${embedded ? 'mt-2 border-t border-white/80 pt-2' : 'mt-3 rounded-2xl bg-white/78 p-3 shadow-sm'}`}>
@@ -2068,9 +2110,7 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
 
         <div>
           <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
-          {listedMoves.length === 0 ? (
-            <div className="rounded-lg bg-white/80 px-2 py-1 text-[11px] font-bold text-[#506078] shadow-sm">Moves not listed for this fight yet.</div>
-          ) : moves.length === 0 ? (
+          {moves.length === 0 ? (
             <div className="rounded-lg bg-white/80 px-2 py-1 text-[11px] font-bold text-[#506078] shadow-sm">Loading move data...</div>
           ) : (
             <div className="grid gap-1">
@@ -2132,12 +2172,14 @@ function TeamPokemonScout({
   actions,
   showDetails = true,
   showNatureAbility = true,
+  showHeldDetail = true,
 }: {
   pokemon: NuzlockePokemon;
   compact?: boolean;
   actions?: React.ReactNode;
   showDetails?: boolean;
   showNatureAbility?: boolean;
+  showHeldDetail?: boolean;
 }) {
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
   const matchups = getDefensiveMatchups(types);
@@ -2158,7 +2200,7 @@ function TeamPokemonScout({
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {types.map((type) => <TypeBadge key={type} type={type} />)}
-            {showDetails && item !== 'None' ? (
+            {showDetails && showHeldDetail && item !== 'None' ? (
               <span className="inline-flex items-center gap-1 rounded-[4px] bg-white px-2 py-1 text-[11px] font-black shadow-sm">
                 <ItemSprite item={item} />
                 {item}
@@ -2175,6 +2217,7 @@ function TeamPokemonScout({
               <div className="rounded-lg bg-[#f7f9fc] p-2">
                 <span className="font-black text-[#182a40]">Nature</span>
                 <span className="ml-2">{pokemon.nature}</span>
+                <NatureEffect nature={pokemon.nature} />
               </div>
             ) : null}
             {pokemon.ability ? (
@@ -2183,7 +2226,7 @@ function TeamPokemonScout({
                 <span className="ml-2">{pokemon.ability}</span>
               </div>
             ) : null}
-            {item !== 'None' ? (
+            {showHeldDetail && item !== 'None' ? (
               <div className="rounded-lg bg-[#f7f9fc] p-2">
                 <span className="font-black text-[#182a40]">Held</span>
                 <span className="ml-2">{item}</span>
