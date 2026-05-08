@@ -1633,6 +1633,12 @@ function EncounterTracker({
     setManualEntry(Boolean(species.trim()));
   };
 
+  const randomizeAreaEncounter = () => {
+    if (visibleEncounterOptions.length === 0) return;
+    const randomOption = visibleEncounterOptions[Math.floor(Math.random() * visibleEncounterOptions.length)];
+    if (randomOption) choosePokemon(randomOption.species);
+  };
+
   useEffect(() => {
     if (manualEntry) return;
     const currentStillVisible = visibleEncounterOptions.some((option) => option.species === form.pokemon);
@@ -1817,12 +1823,23 @@ function EncounterTracker({
           <div className="flex flex-wrap gap-1">{(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
         </div>
         <div className="grid gap-2">
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-2 sm:grid-cols-[1fr_auto] xl:grid-cols-[1fr_auto]">
             <SpriteSelect
               value={form.pokemon}
               onChange={choosePokemon}
               options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
             />
+            <button
+              type="button"
+              onClick={randomizeAreaEncounter}
+              disabled={visibleEncounterOptions.length === 0}
+              className="rounded-lg bg-[var(--nuz-accent-soft)] px-3 py-2 text-xs font-black shadow-sm transition hover:-translate-y-0.5 disabled:opacity-45"
+              title="Randomize from this area only"
+            >
+              Random
+            </button>
+          </div>
+          <div className="grid gap-2">
             <input
               value={form.pokemon}
               onChange={(event) => typeManualPokemon(event.target.value)}
