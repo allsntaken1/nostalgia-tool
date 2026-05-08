@@ -46,6 +46,16 @@ export function getAttackMultiplier(attackType: PokemonType, defenderTypes: Poke
   return (defenderTypes || []).reduce((total, defenderType) => total * (typeEffectiveness[attackType]?.[defenderType] ?? 1), 1);
 }
 
+export function getMultiplierLabel(multiplier: number) {
+  if (multiplier === 4) return '4x';
+  if (multiplier === 2) return '2x';
+  if (multiplier === 1) return '1x';
+  if (multiplier === 0.5) return '1/2';
+  if (multiplier === 0.25) return '1/4';
+  if (multiplier === 0) return 'immune';
+  return `${multiplier}x`;
+}
+
 export function getDefensiveMatchups(types: PokemonType[]): {
   weak4x: PokemonType[];
   weak2x: PokemonType[];

@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Skull } from 'lucide-react';
-import { getDefensiveMatchups, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
+import { getAttackMultiplier, getDefensiveMatchups, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import {
   type EncounterOption,
   gameGroups,
@@ -235,32 +235,6 @@ function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`rounded-full px-2 py-1 text-[11px] font-black shadow-sm ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
-function BadgeToken({ name, types }: { name: string; types: PokemonType[] }) {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('') || '?';
-  const primary = types[0] ?? 'Normal';
-  const secondary = types[1] ?? primary;
-
-  return (
-    <div
-      className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white shadow-[inset_0_0_0_3px_rgba(24,42,64,0.18),0_8px_20px_rgba(24,42,64,0.14)]"
-      title={name}
-      style={{ background: `linear-gradient(135deg, ${typeHex[primary]}, ${typeHex[secondary]})` }}
-    >
-      <div
-        className="absolute inset-[7px] rounded-full bg-white/42"
-      />
-      <div className="relative text-sm font-black text-[#182a40] drop-shadow-[1px_1px_0_rgba(255,255,255,0.65)]">
-        {initials}
-      </div>
-    </div>
-  );
-}
-
 function SpriteSelect({
   options,
   value,
@@ -377,23 +351,24 @@ function BossPokemonRow({
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
 
   return (
-    <button
-      type="button"
-      key={`${bossId}-${pokemon.species}-${pokemon.level}`}
-      style={typeCardStyle(types)}
-      onClick={onSelect}
-      className={`flex items-center gap-3 rounded-xl p-2 text-left text-xs font-bold shadow-sm transition hover:-translate-y-0.5 ${selected ? 'ring-2 ring-[var(--nuz-accent)]' : ''}`}
-    >
-      <MonsterToken species={pokemon.species} types={types} large />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2 font-black">
-          <span className="truncate">{pokemon.species}</span>
-          <span className="shrink-0">Lv {pokemon.level}</span>
+    <div key={`${bossId}-${pokemon.species}-${pokemon.level}`} style={typeCardStyle(types)} className={`rounded-xl p-2 text-xs font-bold shadow-sm ${selected ? 'ring-2 ring-[var(--nuz-accent)]' : ''}`}>
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex w-full items-center gap-3 text-left transition hover:-translate-y-0.5"
+      >
+        <MonsterToken species={pokemon.species} types={types} large />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2 font-black">
+            <span className="truncate">{pokemon.species}</span>
+            <span className="shrink-0">Lv {pokemon.level}</span>
+          </div>
+          {details.length > 0 ? <div className="mt-1 text-[11px] leading-5 text-[#506078]">{details.join(' / ')}</div> : null}
+          {types.length > 0 ? <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div> : null}
         </div>
-        {details.length > 0 ? <div className="mt-1 text-[11px] leading-5 text-[#506078]">{details.join(' / ')}</div> : null}
-        {types.length > 0 ? <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div> : null}
-      </div>
-    </button>
+      </button>
+      {selected ? <BossPokemonDetails pokemon={pokemon} embedded /> : null}
+    </div>
   );
 }
 
@@ -829,6 +804,22 @@ function TrainerSprite({ name }: { name: string }) {
       />
     </span>
   );
+}
+
+function BossAvatar({ boss }: { boss: NuzlockeBoss }) {
+  const firstPokemon = boss.pokemon?.[0];
+  const isTitan = boss.category.includes('Titan');
+
+  if (isTitan && firstPokemon) {
+    const types = firstPokemon.types?.length ? firstPokemon.types : pokemonTypesForSpecies(firstPokemon.species);
+    return (
+      <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
+        <MonsterToken species={firstPokemon.species} types={types} large />
+      </span>
+    );
+  }
+
+  return <TrainerSprite name={boss.name} />;
 }
 
 function MonsterToken({
@@ -1754,8 +1745,7 @@ function BossTracker({
             className="flex cursor-pointer flex-wrap items-start justify-between gap-3 rounded-2xl p-1 transition hover:bg-white/30"
           >
             <div className="flex min-w-0 items-start gap-3">
-              <TrainerSprite name={boss.name} />
-              <BadgeToken name={boss.name} types={bossTypes(boss)} />
+              <BossAvatar boss={boss} />
               <div className="min-w-0">
                 <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{boss.category}</div>
                 <h3 className="mt-1 truncate text-lg font-black">{boss.name}</h3>
@@ -1802,7 +1792,6 @@ function BossTracker({
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
-              {selectedBossPokemon?.bossId === boss.id ? <BossPokemonDetails pokemon={selectedBossPokemon.pokemon} /> : null}
               <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className={`${fieldClass} mt-3 min-h-20 w-full text-sm`} />
             </>
           ) : null}
@@ -1812,7 +1801,26 @@ function BossTracker({
   );
 }
 
-function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
+function MoveTypeBadge({ type, defenderTypes }: { type: PokemonType; defenderTypes: PokemonType[] }) {
+  const multiplier = getAttackMultiplier(type, defenderTypes);
+  const tone =
+    multiplier >= 2
+      ? 'bg-[#e5f7df] text-[#267a38]'
+      : multiplier === 0
+        ? 'bg-[#f0f2f7] text-[#506078]'
+        : multiplier < 1
+          ? 'bg-[#ffe2de] text-[#a43128]'
+          : 'bg-white text-[#182a40]';
+
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black shadow-sm ${tone}`}>
+      <TypeBadge type={type} />
+      <span>{getMultiplierLabel(multiplier)}</span>
+    </span>
+  );
+}
+
+function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBossPokemon; embedded?: boolean }) {
   const types = usePublicPokemonTypes(pokemon.species, pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
   const matchups = getDefensiveMatchups(types);
@@ -1820,9 +1828,9 @@ function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
   const moves = defaultMoveHints(pokemon);
 
   return (
-    <div className="mt-3 rounded-2xl bg-white/78 p-3 shadow-sm">
+    <div className={`${embedded ? 'mt-3 border-t border-white/80 pt-3' : 'mt-3 rounded-2xl bg-white/78 p-3 shadow-sm'}`}>
       <div className="flex items-start gap-3">
-        <MonsterToken species={pokemon.species} types={types} large />
+        {!embedded ? <MonsterToken species={pokemon.species} types={types} large /> : null}
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
           <h4 className="text-lg font-black">{pokemon.species}</h4>
@@ -1850,7 +1858,7 @@ function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
             <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-xl bg-white p-2 shadow-sm">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-black">{moveInfo.name}</span>
-                <TypeBadge type={moveInfo.type} />
+                <MoveTypeBadge type={moveInfo.type} defenderTypes={types} />
               </div>
               <div className="mt-1 text-[11px] font-bold text-[#506078]">Power: {moveInfo.power ?? 'Status'}</div>
             </div>
