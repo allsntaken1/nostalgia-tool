@@ -83,20 +83,20 @@ const typeHex: Record<PokemonType, string> = {
   Fairy: '#D685AD',
 };
 
-const trainerProfiles: Record<string, { hair: string; skin: string; shirt: string }> = {
-  Brock: { hair: '#2d2119', skin: '#c98d5a', shirt: '#b87b35' },
-  Misty: { hair: '#f27a24', skin: '#f0bd8e', shirt: '#ffd34e' },
-  'Lt. Surge': { hair: '#f0d45b', skin: '#e8b37e', shirt: '#6ca65c' },
-  Erika: { hair: '#2f2a2b', skin: '#f0c7a3', shirt: '#e56cae' },
-  Koga: { hair: '#31223f', skin: '#d9a681', shirt: '#5f4bb6' },
-  Sabrina: { hair: '#25304d', skin: '#e2b28d', shirt: '#b0528a' },
-  Blaine: { hair: '#ffffff', skin: '#e6b58a', shirt: '#d84535' },
-  Giovanni: { hair: '#2a2a2a', skin: '#d6a174', shirt: '#4d4d52' },
-  Lorelei: { hair: '#b24539', skin: '#efbf93', shirt: '#55a9d8' },
-  Bruno: { hair: '#1f1b18', skin: '#bd8054', shirt: '#94613c' },
-  Agatha: { hair: '#d8d6e8', skin: '#d1a184', shirt: '#7d5aa6' },
-  Lance: { hair: '#d34c3f', skin: '#e7b587', shirt: '#4969c9' },
-  'Champion Rival': { hair: '#7a4b2e', skin: '#e6b184', shirt: '#5b8ed8' },
+const badgeShapes: Record<string, string> = {
+  Brock: 'polygon(50% 4%, 86% 22%, 96% 58%, 72% 92%, 28% 92%, 4% 58%, 14% 22%)',
+  Misty: 'polygon(50% 0%, 61% 32%, 95% 35%, 68% 55%, 79% 90%, 50% 69%, 21% 90%, 32% 55%, 5% 35%, 39% 32%)',
+  'Lt. Surge': 'polygon(48% 0%, 82% 0%, 64% 37%, 94% 37%, 39% 100%, 50% 56%, 16% 56%)',
+  Erika: 'circle(43% at 50% 50%)',
+  Koga: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+  Sabrina: 'polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)',
+  Blaine: 'polygon(50% 0%, 66% 32%, 100% 37%, 75% 61%, 81% 96%, 50% 78%, 19% 96%, 25% 61%, 0% 37%, 34% 32%)',
+  Giovanni: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+  Lorelei: 'polygon(50% 0%, 90% 18%, 100% 58%, 72% 100%, 28% 100%, 0% 58%, 10% 18%)',
+  Bruno: 'polygon(50% 0%, 100% 38%, 80% 100%, 20% 100%, 0% 38%)',
+  Agatha: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+  Lance: 'polygon(50% 0%, 92% 18%, 82% 100%, 50% 78%, 18% 100%, 8% 18%)',
+  'Champion Rival': 'polygon(50% 0%, 94% 24%, 82% 100%, 50% 82%, 18% 100%, 6% 24%)',
 };
 
 function trackerTheme(game?: GameVersion | '') {
@@ -241,30 +241,30 @@ function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`rounded-full px-2 py-1 text-[11px] font-black shadow-sm ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
-function TrainerToken({ name, category }: { name: string; category: string }) {
+function BadgeToken({ name, types }: { name: string; types: PokemonType[] }) {
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('') || '?';
-  const accent =
-    category.includes('Gym') ? 'bg-[#ffe36e]' :
-    category.includes('Titan') ? 'bg-[#ffb98f]' :
-    category.includes('Starfall') ? 'bg-[#c7b7ff]' :
-    category.includes('League') ? 'bg-[#b9e5ff]' :
-    'bg-[#d8efc2]';
-  const profile = trainerProfiles[name] ?? trainerProfiles[category] ?? { hair: '#3f2f27', skin: '#f2c7a0', shirt: '#6f7fbf' };
+  const primary = types[0] ?? 'Normal';
+  const secondary = types[1] ?? primary;
+  const shape = badgeShapes[name] ?? 'polygon(50% 0%, 95% 28%, 82% 100%, 50% 82%, 18% 100%, 5% 28%)';
 
   return (
-    <div className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#182a40] ${accent} shadow-[2px_2px_0_rgba(24,42,64,0.12)]`} title={name}>
-      <div className="absolute inset-x-1 top-1 h-7 rounded-t-full" style={{ backgroundColor: profile.hair }} />
-      <div className="absolute left-1/2 top-4 h-7 w-8 -translate-x-1/2 rounded-full" style={{ backgroundColor: profile.skin }} />
-      <div className="absolute left-[18px] top-[27px] h-1 w-1 rounded-full bg-[#182a40]" />
-      <div className="absolute right-[18px] top-[27px] h-1 w-1 rounded-full bg-[#182a40]" />
-      <div className="absolute left-1/2 top-[34px] h-1 w-3 -translate-x-1/2 rounded-full bg-[#b06d6d]" />
-      <div className="absolute inset-x-2 bottom-0 h-4 rounded-t-xl" style={{ backgroundColor: profile.shirt }} />
-      <div className="absolute bottom-0 right-1 rounded bg-white/80 px-1 text-[9px] font-black text-[#182a40]">{initials}</div>
+    <div className="relative h-14 w-14 shrink-0 drop-shadow-[2px_3px_0_rgba(24,42,64,0.18)]" title={name}>
+      <div
+        className="absolute inset-0 border-2 border-[#182a40]"
+        style={{
+          clipPath: shape,
+          background: `linear-gradient(135deg, ${typeHex[primary]}, ${typeHex[secondary]})`,
+        }}
+      />
+      <div className="absolute inset-[7px] bg-white/40" style={{ clipPath: shape }} />
+      <div className="absolute inset-x-0 top-[18px] text-center text-sm font-black text-[#182a40] drop-shadow-[1px_1px_0_rgba(255,255,255,0.6)]">
+        {initials}
+      </div>
     </div>
   );
 }
@@ -1268,7 +1268,7 @@ function BossTracker({
         <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-start gap-3">
-              <TrainerToken name={boss.name} category={boss.category} />
+              <BadgeToken name={boss.name} types={bossTypes(boss)} />
               <div className="min-w-0">
                 <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{boss.category}</div>
                 <h3 className="mt-1 truncate text-lg font-black">{boss.name}</h3>
