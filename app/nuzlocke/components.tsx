@@ -64,6 +64,7 @@ const panelClass = 'rounded-2xl border border-white/75 bg-white/90 p-4 shadow-[0
 const softPanelClass = 'rounded-xl bg-white/65 p-3 shadow-sm';
 const fieldClass = 'rounded-lg border border-[#c9d4e2] bg-white px-3 py-2 font-bold outline-none focus:border-[#182a40]';
 const smallButtonClass = 'rounded-lg border border-[#c9d4e2] bg-white px-3 py-2 text-xs font-black shadow-sm hover:-translate-y-0.5';
+const readableFont = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 const typeHex: Record<PokemonType, string> = {
   Normal: '#A8A77A',
   Fire: '#EE8130',
@@ -430,38 +431,206 @@ function pokemonTypesForSpecies(species: string) {
     Charizard: ['Fire', 'Flying'],
     Wartortle: ['Water'],
     Blastoise: ['Water'],
+    Raticate: ['Normal'],
     Pidgeot: ['Normal', 'Flying'],
+    Sandslash: ['Ground'],
+    Dugtrio: ['Ground'],
+    Persian: ['Normal'],
+    Growlithe: ['Fire'],
+    Ponyta: ['Fire'],
+    Rapidash: ['Fire'],
     Staryu: ['Water'],
     Starmie: ['Water', 'Psychic'],
+    Voltorb: ['Electric'],
+    Pikachu: ['Electric'],
     Raichu: ['Electric'],
+    Weepinbell: ['Grass', 'Poison'],
     Victreebel: ['Grass', 'Poison'],
+    Gloom: ['Grass', 'Poison'],
     Vileplume: ['Grass', 'Poison'],
+    Koffing: ['Poison'],
     Muk: ['Poison'],
     Weezing: ['Poison'],
+    Abra: ['Psychic'],
     Kadabra: ['Psychic'],
     Alakazam: ['Psychic'],
     MrMime: ['Psychic'],
+    Venonat: ['Bug', 'Poison'],
     Venomoth: ['Bug', 'Poison'],
     Ninetales: ['Fire'],
     Arcanine: ['Fire'],
     Nidoqueen: ['Poison', 'Ground'],
     Nidoking: ['Poison', 'Ground'],
+    Rhyhorn: ['Ground', 'Rock'],
     Rhydon: ['Ground', 'Rock'],
     Dewgong: ['Water', 'Ice'],
     Cloyster: ['Water', 'Ice'],
     Slowbro: ['Water', 'Psychic'],
     Jynx: ['Ice', 'Psychic'],
+    Lapras: ['Water', 'Ice'],
+    Hitmonchan: ['Fighting'],
+    Hitmonlee: ['Fighting'],
     Machamp: ['Fighting'],
     Gengar: ['Ghost', 'Poison'],
     Haunter: ['Ghost', 'Poison'],
+    Golbat: ['Poison', 'Flying'],
     Arbok: ['Poison'],
+    Aerodactyl: ['Rock', 'Flying'],
+    Gyarados: ['Water', 'Flying'],
     Dragonair: ['Dragon'],
     Dragonite: ['Dragon', 'Flying'],
     Exeggutor: ['Grass', 'Psychic'],
+    Nymble: ['Bug'],
+    Tarountula: ['Bug'],
+    Teddiursa: ['Normal'],
+    Petilil: ['Grass'],
+    Smoliv: ['Grass', 'Normal'],
+    Sudowoodo: ['Rock'],
+    Wattrel: ['Electric', 'Flying'],
+    Bellibolt: ['Electric'],
+    Luxio: ['Electric'],
+    Mismagius: ['Ghost'],
+    Veluza: ['Water', 'Psychic'],
+    Wugtrio: ['Water'],
+    Crabominable: ['Fighting', 'Ice'],
+    Komala: ['Normal'],
+    Dudunsparce: ['Normal'],
+    Staraptor: ['Normal', 'Flying'],
+    Mimikyu: ['Ghost', 'Fairy'],
+    Banette: ['Ghost'],
+    Houndstone: ['Ghost'],
+    Toxtricity: ['Electric', 'Poison'],
+    Farigiraf: ['Normal', 'Psychic'],
+    Gardevoir: ['Psychic', 'Fairy'],
+    Espathra: ['Psychic'],
+    Florges: ['Fairy'],
+    Frosmoth: ['Ice', 'Bug'],
+    Beartic: ['Ice'],
+    Cetitan: ['Ice'],
+    Altaria: ['Dragon', 'Flying'],
+    Klawf: ['Rock'],
+    Bombirdier: ['Flying', 'Dark'],
+    Orthworm: ['Steel'],
+    Dondozo: ['Water'],
+    Tatsugiri: ['Dragon', 'Water'],
+    Pawniard: ['Dark', 'Steel'],
+    Torkoal: ['Fire'],
+    Skuntank: ['Poison', 'Dark'],
+    Revavroom: ['Steel', 'Poison'],
+    Azumarill: ['Water', 'Fairy'],
+    Wigglytuff: ['Normal', 'Fairy'],
+    Dachsbun: ['Fairy'],
+    Toxicroak: ['Poison', 'Fighting'],
+    Passimian: ['Fighting'],
+    Lucario: ['Fighting', 'Steel'],
+    Annihilape: ['Fighting', 'Ghost'],
+    Lycanroc: ['Rock'],
+    Pawmot: ['Electric', 'Fighting'],
+    Goodra: ['Dragon'],
+    Gogoat: ['Grass'],
+    Avalugg: ['Ice'],
+    Kingambit: ['Dark', 'Steel'],
+    Glimmora: ['Rock', 'Poison'],
     'Starter Ace': ['Normal'],
   };
 
   return known[species] ?? [];
+}
+
+const evolutionTypeHints: Record<string, PokemonType[]> = {
+  Bulbasaur: ['Grass', 'Poison'],
+  Ivysaur: ['Grass', 'Poison'],
+  Charmander: ['Fire', 'Flying'],
+  Charmeleon: ['Fire', 'Flying'],
+  Squirtle: ['Water'],
+  Wartortle: ['Water'],
+  Caterpie: ['Bug', 'Flying'],
+  Metapod: ['Bug', 'Flying'],
+  Weedle: ['Bug', 'Poison'],
+  Kakuna: ['Bug', 'Poison'],
+  Pidgey: ['Normal', 'Flying'],
+  Pidgeotto: ['Normal', 'Flying'],
+  Rattata: ['Normal'],
+  Spearow: ['Normal', 'Flying'],
+  Ekans: ['Poison'],
+  Pikachu: ['Electric'],
+  Sandshrew: ['Ground'],
+  NidoranF: ['Poison', 'Ground'],
+  Nidorina: ['Poison', 'Ground'],
+  NidoranM: ['Poison', 'Ground'],
+  Nidorino: ['Poison', 'Ground'],
+  Clefairy: ['Fairy'],
+  Vulpix: ['Fire'],
+  Jigglypuff: ['Normal', 'Fairy'],
+  Zubat: ['Poison', 'Flying'],
+  Oddish: ['Grass', 'Poison'],
+  Gloom: ['Grass', 'Poison'],
+  Paras: ['Bug', 'Grass'],
+  Venonat: ['Bug', 'Poison'],
+  Diglett: ['Ground'],
+  Meowth: ['Normal'],
+  Psyduck: ['Water'],
+  Mankey: ['Fighting'],
+  Growlithe: ['Fire'],
+  Poliwag: ['Water', 'Fighting'],
+  Poliwhirl: ['Water', 'Fighting'],
+  Abra: ['Psychic'],
+  Kadabra: ['Psychic'],
+  Machop: ['Fighting'],
+  Machoke: ['Fighting'],
+  Bellsprout: ['Grass', 'Poison'],
+  Weepinbell: ['Grass', 'Poison'],
+  Tentacool: ['Water', 'Poison'],
+  Geodude: ['Rock', 'Ground'],
+  Graveler: ['Rock', 'Ground'],
+  Ponyta: ['Fire'],
+  Slowpoke: ['Water', 'Psychic'],
+  Magnemite: ['Electric', 'Steel'],
+  Doduo: ['Normal', 'Flying'],
+  Seel: ['Water', 'Ice'],
+  Grimer: ['Poison'],
+  Shellder: ['Water', 'Ice'],
+  Gastly: ['Ghost', 'Poison'],
+  Haunter: ['Ghost', 'Poison'],
+  Drowzee: ['Psychic'],
+  Krabby: ['Water'],
+  Voltorb: ['Electric'],
+  Exeggcute: ['Grass', 'Psychic'],
+  Cubone: ['Ground'],
+  Koffing: ['Poison'],
+  Rhyhorn: ['Ground', 'Rock'],
+  Horsea: ['Water', 'Dragon'],
+  Goldeen: ['Water'],
+  Staryu: ['Water', 'Psychic'],
+  Magikarp: ['Water', 'Flying'],
+  Eevee: ['Water', 'Electric', 'Fire', 'Psychic', 'Dark', 'Grass', 'Ice', 'Fairy'],
+  Dratini: ['Dragon', 'Flying'],
+  Lechonk: ['Normal'],
+  Tarountula: ['Bug'],
+  Pawmi: ['Electric', 'Fighting'],
+  Hoppip: ['Grass', 'Flying'],
+  Fletchling: ['Normal', 'Flying', 'Fire'],
+  Fidough: ['Fairy'],
+  Azurill: ['Water', 'Fairy'],
+  Marill: ['Water', 'Fairy'],
+  Ralts: ['Psychic', 'Fairy'],
+  Shinx: ['Electric'],
+  Riolu: ['Fighting', 'Steel'],
+  Charcadet: ['Fire', 'Ghost', 'Psychic'],
+  Tadbulb: ['Electric'],
+  Wattrel: ['Electric', 'Flying'],
+  Maschiff: ['Dark'],
+  Tinkatink: ['Fairy', 'Steel'],
+  Glimmet: ['Rock', 'Poison'],
+  Greavard: ['Ghost'],
+  Frigibax: ['Dragon', 'Ice'],
+};
+
+function speciesMatchesMonotype(species: string, monotype?: PokemonType) {
+  if (!monotype) return true;
+  const currentTypes = pokemonTypesForSpecies(species);
+  const familyTypes = evolutionTypeHints[species] ?? [];
+  return [...currentTypes, ...familyTypes].includes(monotype);
 }
 
 function bossTypes(boss: NuzlockeBoss) {
@@ -691,7 +860,7 @@ export function NuzlockeTracker() {
   const currentGame = activeRun?.gameVersion ?? selectedGame;
 
   return (
-    <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={trackerVars(currentGame)}>
+    <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={{ ...trackerVars(currentGame), fontFamily: readableFont }}>
       <div className="mx-auto max-w-7xl p-3 sm:p-5">
       <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
         <div>
@@ -1195,7 +1364,8 @@ function EncounterTracker({
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
 
-  const encounterOptions = encounterOptionsByLocation[form.location] ?? [];
+  const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
+  const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
   const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
     (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
@@ -1209,7 +1379,9 @@ function EncounterTracker({
   const orderedLocations = [...openLocations, ...completedLocations];
 
   const chooseLocation = (location: string) => {
-    const options = (encounterOptionsByLocation[location] ?? []).filter(canShowEncounterOption);
+    const options = (encounterOptionsByLocation[location] ?? [])
+      .filter((option) => speciesMatchesMonotype(option.species, monotype))
+      .filter(canShowEncounterOption);
     const firstOption = options[0];
     setForm((current) => ({
       ...current,
@@ -1222,10 +1394,21 @@ function EncounterTracker({
 
   const choosePokemon = (species: string) => {
     const selected = visibleEncounterOptions.find((option) => option.species === species);
+    const guessedTypes = pokemonTypesForSpecies(species);
     setForm((current) => ({
       ...current,
       pokemon: species,
-      types: selected?.types ?? current.types,
+      types: selected?.types ?? guessedTypes ?? current.types,
+      ability: getAbilityOptions(species)[0],
+    }));
+  };
+
+  const typeManualPokemon = (species: string) => {
+    const guessedTypes = pokemonTypesForSpecies(species);
+    setForm((current) => ({
+      ...current,
+      pokemon: species,
+      types: guessedTypes.length > 0 ? guessedTypes : current.types,
       ability: getAbilityOptions(species)[0],
     }));
   };
@@ -1307,14 +1490,20 @@ function EncounterTracker({
         <div className="grid gap-2 md:grid-cols-2">
           {orderedLocations.map((location) => {
             const logged = loggedByLocation.get(location);
-            const options = (encounterOptionsByLocation[location] ?? []).filter(canShowEncounterOption);
+            const options = (encounterOptionsByLocation[location] ?? [])
+              .filter((option) => speciesMatchesMonotype(option.species, monotype))
+              .filter(canShowEncounterOption);
             const isSelected = form.location === location;
 
             return (
-              <button
+              <div
                 key={location}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => chooseLocation(location)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') chooseLocation(location);
+                }}
                 className={`rounded-xl p-3 text-left shadow-sm transition hover:-translate-y-0.5 ${
                   logged
                     ? 'bg-white/55 opacity-70'
@@ -1332,18 +1521,35 @@ function EncounterTracker({
                     <MonsterToken species={logged.pokemon || 'Unknown'} types={logged.types} compact />
                     <span>{logged.pokemon || 'No Pokemon recorded'} / Lv {logged.levelMet}</span>
                   </div>
-                ) : (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {options.slice(0, 6).map((option) => (
-                      <span key={option.species} className="flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">
-                        <MonsterToken species={option.species} types={option.types} compact />
-                        {option.species}
+                ) : isSelected ? (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {options.length > 0 ? options.map((option) => (
+                      <button
+                        key={option.species}
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          choosePokemon(option.species);
+                        }}
+                        style={typeCardStyle(option.types)}
+                        className="flex items-center gap-3 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5"
+                      >
+                        <MonsterToken species={option.species} types={option.types} />
+                        <span>
+                          <span className="block">{option.species}</span>
+                          <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
+                        </span>
+                      </button>
+                    )) : (
+                      <span className="rounded-xl bg-white p-3 text-xs font-black text-[#6f7b8d]">
+                        No listed encounters match the current filters.
                       </span>
-                    ))}
-                    {options.length > 6 ? <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">+{options.length - 6}</span> : null}
+                    )}
                   </div>
+                ) : (
+                  <div className="mt-2 text-xs font-bold text-[#506078]">Click to show available Pokemon.</div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -1360,6 +1566,15 @@ function EncounterTracker({
             onChange={choosePokemon}
             options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
           />
+          <label className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
+            Randomizer / manual Pokemon
+            <input
+              value={form.pokemon}
+              onChange={(event) => typeManualPokemon(event.target.value)}
+              placeholder="Type any Pokemon"
+              className={`${fieldClass} text-sm normal-case tracking-normal text-[#182a40]`}
+            />
+          </label>
           <div className="grid gap-2 sm:grid-cols-[1fr_88px]">
             <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className={fieldClass} />
             <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Lv" className={fieldClass} />
@@ -1427,6 +1642,7 @@ function BossTracker({
 }) {
   const sortedBosses = [...(run.bosses || [])].sort((a, b) => Number(a.completed) - Number(b.completed));
   const [selectedBossPokemon, setSelectedBossPokemon] = useState<{ bossId: string; pokemon: NuzlockeBossPokemon } | null>(null);
+  const [expandedBossId, setExpandedBossId] = useState(sortedBosses.find((boss) => !boss.completed)?.id ?? sortedBosses[0]?.id ?? '');
 
   const toggleBoss = (boss: NuzlockeBoss) => {
     updateRun(run.id, (current) => {
@@ -1449,10 +1665,10 @@ function BossTracker({
   };
 
   return (
-    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <section className="grid gap-3">
       {sortedBosses.map((boss) => (
         <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 items-start gap-3">
               <BadgeToken name={boss.name} types={bossTypes(boss)} />
               <div className="min-w-0">
@@ -1462,13 +1678,18 @@ function BossTracker({
                 {boss.completed ? <div className="mt-1 text-xs font-black text-[#2f7d4f]">Completed / {boss.deaths} deaths</div> : null}
               </div>
             </div>
-            <label className="flex items-center gap-2 text-xs font-black">
-              <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
-              Done
-            </label>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => setExpandedBossId(expandedBossId === boss.id ? '' : boss.id)} className={smallButtonClass}>
+                {expandedBossId === boss.id ? 'Hide Team' : 'Show Team'}
+              </button>
+              <label className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm">
+                <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
+                Done
+              </label>
+            </div>
           </div>
 
-          {!boss.completed ? (
+          {!boss.completed && expandedBossId === boss.id ? (
             <>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <label className="grid gap-1 text-xs font-black">
