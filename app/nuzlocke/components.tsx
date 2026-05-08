@@ -232,7 +232,7 @@ function typeCardStyle(types: PokemonType[] = []) {
 }
 
 function TypeBadge({ type }: { type: PokemonType }) {
-  return <span className={`rounded-full px-2 py-1 text-[11px] font-black shadow-sm ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
+  return <span className={`inline-flex items-center rounded-[4px] border border-black/10 px-1.5 py-0.5 text-[10px] font-black uppercase leading-none tracking-[0.03em] shadow-sm ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
 }
 
 function SpriteSelect({
@@ -326,8 +326,8 @@ function NatureEffect({ nature }: { nature: string }) {
 
   return (
     <div className="flex flex-wrap gap-2 text-[11px] font-black">
-      {up ? <span className="rounded-full bg-[#e5f7df] px-2 py-1 text-[#267a38]">{up}</span> : null}
-      {down ? <span className="rounded-full bg-[#ffe2de] px-2 py-1 text-[#a43128]">{down}</span> : null}
+      {up ? <span className="rounded-[4px] bg-[#e5f7df] px-2 py-1 text-[#267a38]">{up}</span> : null}
+      {down ? <span className="rounded-[4px] bg-[#ffe2de] px-2 py-1 text-[#a43128]">{down}</span> : null}
     </div>
   );
 }
@@ -535,6 +535,89 @@ function pokemonTypesForSpecies(species: string) {
     Leafeon: ['Grass'],
     Sylveon: ['Fairy'],
     Hatterene: ['Psychic', 'Fairy'],
+    Grookey: ['Grass'],
+    Scorbunny: ['Fire'],
+    Sobble: ['Water'],
+    Wooloo: ['Normal'],
+    Skwovet: ['Normal'],
+    Nickit: ['Dark'],
+    Yamper: ['Electric'],
+    Chewtle: ['Water'],
+    Gossifleur: ['Grass'],
+    Eldegoss: ['Grass'],
+    Arrokuda: ['Water'],
+    Drednaw: ['Water', 'Rock'],
+    Sizzlipede: ['Fire', 'Bug'],
+    Centiskorch: ['Fire', 'Bug'],
+    Roggenrola: ['Rock'],
+    Woobat: ['Psychic', 'Flying'],
+    Drilbur: ['Ground'],
+    Milcery: ['Fairy'],
+    Pumpkaboo: ['Ghost', 'Grass'],
+    Stufful: ['Normal', 'Fighting'],
+    Sinistea: ['Ghost'],
+    Clobbopus: ['Fighting'],
+    Darumaka: ['Ice'],
+    Duraludon: ['Steel', 'Dragon'],
+    Bunnelby: ['Normal'],
+    Tyrogue: ['Fighting'],
+    Budew: ['Grass', 'Poison'],
+    Bounsweet: ['Grass'],
+    Nuzleaf: ['Grass', 'Dark'],
+    Duskull: ['Ghost'],
+    Drifloon: ['Ghost', 'Flying'],
+    Lotad: ['Water', 'Grass'],
+    Wingull: ['Water', 'Flying'],
+    Tympole: ['Water'],
+    Krabby: ['Water'],
+    Dreepy: ['Dragon', 'Ghost'],
+    Vullaby: ['Dark', 'Flying'],
+    Goldeen: ['Water'],
+    Hitmontop: ['Fighting'],
+    Pangoro: ['Fighting', 'Dark'],
+    "Sirfetch'd": ['Fighting'],
+    Yamask: ['Ground', 'Ghost'],
+    Cursola: ['Ghost'],
+    Mawile: ['Steel', 'Fairy'],
+    Togekiss: ['Fairy', 'Flying'],
+    Alcremie: ['Fairy'],
+    Barbaracle: ['Rock', 'Water'],
+    Shuckle: ['Bug', 'Rock'],
+    Stonjourner: ['Rock'],
+    Coalossal: ['Rock', 'Fire'],
+    Darmanitan: ['Ice'],
+    Scrafty: ['Dark', 'Fighting'],
+    Malamar: ['Dark', 'Psychic'],
+    Obstagoon: ['Dark', 'Normal'],
+    Gigalith: ['Rock'],
+    Flygon: ['Ground', 'Dragon'],
+    Sandaconda: ['Ground'],
+    Aegislash: ['Steel', 'Ghost'],
+    Dragapult: ['Dragon', 'Ghost'],
+    Seismitoad: ['Water', 'Ground'],
+    'Mr. Rime': ['Ice', 'Psychic'],
+    Solosis: ['Psychic'],
+    Gothita: ['Psychic'],
+    Hatenna: ['Psychic'],
+    Scraggy: ['Dark', 'Fighting'],
+    Morpeko: ['Electric', 'Dark'],
+    Turtwig: ['Grass'],
+    Chimchar: ['Fire'],
+    Piplup: ['Water'],
+    Starly: ['Normal', 'Flying'],
+    Bidoof: ['Normal'],
+    Cranidos: ['Rock'],
+    Cherubi: ['Grass'],
+    Roserade: ['Grass', 'Poison'],
+    Spiritomb: ['Ghost', 'Dark'],
+    Gastrodon: ['Water', 'Ground'],
+    Milotic: ['Water'],
+    Garchomp: ['Dragon', 'Ground'],
+    Rowlet: ['Grass', 'Flying'],
+    Cyndaquil: ['Fire'],
+    Oshawott: ['Water'],
+    Munchlax: ['Normal'],
+    Kleavor: ['Bug', 'Rock'],
     'Starter Ace': ['Normal'],
   };
 
@@ -689,6 +772,26 @@ function bossTypes(boss: NuzlockeBoss) {
     'lance-y': ['Dragon', 'Flying'],
     'champion-rb': ['Normal'],
     'champion-y': ['Normal'],
+    'milo-swsh': ['Grass'],
+    'nessa-swsh': ['Water'],
+    'kabu-swsh': ['Fire'],
+    'bea-sw': ['Fighting'],
+    'allister-sh': ['Ghost'],
+    'opal-swsh': ['Fairy'],
+    'gordie-sw': ['Rock'],
+    'melony-sh': ['Ice'],
+    'piers-swsh': ['Dark'],
+    'raihan-swsh': ['Dragon'],
+    'hop-route-2-swsh': ['Normal'],
+    'bede-galar-mine-swsh': ['Psychic'],
+    'marnie-motostoke-swsh': ['Dark'],
+    'champion-leon-swsh': ['Fire', 'Flying'],
+    'roark-bdsp': ['Rock'],
+    'gardenia-bdsp': ['Grass'],
+    'cynthia-bdsp': ['Dragon', 'Ground'],
+    'mai-la': ['Normal'],
+    'kleavor-la': ['Bug', 'Rock'],
+    'avalugg-la': ['Ice', 'Rock'],
   };
 
   return mapped[boss.id] ?? pokemonTypesForSpecies(boss.pokemon?.[0]?.species ?? '');
@@ -785,6 +888,23 @@ function trainerSpriteSlug(name: string) {
     'False Dragon Titan': 'fisherman-gen4dp',
     'Nemona Rival Fights': 'nemona',
     'Champion Geeta': 'geeta',
+    Leon: 'leon',
+    Milo: 'milo',
+    Nessa: 'nessa',
+    Kabu: 'kabu',
+    Bea: 'bea',
+    Allister: 'allister',
+    Opal: 'opal',
+    Gordie: 'gordie',
+    Melony: 'melony',
+    Piers: 'piers',
+    Raihan: 'raihan',
+    Hop: 'hop',
+    Bede: 'bede',
+    Marnie: 'marnie',
+    Roark: 'roark',
+    Gardenia: 'gardenia',
+    Cynthia: 'cynthia-gen4',
   };
 
   return mapped[name] ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -921,6 +1041,24 @@ export function NuzlockeTracker() {
     setSelectedGame('');
   };
 
+  const startNewRun = () => {
+    setActiveRunId('');
+    setSelectedGame('');
+  };
+
+  const deleteRun = (runId: string) => {
+    const run = runs.find((item) => item.id === runId);
+    if (!run) return;
+    if (!window.confirm(`Delete ${run.runName}? This removes the local tracker data for this run.`)) return;
+
+    setRuns((currentRuns) => {
+      const nextRuns = currentRuns.filter((item) => item.id !== runId);
+      setActiveRunId(nextRuns[0]?.id ?? '');
+      return nextRuns;
+    });
+    setSelectedGame('');
+  };
+
   const currentGame = activeRun?.gameVersion ?? selectedGame;
 
   return (
@@ -939,7 +1077,12 @@ export function NuzlockeTracker() {
               ))}
             </select>
           ) : null}
-          <button onClick={() => setSelectedGame('')} className={smallButtonClass}>
+          {activeRun ? (
+            <button onClick={() => deleteRun(activeRun.id)} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm hover:-translate-y-0.5">
+              Delete Run
+            </button>
+          ) : null}
+          <button onClick={startNewRun} className={smallButtonClass}>
             New Run
           </button>
         </div>
@@ -947,7 +1090,7 @@ export function NuzlockeTracker() {
 
       {!activeRun && !selectedGame ? <GameVersionPicker onSelect={setSelectedGame} /> : null}
       {!activeRun && selectedGame ? <RunSetupForm gameVersion={selectedGame} onBack={() => setSelectedGame('')} onCreate={createRun} /> : null}
-      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={() => setActiveRunId('')} /> : null}
+      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={startNewRun} /> : null}
       </div>
     </section>
   );
@@ -957,7 +1100,7 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
   return (
     <section className={panelClass}>
       <h2 className="text-3xl font-black">Choose Your Game</h2>
-      <p className="mt-2 text-sm font-bold text-[#506078]">Red, Blue, Yellow, Scarlet, and Violet are wired in. The rest are parked here for later.</p>
+      <p className="mt-2 text-sm font-bold text-[#506078]">Gen 1, Gen 8, Scarlet, and Violet are wired in. The rest are parked here for later.</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {gameGroups.map((group) => (
           <div key={group.generation} className={softPanelClass}>
@@ -1092,23 +1235,23 @@ function NuzlockeDashboard({
   const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
 
   return (
-    <div className="grid gap-4 pb-28">
-      <section className={panelClass}>
+    <div className="grid gap-3 pb-28">
+      <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">{run.gameVersion} / {run.runType}</div>
-            <h2 className="text-3xl font-black">{run.runName}</h2>
+            <h2 className="text-2xl font-black">{run.runName}</h2>
           </div>
           <button onClick={onNewRun} className={smallButtonClass}>
             Back to Game Chooser
           </button>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {tabs.map((item) => (
             <button
               key={item}
               onClick={() => setTab(item)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-black shadow-sm transition ${
+              className={`shrink-0 rounded-xl px-3 py-2 text-xs font-black shadow-sm transition ${
                 tab === item ? 'bg-[#182a40] text-white' : 'bg-white/80 hover:bg-white'
               }`}
             >
@@ -1200,6 +1343,7 @@ function CurrentTeamBar({
                     <TeamPokemonScout
                       pokemon={pokemon}
                       compact
+                      showNatureAbility={!isGenOneGame(run.gameVersion)}
                       actions={
                         <>
                           <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box</button>
@@ -1362,14 +1506,9 @@ function TeamTracker({
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {(run.team || []).map((pokemon) => (
-            <article key={pokemon.id} className={panelClass}>
-              <TeamPokemonScout pokemon={pokemon} />
-              {hasNatures || hasAbilities ? (
-                <div className="mt-3 text-xs font-bold text-[#506078]">
-                  {[hasNatures ? pokemon.nature : '', hasAbilities ? pokemon.ability : ''].filter(Boolean).join(' / ')}
-                </div>
-              ) : null}
-              <label className="mt-3 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
+            <article key={pokemon.id} className="rounded-2xl border border-white/75 bg-white/90 p-3 shadow-[0_12px_32px_rgba(24,42,64,0.08)] backdrop-blur">
+              <TeamPokemonScout pokemon={pokemon} showDetails={false} showNatureAbility={hasNatures || hasAbilities} />
+              <label className="mt-2 grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
                 Held item
                 <span className="flex items-center gap-2">
                   <ItemSprite item={pokemon.heldItem || 'None'} />
@@ -1378,8 +1517,8 @@ function TeamTracker({
                   </select>
                 </span>
               </label>
-              <p className="mt-2 text-sm font-bold leading-6">{pokemon.notes}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <p className="mt-2 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 <ChoiceButtons options={['Party', 'Boxed', 'Released'] as PokemonStatus[]} value={pokemon.status} onChange={(status) => setStatus(pokemon.id, status)} />
                 {pokemon.status !== 'Dead' ? (
                   <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 rounded-lg bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
@@ -1521,30 +1660,30 @@ function EncounterTracker({
   };
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+    <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_390px]">
       <div className={panelClass}>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
-            <h3 className="text-lg font-black">Pick an encounter area</h3>
-            <p className="mt-1 text-xs font-bold text-[#506078]">Click a route once to reveal its available Pokemon.</p>
+            <h3 className="text-base font-black">Pick an encounter area</h3>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
+          <div className="flex flex-wrap gap-2 text-[11px] font-black">
+            <span className="self-center text-[#506078]">Click a route to reveal Pokemon.</span>
+            <label className="flex items-center gap-2 rounded-lg bg-white/70 px-2 py-1.5 shadow-sm">
               <input
                 type="checkbox"
                 checked={showSurfEncounters}
                 onChange={(event) => setShowSurfEncounters(event.target.checked)}
               />
-              Show surf encounters
+              Surf
             </label>
-            <label className="flex items-center gap-2 rounded-xl bg-white/70 p-3 text-xs font-black shadow-sm">
+            <label className="flex items-center gap-2 rounded-lg bg-white/70 px-2 py-1.5 shadow-sm">
               <input
                 type="checkbox"
                 checked={showFishingEncounters}
                 onChange={(event) => setShowFishingEncounters(event.target.checked)}
               />
-              Show fishing rod encounters
+              Fishing
             </label>
           </div>
         </div>
@@ -1565,7 +1704,7 @@ function EncounterTracker({
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') chooseLocation(location);
                 }}
-                className={`rounded-xl p-3 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                className={`rounded-xl p-2 text-left shadow-sm transition hover:-translate-y-0.5 ${
                   logged
                     ? 'bg-white/55 opacity-70'
                     : isSelected
@@ -1583,7 +1722,7 @@ function EncounterTracker({
                     <span>{logged.pokemon || 'No Pokemon recorded'} / Lv {logged.levelMet}</span>
                   </div>
                 ) : isSelected ? (
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                     {options.length > 0 ? options.map((option) => (
                       <button
                         key={option.species}
@@ -1593,9 +1732,9 @@ function EncounterTracker({
                           choosePokemon(option.species);
                         }}
                         style={typeCardStyle(option.types)}
-                        className="flex items-center gap-3 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5"
+                        className="flex items-center gap-2 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5"
                       >
-                        <MonsterToken species={option.species} types={option.types} />
+                        <MonsterToken species={option.species} types={option.types} compact />
                         <span>
                           <span className="block">{option.species}</span>
                           <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
@@ -1615,56 +1754,49 @@ function EncounterTracker({
       </div>
 
       <form onSubmit={addEncounter} className={`${panelClass} xl:sticky xl:top-4 xl:self-start`}>
-        <div className="mb-3">
-          <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Add Encounter</div>
-          <h3 className="text-lg font-black">{form.location}</h3>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Add Encounter</div>
+            <h3 className="text-base font-black leading-tight">{form.location}</h3>
+          </div>
+          <div className="flex flex-wrap gap-1">{(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}</div>
         </div>
-        <div className="grid gap-3">
-          <SpriteSelect
-            value={form.pokemon}
-            onChange={choosePokemon}
-            options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
-          />
-          <label className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
-            Randomizer / manual Pokemon
+        <div className="grid gap-2">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+            <SpriteSelect
+              value={form.pokemon}
+              onChange={choosePokemon}
+              options={visibleEncounterOptions.length > 0 ? visibleEncounterOptions : [{ species: 'Not listed', types: ['Normal'] as PokemonType[] }]}
+            />
             <input
               value={form.pokemon}
               onChange={(event) => typeManualPokemon(event.target.value)}
-              placeholder="Type any Pokemon"
-              className={`${fieldClass} text-sm normal-case tracking-normal text-[#182a40]`}
+              placeholder="Randomizer/manual Pokemon"
+              className={`${fieldClass} text-sm`}
             />
-          </label>
+          </div>
           <div className="grid gap-2 sm:grid-cols-[1fr_88px]">
             <input value={form.nickname} onChange={(event) => setForm({ ...form, nickname: event.target.value })} placeholder="Nickname" className={fieldClass} />
             <input value={form.levelMet} onChange={(event) => setForm({ ...form, levelMet: event.target.value })} type="number" min="1" placeholder="Lv" className={fieldClass} />
           </div>
-          <div className="grid gap-2">
-            <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Result</div>
-            <div className="grid grid-cols-4 gap-1">
-              {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => setForm({ ...form, status })}
-                  className={`rounded-lg px-2 py-2 text-[11px] font-black shadow-sm ${
-                    form.status === status
-                      ? 'bg-[#182a40] text-white'
-                      : 'bg-white text-[#182a40]'
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className={softPanelClass}>
-            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Auto-filled typing</div>
-            <div className="flex flex-wrap gap-2">
-              {(form.types || []).map((type) => <TypeBadge key={type} type={type} />)}
-            </div>
+          <div className="grid grid-cols-4 gap-1">
+            {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setForm({ ...form, status })}
+                className={`rounded-lg px-2 py-2 text-[11px] font-black shadow-sm ${
+                  form.status === status
+                    ? 'bg-[#182a40] text-white'
+                    : 'bg-white text-[#182a40]'
+                }`}
+              >
+                {status}
+              </button>
+            ))}
           </div>
           {hasNatures ? (
-            <div className="grid gap-2">
+            <div className="grid gap-1">
               <select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className={fieldClass}>
                 {natureOptions.map((nature) => <option key={nature}>{nature}</option>)}
               </select>
@@ -1672,8 +1804,8 @@ function EncounterTracker({
             </div>
           ) : null}
           {hasAbilities ? (
-            <div className="grid gap-2">
-              <div className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
+            <div className="grid gap-1">
+              <div className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
               <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
             </div>
           ) : null}
@@ -1682,8 +1814,8 @@ function EncounterTracker({
               This area already has a caught encounter. Change the result or choose another area.
             </div>
           ) : null}
-          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className={`${fieldClass} min-h-20`} />
-          <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-3 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add Encounter</button>
+          <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Notes" className={`${fieldClass} min-h-12`} />
+          <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-2.5 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add Encounter</button>
         </div>
       </form>
     </section>
@@ -1809,7 +1941,7 @@ function MoveTypeBadge({ type, defenderTypes }: { type: PokemonType; defenderTyp
           : 'bg-white text-[#182a40]';
 
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black shadow-sm ${tone}`}>
+    <span className={`inline-flex items-center gap-1 rounded-[4px] px-1.5 py-1 text-[10px] font-black shadow-sm ${tone}`}>
       <TypeBadge type={type} />
       <span>{getMultiplierLabel(multiplier)}</span>
     </span>
@@ -1838,26 +1970,25 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 xl:grid-cols-[0.85fr_1fr_1.35fr]">
+      <div className="mt-3 grid gap-3 xl:grid-cols-[0.75fr_1fr_1.15fr]">
         {stats ? (
           <div>
-            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Stats</div>
-            <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-black xl:grid-cols-2">
+            <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Stats</div>
+            <div className="flex flex-wrap gap-1 text-[10px] font-black">
               {Object.entries(stats).map(([label, value]) => (
-                <div key={label} className="rounded-xl bg-white p-2 shadow-sm">
-                  <div className="uppercase text-[#6f7b8d]">{label}</div>
-                  <div className="text-sm text-[#182a40]">{value}</div>
-                </div>
+                <span key={label} className="rounded-[4px] bg-white px-2 py-1 shadow-sm">
+                  <span className="uppercase text-[#6f7b8d]">{label}</span> {value}
+                </span>
               ))}
             </div>
           </div>
         ) : null}
 
         <div>
-          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
-          <div className="grid gap-2">
+          <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
+          <div className="grid gap-1">
             {moves.map((moveInfo) => (
-              <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-xl bg-white p-2 shadow-sm">
+              <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-lg bg-white p-2 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-black">{moveInfo.name}</span>
                   <MoveTypeBadge type={moveInfo.type} defenderTypes={types} />
@@ -1869,14 +2000,14 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
         </div>
 
         <div>
-          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Matchups</div>
-          <div className="grid gap-2 text-[11px] font-black sm:grid-cols-2">
-            <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
-            <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
-            <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
-            <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
-            <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
-            <MatchupRow label="STAB strong into" types={strong} empty="None" />
+          <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Matchups</div>
+          <div className="grid gap-1 text-[11px] font-black">
+            <MatchupRow label="Weak" amount="4x" types={matchups.weak4x} empty="None" />
+            <MatchupRow label="Weak" amount="2x" types={matchups.weak2x} empty="None" />
+            <MatchupRow label="Resist" amount="1/2" types={matchups.resistHalf} empty="None" />
+            <MatchupRow label="Resist" amount="1/4" types={matchups.resistQuarter} empty="None" />
+            <MatchupRow label="Immune" amount="0x" types={matchups.immune0x} empty="None" />
+            <MatchupRow label="Strong" amount="STAB" types={strong} empty="None" />
           </div>
         </div>
       </div>
@@ -1884,12 +2015,17 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
   );
 }
 
-function MatchupRow({ label, types, empty }: { label: string; types: PokemonType[]; empty: string }) {
+function MatchupRow({ label, amount, types, empty }: { label: string; amount: string; types: PokemonType[]; empty: string }) {
   return (
-    <div className="rounded-xl bg-white p-2 shadow-sm">
-      <div className="mb-2 text-[10px] uppercase tracking-[0.14em] text-[#6f7b8d]">{label}</div>
+    <div className="flex flex-wrap items-center gap-1 rounded-lg bg-white/85 px-2 py-1 shadow-sm">
+      <span className="mr-1 min-w-14 text-[10px] uppercase tracking-[0.12em] text-[#6f7b8d]">{label}</span>
       <div className="flex flex-wrap gap-1">
-        {types.length > 0 ? types.map((type) => <TypeBadge key={type} type={type} />) : <span className="text-[#6f7b8d]">{empty}</span>}
+        {types.length > 0 ? types.map((type) => (
+          <span key={type} className="inline-flex items-center gap-1 rounded-[4px] bg-[#f7f9fc] px-1.5 py-1">
+            <TypeBadge type={type} />
+            <span className="text-[10px] text-[#182a40]">{amount}</span>
+          </span>
+        )) : <span className="text-[#6f7b8d]">{empty}</span>}
       </div>
     </div>
   );
@@ -1899,10 +2035,14 @@ function TeamPokemonScout({
   pokemon,
   compact = false,
   actions,
+  showDetails = true,
+  showNatureAbility = true,
 }: {
   pokemon: NuzlockePokemon;
   compact?: boolean;
   actions?: React.ReactNode;
+  showDetails?: boolean;
+  showNatureAbility?: boolean;
 }) {
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
   const matchups = getDefensiveMatchups(types);
@@ -1923,8 +2063,8 @@ function TeamPokemonScout({
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {types.map((type) => <TypeBadge key={type} type={type} />)}
-            {item !== 'None' ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-black shadow-sm">
+            {showDetails && item !== 'None' ? (
+              <span className="inline-flex items-center gap-1 rounded-[4px] bg-white px-2 py-1 text-[11px] font-black shadow-sm">
                 <ItemSprite item={item} />
                 {item}
               </span>
@@ -1933,30 +2073,38 @@ function TeamPokemonScout({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
-        <div className="grid gap-2 text-xs font-bold text-[#506078]">
-          <div className="rounded-xl bg-[#f7f9fc] p-2">
-            <span className="font-black text-[#182a40]">Nature</span>
-            <span className="ml-2">{pokemon.nature || 'Not Sure'}</span>
+      <div className={`mt-3 grid gap-3 ${showDetails && showNatureAbility ? 'lg:grid-cols-[0.8fr_1.2fr]' : ''}`}>
+        {showDetails && showNatureAbility ? (
+          <div className="grid gap-1 text-xs font-bold text-[#506078]">
+            {pokemon.nature ? (
+              <div className="rounded-lg bg-[#f7f9fc] p-2">
+                <span className="font-black text-[#182a40]">Nature</span>
+                <span className="ml-2">{pokemon.nature}</span>
+              </div>
+            ) : null}
+            {pokemon.ability ? (
+              <div className="rounded-lg bg-[#f7f9fc] p-2">
+                <span className="font-black text-[#182a40]">Ability</span>
+                <span className="ml-2">{pokemon.ability}</span>
+              </div>
+            ) : null}
+            {item !== 'None' ? (
+              <div className="rounded-lg bg-[#f7f9fc] p-2">
+                <span className="font-black text-[#182a40]">Held</span>
+                <span className="ml-2">{item}</span>
+              </div>
+            ) : null}
           </div>
-          <div className="rounded-xl bg-[#f7f9fc] p-2">
-            <span className="font-black text-[#182a40]">Ability</span>
-            <span className="ml-2">{pokemon.ability || 'Not Sure'}</span>
-          </div>
-          <div className="rounded-xl bg-[#f7f9fc] p-2">
-            <span className="font-black text-[#182a40]">Held</span>
-            <span className="ml-2">{item}</span>
-          </div>
-        </div>
+        ) : null}
 
         <div>
-          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Defensive Matchups</div>
-          <div className="grid gap-2 text-[11px] font-black sm:grid-cols-2">
-            <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
-            <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
-            <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
-            <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
-            <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
+          <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Defensive Matchups</div>
+          <div className="grid gap-1 text-[11px] font-black">
+            <MatchupRow label="Weak" amount="4x" types={matchups.weak4x} empty="None" />
+            <MatchupRow label="Weak" amount="2x" types={matchups.weak2x} empty="None" />
+            <MatchupRow label="Resist" amount="1/2" types={matchups.resistHalf} empty="None" />
+            <MatchupRow label="Resist" amount="1/4" types={matchups.resistQuarter} empty="None" />
+            <MatchupRow label="Immune" amount="0x" types={matchups.immune0x} empty="None" />
           </div>
         </div>
       </div>

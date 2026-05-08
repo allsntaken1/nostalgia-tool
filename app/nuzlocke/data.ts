@@ -1,5 +1,6 @@
 import type { GameVersion, NuzlockeBoss, NuzlockeMove, PokemonType, RunType } from './types';
 import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
+import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
@@ -15,7 +16,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     generation: 'Gen 8',
     games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].map((name) => ({
       name: name as GameVersion,
-      supported: false,
+      supported: true,
     })),
   },
   { generation: 'Gen 9', games: ['Scarlet', 'Violet'].map((name) => ({ name: name as GameVersion, supported: true })) },
@@ -688,6 +689,89 @@ export const pokemonSpriteIds: Record<string, number> = {
   Gogoat: 673,
   Avalugg: 713,
   Kingambit: 983,
+  Grookey: 810,
+  Scorbunny: 813,
+  Sobble: 816,
+  Wooloo: 831,
+  Skwovet: 819,
+  Nickit: 827,
+  Yamper: 835,
+  Chewtle: 833,
+  Gossifleur: 829,
+  Eldegoss: 830,
+  Arrokuda: 846,
+  Drednaw: 834,
+  Sizzlipede: 850,
+  Centiskorch: 851,
+  Roggenrola: 524,
+  Woobat: 527,
+  Drilbur: 529,
+  Milcery: 868,
+  Pumpkaboo: 710,
+  Stufful: 759,
+  Sinistea: 854,
+  Clobbopus: 852,
+  Darumaka: 554,
+  Duraludon: 884,
+  Bunnelby: 659,
+  Tyrogue: 236,
+  Budew: 406,
+  Bounsweet: 761,
+  Nuzleaf: 274,
+  Duskull: 355,
+  Drifloon: 425,
+  Lotad: 270,
+  Wingull: 278,
+  Tympole: 535,
+  Krabby: 98,
+  Dreepy: 885,
+  Vullaby: 629,
+  Goldeen: 118,
+  Hitmontop: 237,
+  Pangoro: 675,
+  "Sirfetch'd": 865,
+  Yamask: 562,
+  Cursola: 864,
+  Mawile: 303,
+  Togekiss: 468,
+  Alcremie: 869,
+  Barbaracle: 689,
+  Shuckle: 213,
+  Stonjourner: 874,
+  Coalossal: 839,
+  Darmanitan: 555,
+  Scrafty: 560,
+  Malamar: 687,
+  Obstagoon: 862,
+  Gigalith: 526,
+  Flygon: 330,
+  Sandaconda: 844,
+  Aegislash: 681,
+  Dragapult: 887,
+  Seismitoad: 537,
+  'Mr. Rime': 866,
+  Solosis: 577,
+  Gothita: 574,
+  Hatenna: 856,
+  Scraggy: 559,
+  Morpeko: 877,
+  Turtwig: 387,
+  Chimchar: 390,
+  Piplup: 393,
+  Starly: 396,
+  Bidoof: 399,
+  Cranidos: 408,
+  Cherubi: 420,
+  Roserade: 407,
+  Spiritomb: 442,
+  Gastrodon: 423,
+  Milotic: 350,
+  Garchomp: 445,
+  Rowlet: 722,
+  Cyndaquil: 155,
+  Oshawott: 501,
+  Munchlax: 446,
+  Kleavor: 900,
 };
 
 export function getPokemonSpriteUrl(species: string) {
@@ -1253,12 +1337,14 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
 
 export function getNuzlockeLocations(gameVersion: GameVersion) {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
+  if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
 }
 
 export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   if (gameVersion === 'Yellow') return yellowEncounterOptions;
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
+  if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
 }
 
@@ -1268,6 +1354,8 @@ export function getNuzlockeBosses(gameVersion: GameVersion) {
       ? yellowBosses
       : gameVersion === 'Red' || gameVersion === 'Blue'
         ? redBlueBosses
+        : supportsGen8Data(gameVersion)
+          ? getGen8Bosses(gameVersion)
         : getScarletVioletBosses(gameVersion);
 
   return bosses.map((boss) => ({
@@ -1277,7 +1365,7 @@ export function getNuzlockeBosses(gameVersion: GameVersion) {
 }
 
 export function getPokemonTypesFromData(species: string) {
-  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, scarletVioletEncounterOptions];
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
   for (const group of encounterGroups) {
     for (const options of Object.values(group)) {
       const match = options.find((option) => option.species === species);
