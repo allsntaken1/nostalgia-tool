@@ -3,7 +3,7 @@ import type { GameVersion, NuzlockeBoss, PokemonType, RunType } from './types';
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
 export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean }[] }[] = [
-  { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: false })) },
+  { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
   { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 4', games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({ name: name as GameVersion, supported: false })) },
@@ -78,6 +78,46 @@ export const scarletVioletLocations = [
   'The Great Crater of Paldea',
   'Area Zero',
   'Tera Raid',
+  'Gift / Static',
+];
+
+export const kantoLocations = [
+  'Starter',
+  'Route 1',
+  'Route 2',
+  'Viridian Forest',
+  'Route 3',
+  'Mt. Moon',
+  'Route 4',
+  'Route 24',
+  'Route 25',
+  'Route 5',
+  'Route 6',
+  'Route 7',
+  'Route 8',
+  'Route 9',
+  'Route 10',
+  'Rock Tunnel',
+  'Route 11',
+  'Diglett Cave',
+  'Route 12',
+  'Route 13',
+  'Route 14',
+  'Route 15',
+  'Route 16',
+  'Route 17',
+  'Route 18',
+  'Pokemon Tower',
+  'Safari Zone',
+  'Route 19',
+  'Route 20',
+  'Seafoam Islands',
+  'Route 21',
+  'Pokemon Mansion',
+  'Power Plant',
+  'Route 22',
+  'Route 23',
+  'Victory Road',
   'Gift / Static',
 ];
 
@@ -157,6 +197,53 @@ export const commonAbilityOptions = [
 ];
 
 export const speciesAbilityOptions: Record<string, string[]> = {
+  Bulbasaur: ['Not Sure'],
+  Charmander: ['Not Sure'],
+  Squirtle: ['Not Sure'],
+  Pikachu: ['Not Sure'],
+  Pidgey: ['Not Sure'],
+  Rattata: ['Not Sure'],
+  Spearow: ['Not Sure'],
+  Caterpie: ['Not Sure'],
+  Weedle: ['Not Sure'],
+  Metapod: ['Not Sure'],
+  Kakuna: ['Not Sure'],
+  NidoranF: ['Not Sure'],
+  NidoranM: ['Not Sure'],
+  Jigglypuff: ['Not Sure'],
+  Zubat: ['Not Sure'],
+  Geodude: ['Not Sure'],
+  Paras: ['Not Sure'],
+  Clefairy: ['Not Sure'],
+  Sandshrew: ['Not Sure'],
+  Ekans: ['Not Sure'],
+  Mankey: ['Not Sure'],
+  Abra: ['Not Sure'],
+  Bellsprout: ['Not Sure'],
+  Oddish: ['Not Sure'],
+  Meowth: ['Not Sure'],
+  Vulpix: ['Not Sure'],
+  Growlithe: ['Not Sure'],
+  Diglett: ['Not Sure'],
+  Drowzee: ['Not Sure'],
+  Voltorb: ['Not Sure'],
+  Magnemite: ['Not Sure'],
+  Machop: ['Not Sure'],
+  Gastly: ['Not Sure'],
+  Cubone: ['Not Sure'],
+  Koffing: ['Not Sure'],
+  Rhyhorn: ['Not Sure'],
+  Chansey: ['Not Sure'],
+  Tangela: ['Not Sure'],
+  Scyther: ['Not Sure'],
+  Pinsir: ['Not Sure'],
+  Tauros: ['Not Sure'],
+  Magikarp: ['Not Sure'],
+  Tentacool: ['Not Sure'],
+  Seel: ['Not Sure'],
+  Ponyta: ['Not Sure'],
+  Grimer: ['Not Sure'],
+  Electabuzz: ['Not Sure'],
   Sprigatito: ['Overgrow', 'Protean', 'Not Sure'],
   Fuecoco: ['Blaze', 'Unaware', 'Not Sure'],
   Quaxly: ['Torrent', 'Moxie', 'Not Sure'],
@@ -186,6 +273,121 @@ export function getAbilityOptions(species: string) {
 }
 
 export const pokemonSpriteIds: Record<string, number> = {
+  Bulbasaur: 1,
+  Ivysaur: 2,
+  Venusaur: 3,
+  Charmander: 4,
+  Charmeleon: 5,
+  Charizard: 6,
+  Squirtle: 7,
+  Wartortle: 8,
+  Blastoise: 9,
+  Caterpie: 10,
+  Metapod: 11,
+  Butterfree: 12,
+  Weedle: 13,
+  Kakuna: 14,
+  Beedrill: 15,
+  Pidgey: 16,
+  Pidgeotto: 17,
+  Rattata: 19,
+  Raticate: 20,
+  Spearow: 21,
+  Fearow: 22,
+  Ekans: 23,
+  Arbok: 24,
+  Pikachu: 25,
+  Raichu: 26,
+  Sandshrew: 27,
+  NidoranF: 29,
+  Nidorina: 30,
+  Nidoqueen: 31,
+  NidoranM: 32,
+  Nidorino: 33,
+  Nidoking: 34,
+  Clefairy: 35,
+  Vulpix: 37,
+  Ninetales: 38,
+  Jigglypuff: 39,
+  Zubat: 41,
+  Golbat: 42,
+  Oddish: 43,
+  Gloom: 44,
+  Vileplume: 45,
+  Paras: 46,
+  Venonat: 48,
+  Venomoth: 49,
+  Diglett: 50,
+  Meowth: 52,
+  Persian: 53,
+  Mankey: 56,
+  Primeape: 57,
+  Growlithe: 58,
+  Arcanine: 59,
+  Psyduck: 54,
+  Slowpoke: 79,
+  Geodude: 74,
+  Onix: 95,
+  Abra: 63,
+  Kadabra: 64,
+  Alakazam: 65,
+  Machop: 66,
+  Machoke: 67,
+  Machamp: 68,
+  Bellsprout: 69,
+  Weepinbell: 70,
+  Victreebel: 71,
+  Tentacool: 72,
+  Ponyta: 77,
+  Rapidash: 78,
+  Slowbro: 80,
+  Magnemite: 81,
+  Magneton: 82,
+  Seel: 86,
+  Dewgong: 87,
+  Grimer: 88,
+  Muk: 89,
+  Shellder: 90,
+  Cloyster: 91,
+  Gastly: 92,
+  Haunter: 93,
+  Gengar: 94,
+  Drowzee: 96,
+  Hypno: 97,
+  Voltorb: 100,
+  Electrode: 101,
+  Cubone: 104,
+  Marowak: 105,
+  Hitmonlee: 106,
+  Hitmonchan: 107,
+  Koffing: 109,
+  Weezing: 110,
+  Rhyhorn: 111,
+  Rhydon: 112,
+  Chansey: 113,
+  Tangela: 114,
+  Exeggcute: 102,
+  Eevee: 133,
+  Ditto: 132,
+  Doduo: 84,
+  Moltres: 146,
+  MrMime: 122,
+  Scyther: 123,
+  Pinsir: 127,
+  Jynx: 124,
+  Electabuzz: 125,
+  Magikarp: 129,
+  Gyarados: 130,
+  Lapras: 131,
+  Staryu: 120,
+  Starmie: 121,
+  Dugtrio: 51,
+  Pidgeot: 18,
+  Sandslash: 28,
+  Exeggutor: 103,
+  Aerodactyl: 142,
+  Dragonair: 148,
+  Dragonite: 149,
   Sprigatito: 906,
   Fuecoco: 909,
   Quaxly: 912,
@@ -203,7 +405,6 @@ export const pokemonSpriteIds: Record<string, number> = {
   Mareep: 179,
   Maschiff: 942,
   Shinx: 403,
-  Drowzee: 96,
   Nacli: 932,
   Rookidee: 821,
   Charcadet: 935,
@@ -211,7 +412,6 @@ export const pokemonSpriteIds: Record<string, number> = {
   Makuhita: 296,
   Shroodle: 944,
   Squawkabilly: 931,
-  Pikachu: 25,
   Applin: 840,
   Deerling: 585,
   Pineco: 204,
@@ -275,9 +475,7 @@ export const pokemonSpriteIds: Record<string, number> = {
   Noivern: 715,
   Lurantis: 754,
   Heracross: 214,
-  Scyther: 123,
   Forretress: 205,
-  Venomoth: 49,
   Tropius: 357,
   Ursaring: 217,
   Cetoddle: 974,
@@ -299,13 +497,8 @@ export const pokemonSpriteIds: Record<string, number> = {
   Tatsugiri: 978,
   Veluza: 976,
   Dratini: 147,
-  Gyarados: 130,
-  Slowpoke: 79,
-  Persian: 53,
   Glimmora: 970,
-  Dugtrio: 51,
   Corviknight: 823,
-  Raichu: 26,
   Medicham: 308,
   Espathra: 956,
   Farigiraf: 981,
@@ -336,7 +529,6 @@ export const pokemonSpriteIds: Record<string, number> = {
   Klawf: 950,
   Pawniard: 624,
   Skuntank: 435,
-  Muk: 89,
   Revavroom: 966,
   Azumarill: 184,
   Wigglytuff: 40,
@@ -364,6 +556,242 @@ const starterOptions: EncounterOption[] = [
   { species: 'Fuecoco', types: ['Fire'] },
   { species: 'Quaxly', types: ['Water'] },
 ];
+
+const redBlueStarterOptions: EncounterOption[] = [
+  { species: 'Bulbasaur', types: ['Grass', 'Poison'] },
+  { species: 'Charmander', types: ['Fire'] },
+  { species: 'Squirtle', types: ['Water'] },
+];
+
+const yellowStarterOptions: EncounterOption[] = [
+  { species: 'Pikachu', types: ['Electric'] },
+];
+
+const kantoSharedEncounters: Record<string, EncounterOption[]> = {
+  'Route 1': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Rattata', types: ['Normal'] },
+  ],
+  'Route 2': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Caterpie', types: ['Bug'] },
+    { species: 'Weedle', types: ['Bug', 'Poison'] },
+  ],
+  'Viridian Forest': [
+    { species: 'Caterpie', types: ['Bug'] },
+    { species: 'Metapod', types: ['Bug'] },
+    { species: 'Weedle', types: ['Bug', 'Poison'] },
+    { species: 'Kakuna', types: ['Bug', 'Poison'] },
+    { species: 'Pikachu', types: ['Electric'] },
+  ],
+  'Route 3': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Jigglypuff', types: ['Normal'] },
+  ],
+  'Mt. Moon': [
+    { species: 'Zubat', types: ['Poison', 'Flying'] },
+    { species: 'Geodude', types: ['Rock', 'Ground'] },
+    { species: 'Paras', types: ['Bug', 'Grass'] },
+    { species: 'Clefairy', types: ['Normal'] },
+  ],
+  'Route 4': [
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Ekans', types: ['Poison'] },
+    { species: 'Sandshrew', types: ['Ground'] },
+  ],
+  'Route 24': [
+    { species: 'Caterpie', types: ['Bug'] },
+    { species: 'Weedle', types: ['Bug', 'Poison'] },
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Abra', types: ['Psychic'] },
+  ],
+  'Route 25': [
+    { species: 'Caterpie', types: ['Bug'] },
+    { species: 'Weedle', types: ['Bug', 'Poison'] },
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Abra', types: ['Psychic'] },
+  ],
+  'Route 5': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Oddish', types: ['Grass', 'Poison'] },
+    { species: 'Bellsprout', types: ['Grass', 'Poison'] },
+    { species: 'Meowth', types: ['Normal'] },
+    { species: 'Mankey', types: ['Fighting'] },
+  ],
+  'Route 6': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Oddish', types: ['Grass', 'Poison'] },
+    { species: 'Bellsprout', types: ['Grass', 'Poison'] },
+    { species: 'Meowth', types: ['Normal'] },
+    { species: 'Mankey', types: ['Fighting'] },
+  ],
+  'Route 7': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Oddish', types: ['Grass', 'Poison'] },
+    { species: 'Bellsprout', types: ['Grass', 'Poison'] },
+    { species: 'Vulpix', types: ['Fire'] },
+    { species: 'Growlithe', types: ['Fire'] },
+  ],
+  'Route 8': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Ekans', types: ['Poison'] },
+    { species: 'Sandshrew', types: ['Ground'] },
+    { species: 'Vulpix', types: ['Fire'] },
+    { species: 'Growlithe', types: ['Fire'] },
+  ],
+  'Route 9': [
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Ekans', types: ['Poison'] },
+    { species: 'Sandshrew', types: ['Ground'] },
+  ],
+  'Route 10': [
+    { species: 'Voltorb', types: ['Electric'] },
+    { species: 'Magnemite', types: ['Electric', 'Steel'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+  ],
+  'Rock Tunnel': [
+    { species: 'Zubat', types: ['Poison', 'Flying'] },
+    { species: 'Geodude', types: ['Rock', 'Ground'] },
+    { species: 'Machop', types: ['Fighting'] },
+    { species: 'Onix', types: ['Rock', 'Ground'] },
+  ],
+  'Route 11': [
+    { species: 'Drowzee', types: ['Psychic'] },
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+  ],
+  'Diglett Cave': [
+    { species: 'Diglett', types: ['Ground'] },
+  ],
+  'Route 12': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Oddish', types: ['Grass', 'Poison'] },
+    { species: 'Bellsprout', types: ['Grass', 'Poison'] },
+    { species: 'Magikarp', types: ['Water'], fishingMethod: true },
+    { species: 'Tentacool', types: ['Water', 'Poison'], surfMethod: true },
+  ],
+  'Route 13': [
+    { species: 'Pidgey', types: ['Normal', 'Flying'] },
+    { species: 'Ditto', types: ['Normal'] },
+    { species: 'Oddish', types: ['Grass', 'Poison'] },
+    { species: 'Bellsprout', types: ['Grass', 'Poison'] },
+  ],
+  'Route 14': [
+    { species: 'Pidgeotto', types: ['Normal', 'Flying'] },
+    { species: 'Ditto', types: ['Normal'] },
+    { species: 'Venonat', types: ['Bug', 'Poison'] },
+  ],
+  'Route 15': [
+    { species: 'Pidgeotto', types: ['Normal', 'Flying'] },
+    { species: 'Ditto', types: ['Normal'] },
+    { species: 'Venonat', types: ['Bug', 'Poison'] },
+  ],
+  'Route 16': [
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Doduo', types: ['Normal', 'Flying'] },
+  ],
+  'Route 17': [
+    { species: 'Raticate', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Doduo', types: ['Normal', 'Flying'] },
+  ],
+  'Route 18': [
+    { species: 'Raticate', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Doduo', types: ['Normal', 'Flying'] },
+  ],
+  'Pokemon Tower': [
+    { species: 'Gastly', types: ['Ghost', 'Poison'] },
+    { species: 'Haunter', types: ['Ghost', 'Poison'] },
+    { species: 'Cubone', types: ['Ground'] },
+  ],
+  'Safari Zone': [
+    { species: 'NidoranF', types: ['Poison'] },
+    { species: 'NidoranM', types: ['Poison'] },
+    { species: 'Rhyhorn', types: ['Ground', 'Rock'] },
+    { species: 'Exeggcute', types: ['Grass', 'Psychic'] },
+    { species: 'Chansey', types: ['Normal'] },
+    { species: 'Scyther', types: ['Bug', 'Flying'] },
+    { species: 'Pinsir', types: ['Bug'] },
+    { species: 'Tauros', types: ['Normal'] },
+  ],
+  'Route 19': [
+    { species: 'Tentacool', types: ['Water', 'Poison'], surfMethod: true },
+    { species: 'Magikarp', types: ['Water'], fishingMethod: true },
+  ],
+  'Route 20': [
+    { species: 'Tentacool', types: ['Water', 'Poison'], surfMethod: true },
+    { species: 'Magikarp', types: ['Water'], fishingMethod: true },
+  ],
+  'Seafoam Islands': [
+    { species: 'Zubat', types: ['Poison', 'Flying'] },
+    { species: 'Golbat', types: ['Poison', 'Flying'] },
+    { species: 'Seel', types: ['Water'] },
+    { species: 'Psyduck', types: ['Water'] },
+    { species: 'Slowpoke', types: ['Water', 'Psychic'] },
+  ],
+  'Route 21': [
+    { species: 'Pidgeotto', types: ['Normal', 'Flying'] },
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Tangela', types: ['Grass'] },
+    { species: 'Tentacool', types: ['Water', 'Poison'], surfMethod: true },
+  ],
+  'Pokemon Mansion': [
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Raticate', types: ['Normal'] },
+    { species: 'Grimer', types: ['Poison'] },
+    { species: 'Koffing', types: ['Poison'] },
+    { species: 'Growlithe', types: ['Fire'] },
+    { species: 'Vulpix', types: ['Fire'] },
+  ],
+  'Power Plant': [
+    { species: 'Voltorb', types: ['Electric'] },
+    { species: 'Magnemite', types: ['Electric', 'Steel'] },
+    { species: 'Pikachu', types: ['Electric'] },
+    { species: 'Electabuzz', types: ['Electric'] },
+  ],
+  'Route 22': [
+    { species: 'Rattata', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Mankey', types: ['Fighting'] },
+    { species: 'NidoranF', types: ['Poison'] },
+    { species: 'NidoranM', types: ['Poison'] },
+  ],
+  'Route 23': [
+    { species: 'Ditto', types: ['Normal'] },
+    { species: 'Spearow', types: ['Normal', 'Flying'] },
+    { species: 'Fearow', types: ['Normal', 'Flying'] },
+  ],
+  'Victory Road': [
+    { species: 'Zubat', types: ['Poison', 'Flying'] },
+    { species: 'Geodude', types: ['Rock', 'Ground'] },
+    { species: 'Onix', types: ['Rock', 'Ground'] },
+    { species: 'Machop', types: ['Fighting'] },
+    { species: 'Moltres', types: ['Fire', 'Flying'] },
+  ],
+  'Gift / Static': [
+    { species: 'Magikarp', types: ['Water'] },
+    { species: 'Eevee', types: ['Normal'] },
+    { species: 'Lapras', types: ['Water', 'Ice'] },
+    { species: 'Hitmonlee', types: ['Fighting'] },
+    { species: 'Hitmonchan', types: ['Fighting'] },
+  ],
+};
+
+export const redBlueEncounterOptions: Record<string, EncounterOption[]> = {
+  Starter: redBlueStarterOptions,
+  ...kantoSharedEncounters,
+};
+
+export const yellowEncounterOptions: Record<string, EncounterOption[]> = {
+  Starter: yellowStarterOptions,
+  ...kantoSharedEncounters,
+};
 
 export const scarletVioletEncounterOptions: Record<string, EncounterOption[]> = {
   Starter: starterOptions,
@@ -607,6 +1035,38 @@ const bossPokemon = (species: string, level: number, ability = 'Not listed', ite
   nature,
 });
 
+export const redBlueBosses: NuzlockeBoss[] = [
+  { id: 'brock-rb', name: 'Brock', category: 'Pewter Gym', levelCap: 14, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Geodude', 12), bossPokemon('Onix', 14)] },
+  { id: 'misty-rb', name: 'Misty', category: 'Cerulean Gym', levelCap: 21, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Staryu', 18), bossPokemon('Starmie', 21)] },
+  { id: 'surge-rb', name: 'Lt. Surge', category: 'Vermilion Gym', levelCap: 24, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Voltorb', 21), bossPokemon('Pikachu', 18), bossPokemon('Raichu', 24)] },
+  { id: 'erika-rb', name: 'Erika', category: 'Celadon Gym', levelCap: 29, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Victreebel', 29), bossPokemon('Tangela', 24), bossPokemon('Vileplume', 29)] },
+  { id: 'koga-rb', name: 'Koga', category: 'Fuchsia Gym', levelCap: 43, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Koffing', 37), bossPokemon('Muk', 39), bossPokemon('Koffing', 37), bossPokemon('Weezing', 43)] },
+  { id: 'sabrina-rb', name: 'Sabrina', category: 'Saffron Gym', levelCap: 43, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Kadabra', 38), bossPokemon('MrMime', 37), bossPokemon('Venomoth', 38), bossPokemon('Alakazam', 43)] },
+  { id: 'blaine-rb', name: 'Blaine', category: 'Cinnabar Gym', levelCap: 47, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Growlithe', 42), bossPokemon('Ponyta', 40), bossPokemon('Rapidash', 42), bossPokemon('Arcanine', 47)] },
+  { id: 'giovanni-rb', name: 'Giovanni', category: 'Viridian Gym', levelCap: 50, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Rhyhorn', 45), bossPokemon('Dugtrio', 42), bossPokemon('Nidoqueen', 44), bossPokemon('Nidoking', 45), bossPokemon('Rhydon', 50)] },
+  { id: 'lorelei-rb', name: 'Lorelei', category: 'Elite Four', levelCap: 56, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Dewgong', 54), bossPokemon('Cloyster', 53), bossPokemon('Slowbro', 54), bossPokemon('Jynx', 56), bossPokemon('Lapras', 56)] },
+  { id: 'bruno-rb', name: 'Bruno', category: 'Elite Four', levelCap: 58, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Onix', 53), bossPokemon('Hitmonchan', 55), bossPokemon('Hitmonlee', 55), bossPokemon('Onix', 56), bossPokemon('Machamp', 58)] },
+  { id: 'agatha-rb', name: 'Agatha', category: 'Elite Four', levelCap: 60, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Gengar', 56), bossPokemon('Golbat', 56), bossPokemon('Haunter', 55), bossPokemon('Arbok', 58), bossPokemon('Gengar', 60)] },
+  { id: 'lance-rb', name: 'Lance', category: 'Elite Four', levelCap: 62, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Gyarados', 58), bossPokemon('Dragonair', 56), bossPokemon('Dragonair', 56), bossPokemon('Aerodactyl', 60), bossPokemon('Dragonite', 62)] },
+  { id: 'champion-rb', name: 'Champion Rival', category: 'Pokemon League', levelCap: 65, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Pidgeot', 61), bossPokemon('Alakazam', 59), bossPokemon('Rhydon', 61), bossPokemon('Starter Ace', 65)] },
+];
+
+export const yellowBosses: NuzlockeBoss[] = [
+  { id: 'brock-y', name: 'Brock', category: 'Pewter Gym', levelCap: 12, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Geodude', 10), bossPokemon('Onix', 12)] },
+  { id: 'misty-y', name: 'Misty', category: 'Cerulean Gym', levelCap: 21, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Staryu', 18), bossPokemon('Starmie', 21)] },
+  { id: 'surge-y', name: 'Lt. Surge', category: 'Vermilion Gym', levelCap: 28, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Raichu', 28)] },
+  { id: 'erika-y', name: 'Erika', category: 'Celadon Gym', levelCap: 32, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Tangela', 30), bossPokemon('Weepinbell', 32), bossPokemon('Gloom', 32)] },
+  { id: 'koga-y', name: 'Koga', category: 'Fuchsia Gym', levelCap: 50, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Venonat', 44), bossPokemon('Venonat', 46), bossPokemon('Venonat', 48), bossPokemon('Venomoth', 50)] },
+  { id: 'sabrina-y', name: 'Sabrina', category: 'Saffron Gym', levelCap: 50, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Abra', 50), bossPokemon('Kadabra', 50), bossPokemon('Alakazam', 50)] },
+  { id: 'blaine-y', name: 'Blaine', category: 'Cinnabar Gym', levelCap: 54, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Ninetales', 48), bossPokemon('Rapidash', 50), bossPokemon('Arcanine', 54)] },
+  { id: 'giovanni-y', name: 'Giovanni', category: 'Viridian Gym', levelCap: 55, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Dugtrio', 50), bossPokemon('Persian', 53), bossPokemon('Nidoqueen', 53), bossPokemon('Nidoking', 55), bossPokemon('Rhydon', 55)] },
+  { id: 'lorelei-y', name: 'Lorelei', category: 'Elite Four', levelCap: 56, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Dewgong', 54), bossPokemon('Cloyster', 53), bossPokemon('Slowbro', 54), bossPokemon('Jynx', 56), bossPokemon('Lapras', 56)] },
+  { id: 'bruno-y', name: 'Bruno', category: 'Elite Four', levelCap: 58, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Onix', 53), bossPokemon('Hitmonchan', 55), bossPokemon('Hitmonlee', 55), bossPokemon('Onix', 56), bossPokemon('Machamp', 58)] },
+  { id: 'agatha-y', name: 'Agatha', category: 'Elite Four', levelCap: 60, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Gengar', 56), bossPokemon('Golbat', 56), bossPokemon('Haunter', 55), bossPokemon('Arbok', 58), bossPokemon('Gengar', 60)] },
+  { id: 'lance-y', name: 'Lance', category: 'Elite Four', levelCap: 62, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Gyarados', 58), bossPokemon('Dragonair', 56), bossPokemon('Dragonair', 56), bossPokemon('Aerodactyl', 60), bossPokemon('Dragonite', 62)] },
+  { id: 'champion-y', name: 'Champion Rival', category: 'Pokemon League', levelCap: 65, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Sandslash', 61), bossPokemon('Alakazam', 59), bossPokemon('Exeggutor', 61), bossPokemon('Starter Ace', 65)] },
+];
+
 export const scarletVioletBosses: NuzlockeBoss[] = [
   { id: 'katy', name: 'Katy', category: 'Victory Road Gym', levelCap: 15, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Nymble', 14, 'Swarm', 'None'), bossPokemon('Tarountula', 14, 'Insomnia', 'None'), bossPokemon('Teddiursa', 15, 'Pickup', 'None')] },
   { id: 'brassius', name: 'Brassius', category: 'Victory Road Gym', levelCap: 17, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Petilil', 16, 'Own Tempo', 'None'), bossPokemon('Smoliv', 16, 'Early Bird', 'None'), bossPokemon('Sudowoodo', 17, 'Sturdy', 'None')] },
@@ -631,6 +1091,42 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
   { id: 'champion-geeta', name: 'Champion Geeta', category: 'Pokemon League', levelCap: 62, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Espathra', 61), bossPokemon('Gogoat', 61), bossPokemon('Veluza', 61), bossPokemon('Avalugg', 61), bossPokemon('Kingambit', 61), bossPokemon('Glimmora', 62)] },
   { id: 'final-stories', name: 'Final Story Fights', category: 'Finale', levelCap: 67, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Arven Team', 63), bossPokemon('AI Professor Team', 67), bossPokemon('Final Legendary Fight', 68)] },
 ];
+
+export function getNuzlockeLocations(gameVersion: GameVersion) {
+  if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
+  return scarletVioletLocations;
+}
+
+export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
+  if (gameVersion === 'Yellow') return yellowEncounterOptions;
+  if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
+  return scarletVioletEncounterOptions;
+}
+
+export function getNuzlockeBosses(gameVersion: GameVersion) {
+  const bosses =
+    gameVersion === 'Yellow'
+      ? yellowBosses
+      : gameVersion === 'Red' || gameVersion === 'Blue'
+        ? redBlueBosses
+        : scarletVioletBosses;
+
+  return bosses.map((boss) => ({
+    ...boss,
+    pokemon: (boss.pokemon || []).map((pokemon) => ({ ...pokemon })),
+  }));
+}
+
+export function getPokemonTypesFromData(species: string) {
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, scarletVioletEncounterOptions];
+  for (const group of encounterGroups) {
+    for (const options of Object.values(group)) {
+      const match = options.find((option) => option.species === species);
+      if (match) return match.types || [];
+    }
+  }
+  return [] as PokemonType[];
+}
 
 export const typeColors: Record<PokemonType, string> = {
   Normal: 'bg-[#A8A77A] text-white',

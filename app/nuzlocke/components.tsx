@@ -7,15 +7,16 @@ import {
   type EncounterOption,
   gameGroups,
   getAbilityOptions,
+  getNuzlockeBosses,
+  getNuzlockeEncounterOptions,
+  getNuzlockeLocations,
+  getPokemonTypesFromData,
   getPokemonSpriteUrl,
   heldItemOptions,
   natureOptions,
   nuzlockeStorageKey,
   pokemonTypes,
   runTypes,
-  scarletVioletEncounterOptions,
-  scarletVioletBosses,
-  scarletVioletLocations,
   typeColors,
 } from './data';
 import type {
@@ -83,6 +84,18 @@ const typeHex: Record<PokemonType, string> = {
 };
 
 function trackerTheme(game?: GameVersion | '') {
+  if (game === 'Red') {
+    return 'bg-[linear-gradient(135deg,#ffdce1_0%,#fff1c7_45%,#ffe3e7_100%)]';
+  }
+
+  if (game === 'Blue') {
+    return 'bg-[linear-gradient(135deg,#dcecff_0%,#eaf7ff_45%,#d7e2ff_100%)]';
+  }
+
+  if (game === 'Yellow') {
+    return 'bg-[linear-gradient(135deg,#fff1a8_0%,#fff9dc_45%,#ffe0a3_100%)]';
+  }
+
   if (game === 'Scarlet') {
     return 'bg-[linear-gradient(135deg,#ffe8ee_0%,#fff8dc_42%,#ffd6e1_100%)]';
   }
@@ -95,6 +108,27 @@ function trackerTheme(game?: GameVersion | '') {
 }
 
 function trackerVars(game?: GameVersion | ''): CSSProperties {
+  if (game === 'Red') {
+    return {
+      '--nuz-accent': '#d62839',
+      '--nuz-accent-soft': '#ffd7dd',
+    } as CSSProperties;
+  }
+
+  if (game === 'Blue') {
+    return {
+      '--nuz-accent': '#2364d2',
+      '--nuz-accent-soft': '#d8e7ff',
+    } as CSSProperties;
+  }
+
+  if (game === 'Yellow') {
+    return {
+      '--nuz-accent': '#d19a00',
+      '--nuz-accent-soft': '#fff0a6',
+    } as CSSProperties;
+  }
+
   if (game === 'Scarlet') {
     return {
       '--nuz-accent': '#e8415f',
@@ -137,9 +171,9 @@ function isRun(value: unknown): value is NuzlockeRun {
 function normalizeRuns(value: unknown): NuzlockeRun[] {
   if (!Array.isArray(value)) return [];
 
-  const mergeBossDefaults = (bosses: NuzlockeBoss[]) =>
+  const mergeBossDefaults = (bosses: NuzlockeBoss[], gameVersion: GameVersion) =>
     bosses.map((boss) => {
-      const defaultBoss = scarletVioletBosses.find((item) => item.id === boss.id);
+      const defaultBoss = getNuzlockeBosses(gameVersion).find((item) => item.id === boss.id);
       const defaultPokemon = defaultBoss?.pokemon ?? [];
       const pokemon = Array.isArray(boss.pokemon) && boss.pokemon.length > 0
         ? boss.pokemon.map((member) => {
@@ -163,7 +197,7 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
     ...run,
     team: Array.isArray(run.team) ? run.team.map((pokemon) => ({ ...pokemon, heldItem: pokemon.heldItem || 'None' })) : [],
     encounters: Array.isArray(run.encounters) ? run.encounters : [],
-    bosses: Array.isArray(run.bosses) ? mergeBossDefaults(run.bosses) : [],
+    bosses: Array.isArray(run.bosses) ? mergeBossDefaults(run.bosses, run.gameVersion) : getNuzlockeBosses(run.gameVersion),
     timeline: Array.isArray(run.timeline) ? run.timeline : [],
     rules: run.rules || defaultRules,
   }));
@@ -317,11 +351,48 @@ function ChoiceButtons<T extends string>({
 }
 
 function pokemonTypesForSpecies(species: string) {
-  for (const options of Object.values(scarletVioletEncounterOptions)) {
-    const match = options.find((option) => option.species === species);
-    if (match) return match.types || [];
-  }
-  return [] as PokemonType[];
+  const fromEncounters = getPokemonTypesFromData(species);
+  if (fromEncounters.length > 0) return fromEncounters;
+
+  const known: Record<string, PokemonType[]> = {
+    Ivysaur: ['Grass', 'Poison'],
+    Venusaur: ['Grass', 'Poison'],
+    Charmeleon: ['Fire'],
+    Charizard: ['Fire', 'Flying'],
+    Wartortle: ['Water'],
+    Blastoise: ['Water'],
+    Pidgeot: ['Normal', 'Flying'],
+    Staryu: ['Water'],
+    Starmie: ['Water', 'Psychic'],
+    Raichu: ['Electric'],
+    Victreebel: ['Grass', 'Poison'],
+    Vileplume: ['Grass', 'Poison'],
+    Muk: ['Poison'],
+    Weezing: ['Poison'],
+    Kadabra: ['Psychic'],
+    Alakazam: ['Psychic'],
+    MrMime: ['Psychic'],
+    Venomoth: ['Bug', 'Poison'],
+    Ninetales: ['Fire'],
+    Arcanine: ['Fire'],
+    Nidoqueen: ['Poison', 'Ground'],
+    Nidoking: ['Poison', 'Ground'],
+    Rhydon: ['Ground', 'Rock'],
+    Dewgong: ['Water', 'Ice'],
+    Cloyster: ['Water', 'Ice'],
+    Slowbro: ['Water', 'Psychic'],
+    Jynx: ['Ice', 'Psychic'],
+    Machamp: ['Fighting'],
+    Gengar: ['Ghost', 'Poison'],
+    Haunter: ['Ghost', 'Poison'],
+    Arbok: ['Poison'],
+    Dragonair: ['Dragon'],
+    Dragonite: ['Dragon', 'Flying'],
+    Exeggutor: ['Grass', 'Psychic'],
+    'Starter Ace': ['Normal'],
+  };
+
+  return known[species] ?? [];
 }
 
 function bossTypes(boss: NuzlockeBoss) {
@@ -346,6 +417,32 @@ function bossTypes(boss: NuzlockeBoss) {
     eri: ['Fighting'],
     'elite-four': ['Ground', 'Steel'],
     'champion-geeta': ['Rock', 'Poison'],
+    'brock-rb': ['Rock'],
+    'brock-y': ['Rock'],
+    'misty-rb': ['Water'],
+    'misty-y': ['Water'],
+    'surge-rb': ['Electric'],
+    'surge-y': ['Electric'],
+    'erika-rb': ['Grass'],
+    'erika-y': ['Grass'],
+    'koga-rb': ['Poison'],
+    'koga-y': ['Poison'],
+    'sabrina-rb': ['Psychic'],
+    'sabrina-y': ['Psychic'],
+    'blaine-rb': ['Fire'],
+    'blaine-y': ['Fire'],
+    'giovanni-rb': ['Ground'],
+    'giovanni-y': ['Ground'],
+    'lorelei-rb': ['Ice', 'Water'],
+    'lorelei-y': ['Ice', 'Water'],
+    'bruno-rb': ['Fighting', 'Rock'],
+    'bruno-y': ['Fighting', 'Rock'],
+    'agatha-rb': ['Ghost', 'Poison'],
+    'agatha-y': ['Ghost', 'Poison'],
+    'lance-rb': ['Dragon', 'Flying'],
+    'lance-y': ['Dragon', 'Flying'],
+    'champion-rb': ['Normal'],
+    'champion-y': ['Normal'],
   };
 
   return mapped[boss.id] ?? pokemonTypesForSpecies(boss.pokemon?.[0]?.species ?? '');
@@ -474,7 +571,7 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
   return (
     <section className={panelClass}>
       <h2 className="text-3xl font-black">Choose Your Game</h2>
-      <p className="mt-2 text-sm font-bold text-[#506078]">Scarlet and Violet are fully wired first. The rest are parked here for later.</p>
+      <p className="mt-2 text-sm font-bold text-[#506078]">Red, Blue, Yellow, Scarlet, and Violet are wired in. The rest are parked here for later.</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {gameGroups.map((group) => (
           <div key={group.generation} className={softPanelClass}>
@@ -532,7 +629,7 @@ function RunSetupForm({
       rules,
       team: [],
       encounters: [],
-      bosses: gameVersion === 'Scarlet' || gameVersion === 'Violet' ? scarletVioletBosses.map((boss) => ({ ...boss })) : [],
+      bosses: getNuzlockeBosses(gameVersion),
       timeline: [
         { id: makeId('event'), createdAt: nowLabel(), type: 'Run Created', message: `${runName.trim()} started in ${gameVersion}.` },
         { id: makeId('event'), createdAt: nowLabel(), type: 'Game Selected', message: `${gameVersion} selected.` },
@@ -918,8 +1015,10 @@ function EncounterTracker({
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
   const caughtLocations = new Set((run.encounters || []).filter((encounter) => encounter.status === 'Caught').map((encounter) => encounter.location));
-  const firstOpenLocation = scarletVioletLocations.find((location) => !caughtLocations.has(location)) ?? scarletVioletLocations[0];
-  const initialOptions = scarletVioletEncounterOptions[firstOpenLocation] ?? [];
+  const locations = getNuzlockeLocations(run.gameVersion);
+  const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
+  const firstOpenLocation = locations.find((location) => !caughtLocations.has(location)) ?? locations[0];
+  const initialOptions = encounterOptionsByLocation[firstOpenLocation] ?? [];
   const [form, setForm] = useState({
     location: firstOpenLocation,
     pokemon: initialOptions[0]?.species ?? '',
@@ -934,7 +1033,7 @@ function EncounterTracker({
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
 
-  const encounterOptions = scarletVioletEncounterOptions[form.location] ?? [];
+  const encounterOptions = encounterOptionsByLocation[form.location] ?? [];
   const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
     (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
@@ -942,7 +1041,7 @@ function EncounterTracker({
   const locationAlreadyCaught = caughtLocations.has(form.location);
 
   const chooseLocation = (location: string) => {
-    const options = (scarletVioletEncounterOptions[location] ?? []).filter(canShowEncounterOption);
+    const options = (encounterOptionsByLocation[location] ?? []).filter(canShowEncounterOption);
     const firstOption = options[0];
     setForm((current) => ({
       ...current,
@@ -994,8 +1093,8 @@ function EncounterTracker({
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
-    const nextOpenLocation = scarletVioletLocations.find((location) => location !== form.location && !caughtLocations.has(location)) ?? form.location;
-    const nextOptions = (scarletVioletEncounterOptions[nextOpenLocation] ?? []).filter(canShowEncounterOption);
+    const nextOpenLocation = locations.find((location) => location !== form.location && !caughtLocations.has(location)) ?? form.location;
+    const nextOptions = (encounterOptionsByLocation[nextOpenLocation] ?? []).filter(canShowEncounterOption);
     const firstOption = nextOptions[0];
     setForm((current) => ({
       ...current,
@@ -1034,7 +1133,7 @@ function EncounterTracker({
             </label>
           </div>
           <select value={form.location} onChange={(event) => chooseLocation(event.target.value)} className={fieldClass}>
-            {scarletVioletLocations.map((location) => (
+            {locations.map((location) => (
               <option key={location} disabled={caughtLocations.has(location)} value={location}>
                 {location}{caughtLocations.has(location) ? ' - caught' : ''}
               </option>
