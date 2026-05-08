@@ -4,6 +4,7 @@
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Skull } from 'lucide-react';
 import { getAttackMultiplier, getDefensiveMatchups, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
+import { getMoveData, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
 import {
   type EncounterOption,
   gameGroups,
@@ -355,16 +356,14 @@ function BossPokemonRow({
       <button
         type="button"
         onClick={onSelect}
-        className="flex w-full items-center gap-3 text-left transition hover:-translate-y-0.5"
+        className="flex w-full items-center gap-2 text-left transition hover:-translate-y-0.5"
       >
-        <MonsterToken species={pokemon.species} types={types} large />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2 font-black">
-            <span className="truncate">{pokemon.species}</span>
-            <span className="shrink-0">Lv {pokemon.level}</span>
-          </div>
-          {details.length > 0 ? <div className="mt-1 text-[11px] leading-5 text-[#506078]">{details.join(' / ')}</div> : null}
-          {types.length > 0 ? <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div> : null}
+        <MonsterToken species={pokemon.species} types={types} compact />
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <span className="truncate text-sm font-black">{pokemon.species}</span>
+          <span className="shrink-0 text-[11px] font-black">Lv {pokemon.level}</span>
+          {types.map((type) => <TypeBadge key={type} type={type} />)}
+          {details.length > 0 ? <span className="min-w-0 truncate text-[11px] text-[#506078]">{details.join(' / ')}</span> : null}
         </div>
       </button>
       {selected ? <BossPokemonDetails pokemon={pokemon} embedded /> : null}
@@ -872,9 +871,7 @@ function pokemonBaseStats(species: string) {
 }
 
 function defaultMoveHints(pokemon: NuzlockeBossPokemon): NuzlockeMove[] {
-  if (pokemon.moves?.length) return pokemon.moves;
-  const types = pokemonTypesForSpecies(pokemon.species);
-  return types.slice(0, 2).map((type) => ({ name: `${type} attack`, type, power: null }));
+  return pokemon.moves ?? [];
 }
 
 function trainerSpriteSlug(name: string) {
@@ -1518,10 +1515,21 @@ function TeamTracker({
                 </span>
               </label>
               <p className="mt-2 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <ChoiceButtons options={['Party', 'Boxed', 'Released'] as PokemonStatus[]} value={pokemon.status} onChange={(status) => setStatus(pokemon.id, status)} />
+              <div className="mt-2 grid grid-cols-4 gap-1">
+                {(['Party', 'Boxed', 'Released'] as PokemonStatus[]).map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatus(pokemon.id, status)}
+                    className={`rounded-lg px-2 py-2 text-[11px] font-black shadow-sm ${
+                      pokemon.status === status ? 'bg-[var(--nuz-accent)] text-white' : 'bg-white text-[#182a40]'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
                 {pokemon.status !== 'Dead' ? (
-                  <button onClick={() => markDead(pokemon)} className="flex items-center gap-1 rounded-lg bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">
+                  <button onClick={() => markDead(pokemon)} className="flex items-center justify-center gap-1 rounded-lg bg-[#fff2f0] px-2 py-2 text-[11px] font-black text-[#9f2c24] shadow-sm">
                     <Skull size={13} />
                     Dead
                   </button>
@@ -1562,6 +1570,7 @@ function EncounterTracker({
   });
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
@@ -1589,6 +1598,7 @@ function EncounterTracker({
       types: firstOption?.types ?? (['Normal'] as PokemonType[]),
       ability: getAbilityOptions(firstOption?.species ?? '')[0],
     }));
+    setManualEntry(false);
   };
 
   const choosePokemon = (species: string) => {
@@ -1600,6 +1610,7 @@ function EncounterTracker({
       types: selected?.types ?? guessedTypes ?? current.types,
       ability: getAbilityOptions(species)[0],
     }));
+    setManualEntry(false);
   };
 
   const typeManualPokemon = (species: string) => {
@@ -1610,9 +1621,11 @@ function EncounterTracker({
       types: guessedTypes.length > 0 ? guessedTypes : current.types,
       ability: getAbilityOptions(species)[0],
     }));
+    setManualEntry(Boolean(species.trim()));
   };
 
   useEffect(() => {
+    if (manualEntry) return;
     const currentStillVisible = visibleEncounterOptions.some((option) => option.species === form.pokemon);
     if (currentStillVisible) return;
     const firstOption = visibleEncounterOptions[0];
@@ -1622,7 +1635,30 @@ function EncounterTracker({
       types: firstOption?.types ?? (['Normal'] as PokemonType[]),
       ability: getAbilityOptions(firstOption?.species ?? '')[0],
     }));
-  }, [form.pokemon, visibleEncounterOptions]);
+  }, [form.pokemon, manualEntry, visibleEncounterOptions]);
+
+  useEffect(() => {
+    if (!manualEntry || !form.pokemon.trim()) return;
+
+    let active = true;
+    fetch(`https://pokeapi.co/api/v2/pokemon/${normalizePokemonApiName(form.pokemon)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!active || !data?.types) return;
+        const fetchedTypes = data.types
+          .map((entry: { type?: { name?: string } }) => {
+            const name = entry.type?.name;
+            return name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+          })
+          .filter((name: string): name is PokemonType => pokemonTypes.includes(name as PokemonType));
+        if (fetchedTypes.length > 0) setForm((current) => ({ ...current, types: fetchedTypes }));
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [manualEntry, form.pokemon]);
 
   const addEncounter = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1657,6 +1693,7 @@ function EncounterTracker({
       ability: getAbilityOptions(firstOption?.species ?? '')[0],
       notes: '',
     }));
+    setManualEntry(false);
   };
 
   return (
@@ -1862,7 +1899,7 @@ function BossTracker({
   return (
     <section className="grid gap-3">
       {sortedBosses.map((boss) => (
-        <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
+        <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-3 shadow-[0_14px_34px_rgba(24,42,64,0.09)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
           <div
             role="button"
             tabIndex={0}
@@ -1870,19 +1907,23 @@ function BossTracker({
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') toggleExpandedBoss(boss.id);
             }}
-            className="flex cursor-pointer flex-wrap items-start justify-between gap-3 rounded-2xl p-1 transition hover:bg-white/30"
+            className="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl p-1 transition hover:bg-white/30"
           >
-            <div className="flex min-w-0 items-start gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <BossAvatar boss={boss} />
               <div className="min-w-0">
                 <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{boss.category}</div>
-                <h3 className="mt-1 truncate text-lg font-black">{boss.name}</h3>
-                <div className="mt-2 flex flex-wrap gap-1">{bossTypes(boss).map((type) => <TypeBadge key={type} type={type} />)}</div>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <h3 className="truncate text-lg font-black">{boss.name}</h3>
+                  {bossTypes(boss).map((type) => <TypeBadge key={type} type={type} />)}
+                </div>
+                <div className="mt-1 text-xs font-bold text-[#506078]">
+                  Cap {boss.levelCap} / Deaths {boss.deaths}{boss.notes ? ` / ${boss.notes}` : ''}
+                </div>
                 {boss.completed ? <div className="mt-1 text-xs font-black text-[#2f7d4f]">Completed / {boss.deaths} deaths</div> : null}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm">{expandedBossId === boss.id ? 'Open' : 'Closed'}</span>
               <label className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm" onClick={(event) => event.stopPropagation()}>
                 <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
                 Done
@@ -1892,7 +1933,7 @@ function BossTracker({
 
           {expandedBossId === boss.id ? (
             <>
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="mt-2 grid gap-2 sm:grid-cols-[92px_92px_1fr]">
                 <label className="grid gap-1 text-xs font-black">
                   Level cap
                   <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className={fieldClass} />
@@ -1901,9 +1942,12 @@ function BossTracker({
                   Deaths
                   <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className={fieldClass} />
                 </label>
+                <label className="grid gap-1 text-xs font-black">
+                  Notes
+                  <input value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className={`${fieldClass} text-sm`} />
+                </label>
               </div>
-              <div className={softPanelClass}>
-                <div className="mb-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Pokemon Used</div>
+              <div className="mt-2">
                 {(boss.pokemon || []).length > 0 ? (
                   <div className="grid gap-2">
                     {(boss.pokemon || []).map((pokemon) => (
@@ -1920,7 +1964,6 @@ function BossTracker({
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
-              <textarea value={boss.notes} onChange={(event) => updateBoss(boss.id, { notes: event.target.value })} placeholder="Notes" className={`${fieldClass} mt-3 min-h-20 w-full text-sm`} />
             </>
           ) : null}
         </article>
@@ -1948,29 +1991,68 @@ function MoveTypeBadge({ type, defenderTypes }: { type: PokemonType; defenderTyp
   );
 }
 
+function MoveCategoryBadge({ category }: { category: PokemonMove['category'] }) {
+  const tone =
+    category === 'Physical'
+      ? 'bg-[#ffe2de] text-[#a43128]'
+      : category === 'Special'
+        ? 'bg-[#e7f1ff] text-[#2559a8]'
+        : 'bg-[#f0f2f7] text-[#506078]';
+
+  return <span className={`rounded-[4px] px-1.5 py-0.5 text-[10px] font-black uppercase ${tone}`}>{category}</span>;
+}
+
+function useMoveData(moveNames: string[]) {
+  const key = moveNames.join('|');
+  const [moves, setMoves] = useState<PokemonMove[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    const uniqueNames = Array.from(new Set(moveNames.filter(Boolean)));
+    if (uniqueNames.length === 0) {
+      setMoves([]);
+      return;
+    }
+
+    Promise.all(uniqueNames.map((name) => getMoveData(name))).then((results) => {
+      if (!active) return;
+      setMoves(results.filter((move): move is PokemonMove => Boolean(move)));
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [key]);
+
+  return moves;
+}
+
 function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBossPokemon; embedded?: boolean }) {
   const types = usePublicPokemonTypes(pokemon.species, pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
   const matchups = getDefensiveMatchups(types);
   const strong = getStabStrongAgainst(types);
-  const moves = defaultMoveHints(pokemon);
+  const listedMoves = defaultMoveHints(pokemon).map((move) => move.name);
+  const moves = useMoveData(listedMoves);
 
   return (
-    <div className={`${embedded ? 'mt-3 border-t border-white/80 pt-3' : 'mt-3 rounded-2xl bg-white/78 p-3 shadow-sm'}`}>
-      <div className="flex flex-wrap items-start gap-3">
-        {!embedded ? <MonsterToken species={pokemon.species} types={types} large /> : null}
-        <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <h4 className="text-base font-black">{pokemon.species}</h4>
-            {types.map((type) => <TypeBadge key={type} type={type} />)}
-            {pokemon.teraType ? <span className="text-xs font-black">Tera <TypeBadge type={pokemon.teraType} /></span> : null}
+    <div className={`${embedded ? 'mt-2 border-t border-white/80 pt-2' : 'mt-3 rounded-2xl bg-white/78 p-3 shadow-sm'}`}>
+      {!embedded ? (
+        <div className="flex flex-wrap items-start gap-3">
+          <MonsterToken species={pokemon.species} types={types} large />
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <h4 className="text-base font-black">{pokemon.species}</h4>
+              {types.map((type) => <TypeBadge key={type} type={type} />)}
+              {pokemon.teraType ? <span className="text-xs font-black">Tera <TypeBadge type={pokemon.teraType} /></span> : null}
+            </div>
+            {pokemon.notes ? <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
           </div>
-          {pokemon.notes ? <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
         </div>
-      </div>
+      ) : null}
 
-      <div className="mt-3 grid gap-3 xl:grid-cols-[0.75fr_1fr_1.15fr]">
+      <div className="mt-2 grid gap-2 xl:grid-cols-[0.7fr_1.05fr_1.25fr]">
         {stats ? (
           <div>
             <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Stats</div>
@@ -1986,17 +2068,30 @@ function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBo
 
         <div>
           <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Moves</div>
-          <div className="grid gap-1">
-            {moves.map((moveInfo) => (
-              <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-lg bg-white p-2 shadow-sm">
+          {listedMoves.length === 0 ? (
+            <div className="rounded-lg bg-white/80 px-2 py-1 text-[11px] font-bold text-[#506078] shadow-sm">Moves not listed for this fight yet.</div>
+          ) : moves.length === 0 ? (
+            <div className="rounded-lg bg-white/80 px-2 py-1 text-[11px] font-bold text-[#506078] shadow-sm">Loading move data...</div>
+          ) : (
+            <div className="grid gap-1">
+              {moves.map((moveInfo) => (
+              <div key={`${moveInfo.name}-${moveInfo.type}`} className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-black">{moveInfo.name}</span>
-                  <MoveTypeBadge type={moveInfo.type} defenderTypes={types} />
+                  <span className="flex items-center gap-1">
+                    <MoveCategoryBadge category={moveInfo.category} />
+                    <MoveTypeBadge type={pokemonTypes.includes(moveInfo.type as PokemonType) ? moveInfo.type as PokemonType : 'Normal'} defenderTypes={types} />
+                  </span>
                 </div>
-                <div className="mt-1 text-[11px] font-bold text-[#506078]">Power: {moveInfo.power ?? 'Status'}</div>
+                <div className="mt-1 flex flex-wrap gap-2 text-[10px] font-bold text-[#506078]">
+                  <span>Power: {moveInfo.power ?? '-'}</span>
+                  <span>Acc: {moveInfo.accuracy ?? '-'}</span>
+                  <span>PP: {moveInfo.pp ?? '-'}</span>
+                </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
