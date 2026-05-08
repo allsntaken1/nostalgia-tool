@@ -1,4 +1,5 @@
 import type { GameVersion, NuzlockeBoss, NuzlockeMove, PokemonType, RunType } from './types';
+import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
@@ -1219,6 +1220,10 @@ export const yellowBosses: NuzlockeBoss[] = [
 ];
 
 export const scarletVioletBosses: NuzlockeBoss[] = [
+  /*
+   * Legacy export kept only for compatibility with older imports.
+   * Current Scarlet/Violet boss data lives in lib/nuzlocke/data/scarlet-violet-bosses.ts.
+   */
   { id: 'katy', name: 'Katy', category: 'Victory Road Gym', levelCap: 15, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Nymble', 14, 'Swarm', 'None'), bossPokemon('Tarountula', 14, 'Insomnia', 'None'), bossPokemon('Teddiursa', 15, 'Pickup', 'None')] },
   { id: 'brassius', name: 'Brassius', category: 'Victory Road Gym', levelCap: 17, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Petilil', 16, 'Own Tempo', 'None'), bossPokemon('Smoliv', 16, 'Early Bird', 'None'), bossPokemon('Sudowoodo', 17, 'Sturdy', 'None')] },
   { id: 'iono', name: 'Iono', category: 'Victory Road Gym', levelCap: 24, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Wattrel', 23, 'Wind Power', 'None'), bossPokemon('Bellibolt', 23, 'Electromorphosis', 'None'), bossPokemon('Luxio', 23, 'Intimidate', 'None'), bossPokemon('Mismagius', 24, 'Levitate', 'None')] },
@@ -1263,7 +1268,7 @@ export function getNuzlockeBosses(gameVersion: GameVersion) {
       ? yellowBosses
       : gameVersion === 'Red' || gameVersion === 'Blue'
         ? redBlueBosses
-        : scarletVioletBosses;
+        : getScarletVioletBosses(gameVersion);
 
   return bosses.map((boss) => ({
     ...boss,

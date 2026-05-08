@@ -128,6 +128,9 @@ export type NuzlockeBossPokemon = {
   nature: string;
   ability: string;
   item: string;
+  types?: PokemonType[];
+  teraType?: PokemonType;
+  notes?: string;
   moves?: NuzlockeMove[];
 };
 

@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Skull } from 'lucide-react';
+import { getDefensiveMatchups, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import {
   type EncounterOption,
   gameGroups,
@@ -187,6 +188,9 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
               item: cleanBossDetail(member.item) || defaultMember?.item || '',
               nature: cleanBossDetail(member.nature) || defaultMember?.nature || '',
               moves: member.moves?.length ? member.moves : defaultMember?.moves,
+              types: member.types?.length ? member.types : defaultMember?.types,
+              teraType: member.teraType || defaultMember?.teraType,
+              notes: member.notes || defaultMember?.notes,
             };
           })
         : defaultPokemon;
@@ -370,7 +374,7 @@ function BossPokemonRow({
   onSelect: () => void;
 }) {
   const details = [cleanBossDetail(pokemon.nature), cleanBossDetail(pokemon.ability), cleanBossDetail(pokemon.item)].filter(Boolean);
-  const types = pokemonTypesForSpecies(pokemon.species);
+  const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
 
   return (
     <button
@@ -713,47 +717,6 @@ function bossTypes(boss: NuzlockeBoss) {
   };
 
   return mapped[boss.id] ?? pokemonTypesForSpecies(boss.pokemon?.[0]?.species ?? '');
-}
-
-const typeChart: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
-  Normal: { Rock: 0.5, Ghost: 0, Steel: 0.5 },
-  Fire: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 2, Bug: 2, Rock: 0.5, Dragon: 0.5, Steel: 2 },
-  Water: { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Rock: 2, Dragon: 0.5 },
-  Electric: { Water: 2, Electric: 0.5, Grass: 0.5, Ground: 0, Flying: 2, Dragon: 0.5 },
-  Grass: { Fire: 0.5, Water: 2, Grass: 0.5, Poison: 0.5, Ground: 2, Flying: 0.5, Bug: 0.5, Rock: 2, Dragon: 0.5, Steel: 0.5 },
-  Ice: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 0.5, Ground: 2, Flying: 2, Dragon: 2, Steel: 0.5 },
-  Fighting: { Normal: 2, Ice: 2, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2, Ghost: 0, Dark: 2, Steel: 2, Fairy: 0.5 },
-  Poison: { Grass: 2, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0, Fairy: 2 },
-  Ground: { Fire: 2, Electric: 2, Grass: 0.5, Poison: 2, Flying: 0, Bug: 0.5, Rock: 2, Steel: 2 },
-  Flying: { Electric: 0.5, Grass: 2, Fighting: 2, Bug: 2, Rock: 0.5, Steel: 0.5 },
-  Psychic: { Fighting: 2, Poison: 2, Psychic: 0.5, Dark: 0, Steel: 0.5 },
-  Bug: { Fire: 0.5, Grass: 2, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2, Ghost: 0.5, Dark: 2, Steel: 0.5, Fairy: 0.5 },
-  Rock: { Fire: 2, Ice: 2, Fighting: 0.5, Ground: 0.5, Flying: 2, Bug: 2, Steel: 0.5 },
-  Ghost: { Normal: 0, Psychic: 2, Ghost: 2, Dark: 0.5 },
-  Dragon: { Dragon: 2, Steel: 0.5, Fairy: 0 },
-  Dark: { Fighting: 0.5, Psychic: 2, Ghost: 2, Dark: 0.5, Fairy: 0.5 },
-  Steel: { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2, Rock: 2, Steel: 0.5, Fairy: 2 },
-  Fairy: { Fire: 0.5, Fighting: 2, Poison: 0.5, Dragon: 2, Dark: 2, Steel: 0.5 },
-};
-
-function attackMultiplier(attackType: PokemonType, defenderTypes: PokemonType[]) {
-  return (defenderTypes || []).reduce((total, defenderType) => total * (typeChart[attackType]?.[defenderType] ?? 1), 1);
-}
-
-function defensiveMatchups(types: PokemonType[]) {
-  const allTypes = pokemonTypes;
-  return {
-    weakTo: allTypes.filter((type) => attackMultiplier(type, types) > 1),
-    resists: allTypes.filter((type) => {
-      const multiplier = attackMultiplier(type, types);
-      return multiplier > 0 && multiplier < 1;
-    }),
-    immune: allTypes.filter((type) => attackMultiplier(type, types) === 0),
-  };
-}
-
-function strongAgainst(types: PokemonType[]) {
-  return pokemonTypes.filter((defenderType) => (types || []).some((attackType) => (typeChart[attackType]?.[defenderType] ?? 1) > 1));
 }
 
 function normalizePokemonApiName(species: string) {
@@ -1850,10 +1813,10 @@ function BossTracker({
 }
 
 function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
-  const types = usePublicPokemonTypes(pokemon.species, pokemonTypesForSpecies(pokemon.species));
+  const types = usePublicPokemonTypes(pokemon.species, pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
-  const matchups = defensiveMatchups(types);
-  const strong = strongAgainst(types);
+  const matchups = getDefensiveMatchups(types);
+  const strong = getStabStrongAgainst(types);
   const moves = defaultMoveHints(pokemon);
 
   return (
@@ -1864,6 +1827,8 @@ function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
           <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Scout Report</div>
           <h4 className="text-lg font-black">{pokemon.species}</h4>
           <div className="mt-2 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+          {pokemon.teraType ? <div className="mt-2 text-xs font-black">Tera: <TypeBadge type={pokemon.teraType} /></div> : null}
+          {pokemon.notes ? <p className="mt-2 text-xs font-bold leading-5 text-[#506078]">{pokemon.notes}</p> : null}
         </div>
       </div>
 
@@ -1894,9 +1859,12 @@ function BossPokemonDetails({ pokemon }: { pokemon: NuzlockeBossPokemon }) {
       </div>
 
       <div className="mt-3 grid gap-2 text-[11px] font-black">
-        <MatchupRow label="Weak to" types={matchups.weakTo} empty="No clear weaknesses" />
-        <MatchupRow label="Resists" types={matchups.resists} empty="No listed resists" />
-        <MatchupRow label="Immune" types={matchups.immune} empty="No immunities" />
+        <MatchupRow label="4x weak" types={matchups.weak4x} empty="None" />
+        <MatchupRow label="2x weak" types={matchups.weak2x} empty="None" />
+        <MatchupRow label="Neutral 1x" types={matchups.neutral1x} empty="None" />
+        <MatchupRow label="1/2 resist" types={matchups.resistHalf} empty="None" />
+        <MatchupRow label="1/4 resist" types={matchups.resistQuarter} empty="None" />
+        <MatchupRow label="Immune 0x" types={matchups.immune0x} empty="None" />
         <MatchupRow label="STAB strong into" types={strong} empty="No super-effective STAB hits" />
       </div>
     </div>
