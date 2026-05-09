@@ -212,7 +212,19 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
     team: Array.isArray(run.team) ? run.team.map((pokemon) => ({ ...pokemon, heldItem: pokemon.heldItem || 'None' })) : [],
     encounters: Array.isArray(run.encounters) ? run.encounters : [],
     bosses: Array.isArray(run.bosses) ? mergeBossDefaults(run.bosses, run.gameVersion) : getNuzlockeBosses(run.gameVersion),
-    bossPrep: Array.isArray(run.bossPrep) ? run.bossPrep : [],
+    bossPrep: Array.isArray(run.bossPrep)
+      ? run.bossPrep.map((prep) => ({
+          bossId: prep.bossId,
+          leadPokemonId: prep.leadPokemonId || '',
+          plannedTeamIds: Array.isArray(prep.plannedTeamIds) ? prep.plannedTeamIds : [],
+          heldItems: prep.heldItems || {},
+          plannedMoves: prep.plannedMoves || {},
+          movePrepNotes: prep.movePrepNotes || '',
+          battlePlanNotes: prep.battlePlanNotes || '',
+          postFightNotes: prep.postFightNotes || '',
+          completed: Boolean(prep.completed),
+        }))
+      : [],
     timeline: Array.isArray(run.timeline) ? run.timeline : [],
     rules: run.rules || defaultRules,
   }));
@@ -896,6 +908,52 @@ function pokemonBaseStats(species: string) {
   return stats[species];
 }
 
+function pokemonApiSlug(species: string) {
+  const mapped: Record<string, string> = {
+    MrMime: 'mr-mime',
+    'Mr. Rime': 'mr-rime',
+    NidoranF: 'nidoran-f',
+    NidoranM: 'nidoran-m',
+    "Sirfetch'd": 'sirfetchd',
+  };
+
+  return (mapped[species] || species).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function usePokemonStats(species: string, fallback?: ReturnType<typeof pokemonBaseStats>) {
+  const [stats, setStats] = useState(fallback);
+
+  useEffect(() => {
+    let active = true;
+    setStats(pokemonBaseStats(species));
+    if (!species) return;
+
+    fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonApiSlug(species)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!active || !data?.stats) return;
+        const mapped = (data.stats || []).reduce((acc: Record<string, number>, entry: { base_stat?: number; stat?: { name?: string } }) => {
+          const key = entry.stat?.name;
+          if (key === 'hp') acc.hp = Number(entry.base_stat) || 0;
+          if (key === 'attack') acc.atk = Number(entry.base_stat) || 0;
+          if (key === 'defense') acc.def = Number(entry.base_stat) || 0;
+          if (key === 'special-attack') acc.spa = Number(entry.base_stat) || 0;
+          if (key === 'special-defense') acc.spd = Number(entry.base_stat) || 0;
+          if (key === 'speed') acc.spe = Number(entry.base_stat) || 0;
+          return acc;
+        }, {});
+        if (mapped.hp) setStats(mapped as { hp: number; atk: number; def: number; spa: number; spd: number; spe: number });
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [species]);
+
+  return stats;
+}
+
 function defaultMoveHints(pokemon: NuzlockeBossPokemon): NuzlockeMove[] {
   return pokemon.moves ?? [];
 }
@@ -1343,6 +1401,8 @@ function CurrentTeamBar({
   const [activeSlot, setActiveSlot] = useState<string | null>(null);
   const party = (run.team || []).filter((pokemon) => pokemon.status === 'Party').slice(0, 6);
   const slots: (NuzlockePokemon | null)[] = [...party, ...Array.from({ length: Math.max(0, 6 - party.length) }, () => null)];
+  const activeIndex = slots.findIndex((pokemon, index) => (pokemon?.id ?? `empty-${index}`) === activeSlot);
+  const activePokemon = activeIndex >= 0 ? slots[activeIndex] : null;
 
   const updatePokemonStatus = (pokemon: NuzlockePokemon, status: PokemonStatus) => {
     onQuickStatus(pokemon.id, status);
@@ -1350,21 +1410,22 @@ function CurrentTeamBar({
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/70 bg-white/85 px-3 py-2 shadow-[0_-14px_35px_rgba(24,42,64,0.12)] backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto">
-        <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Current Team</div>
-        {slots.map((pokemon, index) => {
-          const slotId = pokemon?.id ?? `empty-${index}`;
-          const isActive = activeSlot === slotId;
+    <>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/70 bg-white/85 px-3 py-2 shadow-[0_-14px_35px_rgba(24,42,64,0.12)] backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto">
+          <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Current Team</div>
+          {slots.map((pokemon, index) => {
+            const slotId = pokemon?.id ?? `empty-${index}`;
+            const isActive = activeSlot === slotId;
 
-          return (
-            <div key={slotId} className="relative shrink-0">
+            return (
               <button
+                key={slotId}
                 type="button"
                 onClick={() => setActiveSlot(isActive ? null : slotId)}
-                className={`flex min-w-[150px] items-center gap-2 rounded-xl p-2 text-left shadow-sm ${
-                  pokemon ? 'bg-white' : 'border border-dashed border-[#c8d2df] bg-white/55 text-[#8a97aa]'
-                }`}
+                className={`flex min-w-[150px] shrink-0 items-center gap-2 rounded-xl p-2 text-left shadow-sm transition ${
+                  isActive ? 'ring-2 ring-[var(--nuz-accent)]' : ''
+                } ${pokemon ? 'bg-white' : 'border border-dashed border-[#c8d2df] bg-white/55 text-[#8a97aa]'}`}
               >
                 {pokemon ? <MonsterToken species={pokemon.species} status={pokemon.status} types={pokemon.types} compact /> : <div className="flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[#9baec8] bg-white text-sm font-black">+</div>}
                 <div className="min-w-0">
@@ -1372,30 +1433,70 @@ function CurrentTeamBar({
                   <div className="text-[11px] font-bold text-[#506078]">{pokemon ? `Lv ${pokemon.level} / ${pokemon.species}` : 'Empty party spot'}</div>
                 </div>
               </button>
-              {isActive ? (
-                <div className="absolute bottom-full left-0 z-40 mb-2 rounded-2xl bg-white/95 p-2 shadow-[0_14px_35px_rgba(24,42,64,0.18)]">
-                  {pokemon ? (
-                    <TeamPokemonScout
-                      pokemon={pokemon}
-                      compact
-                      showNatureAbility={!isGenOneGame(run.gameVersion)}
-                      actions={
-                        <>
-                          <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box</button>
-                          <button type="button" onClick={() => updatePokemonStatus(pokemon, 'Dead')} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm">Dead</button>
-                        </>
-                      }
-                    />
-                  ) : (
-                    <div className="w-56 text-xs font-bold leading-5 text-[#506078]">Empty slot. Add a caught Pokemon from the Team tab and it will land here.</div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+      {activeSlot ? (
+        <TeamBarPopup
+          pokemon={activePokemon}
+          slotNumber={activeIndex + 1}
+          run={run}
+          onClose={() => setActiveSlot(null)}
+          onQuickStatus={updatePokemonStatus}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function TeamBarPopup({
+  pokemon,
+  slotNumber,
+  run,
+  onClose,
+  onQuickStatus,
+}: {
+  pokemon: NuzlockePokemon | null;
+  slotNumber: number;
+  run: NuzlockeRun;
+  onClose: () => void;
+  onQuickStatus: (pokemon: NuzlockePokemon, status: PokemonStatus) => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-x-3 bottom-24 z-[60] mx-auto max-w-xl rounded-2xl bg-white/95 p-3 shadow-[0_22px_70px_rgba(24,42,64,0.28)] backdrop-blur">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Team Slot {Math.max(1, slotNumber)}</div>
+        <button type="button" onClick={onClose} className={smallButtonClass}>Close</button>
+      </div>
+      {pokemon ? (
+        <TeamPokemonScout
+          pokemon={pokemon}
+          compact
+          showNatureAbility={!isGenOneGame(run.gameVersion)}
+          actions={
+            <>
+              <button type="button" onClick={() => onQuickStatus(pokemon, 'Boxed')} className={smallButtonClass}>Box</button>
+              <button type="button" onClick={() => onQuickStatus(pokemon, 'Released')} className={smallButtonClass}>Release</button>
+              <button type="button" onClick={() => onQuickStatus(pokemon, 'Dead')} className="rounded-lg bg-[#fff2f0] px-3 py-2 text-xs font-black text-[#9f2c24] shadow-sm">Dead</button>
+            </>
+          }
+        />
+      ) : (
+        <div className="rounded-xl bg-white p-3 text-sm font-bold leading-6 text-[#506078] shadow-sm">
+          Empty party spot. Add a caught Pokemon from Team / Box and it will appear here.
+        </div>
+      )}
+    </div>,
+    document.body
   );
 }
 
@@ -1673,6 +1774,8 @@ function EncounterTracker({
 
   const randomizeAreaEncounter = () => {
     if (visibleEncounterOptions.length === 0) return;
+    // Randomness only runs from the button click, not during render.
+    // eslint-disable-next-line react-hooks/purity
     const randomOption = visibleEncounterOptions[Math.floor(Math.random() * visibleEncounterOptions.length)];
     if (randomOption) choosePokemon(randomOption.species);
   };
@@ -1990,6 +2093,7 @@ function BossTracker({
         leadPokemonId: '',
         plannedTeamIds: [],
         heldItems: {},
+        plannedMoves: {},
         movePrepNotes: '',
         battlePlanNotes: '',
         postFightNotes: '',
@@ -2200,6 +2304,25 @@ function leadRiskScore(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
   return danger - coverage;
 }
 
+function leadScoreReasons(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
+  const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+  const attacks = bossAttackTypes(boss);
+  const dangerous = attacks.filter((attackType) => applyDefensiveAbilityMultiplier(pokemon.ability, attackType, types) >= 2);
+  const safeInto = attacks.filter((attackType) => applyDefensiveAbilityMultiplier(pokemon.ability, attackType, types) < 1);
+  const coverage = bossDefensiveTypes(boss).filter((targetType) => types.some((ownType) => getAttackMultiplier(ownType, [targetType]) >= 2));
+  const reasons = [];
+
+  if (coverage.length > 0) reasons.push(`hits ${Array.from(new Set(coverage)).join('/')}`);
+  if (safeInto.length > 0) reasons.push(`handles ${Array.from(new Set(safeInto)).join('/')}`);
+  if (dangerous.length > 0) reasons.push(`watch ${Array.from(new Set(dangerous)).join('/')}`);
+
+  return reasons.join(' - ') || 'mostly neutral';
+}
+
+function pokemonDisplayTypes(pokemon: Pick<NuzlockePokemon, 'species' | 'types'> | Pick<NuzlockeBossPokemon, 'species' | 'types'>) {
+  return pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+}
+
 function BossPrepPanel({
   boss,
   run,
@@ -2226,12 +2349,23 @@ function BossPrepPanel({
   const sortedLeads = [...team].sort((a, b) => leadRiskScore(a, boss) - leadRiskScore(b, boss));
   const safeLeads = sortedLeads.slice(0, 3);
   const riskyLeads = sortedLeads.filter((pokemon) => leadRiskScore(pokemon, boss) >= 2).slice(0, 3);
+  const [selectedTeamId, setSelectedTeamId] = useState(prep?.leadPokemonId || team[0]?.id || '');
+  const [selectedBossIndex, setSelectedBossIndex] = useState(0);
+  const selectedTeamPokemon = team.find((pokemon) => pokemon.id === selectedTeamId) ?? team[0];
+  const selectedBossPokemon = bossTeam[selectedBossIndex] ?? bossTeam[0];
 
   const togglePlanned = (pokemonId: string) => {
     const nextIds = plannedIds.includes(pokemonId)
       ? plannedIds.filter((id) => id !== pokemonId)
       : [...plannedIds, pokemonId];
     updatePrep({ plannedTeamIds: nextIds });
+  };
+
+  const updatePlannedMove = (pokemonId: string, moveIndex: number, moveName: string) => {
+    const currentMoves = prep?.plannedMoves?.[pokemonId] || ['', '', '', ''];
+    const nextMoves = [...currentMoves];
+    nextMoves[moveIndex] = moveName;
+    updatePrep({ plannedMoves: { ...(prep?.plannedMoves || {}), [pokemonId]: nextMoves } });
   };
 
   return (
@@ -2250,16 +2384,21 @@ function BossPrepPanel({
       <div className="grid gap-3 xl:grid-cols-2">
         <div className="grid gap-2">
           <PrepSection title="Boss Team">
-            {bossTeam.length > 0 ? bossTeam.map((pokemon) => {
-              const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+            {bossTeam.length > 0 ? bossTeam.map((pokemon, index) => {
+              const types = pokemonDisplayTypes(pokemon);
               return (
-                <div key={`${pokemon.species}-${pokemon.level}`} className="flex items-center gap-2 rounded-lg bg-white px-2 py-1 shadow-sm">
+                <button
+                  type="button"
+                  key={`${pokemon.species}-${pokemon.level}`}
+                  onClick={() => setSelectedBossIndex(index)}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1 text-left shadow-sm ${selectedBossIndex === index ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white'}`}
+                >
                   <MonsterToken species={pokemon.species} types={types} compact />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-black">{pokemon.species} / Lv {pokemon.level}</div>
                     <div className="mt-1 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
                   </div>
-                </div>
+                </button>
               );
             }) : <EmptyPrepText text="No boss team data listed yet." />}
           </PrepSection>
@@ -2289,10 +2428,14 @@ function BossPrepPanel({
                 <button
                   type="button"
                   key={pokemon.id}
-                  onClick={() => togglePlanned(pokemon.id)}
-                  className={`rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${plannedIds.includes(pokemon.id) ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white/65 text-[#6f7b8d]'}`}
+                  onClick={() => {
+                    togglePlanned(pokemon.id);
+                    setSelectedTeamId(pokemon.id);
+                  }}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${plannedIds.includes(pokemon.id) ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white/65 text-[#6f7b8d]'}`}
                 >
-                  {pokemon.nickname || pokemon.species} / Lv {pokemon.level}
+                  <MonsterToken species={pokemon.species} types={pokemonDisplayTypes(pokemon)} compact />
+                  <span>{pokemon.nickname || pokemon.species} / Lv {pokemon.level}</span>
                 </button>
               ))}
             </div>
@@ -2303,12 +2446,19 @@ function BossPrepPanel({
               <button
                 type="button"
                 key={pokemon.id}
-                onClick={() => updatePrep({ leadPokemonId: pokemon.id })}
+                onClick={() => {
+                  setSelectedTeamId(pokemon.id);
+                  updatePrep({ leadPokemonId: pokemon.id });
+                }}
                 className={`rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${prep?.leadPokemonId === pokemon.id ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white'}`}
               >
-                {pokemon.nickname || pokemon.species} / score {leadRiskScore(pokemon, boss).toFixed(1)}
+                <span className="block">{pokemon.nickname || pokemon.species} / score {leadRiskScore(pokemon, boss).toFixed(1)}</span>
+                <span className="block text-[10px] font-bold text-[#506078]">{leadScoreReasons(pokemon, boss)}</span>
               </button>
             )) : <EmptyPrepText text="No team members to suggest yet." />}
+            <div className="rounded-lg bg-white/75 px-2 py-1 text-[11px] font-bold leading-5 text-[#506078] shadow-sm">
+              Lower is safer. The score rewards useful typing into the boss and penalizes leads that take super-effective pressure. It is matchup advice, not exact damage math.
+            </div>
             {riskyLeads.length > 0 ? <WarningText text={`Risky leads: ${riskyLeads.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
           </PrepSection>
 
@@ -2342,6 +2492,25 @@ function BossPrepPanel({
         </div>
       </PrepSection>
 
+      <PrepSection title="My Team Moves">
+        <div className="grid gap-2 lg:grid-cols-2">
+          {(plannedTeam.length ? plannedTeam : team).map((pokemon) => (
+            <PrepPokemonMoveInputs
+              key={pokemon.id}
+              pokemon={pokemon}
+              moves={prep?.plannedMoves?.[pokemon.id] || []}
+              onChange={(moveIndex, moveName) => updatePlannedMove(pokemon.id, moveIndex, moveName)}
+            />
+          ))}
+        </div>
+      </PrepSection>
+
+      <PrepComparePanel
+        bossPokemon={selectedBossPokemon}
+        teamPokemon={selectedTeamPokemon}
+        plannedMoves={selectedTeamPokemon ? prep?.plannedMoves?.[selectedTeamPokemon.id] || [] : []}
+      />
+
       <div className="mt-2 grid gap-2 lg:grid-cols-3">
         <PrepNote label="Move Prep Checklist" value={prep?.movePrepNotes || ''} onChange={(value) => updatePrep({ movePrepNotes: value })} />
         <PrepNote label="Battle Plan Notes" value={prep?.battlePlanNotes || ''} onChange={(value) => updatePrep({ battlePlanNotes: value })} />
@@ -2353,6 +2522,211 @@ function BossPrepPanel({
         <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className={fieldClass} />
       </label>
     </section>
+  );
+}
+
+function PrepPokemonMoveInputs({
+  pokemon,
+  moves,
+  onChange,
+}: {
+  pokemon: NuzlockePokemon;
+  moves: string[];
+  onChange: (moveIndex: number, moveName: string) => void;
+}) {
+  const suggestions = usePokemonLevelMoves(pokemon.species, pokemon.level, true);
+  const listId = `prep-moves-${pokemon.id}`;
+  const moveSlots = Array.from({ length: 4 }, (_, index) => moves[index] || suggestions[index]?.name || '');
+
+  return (
+    <div className="rounded-xl bg-white/75 p-2 shadow-sm">
+      <div className="mb-2 flex items-center gap-2">
+        <MonsterToken species={pokemon.species} types={pokemonDisplayTypes(pokemon)} compact />
+        <div>
+          <div className="text-xs font-black">{pokemon.nickname || pokemon.species} / Lv {pokemon.level}</div>
+          <div className="text-[10px] font-bold text-[#506078]">Pick or type planned moves</div>
+        </div>
+      </div>
+      <datalist id={listId}>
+        {suggestions.map((move) => <option key={move.name} value={move.name} />)}
+      </datalist>
+      <div className="grid gap-1 sm:grid-cols-2">
+        {moveSlots.map((moveName, index) => (
+          <input
+            key={`${pokemon.id}-move-${index}`}
+            value={moveName}
+            list={listId}
+            onChange={(event) => onChange(index, event.target.value)}
+            placeholder={`Move ${index + 1}`}
+            className={`${fieldClass} py-1.5 text-xs`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function safePokemonType(type: string | undefined): PokemonType {
+  return pokemonTypes.includes(type as PokemonType) ? type as PokemonType : 'Normal';
+}
+
+function PrepComparePanel({
+  bossPokemon,
+  teamPokemon,
+  plannedMoves,
+}: {
+  bossPokemon?: NuzlockeBossPokemon;
+  teamPokemon?: NuzlockePokemon;
+  plannedMoves: string[];
+}) {
+  const teamMoveData = useMoveData(plannedMoves.filter(Boolean));
+  const teamFallbackMoves = usePokemonLevelMoves(teamPokemon?.species || '', teamPokemon?.level || 1, Boolean(teamPokemon && plannedMoves.filter(Boolean).length === 0));
+  const bossListedMoves = bossPokemon ? defaultMoveHints(bossPokemon).map((move) => move.name) : [];
+  const bossListedMoveData = useMoveData(bossListedMoves);
+  const bossFallbackMoves = usePokemonLevelMoves(bossPokemon?.species || '', bossPokemon?.level || 1, Boolean(bossPokemon && bossListedMoves.length === 0));
+  const bossMoves = bossListedMoves.length > 0 ? bossListedMoveData : bossFallbackMoves;
+
+  if (!bossPokemon || !teamPokemon) {
+    return (
+      <PrepSection title="Compare Pokemon">
+        <EmptyPrepText text="Select one boss Pokemon and one planned team member to compare." />
+      </PrepSection>
+    );
+  }
+
+  const bossTypes = pokemonDisplayTypes(bossPokemon);
+  const teamTypes = pokemonDisplayTypes(teamPokemon);
+  const bossStats = pokemonBaseStats(bossPokemon.species);
+  const teamStats = pokemonBaseStats(teamPokemon.species);
+  const teamMoves = teamMoveData.length > 0 ? teamMoveData : teamFallbackMoves;
+  const incoming = bossMoves.map((move) => ({
+    move,
+    multiplier: applyDefensiveAbilityMultiplier(teamPokemon.ability, safePokemonType(move.type), teamTypes),
+  }));
+  const outgoing = teamMoves.map((move) => ({
+    move,
+    multiplier: getAttackMultiplier(safePokemonType(move.type), bossTypes),
+  }));
+
+  return (
+    <PrepSection title="Compare Pokemon">
+      <div className="grid gap-2 xl:grid-cols-2">
+        <PrepCompareCard
+          label="My Pokemon"
+          species={teamPokemon.species}
+          title={`${teamPokemon.nickname || teamPokemon.species} / Lv ${teamPokemon.level}`}
+          types={teamTypes}
+          stats={teamStats}
+          moves={teamMoves}
+          defenderTypes={bossTypes}
+        />
+        <PrepCompareCard
+          label="Boss Pokemon"
+          species={bossPokemon.species}
+          title={`${bossPokemon.species} / Lv ${bossPokemon.level}`}
+          types={bossTypes}
+          stats={bossStats}
+          moves={bossMoves}
+          defenderTypes={teamTypes}
+          ability={bossPokemon.ability}
+          item={bossPokemon.item}
+        />
+      </div>
+      <div className="mt-2 grid gap-2 lg:grid-cols-2">
+        <div className="rounded-xl bg-white/75 p-2 shadow-sm">
+          <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">My move pressure</div>
+          <MoveMultiplierList entries={outgoing} empty="Add team moves above to see coverage." />
+        </div>
+        <div className="rounded-xl bg-white/75 p-2 shadow-sm">
+          <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Incoming boss pressure</div>
+          <MoveMultiplierList entries={incoming} empty="No boss moves listed yet." />
+        </div>
+      </div>
+    </PrepSection>
+  );
+}
+
+function PrepCompareCard({
+  label,
+  species,
+  title,
+  types,
+  stats,
+  moves,
+  defenderTypes,
+  ability,
+  item,
+}: {
+  label: string;
+  species: string;
+  title: string;
+  types: PokemonType[];
+  stats?: ReturnType<typeof pokemonBaseStats>;
+  moves: PokemonMove[];
+  defenderTypes: PokemonType[];
+  ability?: string;
+  item?: string;
+}) {
+  const shownStats = usePokemonStats(species, stats);
+
+  return (
+    <div className="rounded-xl bg-white/75 p-2 shadow-sm">
+      <div className="flex items-start gap-2">
+        <MonsterToken species={species} types={types} compact />
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">{label}</div>
+          <div className="text-sm font-black">{title}</div>
+          <div className="mt-1 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+          <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-bold text-[#506078]">
+            {ability ? <span>Ability: {ability}</span> : null}
+            {item ? <span>Item: {item}</span> : null}
+          </div>
+        </div>
+      </div>
+      {shownStats ? (
+        <div className="mt-2 flex flex-wrap gap-1 text-[10px] font-black">
+          {Object.entries(shownStats).map(([stat, value]) => (
+            <span key={stat} className="rounded-[4px] bg-white px-2 py-1 shadow-sm"><span className="uppercase text-[#6f7b8d]">{stat}</span> {value}</span>
+          ))}
+        </div>
+      ) : null}
+      <div className="mt-2 grid gap-1">
+        {moves.length > 0 ? moves.map((move) => (
+          <div key={`${title}-${move.name}`} className="flex flex-wrap items-center justify-between gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold shadow-sm">
+            <span className="font-black">{move.name}</span>
+            <span className="flex items-center gap-1">
+              <MoveCategoryBadge category={move.category} />
+              <MoveTypeBadge type={safePokemonType(move.type)} defenderTypes={defenderTypes} />
+              <span className="text-[#506078]">Pwr {move.power ?? '-'}</span>
+            </span>
+          </div>
+        )) : <EmptyPrepText text="No moves selected yet." />}
+      </div>
+    </div>
+  );
+}
+
+function MoveMultiplierList({
+  entries,
+  empty,
+}: {
+  entries: { move: PokemonMove; multiplier: number }[];
+  empty: string;
+}) {
+  if (entries.length === 0) return <EmptyPrepText text={empty} />;
+
+  return (
+    <div className="grid gap-1">
+      {entries.map(({ move, multiplier }) => (
+        <div key={`${move.name}-${move.type}`} className="flex items-center justify-between rounded-lg bg-white px-2 py-1 text-[11px] font-black shadow-sm">
+          <span>{move.name}</span>
+          <span className="flex items-center gap-1">
+            <TypeBadge type={safePokemonType(move.type)} />
+            <span>{getMultiplierLabel(multiplier)}</span>
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
 

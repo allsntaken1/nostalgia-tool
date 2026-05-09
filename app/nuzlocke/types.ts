@@ -127,6 +127,7 @@ export type NuzlockeBossPrep = {
   leadPokemonId?: string;
   plannedTeamIds: string[];
   heldItems: Record<string, string>;
+  plannedMoves: Record<string, string[]>;
   movePrepNotes: string;
   battlePlanNotes: string;
   postFightNotes: string;
