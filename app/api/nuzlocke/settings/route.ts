@@ -3,7 +3,7 @@ import { isNuzlockeDatabaseConfigured, listNuzlockeRuns } from '@/app/lib/nuzloc
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!isNuzlockeDatabaseConfigured()) {
       return NextResponse.json({
@@ -13,7 +13,9 @@ export async function GET() {
       });
     }
 
-    const runs = await listNuzlockeRuns();
+    const url = new URL(request.url);
+    const clientId = url.searchParams.get('client_id')?.trim() || '';
+    const runs = clientId ? await listNuzlockeRuns(clientId) : [];
     return NextResponse.json({
       connected: true,
       totalRuns: runs.length,

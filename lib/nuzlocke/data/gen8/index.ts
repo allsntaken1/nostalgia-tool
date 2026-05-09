@@ -1,4 +1,4 @@
-import type { GameVersion } from '@/app/nuzlocke/types';
+import type { GameVersion, StarterChoice } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
 import { bdspEncounterAreas } from './bdsp-encounters';
 import { bdspTrainers } from './bdsp-trainers';
@@ -51,8 +51,8 @@ export function getGen8EncounterOptions(gameVersion: GameVersion) {
   return areasToMap(gameAreas(gameVersion));
 }
 
-export function getGen8Bosses(gameVersion: GameVersion) {
-  return gameBosses(gameVersion).map(bossTrainerToRunBoss);
+export function getGen8Bosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
+  return gameBosses(gameVersion).map((boss) => bossTrainerToRunBoss(boss, starterChoice));
 }
 
 export function getGen8EncounterGroupsForTypeLookup() {

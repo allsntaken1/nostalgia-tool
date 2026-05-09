@@ -1,5 +1,6 @@
-import type { NuzlockeBoss, PokemonType, TrainerThreatMetadata } from '@/app/nuzlocke/types';
+import type { NuzlockeBoss, PokemonType, StarterChoice, TrainerThreatMetadata } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
+import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
 export type Gen8Game = 'Sword' | 'Shield' | 'Brilliant Diamond' | 'Shining Pearl' | 'Legends: Arceus';
 
@@ -16,18 +17,22 @@ export interface BossTrainer {
   city?: string;
   progressionStage?: string;
   threatMetadata?: TrainerThreatMetadata;
-  team: {
-    species: string;
-    level: number;
-    types?: PokemonType[];
-    ability?: string;
-    item?: string;
-    nature?: string;
-    moves?: { name: string; type: PokemonType; power: number | null }[];
-    teraType?: PokemonType;
-    notes?: string;
-  }[];
+  team?: BossTrainerPokemon[];
+  baseTeam?: BossTrainerPokemon[];
+  variantsByRivalStarterChoice?: Partial<Record<StarterChoice, BossTrainerPokemon[]>>;
 }
+
+export type BossTrainerPokemon = {
+  species: string;
+  level: number;
+  types?: PokemonType[];
+  ability?: string;
+  item?: string;
+  nature?: string;
+  moves?: { name: string; type: PokemonType; power: number | null }[];
+  teraType?: PokemonType;
+  notes?: string;
+};
 
 export interface Gen8EncounterArea {
   location: string;
@@ -35,16 +40,36 @@ export interface Gen8EncounterArea {
   encounters: EncounterOption[];
 }
 
-export function bossTrainerToRunBoss(trainer: BossTrainer): NuzlockeBoss {
+function resolveTrainerTeam(trainer: BossTrainer, playerStarterChoice?: StarterChoice | null) {
+  const legacyTeam = Array.isArray(trainer.team) ? trainer.team : [];
+  const baseTeam = Array.isArray(trainer.baseTeam) ? trainer.baseTeam : legacyTeam;
+  const rivalStarterChoice = getRivalStarterChoice(playerStarterChoice);
+  const variantTeam = rivalStarterChoice && trainer.variantsByRivalStarterChoice
+    ? trainer.variantsByRivalStarterChoice[rivalStarterChoice]
+    : null;
+
+  if (Array.isArray(variantTeam) && variantTeam.length > 0) {
+    return [...baseTeam, ...variantTeam];
+  }
+
+  return baseTeam;
+}
+
+export function bossTrainerToRunBoss(trainer: BossTrainer, playerStarterChoice?: StarterChoice | null): NuzlockeBoss {
+  const team = resolveTrainerTeam(trainer, playerStarterChoice);
+  const needsStarterChoice = Boolean(trainer.variantsByRivalStarterChoice) && !getRivalStarterChoice(playerStarterChoice);
+  const warning = needsStarterChoice ? 'Choose your starter type to sync rival battles.' : '';
+  const notes = [trainer.notes || trainer.location, warning].filter(Boolean).join(' ');
+
   return {
     id: trainer.id,
     name: trainer.name,
     category: trainer.category,
-    levelCap: trainer.levelCap ?? Math.max(...trainer.team.map((pokemon) => pokemon.level), 1),
+    levelCap: trainer.levelCap ?? Math.max(...team.map((pokemon) => pokemon.level), 1),
     completed: false,
-    notes: trainer.notes || trainer.location,
+    notes,
     deaths: 0,
-    pokemon: trainer.team.map((pokemon) => ({
+    pokemon: team.map((pokemon) => ({
       species: pokemon.species,
       level: pokemon.level,
       types: pokemon.types,

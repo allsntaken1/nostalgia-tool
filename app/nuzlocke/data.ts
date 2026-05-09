@@ -1,6 +1,7 @@
-import type { GameVersion, NuzlockeBoss, NuzlockeMove, PokemonType, RunType } from './types';
+import type { GameVersion, NuzlockeBoss, NuzlockeBossPokemon, NuzlockeMove, PokemonType, RunType, StarterChoice } from './types';
 import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
 import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
+import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
@@ -1348,20 +1349,62 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   return scarletVioletEncounterOptions;
 }
 
-export function getNuzlockeBosses(gameVersion: GameVersion) {
+export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
   const bosses =
     gameVersion === 'Yellow'
       ? yellowBosses
       : gameVersion === 'Red' || gameVersion === 'Blue'
         ? redBlueBosses
         : supportsGen8Data(gameVersion)
-          ? getGen8Bosses(gameVersion)
+          ? getGen8Bosses(gameVersion, starterChoice)
         : getScarletVioletBosses(gameVersion);
 
-  return bosses.map((boss) => ({
-    ...boss,
-    pokemon: (boss.pokemon || []).map((pokemon) => ({ ...pokemon })),
-  }));
+  const rivalStarterChoice = getRivalStarterChoice(starterChoice);
+  const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
+
+  return bosses.map((boss) => {
+    const hasStarterAce = (boss.pokemon || []).some((pokemon) => pokemon.species === 'Starter Ace');
+    return {
+      ...boss,
+      notes: hasStarterAce && starterWarning ? [boss.notes, starterWarning].filter(Boolean).join(' ') : boss.notes,
+      pokemon: (boss.pokemon || []).map((pokemon) => resolveStarterAce(gameVersion, pokemon, rivalStarterChoice)),
+    };
+  });
+}
+
+function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemon, rivalStarterChoice: StarterChoice | null) {
+  if (pokemon.species !== 'Starter Ace' || !rivalStarterChoice) return { ...pokemon };
+
+  const finalStarterByGame: Partial<Record<GameVersion, Record<StarterChoice, { species: string; types: PokemonType[] }>>> = {
+    Red: {
+      grass: { species: 'Venusaur', types: ['Grass', 'Poison'] },
+      fire: { species: 'Charizard', types: ['Fire', 'Flying'] },
+      water: { species: 'Blastoise', types: ['Water'] },
+    },
+    Blue: {
+      grass: { species: 'Venusaur', types: ['Grass', 'Poison'] },
+      fire: { species: 'Charizard', types: ['Fire', 'Flying'] },
+      water: { species: 'Blastoise', types: ['Water'] },
+    },
+    Yellow: {
+      grass: { species: 'Jolteon', types: ['Electric'] },
+      fire: { species: 'Flareon', types: ['Fire'] },
+      water: { species: 'Vaporeon', types: ['Water'] },
+    },
+    Scarlet: {
+      grass: { species: 'Meowscarada', types: ['Grass', 'Dark'] },
+      fire: { species: 'Skeledirge', types: ['Fire', 'Ghost'] },
+      water: { species: 'Quaquaval', types: ['Water', 'Fighting'] },
+    },
+    Violet: {
+      grass: { species: 'Meowscarada', types: ['Grass', 'Dark'] },
+      fire: { species: 'Skeledirge', types: ['Fire', 'Ghost'] },
+      water: { species: 'Quaquaval', types: ['Water', 'Fighting'] },
+    },
+  };
+  const resolved = finalStarterByGame[gameVersion]?.[rivalStarterChoice];
+  if (!resolved) return { ...pokemon };
+  return { ...pokemon, species: resolved.species, types: resolved.types, notes: pokemon.notes || 'Resolved from starter type sync.' };
 }
 
 export function getPokemonTypesFromData(species: string) {

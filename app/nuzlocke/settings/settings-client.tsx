@@ -20,6 +20,21 @@ function readLocalRuns() {
   }
 }
 
+function getOrCreateClientId() {
+  const key = `${nuzlockeStorageKey}_client_id`;
+  try {
+    const existing = window.localStorage.getItem(key);
+    if (existing) return existing;
+    const generated = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    window.localStorage.setItem(key, generated);
+    return generated;
+  } catch {
+    return '';
+  }
+}
+
 export function NuzlockeSettings() {
   const [status, setStatus] = useState<SettingsStatus>({ connected: false, totalRuns: 0, storageMode: 'Checking...' });
   const [localRuns, setLocalRuns] = useState<unknown[]>([]);
@@ -31,7 +46,9 @@ export function NuzlockeSettings() {
 
   const refresh = () => {
     setLocalRuns(readLocalRuns());
-    fetch('/api/nuzlocke/settings', { cache: 'no-store' })
+    const clientId = getOrCreateClientId();
+    const query = clientId ? `?client_id=${encodeURIComponent(clientId)}` : '';
+    fetch(`/api/nuzlocke/settings${query}`, { cache: 'no-store' })
       .then((response) => response.json())
       .then((payload) => setStatus(payload))
       .catch(() => setStatus({ connected: false, totalRuns: 0, storageMode: 'localStorage fallback', error: 'Could not reach settings API.' }));
@@ -52,7 +69,7 @@ export function NuzlockeSettings() {
     fetch('/api/nuzlocke/import', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ runs }),
+      body: JSON.stringify({ clientId: getOrCreateClientId(), runs }),
     })
       .then((response) => response.json())
       .then((payload) => {

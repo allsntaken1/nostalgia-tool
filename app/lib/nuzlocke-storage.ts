@@ -13,18 +13,26 @@ type NuzlockeRunRow = {
   run_name: string;
   game_version: string;
   run_type: string;
+  client_id?: string;
+  starter_choice?: string | null;
   rules: unknown;
   run_data: NuzlockeRun;
   created_at: string;
   updated_at: string;
 };
 
-function runRow(run: NuzlockeRun) {
+function encode(value: string) {
+  return encodeURIComponent(value);
+}
+
+function runRow(clientId: string, run: NuzlockeRun) {
   return {
     id: run.id,
+    client_id: clientId,
     run_name: run.runName,
     game_version: run.gameVersion,
     run_type: run.runType,
+    starter_choice: run.starterChoice || null,
     rules: run.rules || {},
     run_data: run,
     created_at: run.createdAt,
@@ -32,9 +40,10 @@ function runRow(run: NuzlockeRun) {
   };
 }
 
-function teamRow(runId: string, pokemon: NuzlockePokemon) {
+function teamRow(clientId: string, runId: string, pokemon: NuzlockePokemon) {
   return {
     id: pokemon.id,
+    client_id: clientId,
     run_id: runId,
     encounter_id: pokemon.encounterId || null,
     met_location: pokemon.metLocation || '',
@@ -53,9 +62,10 @@ function teamRow(runId: string, pokemon: NuzlockePokemon) {
   };
 }
 
-function encounterRow(runId: string, encounter: NuzlockeEncounter) {
+function encounterRow(clientId: string, runId: string, encounter: NuzlockeEncounter) {
   return {
     id: encounter.id,
+    client_id: clientId,
     run_id: runId,
     location: encounter.location,
     pokemon: encounter.pokemon,
@@ -69,9 +79,10 @@ function encounterRow(runId: string, encounter: NuzlockeEncounter) {
   };
 }
 
-function deathRow(runId: string, pokemon: NuzlockePokemon) {
+function deathRow(clientId: string, runId: string, pokemon: NuzlockePokemon) {
   return {
     id: `${runId}-${pokemon.id}`,
+    client_id: clientId,
     run_id: runId,
     pokemon_id: pokemon.id,
     species: pokemon.species,
@@ -83,9 +94,10 @@ function deathRow(runId: string, pokemon: NuzlockePokemon) {
   };
 }
 
-function bossProgressRow(runId: string, boss: NuzlockeBoss) {
+function bossProgressRow(clientId: string, runId: string, boss: NuzlockeBoss) {
   return {
     id: `${runId}-${boss.id}`,
+    client_id: clientId,
     run_id: runId,
     boss_id: boss.id,
     completed: boss.completed,
@@ -94,9 +106,10 @@ function bossProgressRow(runId: string, boss: NuzlockeBoss) {
   };
 }
 
-function bossPrepRow(runId: string, prep: NuzlockeBossPrep) {
+function bossPrepRow(clientId: string, runId: string, prep: NuzlockeBossPrep) {
   return {
     id: `${runId}-${prep.bossId}`,
+    client_id: clientId,
     run_id: runId,
     boss_id: prep.bossId,
     lead_pokemon_id: prep.leadPokemonId || '',
@@ -110,9 +123,10 @@ function bossPrepRow(runId: string, prep: NuzlockeBossPrep) {
   };
 }
 
-function timelineRow(runId: string, event: NuzlockeTimelineEvent) {
+function timelineRow(clientId: string, runId: string, event: NuzlockeTimelineEvent) {
   return {
     id: event.id,
+    client_id: clientId,
     run_id: runId,
     created_at: event.createdAt,
     event_type: event.type,
@@ -120,8 +134,8 @@ function timelineRow(runId: string, event: NuzlockeTimelineEvent) {
   };
 }
 
-async function replaceChildRows(table: string, runId: string, rows: unknown[]) {
-  await nuzlockeSupabaseRequest(`/rest/v1/${table}?run_id=eq.${encodeURIComponent(runId)}`, {
+async function replaceChildRows(table: string, clientId: string, runId: string, rows: unknown[]) {
+  await nuzlockeSupabaseRequest(`/rest/v1/${table}?client_id=eq.${encode(clientId)}&run_id=eq.${encode(runId)}`, {
     method: 'DELETE',
     headers: nuzlockeSupabaseHeaders(),
   });
@@ -139,44 +153,51 @@ export function isNuzlockeDatabaseConfigured() {
   return isNuzlockeSupabaseConfigured();
 }
 
-export async function listNuzlockeRuns() {
-  if (!isNuzlockeSupabaseConfigured()) return [];
+export async function listNuzlockeRuns(clientId: string) {
+  if (!isNuzlockeSupabaseConfigured() || !clientId) return [];
 
   const rows = await nuzlockeSupabaseRequest<NuzlockeRunRow[]>(
-    '/rest/v1/nuzlocke_runs?select=*&order=updated_at.desc',
+    `/rest/v1/nuzlocke_runs?client_id=eq.${encode(clientId)}&select=*&order=updated_at.desc`,
     { headers: nuzlockeSupabaseHeaders() }
   );
 
   return rows.map((row) => row.run_data).filter(Boolean);
 }
 
-export async function saveNuzlockeRuns(runs: NuzlockeRun[]) {
+export async function saveNuzlockeRuns(clientId: string, runs: NuzlockeRun[]) {
   if (!isNuzlockeSupabaseConfigured()) return { configured: false, saved: 0 };
+  if (!clientId) return { configured: true, saved: 0, error: 'Missing client_id.' };
 
   await nuzlockeSupabaseRequest('/rest/v1/nuzlocke_runs', {
     method: 'POST',
     headers: nuzlockeSupabaseHeaders('resolution=merge-duplicates'),
-    body: JSON.stringify(runs.map(runRow)),
+    body: JSON.stringify(runs.map((run) => runRow(clientId, run))),
   });
 
   const incomingIds = new Set(runs.map((run) => run.id));
-  const existingRows = await nuzlockeSupabaseRequest<{ id: string }[]>('/rest/v1/nuzlocke_runs?select=id', {
+  const existingRows = await nuzlockeSupabaseRequest<{ id: string }[]>(`/rest/v1/nuzlocke_runs?client_id=eq.${encode(clientId)}&select=id`, {
     headers: nuzlockeSupabaseHeaders(),
   });
   const staleIds = existingRows.map((row) => row.id).filter((id) => !incomingIds.has(id));
 
-  await Promise.all(staleIds.map((id) => nuzlockeSupabaseRequest(`/rest/v1/nuzlocke_runs?id=eq.${encodeURIComponent(id)}`, {
+  await Promise.all(staleIds.map((id) => nuzlockeSupabaseRequest(`/rest/v1/nuzlocke_runs?client_id=eq.${encode(clientId)}&id=eq.${encode(id)}`, {
     method: 'DELETE',
     headers: nuzlockeSupabaseHeaders(),
   })));
 
   for (const run of runs) {
-    await replaceChildRows('nuzlocke_team_members', run.id, (run.team || []).map((pokemon) => teamRow(run.id, pokemon)));
-    await replaceChildRows('nuzlocke_encounters', run.id, (run.encounters || []).map((encounter) => encounterRow(run.id, encounter)));
-    await replaceChildRows('nuzlocke_deaths', run.id, (run.team || []).filter((pokemon) => pokemon.status === 'Dead').map((pokemon) => deathRow(run.id, pokemon)));
-    await replaceChildRows('nuzlocke_boss_progress', run.id, (run.bosses || []).map((boss) => bossProgressRow(run.id, boss)));
-    await replaceChildRows('nuzlocke_boss_prep', run.id, (run.bossPrep || []).map((prep) => bossPrepRow(run.id, prep)));
-    await replaceChildRows('nuzlocke_timeline_events', run.id, (run.timeline || []).map((event) => timelineRow(run.id, event)));
+    const team = Array.isArray(run.team) ? run.team : [];
+    const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+    const bosses = Array.isArray(run.bosses) ? run.bosses : [];
+    const bossPrep = Array.isArray(run.bossPrep) ? run.bossPrep : [];
+    const timeline = Array.isArray(run.timeline) ? run.timeline : [];
+
+    await replaceChildRows('nuzlocke_team_members', clientId, run.id, team.map((pokemon) => teamRow(clientId, run.id, pokemon)));
+    await replaceChildRows('nuzlocke_encounters', clientId, run.id, encounters.map((encounter) => encounterRow(clientId, run.id, encounter)));
+    await replaceChildRows('nuzlocke_deaths', clientId, run.id, team.filter((pokemon) => pokemon.status === 'Dead').map((pokemon) => deathRow(clientId, run.id, pokemon)));
+    await replaceChildRows('nuzlocke_boss_progress', clientId, run.id, bosses.map((boss) => bossProgressRow(clientId, run.id, boss)));
+    await replaceChildRows('nuzlocke_boss_prep', clientId, run.id, bossPrep.map((prep) => bossPrepRow(clientId, run.id, prep)));
+    await replaceChildRows('nuzlocke_timeline_events', clientId, run.id, timeline.map((event) => timelineRow(clientId, run.id, event)));
   }
 
   return { configured: true, saved: runs.length };

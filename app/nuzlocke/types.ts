@@ -66,6 +66,7 @@ export type PokemonType =
 
 export type PokemonStatus = 'Party' | 'Boxed' | 'Dead' | 'Released';
 export type EncounterStatus = 'Caught' | 'Failed' | 'Skipped' | 'Dead';
+export type StarterChoice = 'grass' | 'fire' | 'water';
 
 export type NuzlockeRules = {
   dupesClause: boolean;
@@ -186,6 +187,7 @@ export type NuzlockeRun = {
   runName: string;
   gameVersion: GameVersion;
   runType: RunType;
+  starterChoice?: StarterChoice | null;
   rules: NuzlockeRules;
   team: NuzlockePokemon[];
   encounters: NuzlockeEncounter[];

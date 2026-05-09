@@ -15,12 +15,14 @@ export const bdspRivals: BossTrainer[] = [
       notes: ['Starter variation depends on your starter. This entry uses the shared early-game pressure profile.'],
       recommendedCoverage: ['Flying', 'Grass', 'Electric'],
     },
-    team: [
+    baseTeam: [
       { species: 'Starly', level: 7, types: ['Normal', 'Flying'], moves: [{ name: 'Quick Attack', type: 'Normal', power: 40 }] },
-      { species: 'Chimchar', level: 9, types: ['Fire'], moves: [{ name: 'Ember', type: 'Fire', power: 40 }] },
-      { species: 'Piplup', level: 9, types: ['Water'], moves: [{ name: 'Water Gun', type: 'Water', power: 40 }] },
-      { species: 'Turtwig', level: 9, types: ['Grass'], moves: [{ name: 'Absorb', type: 'Grass', power: 20 }] },
     ],
+    variantsByRivalStarterChoice: {
+      fire: [{ species: 'Chimchar', level: 9, types: ['Fire'], moves: [{ name: 'Ember', type: 'Fire', power: 40 }] }],
+      water: [{ species: 'Piplup', level: 9, types: ['Water'], moves: [{ name: 'Water Gun', type: 'Water', power: 40 }] }],
+      grass: [{ species: 'Turtwig', level: 9, types: ['Grass'], moves: [{ name: 'Absorb', type: 'Grass', power: 20 }] }],
+    },
   },
   {
     id: 'barry-pastoria-bdsp',
@@ -36,14 +38,16 @@ export const bdspRivals: BossTrainer[] = [
       notableThreats: [{ species: 'Staravia', threatLevel: 'Medium', reasons: ['Intimidate can slow physical plans'] }],
       recommendedCoverage: ['Rock', 'Electric', 'Ice'],
     },
-    team: [
+    baseTeam: [
       { species: 'Staravia', level: 26, types: ['Normal', 'Flying'], ability: 'Intimidate' },
       { species: 'Buizel', level: 25, types: ['Water'] },
       { species: 'Ponyta', level: 25, types: ['Fire'] },
-      { species: 'Grotle', level: 28, types: ['Grass'] },
-      { species: 'Monferno', level: 28, types: ['Fire', 'Fighting'] },
-      { species: 'Prinplup', level: 28, types: ['Water'] },
     ],
+    variantsByRivalStarterChoice: {
+      grass: [{ species: 'Grotle', level: 28, types: ['Grass'] }],
+      fire: [{ species: 'Monferno', level: 28, types: ['Fire', 'Fighting'] }],
+      water: [{ species: 'Prinplup', level: 28, types: ['Water'] }],
+    },
   },
   {
     id: 'barry-canalave-bdsp',
@@ -59,15 +63,17 @@ export const bdspRivals: BossTrainer[] = [
       recommendedCoverage: ['Electric', 'Rock', 'Ground', 'Ice'],
       priorityThreats: ['Starter and Staraptor can create momentum swings.'],
     },
-    team: [
+    baseTeam: [
       { species: 'Staraptor', level: 36, types: ['Normal', 'Flying'], ability: 'Intimidate' },
       { species: 'Heracross', level: 35, types: ['Bug', 'Fighting'] },
       { species: 'Floatzel', level: 35, types: ['Water'] },
       { species: 'Rapidash', level: 35, types: ['Fire'] },
-      { species: 'Torterra', level: 37, types: ['Grass', 'Ground'] },
-      { species: 'Infernape', level: 37, types: ['Fire', 'Fighting'] },
-      { species: 'Empoleon', level: 37, types: ['Water', 'Steel'] },
     ],
+    variantsByRivalStarterChoice: {
+      grass: [{ species: 'Torterra', level: 37, types: ['Grass', 'Ground'] }],
+      fire: [{ species: 'Infernape', level: 37, types: ['Fire', 'Fighting'] }],
+      water: [{ species: 'Empoleon', level: 37, types: ['Water', 'Steel'] }],
+    },
   },
   {
     id: 'barry-pokemon-league-bdsp',
@@ -83,15 +89,17 @@ export const bdspRivals: BossTrainer[] = [
       notableThreats: [{ species: 'Snorlax', threatLevel: 'High', reasons: ['Bulky wall that can stall weak teams'], suggestedCounters: ['Fighting'] }],
       recommendedCoverage: ['Fighting', 'Electric', 'Ice', 'Ground'],
     },
-    team: [
+    baseTeam: [
       { species: 'Staraptor', level: 48, types: ['Normal', 'Flying'], ability: 'Intimidate' },
       { species: 'Heracross', level: 48, types: ['Bug', 'Fighting'] },
       { species: 'Snorlax', level: 51, types: ['Normal'] },
       { species: 'Floatzel', level: 49, types: ['Water'] },
       { species: 'Rapidash', level: 49, types: ['Fire'] },
-      { species: 'Torterra', level: 51, types: ['Grass', 'Ground'] },
-      { species: 'Infernape', level: 51, types: ['Fire', 'Fighting'] },
-      { species: 'Empoleon', level: 51, types: ['Water', 'Steel'] },
     ],
+    variantsByRivalStarterChoice: {
+      grass: [{ species: 'Torterra', level: 51, types: ['Grass', 'Ground'] }],
+      fire: [{ species: 'Infernape', level: 51, types: ['Fire', 'Fighting'] }],
+      water: [{ species: 'Empoleon', level: 51, types: ['Water', 'Steel'] }],
+    },
   },
 ];

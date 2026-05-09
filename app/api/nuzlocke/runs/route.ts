@@ -4,13 +4,27 @@ import type { NuzlockeRun } from '@/app/nuzlocke/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+function clientIdFromUrl(request: Request) {
+  const url = new URL(request.url);
+  return url.searchParams.get('client_id')?.trim() || '';
+}
+
+function clientIdFromBody(body: unknown) {
+  return typeof (body as { clientId?: unknown })?.clientId === 'string'
+    ? ((body as { clientId: string }).clientId).trim()
+    : '';
+}
+
+export async function GET(request: Request) {
   try {
     if (!isNuzlockeDatabaseConfigured()) {
       return NextResponse.json({ configured: false, runs: [] });
     }
 
-    const runs = await listNuzlockeRuns();
+    const clientId = clientIdFromUrl(request);
+    if (!clientId) return NextResponse.json({ configured: true, runs: [] });
+
+    const runs = await listNuzlockeRuns(clientId);
     return NextResponse.json({ configured: true, runs });
   } catch (error) {
     return NextResponse.json(
@@ -24,12 +38,17 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const runs = Array.isArray(body?.runs) ? body.runs as NuzlockeRun[] : [];
+    const clientId = clientIdFromBody(body);
 
     if (!isNuzlockeDatabaseConfigured()) {
       return NextResponse.json({ configured: false, saved: 0 });
     }
 
-    const result = await saveNuzlockeRuns(runs);
+    if (!clientId) {
+      return NextResponse.json({ configured: true, saved: 0, error: 'Missing client_id.' }, { status: 400 });
+    }
+
+    const result = await saveNuzlockeRuns(clientId, runs);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
