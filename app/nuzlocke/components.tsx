@@ -3,8 +3,9 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
 import { Skull } from 'lucide-react';
-import { getAttackMultiplier, getDefensiveMatchups, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
+import { getAttackMultiplier, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
+import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
 import {
   type EncounterOption,
   gameGroups,
@@ -236,6 +237,28 @@ function typeCardStyle(types: PokemonType[] = []) {
 
 function TypeBadge({ type }: { type: PokemonType }) {
   return <span className={`inline-flex items-center rounded-[4px] border border-black/10 px-1.5 py-0.5 text-[10px] font-black uppercase leading-none tracking-[0.03em] shadow-sm ${typeColors[type] ?? 'bg-white text-[#182a40]'}`}>{type}</span>;
+}
+
+function useAbilityData(species: string) {
+  const [abilities, setAbilities] = useState<PokemonAbility[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    if (!species) {
+      setAbilities([]);
+      return;
+    }
+
+    getPokemonAbilities(species).then((results) => {
+      if (active) setAbilities(results);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [species]);
+
+  return abilities;
 }
 
 function SpriteSelect({
@@ -1581,13 +1604,19 @@ function EncounterTracker({
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [manualAbilityOptions, setManualAbilityOptions] = useState<string[]>([]);
+  const fetchedAbilityData = useAbilityData(form.pokemon);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
   const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
     (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
-  const selectedAbilityOptions = manualEntry && manualAbilityOptions.length > 0 ? manualAbilityOptions : getAbilityOptions(form.pokemon);
+  const selectedAbilityOptions =
+    fetchedAbilityData.length > 0
+      ? fetchedAbilityData.map((ability) => `${ability.name}${ability.isHidden ? ' (Hidden)' : ''}`)
+      : manualEntry && manualAbilityOptions.length > 0
+        ? manualAbilityOptions
+        : getAbilityOptions(form.pokemon);
   const locationAlreadyCaught = caughtLocations.has(form.location);
   const hasNatures = !isGenOneGame(run.gameVersion);
   const hasAbilities = !isGenOneGame(run.gameVersion) && selectedAbilityOptions.some((option) => option !== 'No abilities in Gen 1');
@@ -1882,6 +1911,17 @@ function EncounterTracker({
             <div className="grid gap-1">
               <div className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">Ability</div>
               <ChoiceButtons options={selectedAbilityOptions} value={form.ability} onChange={(ability) => setForm({ ...form, ability })} />
+              {fetchedAbilityData.length > 0 ? (
+                <div className="grid gap-1">
+                  {fetchedAbilityData.map((ability) => (
+                    <div key={`${ability.name}-${ability.slot}`} className="rounded-lg bg-white/80 px-2 py-1 text-[11px] font-bold text-[#506078] shadow-sm">
+                      <span className="font-black text-[#182a40]">{ability.name}</span>
+                      {ability.isHidden ? <span className="ml-1 text-[var(--nuz-accent)]">Hidden</span> : null}
+                      {ability.shortEffect ? <span className="block">{ability.shortEffect}</span> : null}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
           {locationAlreadyCaught && form.status === 'Caught' ? (
@@ -2041,16 +2081,17 @@ function BossTracker({
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
-              {prepBossId === boss.id ? (
-                <BossPrepPanel
-                  boss={boss}
-                  run={run}
-                  prep={(run.bossPrep || []).find((prep) => prep.bossId === boss.id)}
-                  updatePrep={(changes) => updateBossPrep(boss.id, changes)}
-                  updateBoss={updateBoss}
-                />
-              ) : null}
             </>
+          ) : null}
+          {prepBossId === boss.id ? (
+            <BossPrepModal
+              onClose={() => setPrepBossId('')}
+              boss={boss}
+              run={run}
+              prep={(run.bossPrep || []).find((prep) => prep.bossId === boss.id)}
+              updatePrep={(changes) => updateBossPrep(boss.id, changes)}
+              updateBoss={updateBoss}
+            />
           ) : null}
         </article>
       ))}
@@ -2098,6 +2139,38 @@ function bossDefensiveTypes(boss: NuzlockeBoss) {
   return Array.from(types);
 }
 
+function getAbilityAwareDefensiveMatchups(types: PokemonType[], ability?: string) {
+  return pokemonTypes.reduce(
+    (matchups, attackType) => {
+      const multiplier = applyDefensiveAbilityMultiplier(ability, attackType, types || []);
+
+      if (multiplier >= 4) matchups.weak4x.push(attackType);
+      else if (multiplier === 2) matchups.weak2x.push(attackType);
+      else if (multiplier === 1) matchups.neutral1x.push(attackType);
+      else if (multiplier === 0.5) matchups.resistHalf.push(attackType);
+      else if (multiplier > 0 && multiplier < 0.5) matchups.resistQuarter.push(attackType);
+      else if (multiplier === 0) matchups.immune0x.push(attackType);
+
+      return matchups;
+    },
+    {
+      weak4x: [],
+      weak2x: [],
+      neutral1x: [],
+      resistHalf: [],
+      resistQuarter: [],
+      immune0x: [],
+    } as {
+      weak4x: PokemonType[];
+      weak2x: PokemonType[];
+      neutral1x: PokemonType[];
+      resistHalf: PokemonType[];
+      resistQuarter: PokemonType[];
+      immune0x: PokemonType[];
+    }
+  );
+}
+
 function teamCoverageTypes(team: NuzlockePokemon[]) {
   const types = new Set<PokemonType>();
   (team || []).forEach((pokemon) => {
@@ -2111,7 +2184,7 @@ function leadRiskScore(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
   const attacks = bossAttackTypes(boss);
   const danger = attacks.reduce((score, attackType) => {
-    const multiplier = getAttackMultiplier(attackType, types);
+    const multiplier = applyDefensiveAbilityMultiplier(pokemon.ability, attackType, types);
     return score + (multiplier >= 4 ? 4 : multiplier >= 2 ? 2 : multiplier === 0 ? -1 : multiplier < 1 ? -0.5 : 0);
   }, 0);
   const coverage = bossDefensiveTypes(boss).reduce((score, targetType) => {
@@ -2156,7 +2229,7 @@ function BossPrepPanel({
   };
 
   return (
-    <section className="mt-3 rounded-2xl bg-white/82 p-3 shadow-sm">
+    <section className="rounded-2xl bg-white/82 p-3 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Boss Prep Mode</div>
@@ -2277,6 +2350,30 @@ function BossPrepPanel({
   );
 }
 
+function BossPrepModal({
+  onClose,
+  ...props
+}: {
+  onClose: () => void;
+  boss: NuzlockeBoss;
+  run: NuzlockeRun;
+  prep?: NuzlockeBossPrep;
+  updatePrep: (changes: Partial<NuzlockeBossPrep>) => void;
+  updateBoss: (bossId: string, changes: Partial<NuzlockeBoss>) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#182a40]/45 p-3 backdrop-blur-sm sm:p-6">
+      <div className="w-full max-w-6xl rounded-2xl bg-white p-3 shadow-[0_24px_80px_rgba(24,42,64,0.28)]">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Floating Prep Window</div>
+          <button type="button" onClick={onClose} className={smallButtonClass}>Close</button>
+        </div>
+        <BossPrepPanel {...props} />
+      </div>
+    </div>
+  );
+}
+
 function PrepSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-white/65 p-2 shadow-sm">
@@ -2383,7 +2480,7 @@ function usePokemonLevelMoves(species: string, level: number, enabled: boolean) 
 function BossPokemonDetails({ pokemon, embedded = false }: { pokemon: NuzlockeBossPokemon; embedded?: boolean }) {
   const types = usePublicPokemonTypes(pokemon.species, pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species));
   const stats = pokemonBaseStats(pokemon.species);
-  const matchups = getDefensiveMatchups(types);
+  const matchups = getAbilityAwareDefensiveMatchups(types, pokemon.ability);
   const strong = getStabStrongAgainst(types);
   const listedMoves = defaultMoveHints(pokemon).map((move) => move.name);
   const listedMoveData = useMoveData(listedMoves);
@@ -2495,8 +2592,10 @@ function TeamPokemonScout({
   showHeldDetail?: boolean;
 }) {
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
-  const matchups = getDefensiveMatchups(types);
+  const matchups = getAbilityAwareDefensiveMatchups(types, pokemon.ability);
   const item = pokemon.heldItem || 'None';
+  const abilities = useAbilityData(pokemon.species);
+  const selectedAbility = abilities.find((ability) => pokemon.ability?.toLowerCase().startsWith(ability.name.toLowerCase()));
 
   return (
     <div className={`rounded-2xl bg-white p-3 shadow-sm ${compact ? 'w-[min(92vw,560px)]' : ''}`}>
@@ -2537,6 +2636,16 @@ function TeamPokemonScout({
               <div className="rounded-lg bg-[#f7f9fc] p-2">
                 <span className="font-black text-[#182a40]">Ability</span>
                 <span className="ml-2">{pokemon.ability}</span>
+                {selectedAbility?.shortEffect ? <div className="mt-1 text-[11px] leading-4">{selectedAbility.shortEffect}</div> : null}
+                {abilities.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {abilities.map((ability) => (
+                      <span key={`${ability.name}-${ability.slot}`} className="rounded-[4px] bg-white px-1.5 py-0.5 text-[10px] font-black shadow-sm">
+                        {ability.name}{ability.isHidden ? ' H' : ''}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : null}
             {showHeldDetail && item !== 'None' ? (
