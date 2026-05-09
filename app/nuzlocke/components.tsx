@@ -2041,7 +2041,7 @@ function EncounterTracker({
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
             <h3 className="text-base font-black">Pick an encounter area</h3>
             {encounterDataComingSoon ? (
-              <p className="mt-1 text-xs font-bold text-[#506078]">Encounter data coming soon for FireRed/LeafGreen.</p>
+              <p className="mt-1 text-xs font-bold text-[#506078]">FireRed/LeafGreen early encounter data is partially wired. Later areas are coming soon.</p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] font-black">
@@ -2123,7 +2123,7 @@ function EncounterTracker({
                       );
                     }) : (
                       <span className="rounded-xl bg-white p-3 text-xs font-black text-[#6f7b8d]">
-                        {encounterDataComingSoon ? 'Encounter data coming soon for FireRed/LeafGreen.' : 'No listed encounters match the current filters.'}
+                        {encounterDataComingSoon ? 'Encounter data coming soon.' : 'No listed encounters match the current filters.'}
                       </span>
                     )}
                   </div>
@@ -2704,7 +2704,7 @@ function BossPrepPanel({
             )) : <EmptyPrepText text="No team members to suggest yet." />}
             <details className="rounded-lg bg-white/75 px-2 py-1 text-[11px] font-bold leading-5 text-[#506078] shadow-sm">
               <summary className="cursor-pointer font-black text-[#182a40]">How scores work</summary>
-              Higher is better. The score rewards useful typing into the boss and penalizes leads that take super-effective pressure.
+              Higher is better. Each lead starts around neutral, gains points when its own typing can hit the boss team super-effectively, and gains smaller points when it resists or ignores common boss attack types. It loses points when boss attacks hit it for 2x or 4x damage. Abilities that change defensive matchups, like Levitate or Thick Fat, are included when the tracker knows the ability. This is a matchup/coverage advisor, not exact damage math.
             </details>
             {riskyLeads.length > 0 ? <WarningText text={`Risky leads: ${riskyLeads.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
           </PrepSection>
