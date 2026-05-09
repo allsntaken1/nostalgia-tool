@@ -51,6 +51,10 @@ create table if not exists public.nuzlocke_runs (
   game_version text not null,
   run_type text not null,
   starter_choice text,
+  constraint nuzlocke_runs_starter_choice_check check (
+    starter_choice is null
+    or starter_choice in ('grass', 'fire', 'water')
+  ),
   rules jsonb not null default '{}',
   run_data jsonb not null default '{}',
   created_at text not null,
@@ -139,7 +143,7 @@ create table if not exists public.nuzlocke_timeline_events (
   message text not null
 );
 
-alter table if exists public.nuzlocke_runs add column if not exists client_id text not null default '';
+alter table if exists public.nuzlocke_runs add column if not exists client_id text;
 alter table if exists public.nuzlocke_runs add column if not exists starter_choice text;
 alter table if exists public.nuzlocke_team_members add column if not exists client_id text not null default '';
 alter table if exists public.nuzlocke_encounters add column if not exists client_id text not null default '';
@@ -148,6 +152,24 @@ alter table if exists public.nuzlocke_boss_progress add column if not exists cli
 alter table if exists public.nuzlocke_boss_prep add column if not exists client_id text not null default '';
 alter table if exists public.nuzlocke_timeline_events add column if not exists client_id text not null default '';
 
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'nuzlocke_runs_starter_choice_check'
+      and conrelid = 'public.nuzlocke_runs'::regclass
+  ) then
+    alter table public.nuzlocke_runs
+      add constraint nuzlocke_runs_starter_choice_check
+      check (
+        starter_choice is null
+        or starter_choice in ('grass', 'fire', 'water')
+      ) not valid;
+  end if;
+end $$;
+
+create index if not exists idx_nuzlocke_runs_client_id on public.nuzlocke_runs (client_id);
 create index if not exists nuzlocke_runs_client_updated_idx on public.nuzlocke_runs (client_id, updated_at desc);
 create index if not exists nuzlocke_runs_updated_at_idx on public.nuzlocke_runs (updated_at desc);
 create index if not exists nuzlocke_team_members_client_run_idx on public.nuzlocke_team_members (client_id, run_id);
