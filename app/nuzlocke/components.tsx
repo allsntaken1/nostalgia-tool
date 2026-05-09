@@ -1692,6 +1692,8 @@ function EncounterTracker({
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
   const caughtLocations = new Set((run.encounters || []).filter((encounter) => encounter.status === 'Caught').map((encounter) => encounter.location));
+  const caughtSpecies = new Set((run.encounters || []).filter((encounter) => encounter.status === 'Caught').map((encounter) => encounter.pokemon.toLowerCase()));
+  const dupesClauseEnabled = Boolean(run.rules?.dupesClause);
   const locations = getNuzlockeLocations(run.gameVersion);
   const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
   const firstOpenLocation = locations.find((location) => !caughtLocations.has(location)) ?? locations[0];
@@ -1925,24 +1927,28 @@ function EncounterTracker({
                   </div>
                 ) : isSelected ? (
                   <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                    {options.length > 0 ? options.map((option) => (
-                      <button
-                        key={option.species}
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          choosePokemon(option.species);
-                        }}
-                        style={typeCardStyle(option.types)}
-                        className="flex items-center gap-2 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5"
-                      >
-                        <MonsterToken species={option.species} types={option.types} compact />
-                        <span>
-                          <span className="block">{option.species}</span>
-                          <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
-                        </span>
-                      </button>
-                    )) : (
+                    {options.length > 0 ? options.map((option) => {
+                      const isDupe = dupesClauseEnabled && caughtSpecies.has(option.species.toLowerCase());
+                      return (
+                        <button
+                          key={option.species}
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            choosePokemon(option.species);
+                          }}
+                          style={typeCardStyle(option.types)}
+                          className={`relative flex items-center gap-2 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5 ${isDupe ? 'grayscale opacity-55' : ''}`}
+                        >
+                          <MonsterToken species={option.species} types={option.types} compact />
+                          <span>
+                            <span className="block">{option.species}</span>
+                            <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
+                          </span>
+                          {isDupe ? <span className="absolute right-2 top-2 rounded-[4px] bg-[#182a40] px-1.5 py-1 text-[9px] uppercase tracking-[0.1em] text-white">Dupe</span> : null}
+                        </button>
+                      );
+                    }) : (
                       <span className="rounded-xl bg-white p-3 text-xs font-black text-[#6f7b8d]">
                         No listed encounters match the current filters.
                       </span>
@@ -2132,6 +2138,7 @@ function BossTracker({
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <h3 className="truncate text-lg font-black">{boss.name}</h3>
                   {bossTypes(boss).map((type) => <TypeBadge key={type} type={type} />)}
+                  {boss.threatMetadata?.overallDifficulty ? <DangerBadge label={boss.threatMetadata.overallDifficulty} /> : null}
                 </div>
                 <div className="mt-1 text-xs font-bold text-[#506078]">
                   Cap {boss.levelCap} / Deaths {boss.deaths}{boss.notes ? ` / ${boss.notes}` : ''}
@@ -2175,6 +2182,7 @@ function BossTracker({
                 </label>
               </div>
               <div className="mt-2">
+                {boss.threatMetadata ? <ThreatCallouts metadata={boss.threatMetadata} /> : null}
                 {(boss.pokemon || []).length > 0 ? (
                   <div className="grid gap-2">
                     {(boss.pokemon || []).map((pokemon) => (
@@ -2225,6 +2233,49 @@ function PrepTypeCoverageBadge({ type, targetTypes }: { type: PokemonType; targe
       <TypeBadge type={type} />
       <span>{getMultiplierLabel(multiplier)}</span>
     </span>
+  );
+}
+
+function DangerBadge({ label }: { label: string }) {
+  const tone = label === 'Run Killer' || label === 'Very High'
+    ? 'bg-[#fff2f0] text-[#9f2c24]'
+    : label === 'High'
+      ? 'bg-[#fff4d8] text-[#9a6500]'
+      : 'bg-[#e9f7ef] text-[#267a38]';
+
+  return <span className={`rounded-[4px] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] shadow-sm ${tone}`}>{label}</span>;
+}
+
+function ThreatCallouts({ metadata }: { metadata: NonNullable<NuzlockeBoss['threatMetadata']> }) {
+  const callouts = [
+    ...(metadata.setupSweepers || []).map((text) => `Setup Sweeper: ${text}`),
+    ...(metadata.priorityThreats || []).map((text) => `Priority Threat: ${text}`),
+    ...(metadata.weatherThreats || []).map((text) => `Weather Core: ${text}`),
+    ...(metadata.abilityThreats || []).map((text) => `Ability Threat: ${text}`),
+    ...(metadata.dangerousMatchups || []).map((text) => `Matchup Warning: ${text}`),
+  ];
+
+  return (
+    <div className="mb-2 grid gap-2 rounded-xl bg-white/55 p-2 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        {metadata.overallDifficulty ? <DangerBadge label={metadata.overallDifficulty} /> : null}
+        {(metadata.recommendedCoverage || []).map((coverage) => <span key={coverage} className="rounded-[4px] bg-white px-2 py-1 text-[10px] font-black shadow-sm">{coverage}</span>)}
+      </div>
+      {metadata.notableThreats?.length ? (
+        <div className="flex flex-wrap gap-1">
+          {metadata.notableThreats.map((threat) => (
+            <span key={`${threat.species}-${threat.threatLevel}`} className="rounded-[4px] bg-[#fff2f0] px-2 py-1 text-[10px] font-black text-[#9f2c24] shadow-sm">
+              {threat.species}: {threat.threatLevel}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {callouts.length > 0 ? (
+        <div className="grid gap-1 text-xs font-bold text-[#506078]">
+          {callouts.slice(0, 4).map((callout) => <div key={callout}>{callout}</div>)}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -2304,6 +2355,10 @@ function leadRiskScore(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
   return danger - coverage;
 }
 
+function leadScore(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
+  return -leadRiskScore(pokemon, boss);
+}
+
 function leadScoreReasons(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
   const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
   const attacks = bossAttackTypes(boss);
@@ -2346,9 +2401,9 @@ function BossPrepPanel({
   const defensiveTypes = bossDefensiveTypes(boss);
   const coverage = teamCoverageTypes(plannedTeam.length ? plannedTeam : team);
   const missingCoverage = defensiveTypes.filter((targetType) => !coverage.some((ownType) => getAttackMultiplier(ownType, [targetType]) >= 2));
-  const sortedLeads = [...team].sort((a, b) => leadRiskScore(a, boss) - leadRiskScore(b, boss));
+  const sortedLeads = [...team].sort((a, b) => leadScore(b, boss) - leadScore(a, boss));
   const safeLeads = sortedLeads.slice(0, 3);
-  const riskyLeads = sortedLeads.filter((pokemon) => leadRiskScore(pokemon, boss) >= 2).slice(0, 3);
+  const riskyLeads = sortedLeads.filter((pokemon) => leadScore(pokemon, boss) <= -2).slice(0, 3);
   const [selectedTeamId, setSelectedTeamId] = useState(prep?.leadPokemonId || team[0]?.id || '');
   const [selectedBossIndex, setSelectedBossIndex] = useState(0);
   const selectedTeamPokemon = team.find((pokemon) => pokemon.id === selectedTeamId) ?? team[0];
@@ -2383,6 +2438,11 @@ function BossPrepPanel({
 
       <div className="grid gap-3 xl:grid-cols-2">
         <div className="grid gap-2">
+          {boss.threatMetadata ? (
+            <PrepSection title="Threat Notes">
+              <ThreatCallouts metadata={boss.threatMetadata} />
+            </PrepSection>
+          ) : null}
           <PrepSection title="Boss Team">
             {bossTeam.length > 0 ? bossTeam.map((pokemon, index) => {
               const types = pokemonDisplayTypes(pokemon);
@@ -2391,7 +2451,7 @@ function BossPrepPanel({
                   type="button"
                   key={`${pokemon.species}-${pokemon.level}`}
                   onClick={() => setSelectedBossIndex(index)}
-                  className={`flex items-center gap-2 rounded-lg px-2 py-1 text-left shadow-sm ${selectedBossIndex === index ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white'}`}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1 text-left shadow-sm ${selectedBossIndex === index ? 'bg-[var(--nuz-accent-soft)] ring-2 ring-[var(--nuz-accent)]' : 'bg-white'}`}
                 >
                   <MonsterToken species={pokemon.species} types={types} compact />
                   <div className="min-w-0 flex-1">
@@ -2452,12 +2512,12 @@ function BossPrepPanel({
                 }}
                 className={`rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${prep?.leadPokemonId === pokemon.id ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white'}`}
               >
-                <span className="block">{pokemon.nickname || pokemon.species} / score {leadRiskScore(pokemon, boss).toFixed(1)}</span>
+                <span className="block">{pokemon.nickname || pokemon.species} / score {leadScore(pokemon, boss).toFixed(1)}</span>
                 <span className="block text-[10px] font-bold text-[#506078]">{leadScoreReasons(pokemon, boss)}</span>
               </button>
             )) : <EmptyPrepText text="No team members to suggest yet." />}
             <div className="rounded-lg bg-white/75 px-2 py-1 text-[11px] font-bold leading-5 text-[#506078] shadow-sm">
-              Lower is safer. The score rewards useful typing into the boss and penalizes leads that take super-effective pressure. It is matchup advice, not exact damage math.
+              Higher is better. The score rewards useful typing into the boss and penalizes leads that take super-effective pressure. It is matchup advice, not exact damage math.
             </div>
             {riskyLeads.length > 0 ? <WarningText text={`Risky leads: ${riskyLeads.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
           </PrepSection>
@@ -2509,6 +2569,7 @@ function BossPrepPanel({
         bossPokemon={selectedBossPokemon}
         teamPokemon={selectedTeamPokemon}
         plannedMoves={selectedTeamPokemon ? prep?.plannedMoves?.[selectedTeamPokemon.id] || [] : []}
+        gameVersion={run.gameVersion}
       />
 
       <div className="mt-2 grid gap-2 lg:grid-cols-3">
@@ -2570,14 +2631,27 @@ function safePokemonType(type: string | undefined): PokemonType {
   return pokemonTypes.includes(type as PokemonType) ? type as PokemonType : 'Normal';
 }
 
+const preSplitPhysicalTypes = new Set<PokemonType>(['Normal', 'Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel']);
+
+function usesPrePhysicalSpecialSplit(gameVersion: GameVersion) {
+  return ['Red', 'Blue', 'Yellow', 'Gold', 'Silver', 'Crystal', 'Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].includes(gameVersion);
+}
+
+function displayedMoveCategory(move: PokemonMove, gameVersion: GameVersion): PokemonMove['category'] {
+  if (!usesPrePhysicalSpecialSplit(gameVersion) || move.category === 'Status') return move.category;
+  return preSplitPhysicalTypes.has(safePokemonType(move.type)) ? 'Physical' : 'Special';
+}
+
 function PrepComparePanel({
   bossPokemon,
   teamPokemon,
   plannedMoves,
+  gameVersion,
 }: {
   bossPokemon?: NuzlockeBossPokemon;
   teamPokemon?: NuzlockePokemon;
   plannedMoves: string[];
+  gameVersion: GameVersion;
 }) {
   const teamMoveData = useMoveData(plannedMoves.filter(Boolean));
   const teamFallbackMoves = usePokemonLevelMoves(teamPokemon?.species || '', teamPokemon?.level || 1, Boolean(teamPokemon && plannedMoves.filter(Boolean).length === 0));
@@ -2619,6 +2693,7 @@ function PrepComparePanel({
           stats={teamStats}
           moves={teamMoves}
           defenderTypes={bossTypes}
+          gameVersion={gameVersion}
         />
         <PrepCompareCard
           label="Boss Pokemon"
@@ -2630,6 +2705,7 @@ function PrepComparePanel({
           defenderTypes={teamTypes}
           ability={bossPokemon.ability}
           item={bossPokemon.item}
+          gameVersion={gameVersion}
         />
       </div>
       <div className="mt-2 grid gap-2 lg:grid-cols-2">
@@ -2656,6 +2732,7 @@ function PrepCompareCard({
   defenderTypes,
   ability,
   item,
+  gameVersion,
 }: {
   label: string;
   species: string;
@@ -2666,6 +2743,7 @@ function PrepCompareCard({
   defenderTypes: PokemonType[];
   ability?: string;
   item?: string;
+  gameVersion: GameVersion;
 }) {
   const shownStats = usePokemonStats(species, stats);
 
@@ -2695,7 +2773,7 @@ function PrepCompareCard({
           <div key={`${title}-${move.name}`} className="flex flex-wrap items-center justify-between gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold shadow-sm">
             <span className="font-black">{move.name}</span>
             <span className="flex items-center gap-1">
-              <MoveCategoryBadge category={move.category} />
+              <MoveCategoryBadge category={displayedMoveCategory(move, gameVersion)} />
               <MoveTypeBadge type={safePokemonType(move.type)} defenderTypes={defenderTypes} />
               <span className="text-[#506078]">Pwr {move.power ?? '-'}</span>
             </span>

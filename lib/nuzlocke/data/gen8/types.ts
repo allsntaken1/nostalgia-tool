@@ -1,4 +1,4 @@
-import type { NuzlockeBoss, PokemonType } from '@/app/nuzlocke/types';
+import type { NuzlockeBoss, PokemonType, TrainerThreatMetadata } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
 
 export type Gen8Game = 'Sword' | 'Shield' | 'Brilliant Diamond' | 'Shining Pearl' | 'Legends: Arceus';
@@ -12,6 +12,10 @@ export interface BossTrainer {
   recommendedOrder: number;
   levelCap?: number;
   notes?: string;
+  badge?: string;
+  city?: string;
+  progressionStage?: string;
+  threatMetadata?: TrainerThreatMetadata;
   team: {
     species: string;
     level: number;
@@ -51,5 +55,6 @@ export function bossTrainerToRunBoss(trainer: BossTrainer): NuzlockeBoss {
       teraType: pokemon.teraType,
       notes: pokemon.notes,
     })),
+    threatMetadata: trainer.threatMetadata,
   };
 }

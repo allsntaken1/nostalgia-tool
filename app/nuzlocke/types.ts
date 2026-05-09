@@ -120,6 +120,7 @@ export type NuzlockeBoss = {
   notes: string;
   deaths: number;
   pokemon?: NuzlockeBossPokemon[];
+  threatMetadata?: TrainerThreatMetadata;
 };
 
 export type NuzlockeBossPrep = {
@@ -151,6 +152,27 @@ export type NuzlockeMove = {
   type: PokemonType;
   power: number | null;
 };
+
+export interface TrainerThreatMetadata {
+  overallDifficulty?: 'Low' | 'Medium' | 'High' | 'Very High' | 'Run Killer';
+  notes?: string[];
+  notableThreats?: TrainerThreat[];
+  recommendedCoverage?: string[];
+  dangerousMatchups?: string[];
+  setupSweepers?: string[];
+  priorityThreats?: string[];
+  weatherThreats?: string[];
+  abilityThreats?: string[];
+}
+
+export interface TrainerThreat {
+  species: string;
+  threatLevel: 'Low' | 'Medium' | 'High' | 'Extreme';
+  reasons: string[];
+  dangerousMoves?: string[];
+  dangerousAbilities?: string[];
+  suggestedCounters?: string[];
+}
 
 export type NuzlockeTimelineEvent = {
   id: string;

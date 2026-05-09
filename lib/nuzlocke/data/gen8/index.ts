@@ -1,6 +1,7 @@
 import type { GameVersion } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
-import { bdspBosses, bdspEncounterAreas } from './brilliant-diamond-shining-pearl';
+import { bdspEncounterAreas } from './bdsp-encounters';
+import { bdspTrainers } from './bdsp-trainers';
 import { legendsArceusBosses, legendsArceusEncounterAreas } from './legends-arceus';
 import { swordShieldRouteEncounters } from './sword-shield-encounters';
 import { swordShieldGyms } from './sword-shield-gyms';
@@ -33,7 +34,7 @@ function gameAreas(gameVersion: GameVersion): Gen8EncounterArea[] {
 
 function gameBosses(gameVersion: GameVersion): BossTrainer[] {
   if (gameVersion === 'Sword' || gameVersion === 'Shield') return forGame(gameVersion, [...swordShieldRivals, ...swordShieldGyms]).sort((a, b) => a.recommendedOrder - b.recommendedOrder);
-  if (gameVersion === 'Brilliant Diamond' || gameVersion === 'Shining Pearl') return bdspBosses.sort((a, b) => a.recommendedOrder - b.recommendedOrder);
+  if (gameVersion === 'Brilliant Diamond' || gameVersion === 'Shining Pearl') return bdspTrainers;
   if (gameVersion === 'Legends: Arceus') return legendsArceusBosses.sort((a, b) => a.recommendedOrder - b.recommendedOrder);
   return [];
 }
