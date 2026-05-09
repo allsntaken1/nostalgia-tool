@@ -26,6 +26,7 @@ import type {
   GameVersion,
   NuzlockeBoss,
   NuzlockeBossPokemon,
+  NuzlockeBossPrep,
   NuzlockeEncounter,
   NuzlockeMove,
   NuzlockePokemon,
@@ -209,6 +210,7 @@ function normalizeRuns(value: unknown): NuzlockeRun[] {
     team: Array.isArray(run.team) ? run.team.map((pokemon) => ({ ...pokemon, heldItem: pokemon.heldItem || 'None' })) : [],
     encounters: Array.isArray(run.encounters) ? run.encounters : [],
     bosses: Array.isArray(run.bosses) ? mergeBossDefaults(run.bosses, run.gameVersion) : getNuzlockeBosses(run.gameVersion),
+    bossPrep: Array.isArray(run.bossPrep) ? run.bossPrep : [],
     timeline: Array.isArray(run.timeline) ? run.timeline : [],
     rules: run.rules || defaultRules,
   }));
@@ -1161,6 +1163,7 @@ function RunSetupForm({
       team: [],
       encounters: [],
       bosses: getNuzlockeBosses(gameVersion),
+      bossPrep: [],
       timeline: [
         { id: makeId('event'), createdAt: nowLabel(), type: 'Run Created', message: `${runName.trim()} started in ${gameVersion}.` },
         { id: makeId('event'), createdAt: nowLabel(), type: 'Game Selected', message: `${gameVersion} selected.` },
@@ -1906,6 +1909,7 @@ function BossTracker({
   const sortedBosses = [...(run.bosses || [])].sort((a, b) => Number(a.completed) - Number(b.completed));
   const [selectedBossPokemon, setSelectedBossPokemon] = useState<{ bossId: string; pokemon: NuzlockeBossPokemon } | null>(null);
   const [expandedBossId, setExpandedBossId] = useState(sortedBosses.find((boss) => !boss.completed)?.id ?? sortedBosses[0]?.id ?? '');
+  const [prepBossId, setPrepBossId] = useState('');
 
   const toggleBoss = (boss: NuzlockeBoss) => {
     updateRun(run.id, (current) => {
@@ -1929,6 +1933,33 @@ function BossTracker({
 
   const toggleExpandedBoss = (bossId: string) => {
     setExpandedBossId((current) => (current === bossId ? '' : bossId));
+  };
+
+  const updateBossPrep = (bossId: string, changes: Partial<NuzlockeBossPrep>) => {
+    updateRun(run.id, (current) => {
+      const currentPrep = current.bossPrep || [];
+      const existing = currentPrep.find((prep) => prep.bossId === bossId);
+      const nextPrep: NuzlockeBossPrep = {
+        bossId,
+        leadPokemonId: '',
+        plannedTeamIds: [],
+        heldItems: {},
+        movePrepNotes: '',
+        battlePlanNotes: '',
+        postFightNotes: '',
+        completed: false,
+        ...(existing || {}),
+        ...changes,
+      };
+
+      return {
+        ...current,
+        updatedAt: nowLabel(),
+        bossPrep: existing
+          ? currentPrep.map((prep) => (prep.bossId === bossId ? nextPrep : prep))
+          : [...currentPrep, nextPrep],
+      };
+    });
   };
 
   return (
@@ -1959,6 +1990,17 @@ function BossTracker({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setExpandedBossId(boss.id);
+                  setPrepBossId((current) => current === boss.id ? '' : boss.id);
+                }}
+                className="rounded-lg bg-[var(--nuz-accent-soft)] px-3 py-2 text-xs font-black shadow-sm"
+              >
+                Prep Fight
+              </button>
               <label className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-black shadow-sm" onClick={(event) => event.stopPropagation()}>
                 <input type="checkbox" checked={boss.completed} onChange={() => toggleBoss(boss)} />
                 Done
@@ -1999,12 +2041,266 @@ function BossTracker({
                   <div className="text-xs font-bold text-[#506078]">Team data is not listed yet.</div>
                 )}
               </div>
+              {prepBossId === boss.id ? (
+                <BossPrepPanel
+                  boss={boss}
+                  run={run}
+                  prep={(run.bossPrep || []).find((prep) => prep.bossId === boss.id)}
+                  updatePrep={(changes) => updateBossPrep(boss.id, changes)}
+                  updateBoss={updateBoss}
+                />
+              ) : null}
             </>
           ) : null}
         </article>
       ))}
     </section>
   );
+}
+
+function PrepTypeCoverageBadge({ type, targetTypes }: { type: PokemonType; targetTypes: PokemonType[] }) {
+  const multiplier = getAttackMultiplier(type, targetTypes);
+  const tone =
+    multiplier >= 2
+      ? 'bg-[#e5f7df] text-[#267a38]'
+      : multiplier === 0
+        ? 'bg-[#f0f2f7] text-[#506078]'
+        : multiplier < 1
+          ? 'bg-[#ffe2de] text-[#a43128]'
+          : 'bg-white text-[#182a40]';
+
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-[4px] px-1.5 py-1 text-[10px] font-black shadow-sm ${tone}`}>
+      <TypeBadge type={type} />
+      <span>{getMultiplierLabel(multiplier)}</span>
+    </span>
+  );
+}
+
+function bossAttackTypes(boss: NuzlockeBoss) {
+  const types = new Set<PokemonType>();
+  (boss.pokemon || []).forEach((pokemon) => {
+    (pokemon.moves || []).forEach((move) => types.add(move.type));
+    const memberTypes = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+    memberTypes.forEach((type) => types.add(type));
+    if (pokemon.teraType) types.add(pokemon.teraType);
+  });
+  return Array.from(types);
+}
+
+function bossDefensiveTypes(boss: NuzlockeBoss) {
+  const types = new Set<PokemonType>();
+  (boss.pokemon || []).forEach((pokemon) => {
+    const memberTypes = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+    memberTypes.forEach((type) => types.add(type));
+    if (pokemon.teraType) types.add(pokemon.teraType);
+  });
+  return Array.from(types);
+}
+
+function teamCoverageTypes(team: NuzlockePokemon[]) {
+  const types = new Set<PokemonType>();
+  (team || []).forEach((pokemon) => {
+    const memberTypes = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+    memberTypes.forEach((type) => types.add(type));
+  });
+  return Array.from(types);
+}
+
+function leadRiskScore(pokemon: NuzlockePokemon, boss: NuzlockeBoss) {
+  const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+  const attacks = bossAttackTypes(boss);
+  const danger = attacks.reduce((score, attackType) => {
+    const multiplier = getAttackMultiplier(attackType, types);
+    return score + (multiplier >= 4 ? 4 : multiplier >= 2 ? 2 : multiplier === 0 ? -1 : multiplier < 1 ? -0.5 : 0);
+  }, 0);
+  const coverage = bossDefensiveTypes(boss).reduce((score, targetType) => {
+    const best = types.reduce((bestMultiplier, ownType) => Math.max(bestMultiplier, getAttackMultiplier(ownType, [targetType])), 1);
+    return score + (best >= 2 ? 1 : 0);
+  }, 0);
+  return danger - coverage;
+}
+
+function BossPrepPanel({
+  boss,
+  run,
+  prep,
+  updatePrep,
+  updateBoss,
+}: {
+  boss: NuzlockeBoss;
+  run: NuzlockeRun;
+  prep?: NuzlockeBossPrep;
+  updatePrep: (changes: Partial<NuzlockeBossPrep>) => void;
+  updateBoss: (bossId: string, changes: Partial<NuzlockeBoss>) => void;
+}) {
+  const team = (run.team || []).filter((pokemon) => pokemon.status === 'Party');
+  const plannedIds = prep?.plannedTeamIds || team.map((pokemon) => pokemon.id);
+  const plannedTeam = team.filter((pokemon) => plannedIds.includes(pokemon.id));
+  const bossTeam = boss.pokemon || [];
+  const bossMaxLevel = Math.max(boss.levelCap || 1, ...bossTeam.map((pokemon) => pokemon.level || 1));
+  const overleveled = team.filter((pokemon) => Number(pokemon.level) > Number(boss.levelCap || bossMaxLevel));
+  const underleveled = team.filter((pokemon) => Number(pokemon.level) < Math.max(1, Number(boss.levelCap || bossMaxLevel) - 4));
+  const defensiveTypes = bossDefensiveTypes(boss);
+  const coverage = teamCoverageTypes(plannedTeam.length ? plannedTeam : team);
+  const missingCoverage = defensiveTypes.filter((targetType) => !coverage.some((ownType) => getAttackMultiplier(ownType, [targetType]) >= 2));
+  const sortedLeads = [...team].sort((a, b) => leadRiskScore(a, boss) - leadRiskScore(b, boss));
+  const safeLeads = sortedLeads.slice(0, 3);
+  const riskyLeads = sortedLeads.filter((pokemon) => leadRiskScore(pokemon, boss) >= 2).slice(0, 3);
+
+  const togglePlanned = (pokemonId: string) => {
+    const nextIds = plannedIds.includes(pokemonId)
+      ? plannedIds.filter((id) => id !== pokemonId)
+      : [...plannedIds, pokemonId];
+    updatePrep({ plannedTeamIds: nextIds });
+  };
+
+  return (
+    <section className="mt-3 rounded-2xl bg-white/82 p-3 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Boss Prep Mode</div>
+          <div className="text-sm font-black">{boss.name} / Cap {boss.levelCap}</div>
+        </div>
+        <label className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-black shadow-sm">
+          <input type="checkbox" checked={Boolean(prep?.completed)} onChange={(event) => updatePrep({ completed: event.target.checked })} />
+          Mark fight complete
+        </label>
+      </div>
+
+      <div className="grid gap-3 xl:grid-cols-2">
+        <div className="grid gap-2">
+          <PrepSection title="Boss Team">
+            {bossTeam.length > 0 ? bossTeam.map((pokemon) => {
+              const types = pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
+              return (
+                <div key={`${pokemon.species}-${pokemon.level}`} className="flex items-center gap-2 rounded-lg bg-white px-2 py-1 shadow-sm">
+                  <MonsterToken species={pokemon.species} types={types} compact />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-black">{pokemon.species} / Lv {pokemon.level}</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+                  </div>
+                </div>
+              );
+            }) : <EmptyPrepText text="No boss team data listed yet." />}
+          </PrepSection>
+
+          <PrepSection title="Level Cap Check">
+            {team.length === 0 ? <EmptyPrepText text="No current team yet." /> : null}
+            {team.map((pokemon) => {
+              const delta = Number(pokemon.level) - Number(boss.levelCap || bossMaxLevel);
+              const tone = delta > 0 ? 'text-[#9f2c24]' : delta < -4 ? 'text-[#a06a00]' : 'text-[#267a38]';
+              return (
+                <div key={pokemon.id} className="flex items-center justify-between rounded-lg bg-white px-2 py-1 text-xs font-black shadow-sm">
+                  <span>{pokemon.nickname || pokemon.species} / Lv {pokemon.level}</span>
+                  <span className={tone}>{delta > 0 ? `Over +${delta}` : delta < -4 ? 'Under' : 'Ready'}</span>
+                </div>
+              );
+            })}
+            {overleveled.length > 0 ? <WarningText text={`Overleveled: ${overleveled.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
+            {underleveled.length > 0 ? <WarningText text={`Underleveled: ${underleveled.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
+          </PrepSection>
+        </div>
+
+        <div className="grid gap-2">
+          <PrepSection title="My Planned Team">
+            {team.length === 0 ? <EmptyPrepText text="Add party members first." /> : null}
+            <div className="grid gap-1 sm:grid-cols-2">
+              {team.map((pokemon) => (
+                <button
+                  type="button"
+                  key={pokemon.id}
+                  onClick={() => togglePlanned(pokemon.id)}
+                  className={`rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${plannedIds.includes(pokemon.id) ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white/65 text-[#6f7b8d]'}`}
+                >
+                  {pokemon.nickname || pokemon.species} / Lv {pokemon.level}
+                </button>
+              ))}
+            </div>
+          </PrepSection>
+
+          <PrepSection title="Suggested Leads">
+            {safeLeads.length > 0 ? safeLeads.map((pokemon) => (
+              <button
+                type="button"
+                key={pokemon.id}
+                onClick={() => updatePrep({ leadPokemonId: pokemon.id })}
+                className={`rounded-lg px-2 py-1 text-left text-xs font-black shadow-sm ${prep?.leadPokemonId === pokemon.id ? 'bg-[var(--nuz-accent-soft)]' : 'bg-white'}`}
+              >
+                {pokemon.nickname || pokemon.species} / score {leadRiskScore(pokemon, boss).toFixed(1)}
+              </button>
+            )) : <EmptyPrepText text="No team members to suggest yet." />}
+            {riskyLeads.length > 0 ? <WarningText text={`Risky leads: ${riskyLeads.map((pokemon) => pokemon.nickname || pokemon.species).join(', ')}`} /> : null}
+          </PrepSection>
+
+          <PrepSection title="Coverage Summary">
+            <div className="flex flex-wrap gap-1">
+              {defensiveTypes.length > 0 ? defensiveTypes.map((type) => <PrepTypeCoverageBadge key={type} type={type} targetTypes={[type]} />) : <EmptyPrepText text="No boss typing listed." />}
+            </div>
+            {missingCoverage.length > 0 ? (
+              <WarningText text={`Missing super-effective coverage into: ${missingCoverage.join(', ')}`} />
+            ) : (
+              <div className="text-xs font-black text-[#267a38]">Coverage looks reasonable from current team typing.</div>
+            )}
+          </PrepSection>
+        </div>
+      </div>
+
+      <PrepSection title="Held Items">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {(plannedTeam.length ? plannedTeam : team).map((pokemon) => (
+            <label key={pokemon.id} className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
+              {pokemon.nickname || pokemon.species}
+              <select
+                value={prep?.heldItems?.[pokemon.id] ?? pokemon.heldItem ?? 'None'}
+                onChange={(event) => updatePrep({ heldItems: { ...(prep?.heldItems || {}), [pokemon.id]: event.target.value } })}
+                className={`${fieldClass} text-xs normal-case tracking-normal text-[#182a40]`}
+              >
+                {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
+          ))}
+        </div>
+      </PrepSection>
+
+      <div className="mt-2 grid gap-2 lg:grid-cols-3">
+        <PrepNote label="Move Prep Checklist" value={prep?.movePrepNotes || ''} onChange={(value) => updatePrep({ movePrepNotes: value })} />
+        <PrepNote label="Battle Plan Notes" value={prep?.battlePlanNotes || ''} onChange={(value) => updatePrep({ battlePlanNotes: value })} />
+        <PrepNote label="Post-Fight Notes" value={prep?.postFightNotes || ''} onChange={(value) => updatePrep({ postFightNotes: value })} />
+      </div>
+
+      <label className="mt-2 grid max-w-xs gap-1 text-xs font-black">
+        Deaths during fight
+        <input value={boss.deaths} onChange={(event) => updateBoss(boss.id, { deaths: Math.max(0, Number(event.target.value) || 0) })} type="number" min="0" className={fieldClass} />
+      </label>
+    </section>
+  );
+}
+
+function PrepSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl bg-white/65 p-2 shadow-sm">
+      <div className="mb-2 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--nuz-accent)]">{title}</div>
+      <div className="grid gap-1">{children}</div>
+    </div>
+  );
+}
+
+function PrepNote({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
+      {label}
+      <textarea value={value} onChange={(event) => onChange(event.target.value)} className={`${fieldClass} min-h-20 text-sm normal-case tracking-normal text-[#182a40]`} />
+    </label>
+  );
+}
+
+function EmptyPrepText({ text }: { text: string }) {
+  return <div className="text-xs font-bold text-[#506078]">{text}</div>;
+}
+
+function WarningText({ text }: { text: string }) {
+  return <div className="rounded-lg bg-[#fff2f0] px-2 py-1 text-xs font-black text-[#9f2c24]">{text}</div>;
 }
 
 function MoveTypeBadge({ type, defenderTypes }: { type: PokemonType; defenderTypes: PokemonType[] }) {

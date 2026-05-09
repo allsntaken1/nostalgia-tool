@@ -122,6 +122,17 @@ export type NuzlockeBoss = {
   pokemon?: NuzlockeBossPokemon[];
 };
 
+export type NuzlockeBossPrep = {
+  bossId: string;
+  leadPokemonId?: string;
+  plannedTeamIds: string[];
+  heldItems: Record<string, string>;
+  movePrepNotes: string;
+  battlePlanNotes: string;
+  postFightNotes: string;
+  completed: boolean;
+};
+
 export type NuzlockeBossPokemon = {
   species: string;
   level: number;
@@ -156,6 +167,7 @@ export type NuzlockeRun = {
   team: NuzlockePokemon[];
   encounters: NuzlockeEncounter[];
   bosses: NuzlockeBoss[];
+  bossPrep: NuzlockeBossPrep[];
   timeline: NuzlockeTimelineEvent[];
   createdAt: string;
   updatedAt: string;
