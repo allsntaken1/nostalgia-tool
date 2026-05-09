@@ -6,6 +6,7 @@ import type {
   NuzlockeRun,
   NuzlockeTimelineEvent,
 } from '@/app/nuzlocke/types';
+import { isNuzlockeSupabaseConfigured, nuzlockeSupabaseHeaders, nuzlockeSupabaseRequest } from '@/lib/nuzlocke/supabase/server';
 
 type NuzlockeRunRow = {
   id: string;
@@ -17,54 +18,6 @@ type NuzlockeRunRow = {
   created_at: string;
   updated_at: string;
 };
-
-function supabaseConfig() {
-  const rawUrl = process.env.SUPABASE_URL?.trim().replace(/\/$/, '');
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  let url = rawUrl;
-
-  if (url) {
-    url = url
-      .replace(/\/rest\/v1$/i, '')
-      .replace(/\/storage\/v1$/i, '')
-      .replace(/\/auth\/v1$/i, '');
-  }
-
-  return url && serviceRoleKey ? { url, serviceRoleKey } : null;
-}
-
-function supabaseHeaders(prefer?: string) {
-  const config = supabaseConfig();
-
-  if (!config) throw new Error('Supabase is not configured.');
-
-  return {
-    apikey: config.serviceRoleKey,
-    Authorization: `Bearer ${config.serviceRoleKey}`,
-    'Content-Type': 'application/json',
-    ...(prefer ? { Prefer: prefer } : {}),
-  };
-}
-
-async function supabaseRequest<T>(pathName: string, init: RequestInit = {}) {
-  const config = supabaseConfig();
-
-  if (!config) throw new Error('Supabase is not configured.');
-
-  const response = await fetch(`${config.url}${pathName}`, {
-    ...init,
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || `Supabase request failed: ${response.status}`);
-  }
-
-  const text = await response.text();
-  if (!text) return null as T;
-  return JSON.parse(text) as T;
-}
 
 function runRow(run: NuzlockeRun) {
   return {
@@ -168,53 +121,53 @@ function timelineRow(runId: string, event: NuzlockeTimelineEvent) {
 }
 
 async function replaceChildRows(table: string, runId: string, rows: unknown[]) {
-  await supabaseRequest(`/rest/v1/${table}?run_id=eq.${encodeURIComponent(runId)}`, {
+  await nuzlockeSupabaseRequest(`/rest/v1/${table}?run_id=eq.${encodeURIComponent(runId)}`, {
     method: 'DELETE',
-    headers: supabaseHeaders(),
+    headers: nuzlockeSupabaseHeaders(),
   });
 
   if (rows.length === 0) return;
 
-  await supabaseRequest(`/rest/v1/${table}`, {
+  await nuzlockeSupabaseRequest(`/rest/v1/${table}`, {
     method: 'POST',
-    headers: supabaseHeaders('resolution=merge-duplicates'),
+    headers: nuzlockeSupabaseHeaders('resolution=merge-duplicates'),
     body: JSON.stringify(rows),
   });
 }
 
 export function isNuzlockeDatabaseConfigured() {
-  return Boolean(supabaseConfig());
+  return isNuzlockeSupabaseConfigured();
 }
 
 export async function listNuzlockeRuns() {
-  if (!supabaseConfig()) return [];
+  if (!isNuzlockeSupabaseConfigured()) return [];
 
-  const rows = await supabaseRequest<NuzlockeRunRow[]>(
+  const rows = await nuzlockeSupabaseRequest<NuzlockeRunRow[]>(
     '/rest/v1/nuzlocke_runs?select=*&order=updated_at.desc',
-    { headers: supabaseHeaders() }
+    { headers: nuzlockeSupabaseHeaders() }
   );
 
   return rows.map((row) => row.run_data).filter(Boolean);
 }
 
 export async function saveNuzlockeRuns(runs: NuzlockeRun[]) {
-  if (!supabaseConfig()) return { configured: false, saved: 0 };
+  if (!isNuzlockeSupabaseConfigured()) return { configured: false, saved: 0 };
 
-  await supabaseRequest('/rest/v1/nuzlocke_runs', {
+  await nuzlockeSupabaseRequest('/rest/v1/nuzlocke_runs', {
     method: 'POST',
-    headers: supabaseHeaders('resolution=merge-duplicates'),
+    headers: nuzlockeSupabaseHeaders('resolution=merge-duplicates'),
     body: JSON.stringify(runs.map(runRow)),
   });
 
   const incomingIds = new Set(runs.map((run) => run.id));
-  const existingRows = await supabaseRequest<{ id: string }[]>('/rest/v1/nuzlocke_runs?select=id', {
-    headers: supabaseHeaders(),
+  const existingRows = await nuzlockeSupabaseRequest<{ id: string }[]>('/rest/v1/nuzlocke_runs?select=id', {
+    headers: nuzlockeSupabaseHeaders(),
   });
   const staleIds = existingRows.map((row) => row.id).filter((id) => !incomingIds.has(id));
 
-  await Promise.all(staleIds.map((id) => supabaseRequest(`/rest/v1/nuzlocke_runs?id=eq.${encodeURIComponent(id)}`, {
+  await Promise.all(staleIds.map((id) => nuzlockeSupabaseRequest(`/rest/v1/nuzlocke_runs?id=eq.${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: supabaseHeaders(),
+    headers: nuzlockeSupabaseHeaders(),
   })));
 
   for (const run of runs) {

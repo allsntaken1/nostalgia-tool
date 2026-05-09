@@ -1207,17 +1207,20 @@ export function NuzlockeTracker() {
 
   const importLocalRuns = () => {
     if (localImportRuns.length === 0) return;
-    fetch('/api/nuzlocke/runs', {
-      method: 'PUT',
+    fetch('/api/nuzlocke/import', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ runs: localImportRuns }),
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) throw new Error('Import failed.');
+        const payload = await response.json();
+        if (!payload?.verified) throw new Error('Import could not be verified.');
+        window.localStorage.setItem(`${nuzlockeStorageKey}_imported`, 'true');
         setRuns(localImportRuns);
         setActiveRunId(localImportRuns[0]?.id ?? '');
         setStorageMode('database');
-        setStorageMessage('Imported local Nuzlocke runs into Supabase. Local backup was not deleted.');
+        setStorageMessage('Imported local Nuzlocke runs into the dedicated Supabase project. Local backup was not deleted.');
       })
       .catch((error) => setStorageMessage(error instanceof Error ? error.message : 'Import failed.'));
   };
@@ -1250,7 +1253,7 @@ export function NuzlockeTracker() {
         <span>{storageMessage}</span>
         {storageMode === 'database' && localImportRuns.length > 0 ? (
           <button type="button" onClick={importLocalRuns} className={smallButtonClass}>
-            Import Local Runs
+            Import Existing Local Runs
           </button>
         ) : null}
       </div>

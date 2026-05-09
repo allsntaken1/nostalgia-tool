@@ -33,11 +33,13 @@ ADMIN_SECRET=
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_STORAGE_BUCKET=nostalgia-uploads
+NUZLOCKE_SUPABASE_URL=
+NUZLOCKE_SUPABASE_SERVICE_ROLE_KEY=
 ```
 
 When the Supabase variables are present, `/api/archive` and `/api/submissions` use Supabase. When they are missing, the app keeps working locally with JSON/files.
 
-The Nuzlocke tracker uses local static game data from `lib/nuzlocke/data/` and stores user run progress in Supabase through `/api/nuzlocke/runs` when Supabase is configured. Existing `repeatchannel_nuzlocke_runs` localStorage data is kept as a backup/import source until an import succeeds.
+The Nuzlocke tracker uses local static game data from `lib/nuzlocke/data/` and stores user run progress in its dedicated Supabase project through `/api/nuzlocke/runs` when `NUZLOCKE_SUPABASE_URL` and `NUZLOCKE_SUPABASE_SERVICE_ROLE_KEY` are configured. Existing `repeatchannel_nuzlocke_runs` localStorage data is kept as a backup/import source until an import succeeds.
 
 ## Upload And Admin Safety
 
