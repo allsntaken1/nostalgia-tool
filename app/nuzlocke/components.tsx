@@ -2,6 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 import { type CSSProperties, FormEvent, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Skull } from 'lucide-react';
 import { getAttackMultiplier, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
@@ -1262,7 +1263,38 @@ function NuzlockeDashboard({
   toolbar?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>('Overview');
+  const [teamBarAction, setTeamBarAction] = useState<{ pokemonId: string; action: PokemonStatus } | null>(null);
   const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
+
+  useEffect(() => {
+    if (!teamBarAction) return;
+    updateRun(run.id, (current) => {
+      const nextRun = {
+        ...current,
+        updatedAt: nowLabel(),
+        team: (current.team || []).map((pokemon) =>
+          pokemon.id === teamBarAction.pokemonId
+            ? {
+                ...pokemon,
+                status: teamBarAction.action,
+                ...(teamBarAction.action === 'Dead'
+                  ? {
+                      levelDied: pokemon.level,
+                      causeOfDeath: pokemon.causeOfDeath || 'Team bar quick mark',
+                      deathLocation: pokemon.deathLocation || pokemon.metLocation || 'Not recorded',
+                    }
+                  : {}),
+              }
+            : pokemon
+        ),
+      };
+      const target = current.team.find((pokemon) => pokemon.id === teamBarAction.pokemonId);
+      return teamBarAction.action === 'Dead' && target
+        ? addTimeline(nextRun, 'Pokemon Died', `${target.nickname || target.species} was marked dead from the team bar.`)
+        : nextRun;
+    });
+    setTeamBarAction(null);
+  }, [teamBarAction, run.id, updateRun, addTimeline]);
 
   return (
     <div className="grid gap-3 pb-28">
@@ -1296,50 +1328,24 @@ function NuzlockeDashboard({
       {tab === 'Badges / Bosses' ? <BossTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
       {tab === 'Graveyard' ? <Graveyard run={run} /> : null}
       {tab === 'Timeline' ? <TimelineLog run={run} /> : null}
-      <CurrentTeamBar run={run} updateRun={updateRun} addTimeline={addTimeline} />
+      <CurrentTeamBar run={run} onQuickStatus={(pokemonId, action) => setTeamBarAction({ pokemonId, action })} />
     </div>
   );
 }
 
 function CurrentTeamBar({
   run,
-  updateRun,
-  addTimeline,
+  onQuickStatus,
 }: {
   run: NuzlockeRun;
-  updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
-  addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
+  onQuickStatus: (pokemonId: string, status: PokemonStatus) => void;
 }) {
   const [activeSlot, setActiveSlot] = useState<string | null>(null);
   const party = (run.team || []).filter((pokemon) => pokemon.status === 'Party').slice(0, 6);
   const slots: (NuzlockePokemon | null)[] = [...party, ...Array.from({ length: Math.max(0, 6 - party.length) }, () => null)];
 
   const updatePokemonStatus = (pokemon: NuzlockePokemon, status: PokemonStatus) => {
-    updateRun(run.id, (current) => {
-      const nextRun = {
-        ...current,
-        updatedAt: nowLabel(),
-        team: (current.team || []).map((item) =>
-          item.id === pokemon.id
-            ? {
-                ...item,
-                status,
-                ...(status === 'Dead'
-                  ? {
-                      levelDied: item.level,
-                      causeOfDeath: item.causeOfDeath || 'Team bar quick mark',
-                      deathLocation: item.deathLocation || item.metLocation || 'Not recorded',
-                    }
-                  : {}),
-              }
-            : item
-        ),
-      };
-
-      return status === 'Dead'
-        ? addTimeline(nextRun, 'Pokemon Died', `${pokemon.nickname || pokemon.species} was marked dead from the team bar.`)
-        : nextRun;
-    });
+    onQuickStatus(pokemon.id, status);
     setActiveSlot(null);
   };
 
@@ -2361,7 +2367,20 @@ function BossPrepModal({
   updatePrep: (changes: Partial<NuzlockeBossPrep>) => void;
   updateBoss: (bossId: string, changes: Partial<NuzlockeBoss>) => void;
 }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#182a40]/45 p-3 backdrop-blur-sm sm:p-6">
       <div className="w-full max-w-6xl rounded-2xl bg-white p-3 shadow-[0_24px_80px_rgba(24,42,64,0.28)]">
         <div className="mb-2 flex items-center justify-between gap-2">
@@ -2370,7 +2389,8 @@ function BossPrepModal({
         </div>
         <BossPrepPanel {...props} />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -2637,15 +2657,6 @@ function TeamPokemonScout({
                 <span className="font-black text-[#182a40]">Ability</span>
                 <span className="ml-2">{pokemon.ability}</span>
                 {selectedAbility?.shortEffect ? <div className="mt-1 text-[11px] leading-4">{selectedAbility.shortEffect}</div> : null}
-                {abilities.length > 0 ? (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {abilities.map((ability) => (
-                      <span key={`${ability.name}-${ability.slot}`} className="rounded-[4px] bg-white px-1.5 py-0.5 text-[10px] font-black shadow-sm">
-                        {ability.name}{ability.isHidden ? ' H' : ''}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
               </div>
             ) : null}
             {showHeldDetail && item !== 'None' ? (
