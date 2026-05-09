@@ -37,6 +37,8 @@ SUPABASE_STORAGE_BUCKET=nostalgia-uploads
 
 When the Supabase variables are present, `/api/archive` and `/api/submissions` use Supabase. When they are missing, the app keeps working locally with JSON/files.
 
+The Nuzlocke tracker uses local static game data from `lib/nuzlocke/data/` and stores user run progress in Supabase through `/api/nuzlocke/runs` when Supabase is configured. Existing `repeatchannel_nuzlocke_runs` localStorage data is kept as a backup/import source until an import succeeds.
+
 ## Upload And Admin Safety
 
 Public uploads are accepted only as JPG, PNG, or WebP files up to 8 MB. Community uploads go into the pending queue and do not appear publicly until approved.

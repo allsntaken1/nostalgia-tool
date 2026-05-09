@@ -43,3 +43,116 @@ create index if not exists archive_volume_score_idx on public.archive_volume ((v
 
 -- Create a public Supabase Storage bucket named `nostalgia-uploads` in the dashboard.
 -- The app uploads pending community images to `pending/<id>.<ext>` inside that bucket.
+
+create table if not exists public.nuzlocke_runs (
+  id text primary key,
+  run_name text not null,
+  game_version text not null,
+  run_type text not null,
+  rules jsonb not null default '{}',
+  run_data jsonb not null default '{}',
+  created_at text not null,
+  updated_at text not null
+);
+
+create table if not exists public.nuzlocke_team_members (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  encounter_id text,
+  met_location text not null default '',
+  species text not null,
+  nickname text not null default '',
+  level integer not null default 1,
+  types text[] not null default '{}',
+  nature text not null default '',
+  ability text not null default '',
+  held_item text not null default 'None',
+  status text not null default 'Party',
+  notes text not null default '',
+  level_died integer,
+  cause_of_death text not null default '',
+  death_location text not null default ''
+);
+
+create table if not exists public.nuzlocke_encounters (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  location text not null,
+  pokemon text not null default '',
+  nickname text not null default '',
+  level_met integer not null default 1,
+  status text not null default 'Caught',
+  types text[] not null default '{}',
+  nature text not null default '',
+  ability text not null default '',
+  notes text not null default ''
+);
+
+create table if not exists public.nuzlocke_deaths (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  pokemon_id text not null,
+  species text not null,
+  nickname text not null default '',
+  level_died integer not null default 1,
+  cause_of_death text not null default '',
+  death_location text not null default '',
+  notes text not null default ''
+);
+
+create table if not exists public.nuzlocke_boss_progress (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  boss_id text not null,
+  completed boolean not null default false,
+  deaths integer not null default 0,
+  notes text not null default ''
+);
+
+create table if not exists public.nuzlocke_boss_prep (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  boss_id text not null,
+  lead_pokemon_id text not null default '',
+  planned_team_ids text[] not null default '{}',
+  held_items jsonb not null default '{}',
+  planned_moves jsonb not null default '{}',
+  move_prep_notes text not null default '',
+  battle_plan_notes text not null default '',
+  post_fight_notes text not null default '',
+  completed boolean not null default false
+);
+
+create table if not exists public.nuzlocke_timeline_events (
+  id text primary key,
+  run_id text not null references public.nuzlocke_runs(id) on delete cascade,
+  created_at text not null,
+  event_type text not null,
+  message text not null
+);
+
+create index if not exists nuzlocke_runs_updated_at_idx on public.nuzlocke_runs (updated_at desc);
+create index if not exists nuzlocke_team_members_run_id_idx on public.nuzlocke_team_members (run_id);
+create index if not exists nuzlocke_encounters_run_id_idx on public.nuzlocke_encounters (run_id);
+create index if not exists nuzlocke_deaths_run_id_idx on public.nuzlocke_deaths (run_id);
+create index if not exists nuzlocke_boss_progress_run_id_idx on public.nuzlocke_boss_progress (run_id);
+create index if not exists nuzlocke_boss_prep_run_id_idx on public.nuzlocke_boss_prep (run_id);
+create index if not exists nuzlocke_timeline_events_run_id_idx on public.nuzlocke_timeline_events (run_id);
+
+create table if not exists public.pokemon_species_cache (
+  slug text primary key,
+  data jsonb not null,
+  updated_at text not null
+);
+
+create table if not exists public.pokemon_move_cache (
+  slug text primary key,
+  data jsonb not null,
+  updated_at text not null
+);
+
+create table if not exists public.pokemon_ability_cache (
+  slug text primary key,
+  data jsonb not null,
+  updated_at text not null
+);

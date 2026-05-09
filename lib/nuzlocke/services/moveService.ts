@@ -1,3 +1,5 @@
+import { readNuzlockeApiCache, writeNuzlockeApiCache } from './apiCache';
+
 export interface PokemonMove {
   id: number;
   name: string;
@@ -68,6 +70,13 @@ export async function getMoveData(name: string): Promise<PokemonMove | null> {
     return cached;
   }
 
+  const apiCached = await readNuzlockeApiCache<PokemonMove>('move', slug);
+  if (apiCached) {
+    memoryCache.set(slug, apiCached);
+    writeSession(slug, apiCached);
+    return apiCached;
+  }
+
   try {
     const response = await fetch(`https://pokeapi.co/api/v2/move/${slug}`);
     if (!response.ok) return null;
@@ -87,6 +96,7 @@ export async function getMoveData(name: string): Promise<PokemonMove | null> {
 
     memoryCache.set(slug, move);
     writeSession(slug, move);
+    writeNuzlockeApiCache('move', slug, move);
     return move;
   } catch {
     return null;
@@ -98,6 +108,12 @@ export async function getPokemonLevelMoves(species: string, level: number, limit
   const cacheKey = `${slug}_${level}_${limit}`;
   const cached = speciesMoveCache.get(cacheKey);
   if (cached) return cached;
+
+  const apiCached = await readNuzlockeApiCache<PokemonMove[]>('pokemon', `moves_${cacheKey}`);
+  if (apiCached) {
+    speciesMoveCache.set(cacheKey, apiCached);
+    return apiCached;
+  }
 
   try {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
@@ -120,6 +136,7 @@ export async function getPokemonLevelMoves(species: string, level: number, limit
     const uniqueNames = Array.from(new Set(moveNames)).slice(0, limit);
     const moves = (await Promise.all(uniqueNames.map((name) => getMoveData(name)))).filter((move): move is PokemonMove => Boolean(move));
     speciesMoveCache.set(cacheKey, moves);
+    writeNuzlockeApiCache('pokemon', `moves_${cacheKey}`, moves);
     return moves;
   } catch {
     return [];

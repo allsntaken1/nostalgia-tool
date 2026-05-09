@@ -7,6 +7,7 @@ import { Skull } from 'lucide-react';
 import { getAttackMultiplier, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
+import { readNuzlockeApiCache, writeNuzlockeApiCache } from '@/lib/nuzlocke/services/apiCache';
 import {
   type EncounterOption,
   gameGroups,
@@ -862,7 +863,7 @@ function usePublicPokemonTypes(species: string, fallbackTypes: PokemonType[]) {
 
     let active = true;
     fetch(`https://pokeapi.co/api/v2/pokemon/${normalizePokemonApiName(species)}`)
-      .then((response) => (response.ok ? response.json() : null))
+      .then((response) => (response?.ok ? response.json() : null))
       .then((data) => {
         if (!active || !data?.types) return;
         const fetchedTypes = data.types
@@ -927,9 +928,18 @@ function usePokemonStats(species: string, fallback?: ReturnType<typeof pokemonBa
     let active = true;
     setStats(pokemonBaseStats(species));
     if (!species) return;
+    const slug = pokemonApiSlug(species);
 
-    fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonApiSlug(species)}`)
-      .then((response) => (response.ok ? response.json() : null))
+    readNuzlockeApiCache<{ hp: number; atk: number; def: number; spa: number; spd: number; spe: number }>('pokemon', `stats_${slug}`)
+      .then((cached) => {
+        if (active && cached) setStats(cached);
+        return cached;
+      })
+      .then((cached) => {
+        if (cached) return null;
+        return fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
+      })
+      .then((response) => (response?.ok ? response.json() : null))
       .then((data) => {
         if (!active || !data?.stats) return;
         const mapped = (data.stats || []).reduce((acc: Record<string, number>, entry: { base_stat?: number; stat?: { name?: string } }) => {
@@ -942,7 +952,11 @@ function usePokemonStats(species: string, fallback?: ReturnType<typeof pokemonBa
           if (key === 'speed') acc.spe = Number(entry.base_stat) || 0;
           return acc;
         }, {});
-        if (mapped.hp) setStats(mapped as { hp: number; atk: number; def: number; spa: number; spd: number; spe: number });
+        if (mapped.hp) {
+          const nextStats = mapped as { hp: number; atk: number; def: number; spa: number; spd: number; spe: number };
+          setStats(nextStats);
+          writeNuzlockeApiCache('pokemon', `stats_${slug}`, nextStats);
+        }
       })
       .catch(() => undefined);
 
@@ -1075,26 +1089,77 @@ export function NuzlockeTracker() {
   const [activeRunId, setActiveRunId] = useState('');
   const [selectedGame, setSelectedGame] = useState<GameVersion | ''>('');
   const [loaded, setLoaded] = useState(false);
+  const [storageMode, setStorageMode] = useState<'loading' | 'database' | 'local'>('loading');
+  const [storageMessage, setStorageMessage] = useState('Loading tracker storage...');
+  const [localImportRuns, setLocalImportRuns] = useState<NuzlockeRun[]>([]);
 
   useEffect(() => {
+    let active = true;
+
     try {
       const raw = window.localStorage.getItem(nuzlockeStorageKey);
       const parsed = raw ? JSON.parse(raw) : [];
       const storedRuns = normalizeRuns(parsed);
+      setLocalImportRuns(storedRuns);
       setRuns(storedRuns);
       setActiveRunId(storedRuns[0]?.id ?? '');
+
+      fetch('/api/nuzlocke/runs', { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('Could not load database runs.'))))
+        .then((payload) => {
+          if (!active) return;
+          const databaseRuns = normalizeRuns(payload?.runs || []);
+
+          if (payload?.configured) {
+            setStorageMode('database');
+            setStorageMessage('Saving Nuzlocke runs to Supabase.');
+            setRuns(databaseRuns);
+            setActiveRunId(databaseRuns[0]?.id ?? '');
+          } else {
+            setStorageMode('local');
+            setStorageMessage('Supabase is not configured for Nuzlocke yet. Using local fallback.');
+          }
+        })
+        .catch((error) => {
+          if (!active) return;
+          setStorageMode('local');
+          setStorageMessage(error instanceof Error ? `${error.message} Using local fallback.` : 'Using local fallback.');
+        })
+        .finally(() => {
+          if (active) setLoaded(true);
+        });
     } catch {
       setRuns([]);
       setActiveRunId('');
-    } finally {
+      setStorageMode('local');
+      setStorageMessage('Could not read local runs. Using a fresh local tracker.');
       setLoaded(true);
     }
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!loaded) return;
-    window.localStorage.setItem(nuzlockeStorageKey, JSON.stringify(runs));
-  }, [loaded, runs]);
+
+    if (storageMode === 'database') {
+      const timeout = window.setTimeout(() => {
+        fetch('/api/nuzlocke/runs', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runs }),
+        }).catch(() => setStorageMessage('Could not save to Supabase. Your screen still has the latest run data.'));
+      }, 650);
+
+      return () => window.clearTimeout(timeout);
+    }
+
+    if (storageMode === 'local') {
+      window.localStorage.setItem(nuzlockeStorageKey, JSON.stringify(runs));
+    }
+  }, [loaded, runs, storageMode]);
 
   const activeRun = runs.find((run) => run.id === activeRunId);
 
@@ -1140,6 +1205,23 @@ export function NuzlockeTracker() {
     setSelectedGame('');
   };
 
+  const importLocalRuns = () => {
+    if (localImportRuns.length === 0) return;
+    fetch('/api/nuzlocke/runs', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ runs: localImportRuns }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Import failed.');
+        setRuns(localImportRuns);
+        setActiveRunId(localImportRuns[0]?.id ?? '');
+        setStorageMode('database');
+        setStorageMessage('Imported local Nuzlocke runs into Supabase. Local backup was not deleted.');
+      })
+      .catch((error) => setStorageMessage(error instanceof Error ? error.message : 'Import failed.'));
+  };
+
   const currentGame = activeRun?.gameVersion ?? selectedGame;
   const runToolbar = (
     <>
@@ -1164,6 +1246,14 @@ export function NuzlockeTracker() {
   return (
     <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={{ ...trackerVars(currentGame), fontFamily: readableFont }}>
       <div className="mx-auto max-w-7xl p-3 sm:p-5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/75 px-3 py-2 text-xs font-bold shadow-sm">
+        <span>{storageMessage}</span>
+        {storageMode === 'database' && localImportRuns.length > 0 ? (
+          <button type="button" onClick={importLocalRuns} className={smallButtonClass}>
+            Import Local Runs
+          </button>
+        ) : null}
+      </div>
       {!activeRun ? (
         <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
           <div>

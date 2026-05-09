@@ -1,5 +1,6 @@
 import type { PokemonType } from '@/app/nuzlocke/types';
 import { getAttackMultiplier } from '@/lib/nuzlocke/typeChart';
+import { readNuzlockeApiCache, writeNuzlockeApiCache } from './apiCache';
 
 export interface PokemonAbility {
   id: number;
@@ -37,6 +38,12 @@ async function fetchAbilityDetail(name: string) {
   const cached = abilityDetailCache.get(abilitySlug);
   if (cached) return cached;
 
+  const apiCached = await readNuzlockeApiCache<Omit<PokemonAbility, 'isHidden' | 'slot'>>('ability', abilitySlug);
+  if (apiCached) {
+    abilityDetailCache.set(abilitySlug, apiCached);
+    return apiCached;
+  }
+
   try {
     const response = await fetch(`https://pokeapi.co/api/v2/ability/${abilitySlug}`);
     if (!response.ok) return null;
@@ -50,6 +57,7 @@ async function fetchAbilityDetail(name: string) {
       fullEffect: shortEntry?.effect?.replace(/\s+/g, ' ').trim(),
     };
     abilityDetailCache.set(abilitySlug, detail);
+    writeNuzlockeApiCache('ability', abilitySlug, detail);
     return detail;
   } catch {
     return null;
@@ -61,6 +69,12 @@ export async function getPokemonAbilities(species: string): Promise<PokemonAbili
   if (!key) return [];
   const cached = pokemonAbilityCache.get(key);
   if (cached) return cached;
+
+  const apiCached = await readNuzlockeApiCache<PokemonAbility[]>('pokemon', `abilities_${key}`);
+  if (apiCached) {
+    pokemonAbilityCache.set(key, apiCached);
+    return apiCached;
+  }
 
   try {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${key}`);
@@ -79,6 +93,7 @@ export async function getPokemonAbilities(species: string): Promise<PokemonAbili
       };
     }));
     pokemonAbilityCache.set(key, abilities);
+    writeNuzlockeApiCache('pokemon', `abilities_${key}`, abilities);
     return abilities;
   } catch {
     return [];
