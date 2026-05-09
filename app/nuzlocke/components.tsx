@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { Skull } from 'lucide-react';
 import { getAttackMultiplier, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
+import { getItemData } from '@/lib/nuzlocke/services/itemService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
 import { readNuzlockeApiCache, writeNuzlockeApiCache } from '@/lib/nuzlocke/services/apiCache';
 import { normalizeStarterChoice, starterChoiceLabel } from '@/lib/nuzlocke/starter';
@@ -352,21 +353,20 @@ function cleanBossDetail(value: string) {
   return value;
 }
 
-function itemSlug(item: string) {
-  return item
-    .toLowerCase()
-    .replace(/'/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function getItemSpriteUrl(item: string) {
-  if (!item || ['None', 'Not Sure', 'Other', 'Type-boosting Item'].includes(item)) return '';
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemSlug(item)}.png`;
-}
-
 function ItemSprite({ item }: { item: string }) {
-  const src = getItemSpriteUrl(item);
+  const [src, setSrc] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    setSrc('');
+    getItemData(item).then((data) => {
+      if (active) setSrc(data?.iconUrl || '');
+    });
+    return () => {
+      active = false;
+    };
+  }, [item]);
+
   if (!src) return null;
 
   return (
@@ -2729,13 +2729,16 @@ function BossPrepPanel({
           {(plannedTeam.length ? plannedTeam : team).map((pokemon) => (
             <label key={pokemon.id} className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
               {pokemon.nickname || pokemon.species}
-              <select
-                value={prep?.heldItems?.[pokemon.id] ?? pokemon.heldItem ?? 'None'}
-                onChange={(event) => updatePrep({ heldItems: { ...(prep?.heldItems || {}), [pokemon.id]: event.target.value } })}
-                className={`${fieldClass} text-xs normal-case tracking-normal text-[#182a40]`}
-              >
-                {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
-              </select>
+              <span className="flex items-center gap-2">
+                <ItemSprite item={prep?.heldItems?.[pokemon.id] ?? pokemon.heldItem ?? 'None'} />
+                <select
+                  value={prep?.heldItems?.[pokemon.id] ?? pokemon.heldItem ?? 'None'}
+                  onChange={(event) => updatePrep({ heldItems: { ...(prep?.heldItems || {}), [pokemon.id]: event.target.value } })}
+                  className={`${fieldClass} min-w-0 flex-1 text-xs normal-case tracking-normal text-[#182a40]`}
+                >
+                  {heldItemOptions.map((item) => <option key={item}>{item}</option>)}
+                </select>
+              </span>
             </label>
           ))}
         </div>
