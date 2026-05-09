@@ -19,6 +19,7 @@ import {
   getPokemonTypesFromData,
   getPokemonSpriteUrl,
   heldItemOptions,
+  isEncounterSkeletonGame,
   natureOptions,
   nuzlockeStorageKey,
   pokemonTypes,
@@ -1864,6 +1865,7 @@ function EncounterTracker({
   const dupesClauseEnabled = Boolean(run.rules?.dupesClause);
   const locations = getNuzlockeLocations(run.gameVersion);
   const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
+  const encounterDataComingSoon = isEncounterSkeletonGame(run.gameVersion);
   const firstOpenLocation = locations.find((location) => !caughtLocations.has(location)) ?? locations[0];
   const initialOptions = encounterOptionsByLocation[firstOpenLocation] ?? [];
   const [form, setForm] = useState({
@@ -2038,6 +2040,9 @@ function EncounterTracker({
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
             <h3 className="text-base font-black">Pick an encounter area</h3>
+            {encounterDataComingSoon ? (
+              <p className="mt-1 text-xs font-bold text-[#506078]">Encounter data coming soon for FireRed/LeafGreen.</p>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] font-black">
             <span className="self-center text-[#506078]">Click a route to reveal Pokemon.</span>
@@ -2118,7 +2123,7 @@ function EncounterTracker({
                       );
                     }) : (
                       <span className="rounded-xl bg-white p-3 text-xs font-black text-[#6f7b8d]">
-                        No listed encounters match the current filters.
+                        {encounterDataComingSoon ? 'Encounter data coming soon for FireRed/LeafGreen.' : 'No listed encounters match the current filters.'}
                       </span>
                     )}
                   </div>

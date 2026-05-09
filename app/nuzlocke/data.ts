@@ -1,5 +1,6 @@
 import type { GameVersion, NuzlockeBoss, NuzlockeBossPokemon, NuzlockeMove, PokemonType, RunType, StarterChoice } from './types';
 import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
+import { getFrlgBosses, getFrlgEncounterOptions, getFrlgLocations, supportsFrlg } from '@/lib/nuzlocke/data/gen3/frlg';
 import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
@@ -8,7 +9,7 @@ export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean }[] }[] = [
   { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
   { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: false })) },
-  { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: false })) },
+  { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: name === 'FireRed' || name === 'LeafGreen' })) },
   { generation: 'Gen 4', games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 6', games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({ name: name as GameVersion, supported: false })) },
@@ -1338,6 +1339,7 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
 
 export function getNuzlockeLocations(gameVersion: GameVersion) {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
+  if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
 }
@@ -1345,8 +1347,13 @@ export function getNuzlockeLocations(gameVersion: GameVersion) {
 export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   if (gameVersion === 'Yellow') return yellowEncounterOptions;
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
+  if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
+}
+
+export function isEncounterSkeletonGame(gameVersion: GameVersion) {
+  return supportsFrlg(gameVersion);
 }
 
 export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
@@ -1355,9 +1362,11 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
       ? yellowBosses
       : gameVersion === 'Red' || gameVersion === 'Blue'
         ? redBlueBosses
-        : supportsGen8Data(gameVersion)
-          ? getGen8Bosses(gameVersion, starterChoice)
-        : getScarletVioletBosses(gameVersion);
+        : supportsFrlg(gameVersion)
+          ? getFrlgBosses(gameVersion, starterChoice)
+          : supportsGen8Data(gameVersion)
+            ? getGen8Bosses(gameVersion, starterChoice)
+            : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
   const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
@@ -1408,7 +1417,7 @@ function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemo
 }
 
 export function getPokemonTypesFromData(species: string) {
-  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, getFrlgEncounterOptions('FireRed'), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
   for (const group of encounterGroups) {
     for (const options of Object.values(group)) {
       const match = options.find((option) => option.species === species);

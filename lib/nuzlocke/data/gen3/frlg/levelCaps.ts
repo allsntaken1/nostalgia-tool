@@ -1,0 +1,15 @@
+export const frlgLevelCaps = [
+  { id: 'brock-frlg', label: 'Brock', cap: 14 },
+  { id: 'misty-frlg', label: 'Misty', cap: 21 },
+  { id: 'surge-frlg', label: 'Lt. Surge', cap: 24 },
+  { id: 'erika-frlg', label: 'Erika', cap: 29 },
+  { id: 'koga-frlg', label: 'Koga', cap: 43 },
+  { id: 'sabrina-frlg', label: 'Sabrina', cap: 43 },
+  { id: 'blaine-frlg', label: 'Blaine', cap: 47 },
+  { id: 'giovanni-viridian-frlg', label: 'Giovanni', cap: 50 },
+  { id: 'lorelei-frlg', label: 'Lorelei', cap: 54 },
+  { id: 'bruno-frlg', label: 'Bruno', cap: 56 },
+  { id: 'agatha-frlg', label: 'Agatha', cap: 58 },
+  { id: 'lance-frlg', label: 'Lance', cap: 60 },
+  { id: 'champion-rival-frlg', label: 'Champion Rival', cap: 63 },
+];
