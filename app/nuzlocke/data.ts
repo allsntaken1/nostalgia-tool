@@ -13,7 +13,14 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
   { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
   { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
   { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: name === 'FireRed' || name === 'LeafGreen' })) },
-  { generation: 'Gen 4', games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
+  {
+    generation: 'Gen 4',
+    games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({
+      name: name as GameVersion,
+      supported: true,
+      dataStatus: name === 'HeartGold' || name === 'SoulSilver' ? 'Partial' : 'Skeleton',
+    })),
+  },
   { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
   { generation: 'Gen 6', games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: false })) },
