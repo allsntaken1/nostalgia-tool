@@ -1335,30 +1335,35 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
 
 const starterChoices: StarterChoice[] = ['grass', 'fire', 'water'];
 
-function StarterChoiceButtons({
+function CompactStarterChoice({
   value,
   onChange,
 }: {
   value?: StarterChoice | null;
   onChange: (choice: StarterChoice) => void;
 }) {
+  const typeByChoice: Record<StarterChoice, PokemonType> = {
+    grass: 'Grass',
+    fire: 'Fire',
+    water: 'Water',
+  };
+
   return (
-    <div className="grid gap-2">
-      <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Which starter type did you choose?</div>
-      <div className="flex flex-wrap gap-2">
-        {starterChoices.map((choice) => (
-          <button
-            type="button"
-            key={choice}
-            onClick={() => onChange(choice)}
-            className={`rounded-xl px-3 py-2 text-xs font-black shadow-sm transition ${
-              value === choice ? 'bg-[var(--nuz-accent)] text-white' : 'bg-white/80 hover:bg-white'
-            }`}
-          >
-            {starterChoiceLabel(choice)}
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-wrap items-center gap-1.5 rounded-xl bg-white/65 px-2 py-1.5 shadow-sm">
+      <span className="mr-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#506078]">Starter:</span>
+      {starterChoices.map((choice) => (
+        <button
+          type="button"
+          key={choice}
+          onClick={() => onChange(choice)}
+          className={`rounded-[6px] p-0.5 transition ${
+            value === choice ? 'bg-[#182a40] shadow-sm' : 'bg-transparent hover:bg-white'
+          }`}
+          aria-label={`Set starter type to ${starterChoiceLabel(choice)}`}
+        >
+          <TypeBadge type={typeByChoice[choice]} />
+        </button>
+      ))}
     </div>
   );
 }
@@ -1375,7 +1380,6 @@ function RunSetupForm({
   const [runName, setRunName] = useState(`${gameVersion} Run`);
   const [runType, setRunType] = useState<RunType>('Standard Nuzlocke');
   const [rules, setRules] = useState<NuzlockeRules>(defaultRules);
-  const [starterChoice, setStarterChoice] = useState<StarterChoice | null>(null);
   const [error, setError] = useState('');
 
   const create = (event: FormEvent<HTMLFormElement>) => {
@@ -1390,11 +1394,11 @@ function RunSetupForm({
       runName: runName.trim(),
       gameVersion,
       runType,
-      starterChoice,
+      starterChoice: null,
       rules,
       team: [],
       encounters: [],
-      bosses: getNuzlockeBosses(gameVersion, starterChoice),
+      bosses: getNuzlockeBosses(gameVersion, null),
       bossPrep: [],
       timeline: [
         { id: makeId('event'), createdAt: nowLabel(), type: 'Run Created', message: `${runName.trim()} started in ${gameVersion}.` },
@@ -1424,10 +1428,6 @@ function RunSetupForm({
             {runTypes.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
         </label>
-      </div>
-
-      <div className="mt-5 rounded-xl bg-white/65 p-3 shadow-sm">
-        <StarterChoiceButtons value={starterChoice} onChange={setStarterChoice} />
       </div>
 
       {runType === 'Monotype' ? (
@@ -1478,18 +1478,6 @@ function NuzlockeDashboard({
   const [teamBarAction, setTeamBarAction] = useState<{ pokemonId: string; action: PokemonStatus } | null>(null);
   const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
 
-  const updateStarterChoice = (starterChoice: StarterChoice) => {
-    updateRun(run.id, (current) => {
-      const nextRun = {
-        ...current,
-        starterChoice,
-        bosses: mergeBossDefaults(Array.isArray(current.bosses) ? current.bosses : [], current.gameVersion, starterChoice),
-        updatedAt: nowLabel(),
-      };
-      return addTimeline(nextRun, 'Starter Synced', `Starter type set to ${starterChoiceLabel(starterChoice)}.`);
-    });
-  };
-
   useEffect(() => {
     if (!teamBarAction) return;
     updateRun(run.id, (current) => {
@@ -1530,9 +1518,6 @@ function NuzlockeDashboard({
             <div className="mt-1 text-sm font-black text-[#506078]">{run.runName}</div>
           </div>
           <div className="flex flex-wrap items-center gap-2">{toolbar}</div>
-        </div>
-        <div className="mt-3 rounded-xl bg-white/55 p-2 shadow-sm">
-          <StarterChoiceButtons value={run.starterChoice} onChange={updateStarterChoice} />
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {tabs.map((item) => (
@@ -2291,8 +2276,23 @@ function BossTracker({
     });
   };
 
+  const updateStarterChoice = (starterChoice: StarterChoice) => {
+    updateRun(run.id, (current) => {
+      const nextRun = {
+        ...current,
+        starterChoice,
+        bosses: mergeBossDefaults(Array.isArray(current.bosses) ? current.bosses : [], current.gameVersion, starterChoice),
+        updatedAt: nowLabel(),
+      };
+      return addTimeline(nextRun, 'Starter Synced', `Starter type set to ${starterChoiceLabel(starterChoice)}.`);
+    });
+  };
+
   return (
     <section className="grid gap-3">
+      <div className="flex justify-end">
+        <CompactStarterChoice value={run.starterChoice} onChange={updateStarterChoice} />
+      </div>
       {sortedBosses.map((boss) => (
         <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-3 shadow-[0_14px_34px_rgba(24,42,64,0.09)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
           <div
