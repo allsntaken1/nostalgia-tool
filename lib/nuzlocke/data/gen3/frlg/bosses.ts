@@ -205,6 +205,7 @@ export const frlgBosses: BossTrainer[] = [
       mon('Nidoqueen', 41, ['Poison', 'Ground'], { ability: 'Poison Point', moves: [mv('Body Slam', 'Normal', 85), mv('Earthquake', 'Ground', 100), mv('Toxic', 'Poison'), mv('Double Kick', 'Fighting', 30)] }),
     ],
   }),
+  boss({ id: 'rival-silph-co-frlg', name: 'Rival Silph Co.', locationId: 'silph-co', location: 'Silph Co.', order: 13.5, category: 'rival', notes: 'TODO: Populate verified FRLG Silph Co. rival variants in the next rival data pass.' }),
   boss({
     id: 'giovanni-viridian-frlg',
     name: 'Giovanni 3',
