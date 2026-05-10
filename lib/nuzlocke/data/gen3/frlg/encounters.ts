@@ -10,10 +10,17 @@ const flying = (species: string): EncounterOption => ({ species, types: ['Normal
 const poison = (species: string): EncounterOption => ({ species, types: ['Poison'] });
 const bug = (species: string): EncounterOption => ({ species, types: ['Bug'] });
 const bugPoison = (species: string): EncounterOption => ({ species, types: ['Bug', 'Poison'] });
+const electric = (species: string): EncounterOption => ({ species, types: ['Electric'] });
+const fire = (species: string): EncounterOption => ({ species, types: ['Fire'] });
+const fireFlying = (species: string): EncounterOption => ({ species, types: ['Fire', 'Flying'] });
 const ghostPoison = (species: string): EncounterOption => ({ species, types: ['Ghost', 'Poison'] });
 const grassPoison = (species: string): EncounterOption => ({ species, types: ['Grass', 'Poison'] });
 const ground = (species: string): EncounterOption => ({ species, types: ['Ground'] });
+const poisonGround = (species: string): EncounterOption => ({ species, types: ['Poison', 'Ground'] });
+const poisonFlying = (species: string): EncounterOption => ({ species, types: ['Poison', 'Flying'] });
+const psychic = (species: string): EncounterOption => ({ species, types: ['Psychic'] });
 const rockGround = (species: string): EncounterOption => ({ species, types: ['Rock', 'Ground'] });
+const waterIce = (species: string): EncounterOption => ({ species, types: ['Water', 'Ice'] });
 const water = (species: string, method?: 'fishing' | 'surfing'): EncounterOption => ({
   species,
   types: ['Water'],
@@ -52,6 +59,29 @@ const shared: FrlgEncounterMap = {
   'Safari Zone': [poison('NidoranF'), poison('NidoranM'), { species: 'Paras', types: ['Bug', 'Grass'] }, grassPoison('Exeggcute'), ground('Rhyhorn'), normal('Kangaskhan'), normal('Tauros'), normal('Chansey'), flying('Doduo'), { species: 'Venonat', types: ['Bug', 'Poison'] }, water('Dratini', 'fishing')],
   'Route 24': [flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }],
   'Route 25': [flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }],
+  'Route 16': [flying('Spearow'), flying('Fearow'), flying('Doduo'), normal('Raticate'), normal('Snorlax')],
+  'Route 17': [flying('Spearow'), flying('Fearow'), flying('Doduo'), normal('Raticate')],
+  'Route 18': [flying('Spearow'), flying('Fearow'), flying('Doduo'), normal('Raticate')],
+  'Silph Co.': [waterIce('Lapras')],
+  'Route 19': [water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Magikarp', 'fishing'), water('Horsea', 'fishing'), water('Shellder', 'fishing')],
+  'Route 20': [water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Magikarp', 'fishing'), water('Horsea', 'fishing'), water('Shellder', 'fishing')],
+  'Seafoam Islands': [poisonFlying('Zubat'), poisonFlying('Golbat'), waterIce('Seel'), waterIce('Dewgong'), water('Magikarp', 'fishing'), water('Horsea', 'fishing'), waterIce('Articuno')],
+  'Cinnabar Island': [water('Magikarp', 'fishing'), water('Tentacool', 'surfing'), water('Tentacruel', 'surfing')],
+  'Pokemon Mansion': [normal('Rattata'), normal('Raticate'), poison('Koffing'), poison('Weezing'), poison('Grimer'), poison('Muk'), fire('Vulpix'), fire('Growlithe'), fire('Magmar')],
+  'Route 21': [flying('Pidgey'), flying('Pidgeotto'), normal('Rattata'), normal('Raticate'), normal('Tangela'), water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Magikarp', 'fishing'), water('Horsea', 'fishing'), water('Shellder', 'fishing')],
+  'Route 23': [flying('Spearow'), flying('Fearow'), normal('Raticate'), ground('Sandslash'), poison('Nidorina'), poison('Nidorino'), water('Magikarp', 'fishing'), water('Poliwag', 'fishing')],
+  'Victory Road': [poisonFlying('Zubat'), poisonFlying('Golbat'), rockGround('Geodude'), rockGround('Graveler'), rockGround('Onix'), { species: 'Machop', types: ['Fighting'] }, { species: 'Machoke', types: ['Fighting'] }, normal('Marowak'), fireFlying('Moltres')],
+  'Power Plant': [electric('Pikachu'), electric('Voltorb'), electric('Electrode'), electric('Magnemite'), electric('Magneton'), electric('Zapdos')],
+  'One Island': [water('Magikarp', 'fishing'), water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Horsea', 'fishing')],
+  'Kindle Road': [flying('Spearow'), flying('Fearow'), fire('Ponyta'), fire('Rapidash'), water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Magikarp', 'fishing'), water('Horsea', 'fishing')],
+  'Mt. Ember': [flying('Spearow'), flying('Fearow'), rockGround('Geodude'), rockGround('Graveler'), { species: 'Machop', types: ['Fighting'] }, { species: 'Machoke', types: ['Fighting'] }, fireFlying('Moltres')],
+  'Treasure Beach': [water('Tentacool', 'surfing'), water('Tentacruel', 'surfing'), water('Magikarp', 'fishing'), water('Horsea', 'fishing')],
+  'Two Island': [water('Magikarp', 'fishing'), water('Poliwag', 'fishing')],
+  'Cape Brink': [flying('Spearow'), flying('Fearow'), grassPoison('Bellsprout'), grassPoison('Weepinbell'), grassPoison('Oddish'), grassPoison('Gloom'), water('Magikarp', 'fishing'), water('Poliwag', 'fishing')],
+  'Three Island': [water('Magikarp', 'fishing'), water('Poliwag', 'fishing')],
+  'Bond Bridge': [normal('Meowth'), flying('Pidgey'), flying('Pidgeotto'), grassPoison('Oddish'), grassPoison('Gloom'), grassPoison('Bellsprout'), grassPoison('Weepinbell'), water('Magikarp', 'fishing'), water('Horsea', 'fishing')],
+  'Berry Forest': [flying('Pidgey'), flying('Pidgeotto'), grassPoison('Oddish'), grassPoison('Gloom'), grassPoison('Bellsprout'), grassPoison('Weepinbell'), psychic('Hypno')],
+  'Cerulean Cave': [poisonFlying('Golbat'), psychic('Kadabra'), psychic('Drowzee'), psychic('Hypno'), normal('Ditto'), rockGround('Graveler'), normal('Rhydon'), water('Magikarp', 'fishing'), water('Poliwag', 'fishing'), psychic('Mewtwo')],
 };
 
 const versionSpecific: Record<FrlgVersion, FrlgEncounterMap> = {
@@ -70,6 +100,22 @@ const versionSpecific: Record<FrlgVersion, FrlgEncounterMap> = {
     'Route 14': [grassPoison('Oddish'), grassPoison('Gloom')],
     'Route 15': [grassPoison('Oddish'), grassPoison('Gloom')],
     'Safari Zone': [{ species: 'Scyther', types: ['Bug', 'Flying'] }],
+    'Route 16': [grassPoison('Oddish'), grassPoison('Gloom')],
+    'Route 17': [grassPoison('Oddish'), grassPoison('Gloom')],
+    'Route 18': [grassPoison('Oddish'), grassPoison('Gloom')],
+    'Seafoam Islands': [water('Psyduck'), water('Golduck'), water('Psyduck', 'surfing'), water('Golduck', 'surfing')],
+    'Cinnabar Island': [water('Krabby', 'fishing'), water('Kingler', 'fishing')],
+    'Pokemon Mansion': [fire('Growlithe')],
+    'Route 21': [grassPoison('Oddish'), grassPoison('Gloom'), water('Krabby', 'fishing'), water('Kingler', 'fishing')],
+    'Route 23': [poison('Nidorina'), poisonGround('Nidoqueen'), water('Psyduck', 'fishing'), water('Golduck', 'fishing')],
+    'Victory Road': [poison('Nidorina'), poisonGround('Nidoqueen'), ground('Sandslash')],
+    'Kindle Road': [water('Krabby', 'fishing'), water('Kingler', 'fishing')],
+    'Mt. Ember': [fire('Magmar')],
+    'Treasure Beach': [water('Krabby', 'fishing'), water('Kingler', 'fishing')],
+    'Cape Brink': [grassPoison('Oddish'), grassPoison('Gloom')],
+    'Bond Bridge': [grassPoison('Oddish'), grassPoison('Gloom'), water('Krabby', 'fishing'), water('Kingler', 'fishing')],
+    'Berry Forest': [grassPoison('Oddish'), grassPoison('Gloom')],
+    'Cerulean Cave': [water('Psyduck', 'surfing'), water('Golduck', 'surfing'), water('Slowpoke', 'fishing')],
     'Route 24': [bug('Caterpie'), bug('Metapod'), flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }, { species: 'Oddish', types: ['Grass', 'Poison'] }],
     'Route 25': [bug('Caterpie'), bug('Metapod'), flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }, { species: 'Oddish', types: ['Grass', 'Poison'] }],
   },
@@ -88,6 +134,21 @@ const versionSpecific: Record<FrlgVersion, FrlgEncounterMap> = {
     'Route 14': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
     'Route 15': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
     'Safari Zone': [{ species: 'Pinsir', types: ['Bug'] }],
+    'Route 16': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
+    'Route 17': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
+    'Route 18': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
+    'Seafoam Islands': [water('Slowpoke'), water('Slowbro'), water('Slowpoke', 'surfing'), water('Slowbro', 'surfing')],
+    'Cinnabar Island': [water('Staryu', 'fishing'), water('Starmie', 'fishing')],
+    'Pokemon Mansion': [fire('Vulpix')],
+    'Route 21': [grassPoison('Bellsprout'), grassPoison('Weepinbell'), water('Staryu', 'fishing'), water('Starmie', 'fishing')],
+    'Route 23': [poison('Nidorino'), poisonGround('Nidoking'), water('Slowpoke', 'fishing'), water('Slowbro', 'fishing')],
+    'Victory Road': [poison('Nidorino'), poisonGround('Nidoking'), poison('Arbok')],
+    'Kindle Road': [water('Staryu', 'fishing'), water('Starmie', 'fishing')],
+    'Treasure Beach': [water('Staryu', 'fishing'), water('Starmie', 'fishing')],
+    'Cape Brink': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
+    'Bond Bridge': [grassPoison('Bellsprout'), grassPoison('Weepinbell'), water('Staryu', 'fishing'), water('Starmie', 'fishing')],
+    'Berry Forest': [grassPoison('Bellsprout'), grassPoison('Weepinbell')],
+    'Cerulean Cave': [water('Slowpoke', 'surfing'), water('Slowbro', 'surfing'), water('Psyduck', 'fishing')],
     'Route 24': [bugPoison('Weedle'), bugPoison('Kakuna'), flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }, { species: 'Bellsprout', types: ['Grass', 'Poison'] }],
     'Route 25': [bugPoison('Weedle'), bugPoison('Kakuna'), flying('Pidgey'), { species: 'Abra', types: ['Psychic'] }, { species: 'Bellsprout', types: ['Grass', 'Poison'] }],
   },
