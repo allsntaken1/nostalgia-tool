@@ -1307,7 +1307,7 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
   return (
     <section className={panelClass}>
       <h2 className="text-3xl font-black">Choose Your Game</h2>
-      <p className="mt-2 text-sm font-bold text-[#506078]">Gen 1, Gen 8, Scarlet, and Violet are wired in. The rest are parked here for later.</p>
+      <p className="mt-2 text-sm font-bold text-[#506078]">Playable shells are marked when detailed data is still being filled in.</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {gameGroups.map((group) => (
           <div key={group.generation} className={softPanelClass}>
@@ -1325,6 +1325,7 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
                   }`}
                 >
                   {game.name}
+                  {game.supported && game.dataStatus === 'Skeleton' ? <span className="mt-1 block text-[10px] text-[var(--nuz-accent)]">Data In Progress</span> : null}
                   {!game.supported ? <span className="block text-[10px]">Coming Soon</span> : null}
                 </button>
               ))}

@@ -2,17 +2,19 @@ import type { GameVersion, NuzlockeBoss, NuzlockeBossPokemon, NuzlockeMove, Poke
 import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
 import { getGen2Bosses, getGen2EncounterGroupsForTypeLookup, getGen2EncounterOptions, getGen2Locations, supportsGen2Data } from '@/lib/nuzlocke/data/gen2/johto';
 import { getFrlgBosses, getFrlgEncounterOptions, getFrlgLocations, supportsFrlg } from '@/lib/nuzlocke/data/gen3/frlg';
+import { getGen4Bosses, getGen4EncounterGroupsForTypeLookup, getGen4EncounterOptions, getGen4Locations, supportsGen4Data } from '@/lib/nuzlocke/data/gen4';
+import { getGen5Bosses, getGen5EncounterGroupsForTypeLookup, getGen5EncounterOptions, getGen5Locations, supportsGen5Data } from '@/lib/nuzlocke/data/gen5';
 import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
-export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean }[] }[] = [
+export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean; dataStatus?: 'Skeleton' | 'Partial' | 'Working Complete' | 'Complete' }[] }[] = [
   { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
-  { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true })) },
+  { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
   { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: name === 'FireRed' || name === 'LeafGreen' })) },
-  { generation: 'Gen 4', games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({ name: name as GameVersion, supported: false })) },
-  { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: false })) },
+  { generation: 'Gen 4', games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
+  { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
   { generation: 'Gen 6', games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({ name: name as GameVersion, supported: false })) },
   { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: false })) },
   {
@@ -1342,6 +1344,8 @@ export function getNuzlockeLocations(gameVersion: GameVersion) {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
   if (supportsGen2Data(gameVersion)) return getGen2Locations(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
+  if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
+  if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
 }
@@ -1351,12 +1355,14 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
   if (supportsGen2Data(gameVersion)) return getGen2EncounterOptions(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
+  if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
+  if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
-  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion);
+  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion);
 }
 
 export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
@@ -1369,9 +1375,13 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
           ? getGen2Bosses(gameVersion, starterChoice)
           : supportsFrlg(gameVersion)
             ? getFrlgBosses(gameVersion, starterChoice)
-            : supportsGen8Data(gameVersion)
-              ? getGen8Bosses(gameVersion, starterChoice)
-              : getScarletVioletBosses(gameVersion);
+            : supportsGen4Data(gameVersion)
+              ? getGen4Bosses(gameVersion, starterChoice)
+              : supportsGen5Data(gameVersion)
+                ? getGen5Bosses(gameVersion, starterChoice)
+                : supportsGen8Data(gameVersion)
+                  ? getGen8Bosses(gameVersion, starterChoice)
+                  : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
   const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
@@ -1422,7 +1432,7 @@ function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemo
 }
 
 export function getPokemonTypesFromData(species: string) {
-  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), ...getGen4EncounterGroupsForTypeLookup(), ...getGen5EncounterGroupsForTypeLookup(), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
   for (const group of encounterGroups) {
     for (const options of Object.values(group)) {
       const safeOptions = Array.isArray(options) ? options : [];
