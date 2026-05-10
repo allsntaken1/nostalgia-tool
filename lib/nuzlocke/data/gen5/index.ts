@@ -1,9 +1,12 @@
 import type { GameVersion, NuzlockeBoss, StarterChoice } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
+import { bossTrainerToRunBoss } from '@/lib/nuzlocke/data/gen8/types';
+import { blackWhiteBosses } from './black-white-bosses';
 import { b2w2Routes, bwRoutes } from './gen5-routes';
 import { getGen5TrainerSkeletons } from './gen5-trainers';
 import { gen5Metadata, supportsGen5Data } from './metadata';
 
+export { blackWhiteBosses } from './black-white-bosses';
 export { b2w2Gyms } from './b2w2-gyms';
 export { bwGyms } from './bw-gyms';
 export { gen5Encounters } from './gen5-encounters';
@@ -33,8 +36,14 @@ export function getGen5EncounterOptions(gameVersion: GameVersion) {
 }
 
 export function getGen5Bosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null): NuzlockeBoss[] {
-  void starterChoice;
   if (!supportsGen5Data(gameVersion)) return [];
+  if (gameVersion === 'Black' || gameVersion === 'White') {
+    return blackWhiteBosses
+      .filter((trainer) => trainer.game === 'Both' || trainer.game === gameVersion)
+      .slice()
+      .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.recommendedOrder - b.recommendedOrder)
+      .map((trainer) => bossTrainerToRunBoss(trainer, starterChoice));
+  }
   return getGen5TrainerSkeletons(gameVersion).map((trainer) => ({
     id: trainer.id,
     name: trainer.name,

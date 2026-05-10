@@ -1,4 +1,4 @@
-import type { NuzlockeBoss, PokemonType, StarterChoice, TrainerThreatMetadata } from '@/app/nuzlocke/types';
+import type { GameVersion, NuzlockeBoss, PokemonType, StarterChoice, TrainerThreatMetadata } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
@@ -8,7 +8,7 @@ export interface BossTrainer {
   id: string;
   name: string;
   category: string;
-  game: Gen8Game | 'Both';
+  game: GameVersion | 'Both';
   location: string;
   recommendedOrder: number;
   levelCap?: number;

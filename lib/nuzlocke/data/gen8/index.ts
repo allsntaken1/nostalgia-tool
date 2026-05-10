@@ -13,7 +13,7 @@ function isGen8Game(gameVersion: GameVersion): gameVersion is Gen8Game {
   return ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].includes(gameVersion);
 }
 
-function forGame<T extends { game: Gen8Game | 'Both' }>(gameVersion: GameVersion, items: T[]) {
+function forGame<T extends BossTrainer>(gameVersion: GameVersion, items: T[]) {
   if (!isGen8Game(gameVersion)) return [];
   return (Array.isArray(items) ? items : []).filter((item) => item.game === 'Both' || item.game === gameVersion);
 }
