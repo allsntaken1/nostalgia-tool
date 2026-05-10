@@ -15,12 +15,13 @@ function isGen8Game(gameVersion: GameVersion): gameVersion is Gen8Game {
 
 function forGame<T extends { game: Gen8Game | 'Both' }>(gameVersion: GameVersion, items: T[]) {
   if (!isGen8Game(gameVersion)) return [];
-  return items.filter((item) => item.game === 'Both' || item.game === gameVersion);
+  return (Array.isArray(items) ? items : []).filter((item) => item.game === 'Both' || item.game === gameVersion);
 }
 
 function areasToMap(areas: Gen8EncounterArea[]) {
-  return areas.reduce<Record<string, EncounterOption[]>>((acc, area) => {
-    acc[area.location] = area.encounters;
+  return (Array.isArray(areas) ? areas : []).reduce<Record<string, EncounterOption[]>>((acc, area) => {
+    if (!area?.location) return acc;
+    acc[area.location] = Array.isArray(area.encounters) ? area.encounters : [];
     return acc;
   }, {});
 }

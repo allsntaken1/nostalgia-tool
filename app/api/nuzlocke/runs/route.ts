@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
     const runs = Array.isArray(body?.runs) ? body.runs as NuzlockeRun[] : [];
     const clientId = clientIdFromBody(body);
 

@@ -12,7 +12,7 @@ function clientIdFromBody(body: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
     const runs = Array.isArray(body?.runs) ? body.runs as NuzlockeRun[] : [];
     const clientId = clientIdFromBody(body);
 

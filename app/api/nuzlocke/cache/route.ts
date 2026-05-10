@@ -26,7 +26,7 @@ export async function GET(requestInfo: Request) {
 }
 
 export async function PUT(requestInfo: Request) {
-  const body = await requestInfo.json();
+  const body = await requestInfo.json().catch(() => null);
   const kind = String(body?.kind || '');
   const slug = String(body?.slug || '');
   const data = body?.data;

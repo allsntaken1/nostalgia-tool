@@ -50,7 +50,7 @@ function teamRow(clientId: string, runId: string, pokemon: NuzlockePokemon) {
     species: pokemon.species,
     nickname: pokemon.nickname,
     level: pokemon.level,
-    types: pokemon.types || [],
+    types: Array.isArray(pokemon.types) ? pokemon.types : [],
     nature: pokemon.nature,
     ability: pokemon.ability,
     held_item: pokemon.heldItem,
@@ -72,7 +72,7 @@ function encounterRow(clientId: string, runId: string, encounter: NuzlockeEncoun
     nickname: encounter.nickname,
     level_met: encounter.levelMet,
     status: encounter.status,
-    types: encounter.types || [],
+    types: Array.isArray(encounter.types) ? encounter.types : [],
     nature: encounter.nature,
     ability: encounter.ability,
     notes: encounter.notes,
@@ -161,7 +161,7 @@ export async function listNuzlockeRuns(clientId: string) {
     { headers: nuzlockeSupabaseHeaders() }
   );
 
-  return rows.map((row) => row.run_data).filter(Boolean);
+  return (Array.isArray(rows) ? rows : []).map((row) => row.run_data).filter(Boolean);
 }
 
 export async function saveNuzlockeRuns(clientId: string, runs: NuzlockeRun[]) {
@@ -171,21 +171,22 @@ export async function saveNuzlockeRuns(clientId: string, runs: NuzlockeRun[]) {
   await nuzlockeSupabaseRequest('/rest/v1/nuzlocke_runs', {
     method: 'POST',
     headers: nuzlockeSupabaseHeaders('resolution=merge-duplicates'),
-    body: JSON.stringify(runs.map((run) => runRow(clientId, run))),
+    body: JSON.stringify((Array.isArray(runs) ? runs : []).map((run) => runRow(clientId, run))),
   });
 
-  const incomingIds = new Set(runs.map((run) => run.id));
+  const safeRuns = Array.isArray(runs) ? runs : [];
+  const incomingIds = new Set(safeRuns.map((run) => run.id));
   const existingRows = await nuzlockeSupabaseRequest<{ id: string }[]>(`/rest/v1/nuzlocke_runs?client_id=eq.${encode(clientId)}&select=id`, {
     headers: nuzlockeSupabaseHeaders(),
   });
-  const staleIds = existingRows.map((row) => row.id).filter((id) => !incomingIds.has(id));
+  const staleIds = (Array.isArray(existingRows) ? existingRows : []).map((row) => row.id).filter((id) => !incomingIds.has(id));
 
   await Promise.all(staleIds.map((id) => nuzlockeSupabaseRequest(`/rest/v1/nuzlocke_runs?client_id=eq.${encode(clientId)}&id=eq.${encode(id)}`, {
     method: 'DELETE',
     headers: nuzlockeSupabaseHeaders(),
   })));
 
-  for (const run of runs) {
+  for (const run of safeRuns) {
     const team = Array.isArray(run.team) ? run.team : [];
     const encounters = Array.isArray(run.encounters) ? run.encounters : [];
     const bosses = Array.isArray(run.bosses) ? run.bosses : [];
@@ -200,5 +201,5 @@ export async function saveNuzlockeRuns(clientId: string, runs: NuzlockeRun[]) {
     await replaceChildRows('nuzlocke_timeline_events', clientId, run.id, timeline.map((event) => timelineRow(clientId, run.id, event)));
   }
 
-  return { configured: true, saved: runs.length };
+  return { configured: true, saved: safeRuns.length };
 }

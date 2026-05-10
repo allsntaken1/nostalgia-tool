@@ -60,19 +60,20 @@ export function bossTrainerToRunBoss(trainer: BossTrainer, playerStarterChoice?:
   const needsStarterChoice = Boolean(trainer.variantsByRivalStarterChoice) && !getRivalStarterChoice(playerStarterChoice);
   const warning = needsStarterChoice ? 'Choose your starter type to sync rival battles.' : '';
   const notes = [trainer.notes || trainer.location, warning].filter(Boolean).join(' ');
+  const safeTeam = Array.isArray(team) ? team : [];
 
   return {
     id: trainer.id,
     name: trainer.name,
     category: trainer.category,
-    levelCap: trainer.levelCap ?? Math.max(...team.map((pokemon) => pokemon.level), 1),
+    levelCap: trainer.levelCap ?? Math.max(...safeTeam.map((pokemon) => pokemon.level), 1),
     completed: false,
     notes,
     deaths: 0,
-    pokemon: team.map((pokemon) => ({
+    pokemon: safeTeam.map((pokemon) => ({
       species: pokemon.species,
       level: pokemon.level,
-      types: pokemon.types,
+      types: Array.isArray(pokemon.types) ? pokemon.types : undefined,
       ability: pokemon.ability || '',
       item: pokemon.item || '',
       nature: pokemon.nature || '',

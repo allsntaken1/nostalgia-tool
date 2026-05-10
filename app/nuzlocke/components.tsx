@@ -2420,23 +2420,30 @@ function DangerBadge({ label }: { label: string }) {
 }
 
 function ThreatCallouts({ metadata }: { metadata: NonNullable<NuzlockeBoss['threatMetadata']> }) {
+  const setupSweepers = Array.isArray(metadata.setupSweepers) ? metadata.setupSweepers : [];
+  const priorityThreats = Array.isArray(metadata.priorityThreats) ? metadata.priorityThreats : [];
+  const weatherThreats = Array.isArray(metadata.weatherThreats) ? metadata.weatherThreats : [];
+  const abilityThreats = Array.isArray(metadata.abilityThreats) ? metadata.abilityThreats : [];
+  const dangerousMatchups = Array.isArray(metadata.dangerousMatchups) ? metadata.dangerousMatchups : [];
+  const recommendedCoverage = Array.isArray(metadata.recommendedCoverage) ? metadata.recommendedCoverage : [];
+  const notableThreats = Array.isArray(metadata.notableThreats) ? metadata.notableThreats : [];
   const callouts = [
-    ...(metadata.setupSweepers || []).map((text) => `Setup Sweeper: ${text}`),
-    ...(metadata.priorityThreats || []).map((text) => `Priority Threat: ${text}`),
-    ...(metadata.weatherThreats || []).map((text) => `Weather Core: ${text}`),
-    ...(metadata.abilityThreats || []).map((text) => `Ability Threat: ${text}`),
-    ...(metadata.dangerousMatchups || []).map((text) => `Matchup Warning: ${text}`),
+    ...setupSweepers.map((text) => `Setup Sweeper: ${text}`),
+    ...priorityThreats.map((text) => `Priority Threat: ${text}`),
+    ...weatherThreats.map((text) => `Weather Core: ${text}`),
+    ...abilityThreats.map((text) => `Ability Threat: ${text}`),
+    ...dangerousMatchups.map((text) => `Matchup Warning: ${text}`),
   ];
 
   return (
     <div className="mb-2 grid gap-2 rounded-xl bg-white/55 p-2 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
         {metadata.overallDifficulty ? <DangerBadge label={metadata.overallDifficulty} /> : null}
-        {(metadata.recommendedCoverage || []).map((coverage) => <span key={coverage} className="rounded-[4px] bg-white px-2 py-1 text-[10px] font-black shadow-sm">{coverage}</span>)}
+        {recommendedCoverage.map((coverage) => <span key={coverage} className="rounded-[4px] bg-white px-2 py-1 text-[10px] font-black shadow-sm">{coverage}</span>)}
       </div>
-      {metadata.notableThreats?.length ? (
+      {notableThreats.length ? (
         <div className="flex flex-wrap gap-1">
-          {metadata.notableThreats.map((threat) => (
+          {notableThreats.map((threat) => (
             <span key={`${threat.species}-${threat.threatLevel}`} className="rounded-[4px] bg-[#fff2f0] px-2 py-1 text-[10px] font-black text-[#9f2c24] shadow-sm">
               {threat.species}: {threat.threatLevel}
             </span>
