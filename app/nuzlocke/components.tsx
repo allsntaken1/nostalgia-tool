@@ -1270,23 +1270,26 @@ export function NuzlockeTracker() {
       </button>
     </>
   );
+  const storageTools = (
+    <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs font-bold text-[#506078]">
+      <span className="max-w-[280px] truncate">{storageMessage}</span>
+      {storageMode === 'database' && localImportRuns.length > 0 ? (
+        <button type="button" onClick={importLocalRuns} className={smallButtonClass}>
+          Import Existing Local Runs
+        </button>
+      ) : null}
+    </div>
+  );
 
   return (
     <section className={`min-h-screen ${trackerTheme(currentGame)}`} style={{ ...trackerVars(currentGame), fontFamily: readableFont }}>
       <div className="mx-auto max-w-7xl p-3 sm:p-5">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/75 px-3 py-2 text-xs font-bold shadow-sm">
-        <span>{storageMessage}</span>
-        {storageMode === 'database' && localImportRuns.length > 0 ? (
-          <button type="button" onClick={importLocalRuns} className={smallButtonClass}>
-            Import Existing Local Runs
-          </button>
-        ) : null}
-      </div>
       {!activeRun ? (
         <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${panelClass}`}>
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool</div>
             <h1 className="text-2xl font-black sm:text-3xl">Pokemon Nuzlocke Tracker</h1>
+            <div className="mt-2">{storageTools}</div>
           </div>
           <div className="flex flex-wrap items-center gap-2">{runToolbar}</div>
         </header>
@@ -1294,7 +1297,7 @@ export function NuzlockeTracker() {
 
       {!activeRun && !selectedGame ? <GameVersionPicker onSelect={setSelectedGame} /> : null}
       {!activeRun && selectedGame ? <RunSetupForm gameVersion={selectedGame} onBack={() => setSelectedGame('')} onCreate={createRun} /> : null}
-      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} onNewRun={startNewRun} toolbar={runToolbar} /> : null}
+      {activeRun ? <NuzlockeDashboard run={activeRun} updateRun={updateRun} addTimeline={addTimeline} toolbar={runToolbar} storageTools={storageTools} /> : null}
       </div>
     </section>
   );
@@ -1465,18 +1468,29 @@ function NuzlockeDashboard({
   run,
   updateRun,
   addTimeline,
-  onNewRun,
   toolbar,
+  storageTools,
 }: {
   run: NuzlockeRun;
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
-  onNewRun: () => void;
   toolbar?: React.ReactNode;
+  storageTools?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>('Overview');
   const [teamBarAction, setTeamBarAction] = useState<{ pokemonId: string; action: PokemonStatus } | null>(null);
   const tabs: Tab[] = ['Overview', 'Team / Box', 'Encounters', 'Badges / Bosses', 'Graveyard', 'Timeline'];
+  const updateStarterChoice = (starterChoice: StarterChoice) => {
+    updateRun(run.id, (current) => {
+      const nextRun = {
+        ...current,
+        starterChoice,
+        bosses: mergeBossDefaults(Array.isArray(current.bosses) ? current.bosses : [], current.gameVersion, starterChoice),
+        updatedAt: nowLabel(),
+      };
+      return addTimeline(nextRun, 'Starter Synced', `Starter type set to ${starterChoiceLabel(starterChoice)}.`);
+    });
+  };
 
   useEffect(() => {
     if (!teamBarAction) return;
@@ -1500,7 +1514,7 @@ function NuzlockeDashboard({
             : pokemon
         ),
       };
-      const target = current.team.find((pokemon) => pokemon.id === teamBarAction.pokemonId);
+      const target = (Array.isArray(current.team) ? current.team : []).find((pokemon) => pokemon.id === teamBarAction.pokemonId);
       return teamBarAction.action === 'Dead' && target
         ? addTimeline(nextRun, 'Pokemon Died', `${target.nickname || target.species} was marked dead from the team bar.`)
         : nextRun;
@@ -1516,8 +1530,12 @@ function NuzlockeDashboard({
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool / {run.gameVersion} / {run.runType}</div>
             <h1 className="text-2xl font-black">Pokemon Nuzlocke Tracker</h1>
             <div className="mt-1 text-sm font-black text-[#506078]">{run.runName}</div>
+            <div className="mt-2">{storageTools}</div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">{toolbar}</div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <CompactStarterChoice value={run.starterChoice} onChange={updateStarterChoice} />
+            {toolbar}
+          </div>
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {tabs.map((item) => (
@@ -2276,23 +2294,8 @@ function BossTracker({
     });
   };
 
-  const updateStarterChoice = (starterChoice: StarterChoice) => {
-    updateRun(run.id, (current) => {
-      const nextRun = {
-        ...current,
-        starterChoice,
-        bosses: mergeBossDefaults(Array.isArray(current.bosses) ? current.bosses : [], current.gameVersion, starterChoice),
-        updatedAt: nowLabel(),
-      };
-      return addTimeline(nextRun, 'Starter Synced', `Starter type set to ${starterChoiceLabel(starterChoice)}.`);
-    });
-  };
-
   return (
     <section className="grid gap-3">
-      <div className="flex justify-end">
-        <CompactStarterChoice value={run.starterChoice} onChange={updateStarterChoice} />
-      </div>
       {sortedBosses.map((boss) => (
         <article key={boss.id} style={typeCardStyle(bossTypes(boss))} className={`rounded-2xl border border-white/75 p-3 shadow-[0_14px_34px_rgba(24,42,64,0.09)] backdrop-blur ${boss.completed ? 'opacity-70' : ''}`}>
           <div

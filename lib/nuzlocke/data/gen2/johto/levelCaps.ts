@@ -1,0 +1,16 @@
+export const gen2JohtoLevelCaps = [
+  { id: 'falkner', label: 'Falkner', cap: 9, category: 'Gym' },
+  { id: 'bugsy', label: 'Bugsy', cap: 16, category: 'Gym' },
+  { id: 'whitney', label: 'Whitney', cap: 20, category: 'Gym' },
+  { id: 'morty', label: 'Morty', cap: 25, category: 'Gym' },
+  { id: 'chuck', label: 'Chuck', cap: 30, category: 'Gym' },
+  { id: 'jasmine', label: 'Jasmine', cap: 35, category: 'Gym' },
+  { id: 'pryce', label: 'Pryce', cap: 31, category: 'Gym' },
+  { id: 'clair', label: 'Clair', cap: 40, category: 'Gym' },
+  { id: 'will', label: 'Will', cap: 42, category: 'Elite Four' },
+  { id: 'koga', label: 'Koga', cap: 44, category: 'Elite Four' },
+  { id: 'bruno', label: 'Bruno', cap: 46, category: 'Elite Four' },
+  { id: 'karen', label: 'Karen', cap: 47, category: 'Elite Four' },
+  { id: 'lance', label: 'Lance', cap: 50, category: 'Champion' },
+  { id: 'red', label: 'Red', cap: 81, category: 'Optional Postgame' },
+];
