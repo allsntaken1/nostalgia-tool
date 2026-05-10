@@ -2237,7 +2237,12 @@ function BossTracker({
   updateRun: (runId: string, updater: (run: NuzlockeRun) => NuzlockeRun) => void;
   addTimeline: (run: NuzlockeRun, type: string, message: string) => NuzlockeRun;
 }) {
-  const sortedBosses = [...(run.bosses || [])].sort((a, b) => Number(a.completed) - Number(b.completed));
+  const sortedBosses = [...(run.bosses || [])].sort(
+    (a, b) =>
+      Number(a.completed) - Number(b.completed) ||
+      Number(a.levelCap || 0) - Number(b.levelCap || 0) ||
+      a.name.localeCompare(b.name)
+  );
   const [selectedBossPokemon, setSelectedBossPokemon] = useState<{ bossId: string; pokemon: NuzlockeBossPokemon } | null>(null);
   const [expandedBossId, setExpandedBossId] = useState(sortedBosses.find((boss) => !boss.completed)?.id ?? sortedBosses[0]?.id ?? '');
   const [prepBossId, setPrepBossId] = useState('');

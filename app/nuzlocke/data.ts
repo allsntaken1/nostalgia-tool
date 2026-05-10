@@ -1383,7 +1383,7 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
       notes: hasStarterAce && starterWarning ? [boss.notes, starterWarning].filter(Boolean).join(' ') : boss.notes,
       pokemon: (boss.pokemon || []).map((pokemon) => resolveStarterAce(gameVersion, pokemon, rivalStarterChoice)),
     };
-  });
+  }).sort((a, b) => (a.levelCap || 0) - (b.levelCap || 0) || a.name.localeCompare(b.name));
 }
 
 function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemon, rivalStarterChoice: StarterChoice | null) {
