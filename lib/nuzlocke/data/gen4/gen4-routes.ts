@@ -34,6 +34,7 @@ export const hgssRoutes: RouteData[] = [
   { id: 'johto-route-38', displayName: 'Johto Route 38', order: 24, region: 'johto', gameSet: 'hgss', tags: ['route'], notes: ['TODO: Populate HGSS encounters.'] },
   { id: 'johto-route-39', displayName: 'Johto Route 39', order: 25, region: 'johto', gameSet: 'hgss', tags: ['route'], notes: ['TODO: Populate HGSS encounters.'] },
   { id: 'olivine-city', displayName: 'Olivine City', order: 26, region: 'johto', gameSet: 'hgss', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'olivine-lighthouse', displayName: 'Olivine Lighthouse', order: 26.5, region: 'johto', gameSet: 'hgss', tags: ['dungeon'] },
   { id: 'johto-route-40', displayName: 'Johto Route 40', order: 27, region: 'johto', gameSet: 'hgss', tags: ['route', 'water'], notes: ['TODO: Populate HGSS encounters.'] },
   { id: 'johto-route-41', displayName: 'Johto Route 41', order: 28, region: 'johto', gameSet: 'hgss', tags: ['route', 'water'], notes: ['TODO: Populate HGSS encounters.'] },
   { id: 'cianwood-city', displayName: 'Cianwood City', order: 29, region: 'johto', gameSet: 'hgss', tags: ['city', 'gym', 'boss-area'] },
