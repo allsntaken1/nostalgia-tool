@@ -5,6 +5,7 @@ import { getFrlgBosses, getFrlgEncounterOptions, getFrlgLocations, supportsFrlg 
 import { getGen4Bosses, getGen4EncounterGroupsForTypeLookup, getGen4EncounterOptions, getGen4Locations, supportsGen4Data } from '@/lib/nuzlocke/data/gen4';
 import { getGen5Bosses, getGen5EncounterGroupsForTypeLookup, getGen5EncounterOptions, getGen5Locations, supportsGen5Data } from '@/lib/nuzlocke/data/gen5';
 import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
+import { getXyBosses, getXyEncounterGroupsForTypeLookup, getXyEncounterOptionsForGame, getXyLocations, supportsXyData } from '@/lib/nuzlocke/data/gen6';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
@@ -22,7 +23,14 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     })),
   },
   { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
-  { generation: 'Gen 6', games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({ name: name as GameVersion, supported: false })) },
+  {
+    generation: 'Gen 6',
+    games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({
+      name: name as GameVersion,
+      supported: name === 'X' || name === 'Y',
+      dataStatus: (name === 'X' || name === 'Y' ? 'Partial' : undefined) as 'Partial' | undefined,
+    })),
+  },
   { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: false })) },
   {
     generation: 'Gen 8',
@@ -1353,6 +1361,7 @@ export function getNuzlockeLocations(gameVersion: GameVersion) {
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
+  if (supportsXyData(gameVersion)) return getXyLocations(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
 }
@@ -1364,12 +1373,13 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
+  if (supportsXyData(gameVersion)) return getXyEncounterOptionsForGame(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
-  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion);
+  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsXyData(gameVersion);
 }
 
 export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
@@ -1386,9 +1396,11 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
               ? getGen4Bosses(gameVersion, starterChoice)
               : supportsGen5Data(gameVersion)
                 ? getGen5Bosses(gameVersion, starterChoice)
-                : supportsGen8Data(gameVersion)
-                  ? getGen8Bosses(gameVersion, starterChoice)
-                  : getScarletVioletBosses(gameVersion);
+                : supportsXyData(gameVersion)
+                  ? getXyBosses(gameVersion, starterChoice)
+                  : supportsGen8Data(gameVersion)
+                    ? getGen8Bosses(gameVersion, starterChoice)
+                    : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
   const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
@@ -1439,7 +1451,7 @@ function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemo
 }
 
 export function getPokemonTypesFromData(species: string) {
-  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), ...getGen4EncounterGroupsForTypeLookup(), ...getGen5EncounterGroupsForTypeLookup(), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), ...getGen4EncounterGroupsForTypeLookup(), ...getGen5EncounterGroupsForTypeLookup(), ...getXyEncounterGroupsForTypeLookup(), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
   for (const group of encounterGroups) {
     for (const options of Object.values(group)) {
       const safeOptions = Array.isArray(options) ? options : [];
