@@ -756,6 +756,89 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     ],
   },
   {
+    locationId: 'bw-route-10',
+    displayName: 'Route 10',
+    encounters: [
+      // Regular grass
+      encounter('Herdier', ['Normal'], 'grass'),
+      encounter('Throh', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Sawk', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      encounter('Foongus', ['Grass', 'Poison'], 'grass'),
+      encounter('Bouffalant', ['Normal'], 'grass'),
+      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      // Dark grass
+      darkGrass('Herdier', ['Normal']),
+      darkGrass('Throh', ['Fighting'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Sawk', ['Fighting'], 'White', 'White-exclusive dark-grass encounter.'),
+      darkGrass('Amoonguss', ['Grass', 'Poison']),
+      darkGrass('Bouffalant', ['Normal']),
+      darkGrass('Rufflet', ['Normal', 'Flying'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Vullaby', ['Dark', 'Flying'], 'White', 'White-exclusive dark-grass encounter.'),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Stoutland', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Throh', ['Fighting'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+      rustling('Sawk', ['Fighting'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      // Swarm
+      encounter('Tyrogue', ['Fighting'], 'grass', 'Both', 'Swarm-only encounter (40% during an active swarm day).', { condition: 'Swarm' }),
+    ],
+    notes: [
+      'Final route before Victory Road. Verified per Bulbapedia (Unova Route 10 page).',
+      'Throh (Black) / Sawk (White) and Rufflet (Black) / Vullaby (White) are the canonical version splits at Route 10.',
+    ],
+  },
+  {
+    locationId: 'bw-victory-road',
+    displayName: 'Victory Road',
+    encounters: [
+      // Outside area — rough terrain
+      encounter('Fraxure', ['Dragon'], 'grass', 'Both', 'Outside rough terrain (rare 5%).'),
+      encounter('Mienfoo', ['Fighting'], 'grass', 'Both', 'Outside rough terrain.'),
+      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'Black', 'Black-exclusive outside rough-terrain encounter.'),
+      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'White', 'White-exclusive outside rough-terrain encounter.'),
+      encounter('Heatmor', ['Fire'], 'grass', 'Both', 'Outside rough terrain.'),
+      // Cave (1F-7F consolidated)
+      encounter('Boldore', ['Rock'], 'cave'),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave'),
+      encounter('Mienfoo', ['Fighting'], 'cave'),
+      encounter('Durant', ['Bug', 'Steel'], 'cave'),
+      encounter('Deino', ['Dark', 'Dragon'], 'cave', 'Both', '1F only (20% rate).'),
+      // Dust cloud
+      dustCloud('Excadrill', ['Ground', 'Steel'], 'Both', 'Dust-cloud-only encounter inside Victory Road (any floor).'),
+      // Surfing
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing (Super Rod)
+      fish('Poliwag', ['Water'], 'Super Rod'),
+      fish('Poliwhirl', ['Water'], 'Super Rod'),
+      fish('Poliwrath', ['Water', 'Fighting'], 'Super Rod', 'Both', 'Rare Super Rod encounter.'),
+    ],
+    notes: [
+      'Maze leading to the Pokémon League. Verified per Bulbapedia (Victory Road Black/White page).',
+      'Floor tables (1F-7F) consolidated since schema does not split subareas; rate ranges captured per-species via notes.',
+      'Deino is 1F-only in BW — a notable rare encounter for nuzlocke prep.',
+    ],
+  },
+  {
+    locationId: 'bw-pokemon-league',
+    displayName: 'Pokémon League',
+    encounters: [],
+    notes: [
+      'No wild encounters inside the Pokémon League building. Site of the Elite Four and Champion battles (logged separately as bosses).',
+    ],
+  },
+  {
+    locationId: 'bw-n-castle',
+    displayName: "N's Castle",
+    encounters: [],
+    notes: [
+      'No wild encounters inside N\'s Castle. Story climax dungeon hosting the final N and Ghetsis battles (logged separately).',
+      'Reshiram (Black) / Zekrom (White) static legendary encounter is part of the boss flow; if encoded as a static encounter, it would go under Dragonspiral Tower or here depending on convention.',
+    ],
+  },
+  {
     locationId: 'bw-cold-storage',
     displayName: 'Cold Storage',
     encounters: [
