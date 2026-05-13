@@ -350,10 +350,13 @@ function reconcileBossNotes(savedNotes: string | undefined, defaultNotes: string
 
 function mergeBossDefaults(bosses: NuzlockeBoss[], gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
   const currentBosses = Array.isArray(bosses) ? bosses : [];
+  const preferDefaultRoster = gameVersion === 'FireRed' || gameVersion === 'LeafGreen';
   return getNuzlockeBosses(gameVersion, starterChoice).map((defaultBoss) => {
       const boss = currentBosses.find((item) => item.id === defaultBoss.id) ?? defaultBoss;
       const defaultPokemon = defaultBoss?.pokemon ?? [];
-      const pokemon = Array.isArray(boss.pokemon) && boss.pokemon.length > 0
+      const pokemon = preferDefaultRoster && defaultPokemon.length > 0
+        ? defaultPokemon
+        : Array.isArray(boss.pokemon) && boss.pokemon.length > 0
         ? boss.pokemon.map((member) => {
             const defaultMember = defaultPokemon.find((item) => item.species === member.species);
             return {
@@ -1509,7 +1512,11 @@ function GameVersionPicker({ onSelect }: { onSelect: (game: GameVersion) => void
                   }`}
                 >
                   {game.name}
-                  {game.supported && game.dataStatus === 'Skeleton' ? <span className="mt-1 block text-[10px] text-[var(--nuz-accent)]">Data In Progress</span> : null}
+                  {game.supported && game.dataStatus ? (
+                    <span className="mt-1 block text-[10px] text-[var(--nuz-accent)]">
+                      {game.dataStatus === 'Skeleton' ? 'Data In Progress' : game.dataStatus}
+                    </span>
+                  ) : null}
                   {!game.supported ? <span className="block text-[10px]">Coming Soon</span> : null}
                 </button>
               ))}

@@ -10,10 +10,19 @@ import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
-export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean; dataStatus?: 'Skeleton' | 'Partial' | 'Working Complete' | 'Complete' }[] }[] = [
+type GameDataStatus = 'Skeleton' | 'Partial' | 'In Audit' | 'Working Complete' | 'Complete';
+
+export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean; dataStatus?: GameDataStatus }[] }[] = [
   { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
   { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
-  { generation: 'Gen 3', games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({ name: name as GameVersion, supported: name === 'FireRed' || name === 'LeafGreen' })) },
+  {
+    generation: 'Gen 3',
+    games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
+      name: name as GameVersion,
+      supported: name === 'FireRed' || name === 'LeafGreen',
+      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : undefined) as GameDataStatus | undefined,
+    })),
+  },
   {
     generation: 'Gen 4',
     games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({
@@ -454,9 +463,13 @@ export const pokemonSpriteIds: Record<string, number> = {
   Raichu: 26,
   Sandshrew: 27,
   NidoranF: 29,
+  'Nidoran♀': 29,
+  'Nidoran Female': 29,
   Nidorina: 30,
   Nidoqueen: 31,
   NidoranM: 32,
+  'Nidoran♂': 32,
+  'Nidoran Male': 32,
   Nidorino: 33,
   Nidoking: 34,
   Clefairy: 35,
@@ -497,6 +510,8 @@ export const pokemonSpriteIds: Record<string, number> = {
   Slowbro: 80,
   Magnemite: 81,
   Magneton: 82,
+  Farfetchd: 83,
+  "Farfetch'd": 83,
   Seel: 86,
   Dewgong: 87,
   Grimer: 88,
@@ -520,12 +535,15 @@ export const pokemonSpriteIds: Record<string, number> = {
   Rhydon: 112,
   Chansey: 113,
   Tangela: 114,
+  Kangaskhan: 115,
   Exeggcute: 102,
   Eevee: 133,
   Ditto: 132,
   Doduo: 84,
   Moltres: 146,
   MrMime: 122,
+  'Mr. Mime': 122,
+  'Mr Mime': 122,
   Scyther: 123,
   Pinsir: 127,
   Jynx: 124,
@@ -815,10 +833,15 @@ export const pokemonFormSlugOverrides: Record<string, string> = {
   'Mr. Rime': 'mr-rime',
   Farfetchd: 'farfetchd',
   "Farfetch'd": 'farfetchd',
+  'Farfetch’d': 'farfetchd',
   NidoranF: 'nidoran-f',
   NidoranM: 'nidoran-m',
   'Nidoran♀': 'nidoran-f',
   'Nidoran♂': 'nidoran-m',
+  'Nidoran Female': 'nidoran-f',
+  'Nidoran Male': 'nidoran-m',
+  'Nidoran-F': 'nidoran-f',
+  'Nidoran-M': 'nidoran-m',
   Flabebe: 'flabebe',
   // Form-sensitive species — pick the default battle form so a sprite always resolves.
   Aegislash: 'aegislash-shield',

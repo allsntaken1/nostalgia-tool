@@ -42,7 +42,7 @@ const boss = ({
   notes: notes ?? (team?.length ? location : `FRLG skeleton boss at ${location}. Full team data coming later.`),
   progressionStage: locationId,
   baseTeam: team ?? [],
-  ...(category === 'rival'
+  ...(category === 'rival' || variantsByRivalStarterChoice
     ? {
         variantsByRivalStarterChoice: variantsByRivalStarterChoice ?? {
           grass: [],
@@ -54,6 +54,21 @@ const boss = ({
 });
 
 export const frlgBosses: BossTrainer[] = [
+  boss({
+    id: 'rival-oaks-lab-frlg',
+    name: "Rival Oak's Lab",
+    locationId: 'pallet-town',
+    location: "Professor Oak's Laboratory",
+    order: 0,
+    category: 'rival',
+    levelCap: 5,
+    variantsByRivalStarterChoice: {
+      grass: [mon('Bulbasaur', 5, ['Grass', 'Poison'])],
+      fire: [mon('Charmander', 5, ['Fire'])],
+      water: [mon('Squirtle', 5, ['Water'])],
+    },
+    notes: "Select your starter to show Blue's canonical strong-starter pick.",
+  }),
   boss({
     id: 'rival-route-22-1-frlg',
     name: 'Rival 1',
@@ -131,15 +146,15 @@ export const frlgBosses: BossTrainer[] = [
       ],
       fire: [
         mon('Pidgeotto', 25, ['Normal', 'Flying'], { ability: 'Keen Eye', moves: [mv('Wing Attack', 'Flying', 60), mv('Quick Attack', 'Normal', 40), mv('Sand Attack', 'Ground'), mv('Whirlwind', 'Normal')] }),
-        mon('Gyarados', 23, ['Water', 'Flying'], { ability: 'Intimidate', moves: [mv('Bite', 'Dark', 60), mv('Dragon Rage', 'Dragon'), mv('Leer', 'Normal'), mv('Water Pulse', 'Water', 60)] }),
-        mon('Exeggcute', 22, ['Grass', 'Psychic'], { ability: 'Chlorophyll', moves: [mv('Leech Seed', 'Grass'), mv('Confusion', 'Psychic', 50), mv('Stun Spore', 'Grass'), mv('Sleep Powder', 'Grass')] }),
+        mon('Exeggcute', 23, ['Grass', 'Psychic'], { ability: 'Chlorophyll', moves: [mv('Leech Seed', 'Grass'), mv('Confusion', 'Psychic', 50), mv('Stun Spore', 'Grass'), mv('Sleep Powder', 'Grass')] }),
+        mon('Gyarados', 22, ['Water', 'Flying'], { ability: 'Intimidate', moves: [mv('Bite', 'Dark', 60), mv('Dragon Rage', 'Dragon'), mv('Leer', 'Normal'), mv('Water Pulse', 'Water', 60)] }),
         mon('Kadabra', 20, ['Psychic'], { ability: 'Synchronize', moves: [mv('Confusion', 'Psychic', 50), mv('Disable', 'Normal'), mv('Reflect', 'Psychic'), mv('Recover', 'Normal')] }),
         mon('Charmeleon', 25, ['Fire'], { ability: 'Blaze', moves: [mv('Ember', 'Fire', 40), mv('Metal Claw', 'Steel', 50), mv('Smokescreen', 'Normal'), mv('Dragon Rage', 'Dragon')] }),
       ],
       water: [
         mon('Pidgeotto', 25, ['Normal', 'Flying'], { ability: 'Keen Eye', moves: [mv('Wing Attack', 'Flying', 60), mv('Quick Attack', 'Normal', 40), mv('Sand Attack', 'Ground'), mv('Whirlwind', 'Normal')] }),
         mon('Growlithe', 23, ['Fire'], { ability: 'Intimidate', moves: [mv('Ember', 'Fire', 40), mv('Bite', 'Dark', 60), mv('Roar', 'Normal'), mv('Take Down', 'Normal', 90)] }),
-        mon('Gyarados', 22, ['Water', 'Flying'], { ability: 'Intimidate', moves: [mv('Bite', 'Dark', 60), mv('Dragon Rage', 'Dragon'), mv('Leer', 'Normal'), mv('Water Pulse', 'Water', 60)] }),
+        mon('Exeggcute', 22, ['Grass', 'Psychic'], { ability: 'Chlorophyll', moves: [mv('Leech Seed', 'Grass'), mv('Confusion', 'Psychic', 50), mv('Stun Spore', 'Grass'), mv('Sleep Powder', 'Grass')] }),
         mon('Kadabra', 20, ['Psychic'], { ability: 'Synchronize', moves: [mv('Confusion', 'Psychic', 50), mv('Disable', 'Normal'), mv('Reflect', 'Psychic'), mv('Recover', 'Normal')] }),
         mon('Wartortle', 25, ['Water'], { ability: 'Torrent', moves: [mv('Water Pulse', 'Water', 60), mv('Bite', 'Dark', 60), mv('Withdraw', 'Water'), mv('Rapid Spin', 'Normal', 20)] }),
       ],
@@ -205,10 +220,22 @@ export const frlgBosses: BossTrainer[] = [
       mon('Nidoqueen', 41, ['Poison', 'Ground'], { ability: 'Poison Point', moves: [mv('Body Slam', 'Normal', 85), mv('Earthquake', 'Ground', 100), mv('Toxic', 'Poison'), mv('Double Kick', 'Fighting', 30)] }),
     ],
   }),
-  // Rival 5 at Silph Co. — placeholder until verified team data lands. Setting an explicit
-  // levelCap so the boss sorts in-progression and doesn't render as "Cap 1" via the empty-team
-  // fallback. The rival's ace at Silph Co. is canonically lv 41 (final-evolution starter line).
-  boss({ id: 'rival-silph-co-frlg', name: 'Rival Silph Co.', locationId: 'silph-co', location: 'Silph Co.', order: 13.5, category: 'rival', levelCap: 41, notes: 'TODO: Populate verified FRLG Silph Co. rival variants in the next rival data pass.' }),
+  boss({
+    id: 'rival-silph-co-frlg',
+    name: 'Rival Silph Co.',
+    locationId: 'silph-co',
+    location: 'Silph Co.',
+    order: 13.5,
+    category: 'rival',
+    levelCap: 40,
+    team: [mon('Pidgeot', 37, ['Normal', 'Flying']), mon('Alakazam', 35, ['Psychic'])],
+    variantsByRivalStarterChoice: {
+      grass: [mon('Gyarados', 38, ['Water', 'Flying']), mon('Growlithe', 35, ['Fire']), mon('Venusaur', 40, ['Grass', 'Poison'])],
+      fire: [mon('Exeggcute', 38, ['Grass', 'Psychic']), mon('Gyarados', 35, ['Water', 'Flying']), mon('Charizard', 40, ['Fire', 'Flying'])],
+      water: [mon('Growlithe', 38, ['Fire']), mon('Exeggcute', 35, ['Grass', 'Psychic']), mon('Blastoise', 40, ['Water'])],
+    },
+    notes: 'Verified species and levels only; moves intentionally omitted pending a separate verified moveset pass.',
+  }),
   boss({
     id: 'giovanni-viridian-frlg',
     name: 'Giovanni 3',
@@ -335,8 +362,8 @@ export const frlgBosses: BossTrainer[] = [
     ],
     variantsByRivalStarterChoice: {
       fire: [
-        mon('Gyarados', 61, ['Water', 'Flying'], { ability: 'Intimidate', moves: [mv('Hydro Pump', 'Water', 120), mv('Dragon Rage', 'Dragon'), mv('Bite', 'Dark', 60), mv('Thrash', 'Normal', 90)] }),
         mon('Exeggutor', 59, ['Grass', 'Psychic'], { ability: 'Chlorophyll', moves: [mv('Giga Drain', 'Grass', 60), mv('Egg Bomb', 'Normal', 100), mv('Sleep Powder', 'Grass'), mv('Light Screen', 'Psychic')] }),
+        mon('Gyarados', 61, ['Water', 'Flying'], { ability: 'Intimidate', moves: [mv('Hydro Pump', 'Water', 120), mv('Dragon Rage', 'Dragon'), mv('Bite', 'Dark', 60), mv('Thrash', 'Normal', 90)] }),
         mon('Charizard', 63, ['Fire', 'Flying'], { ability: 'Blaze', item: 'Sitrus Berry', moves: [mv('Fire Blast', 'Fire', 120), mv('Aerial Ace', 'Flying', 60), mv('Slash', 'Normal', 70), mv('Fire Spin', 'Fire', 15)] }),
       ],
       water: [
