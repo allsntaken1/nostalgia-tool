@@ -487,6 +487,26 @@ export const bwEncounterAreas: BwEncounterArea[] = [
       'Schema does not split interior vs exterior subareas; the absence of interior wild encounters is captured in this note.',
     ],
   },
+];
+
+// ---------------------------------------------------------------------------
+// Postgame staging area
+// ---------------------------------------------------------------------------
+//
+// Black/White encounter areas that are ONLY accessible after defeating the
+// Pokémon League / Ghetsis and the credits roll. They are kept here as
+// canonical reference data but are NOT exported via `bwEncounterAreas` and
+// therefore do not appear in the main-story BW UI. A future postgame
+// rendering layer can consume `bwPostgameEncounterAreas` directly.
+//
+// Route 16 / Lostlorn Forest / Marvelous Bridge are unreachable in BW until
+// the Marvelous Bridge is built after the credits, so they were incorrectly
+// surfaced in the main-story list during BW Pass 4 and have been moved here
+// for Pass 4 cleanup.
+//
+// ---------------------------------------------------------------------------
+
+export const bwPostgameEncounterAreas: BwEncounterArea[] = [
   {
     locationId: 'bw-route-16',
     displayName: 'Route 16',

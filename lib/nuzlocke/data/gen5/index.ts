@@ -18,31 +18,46 @@ export { b2w2Routes, bwRoutes } from './gen5-routes';
 export { gen5StaticEncounters } from './gen5-static-encounters';
 export { getGen5TrainerSkeletons } from './gen5-trainers';
 export { gen5Metadata, supportsGen5Data } from './metadata';
-export { bwEncounterAreas, bwEncounterNotes, getBwEncounterOptions } from './bw-encounters';
+export { bwEncounterAreas, bwEncounterNotes, bwPostgameEncounterAreas, getBwEncounterOptions } from './bw-encounters';
 
 function routeSet(gameVersion: GameVersion) {
   return gameVersion === 'Black 2' || gameVersion === 'White 2' ? b2w2Routes : bwRoutes;
 }
 
+/**
+ * Routes available during the main-story progression for the given game version.
+ * For BW we strip 'postgame'-tagged routes (Route 16, Lostlorn Forest, Marvelous Bridge)
+ * because their canonical encounters are unreachable until after the credits.
+ * Postgame data is preserved separately in `bwPostgameEncounterAreas`.
+ */
+function mainStoryRoutes(gameVersion: GameVersion) {
+  const routes = routeSet(gameVersion);
+  if (gameVersion === 'Black' || gameVersion === 'White') {
+    return routes.filter((route) => !route.tags.includes('postgame'));
+  }
+  return routes;
+}
+
 export function getGen5Locations(gameVersion: GameVersion) {
   if (!supportsGen5Data(gameVersion)) return [];
-  return routeSet(gameVersion).map((route) => route.displayName);
+  return mainStoryRoutes(gameVersion).map((route) => route.displayName);
 }
 
 export function getGen5EncounterOptions(gameVersion: GameVersion) {
   if (!supportsGen5Data(gameVersion)) return {};
   // BW pulls from the structured `bwEncounterAreas` (rich data per location); any location
   // not present in that map falls back to an empty option list so the UI still renders the
-  // route name without crashing.
+  // route name without crashing. Postgame entries are intentionally excluded — they live in
+  // `bwPostgameEncounterAreas` and are surfaced only through a future postgame-aware path.
   if (gameVersion === 'Black' || gameVersion === 'White') {
     const populated = getBwEncounterOptions(gameVersion);
-    return routeSet(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
+    return mainStoryRoutes(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
       acc[route.displayName] = populated[route.displayName] ?? [];
       return acc;
-    }, populated);
+    }, {});
   }
   // B2W2 still uses the skeleton fallback until structured data lands.
-  return routeSet(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
+  return mainStoryRoutes(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
     acc[route.displayName] = [];
     return acc;
   }, {});
