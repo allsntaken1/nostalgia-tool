@@ -798,10 +798,76 @@ export const pokemonSpriteIds: Record<string, number> = {
   Kleavor: 900,
 };
 
+/**
+ * Form-name overrides for species whose PokéAPI / Showdown slug is not a plain lowercase form
+ * of the display name. Shared between sprite lookup and PokéAPI name resolution.
+ * Add new entries here when a sprite or PokéAPI fetch fails for a multi-form species.
+ */
+export const pokemonFormSlugOverrides: Record<string, string> = {
+  MrMime: 'mr-mime',
+  'Mr. Mime': 'mr-mime',
+  'Mr. Rime': 'mr-rime',
+  Farfetchd: 'farfetchd',
+  "Farfetch'd": 'farfetchd',
+  NidoranF: 'nidoran-f',
+  NidoranM: 'nidoran-m',
+  'Nidoran♀': 'nidoran-f',
+  'Nidoran♂': 'nidoran-m',
+  Flabebe: 'flabebe',
+  // Form-sensitive species — pick the default battle form so a sprite always resolves.
+  Aegislash: 'aegislash-shield',
+  Pumpkaboo: 'pumpkaboo-average',
+  Gourgeist: 'gourgeist-average',
+  Wormadam: 'wormadam-plant',
+  Basculin: 'basculin-red-striped',
+  Darmanitan: 'darmanitan-standard',
+  Tornadus: 'tornadus-incarnate',
+  Thundurus: 'thundurus-incarnate',
+  Landorus: 'landorus-incarnate',
+  Keldeo: 'keldeo-ordinary',
+  Meloetta: 'meloetta-aria',
+  Meowstic: 'meowstic-male',
+  Zygarde: 'zygarde-50',
+  // Existing dispatcher entries kept for compatibility:
+  'Great Tusk': 'great-tusk',
+  'Iron Treads': 'iron-treads',
+  'Segin Starmobile': 'revavroom',
+  'Schedar Starmobile': 'revavroom',
+  'Navi Starmobile': 'revavroom',
+  'Ruchbah Starmobile': 'revavroom',
+  'Caph Starmobile': 'revavroom',
+};
+
+/** Convert an internal display name to the PokéAPI / Showdown slug for sprite/data fetches. */
+export function pokemonSpeciesSlug(species: string): string {
+  const cleanSpecies = species.split('/')[0]?.trim() ?? '';
+  if (!cleanSpecies) return '';
+  const overridden = pokemonFormSlugOverrides[cleanSpecies];
+  if (overridden) return overridden;
+  return cleanSpecies
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Resolve a sprite URL for a Pokémon by name.
+ *
+ * Strategy:
+ *   1. If we have a hardcoded national-dex ID, use the PokéAPI GitHub mirror (stable, cached).
+ *   2. Otherwise, fall back to a slug-based Showdown URL (Gen 5 style stills cover all
+ *      Pokémon including Gen 6+ forms via the override map above).
+ *   3. If both fail at render time, the `<img onError>` handler in MonsterToken hides the
+ *      broken image and shows initials instead — so this function returning a URL is safe.
+ */
 export function getPokemonSpriteUrl(species: string) {
   const cleanSpecies = species.split('/')[0]?.trim();
-  const id = cleanSpecies ? pokemonSpriteIds[cleanSpecies] : undefined;
-  return id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png` : '';
+  if (!cleanSpecies) return '';
+  const id = pokemonSpriteIds[cleanSpecies];
+  if (id) return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+  const slug = pokemonSpeciesSlug(species);
+  if (!slug) return '';
+  return `https://play.pokemonshowdown.com/sprites/gen5/${slug}.png`;
 }
 
 const starterOptions: EncounterOption[] = [
@@ -809,6 +875,76 @@ const starterOptions: EncounterOption[] = [
   { species: 'Fuecoco', types: ['Fire'] },
   { species: 'Quaxly', types: ['Water'] },
 ];
+
+// Per-game starter rosters used by the dispatcher to inject a "Starter Pokémon" location.
+// Order matches canonical pokedex order (Grass / Fire / Water) for each gen.
+const frlgStarterOptions: EncounterOption[] = [
+  { species: 'Bulbasaur', types: ['Grass', 'Poison'] },
+  { species: 'Charmander', types: ['Fire'] },
+  { species: 'Squirtle', types: ['Water'] },
+];
+const hgssStarterOptions: EncounterOption[] = [
+  { species: 'Chikorita', types: ['Grass'] },
+  { species: 'Cyndaquil', types: ['Fire'] },
+  { species: 'Totodile', types: ['Water'] },
+];
+const bwStarterOptions: EncounterOption[] = [
+  { species: 'Snivy', types: ['Grass'] },
+  { species: 'Tepig', types: ['Fire'] },
+  { species: 'Oshawott', types: ['Water'] },
+];
+const bdspStarterOptions: EncounterOption[] = [
+  { species: 'Turtwig', types: ['Grass'] },
+  { species: 'Chimchar', types: ['Fire'] },
+  { species: 'Piplup', types: ['Water'] },
+];
+const swshStarterOptions: EncounterOption[] = [
+  { species: 'Grookey', types: ['Grass'] },
+  { species: 'Scorbunny', types: ['Fire'] },
+  { species: 'Sobble', types: ['Water'] },
+];
+const xyStarterOptions: EncounterOption[] = [
+  { species: 'Chespin', types: ['Grass'] },
+  { species: 'Fennekin', types: ['Fire'] },
+  { species: 'Froakie', types: ['Water'] },
+];
+
+/**
+ * Universal "Starter Pokémon" pseudo-location name. Used by every game that doesn't
+ * already have an existing "Starter" entry baked into its location list. Runs that
+ * log a starter use this string as the encounter location.
+ */
+export const STARTER_PSEUDO_LOCATION = 'Starter Pokémon';
+
+/** Return the canonical 3 starters for a game, or [] if the game is unsupported. */
+function getStarterOptionsForGame(gameVersion: GameVersion): EncounterOption[] {
+  switch (gameVersion) {
+    case 'X':
+    case 'Y':
+      return xyStarterOptions;
+    case 'FireRed':
+    case 'LeafGreen':
+      return frlgStarterOptions;
+    case 'HeartGold':
+    case 'SoulSilver':
+      return hgssStarterOptions;
+    case 'Black':
+    case 'White':
+    case 'Black 2':
+    case 'White 2':
+      return bwStarterOptions;
+    case 'Brilliant Diamond':
+    case 'Shining Pearl':
+      return bdspStarterOptions;
+    case 'Sword':
+    case 'Shield':
+      return swshStarterOptions;
+    default:
+      // Kanto (Red/Blue/Yellow) and Scarlet/Violet already include an explicit "Starter"
+      // entry in their hardcoded location lists below — no injection needed.
+      return [];
+  }
+}
 
 const redBlueStarterOptions: EncounterOption[] = [
   { species: 'Bulbasaur', types: ['Grass', 'Poison'] },
@@ -1359,7 +1495,7 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
   { id: 'penny', name: 'Penny', category: 'Finale', levelCap: 63, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Umbreon', 62), bossPokemon('Vaporeon', 62), bossPokemon('Jolteon', 62), bossPokemon('Flareon', 62), bossPokemon('Leafeon', 62), bossPokemon('Sylveon', 63)] },
 ];
 
-export function getNuzlockeLocations(gameVersion: GameVersion) {
+function getBaseNuzlockeLocations(gameVersion: GameVersion): string[] {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
   if (supportsGen2Data(gameVersion)) return getGen2Locations(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
@@ -1370,7 +1506,7 @@ export function getNuzlockeLocations(gameVersion: GameVersion) {
   return scarletVioletLocations;
 }
 
-export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
+function getBaseNuzlockeEncounterOptions(gameVersion: GameVersion): Record<string, EncounterOption[]> {
   if (gameVersion === 'Yellow') return yellowEncounterOptions;
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
   if (supportsGen2Data(gameVersion)) return getGen2EncounterOptions(gameVersion);
@@ -1380,6 +1516,23 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   if (supportsXyData(gameVersion)) return getXyEncounterOptionsForGame(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
+}
+
+export function getNuzlockeLocations(gameVersion: GameVersion) {
+  const base = Array.isArray(getBaseNuzlockeLocations(gameVersion)) ? getBaseNuzlockeLocations(gameVersion) : [];
+  const starters = getStarterOptionsForGame(gameVersion);
+  if (starters.length === 0) return base;
+  // Don't double-prepend if the base list (or an existing "Starter" sentinel) is already first.
+  if (base.includes(STARTER_PSEUDO_LOCATION) || base[0] === 'Starter') return base;
+  return [STARTER_PSEUDO_LOCATION, ...base];
+}
+
+export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
+  const base = getBaseNuzlockeEncounterOptions(gameVersion) ?? {};
+  const starters = getStarterOptionsForGame(gameVersion);
+  if (starters.length === 0) return base;
+  if (base[STARTER_PSEUDO_LOCATION]) return base;
+  return { [STARTER_PSEUDO_LOCATION]: starters, ...base };
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {

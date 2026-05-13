@@ -19,6 +19,7 @@ import {
   getNuzlockeLocations,
   getPokemonTypesFromData,
   getPokemonSpriteUrl,
+  pokemonSpeciesSlug,
   heldItemOptions,
   isEncounterSkeletonGame,
   natureOptions,
@@ -857,21 +858,9 @@ function bossTypes(boss: NuzlockeBoss) {
 }
 
 function normalizePokemonApiName(species: string) {
-  const cleanSpecies = species.split('/')[0]?.trim();
-  const mapped: Record<string, string> = {
-    MrMime: 'mr-mime',
-    NidoranF: 'nidoran-f',
-    NidoranM: 'nidoran-m',
-    'Great Tusk': 'great-tusk',
-    'Iron Treads': 'iron-treads',
-    'Segin Starmobile': 'revavroom',
-    'Schedar Starmobile': 'revavroom',
-    'Navi Starmobile': 'revavroom',
-    'Ruchbah Starmobile': 'revavroom',
-    'Caph Starmobile': 'revavroom',
-  };
-
-  return mapped[cleanSpecies] ?? cleanSpecies.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  // Share the same form-slug override map used by sprite resolution so PokéAPI fetches
+  // and sprite URLs always agree on which form to query.
+  return pokemonSpeciesSlug(species);
 }
 
 function usePublicPokemonTypes(species: string, fallbackTypes: PokemonType[]) {
@@ -1072,6 +1061,15 @@ function MonsterToken({
   types?: PokemonType[];
 }) {
   const spriteUrl = getPokemonSpriteUrl(species);
+  const slug = pokemonSpeciesSlug(species);
+  // Secondary fallback: PokémonDB sword/shield sprites cover newer Pokémon when Showdown 404s.
+  const fallbackUrl = slug ? `https://img.pokemondb.net/sprites/sword-shield/normal/${slug}.png` : '';
+  // Use a local key so each species gets a fresh attempt — important because <img onError>
+  // would otherwise loop if the first fallback also fails.
+  const [imgError, setImgError] = useState(false);
+  useEffect(() => {
+    setImgError(false);
+  }, [spriteUrl]);
   const initials = species
     .split(/\s+/)
     .filter(Boolean)
@@ -1089,16 +1087,27 @@ function MonsterToken({
       : `linear-gradient(135deg, ${typeHex[types[0] ?? 'Normal']}22, white 58%)`,
   } as CSSProperties;
 
+  const renderImage = spriteUrl && !imgError;
   return (
     <div style={style} className={`flex ${tokenSize} shrink-0 items-center justify-center rounded-full border-2 text-sm font-black shadow-[2px_2px_0_rgba(24,42,64,0.12)] ${
       status === 'Dead' ? 'border-[#ef5350] bg-white text-[#182a40]' : 'border-[#182a40] bg-white text-[#182a40]'
     }`}>
-      {spriteUrl ? (
+      {renderImage ? (
         <img
           src={spriteUrl}
           alt={species}
           className={`${imageSize} object-contain ${status === 'Dead' ? 'grayscale opacity-75' : ''}`}
           style={{ imageRendering: 'pixelated' }}
+          onError={(event) => {
+            // If we have a secondary fallback URL and haven't tried it yet, swap to it.
+            // Otherwise, hide the broken image and surface the initials placeholder.
+            const target = event.currentTarget;
+            if (fallbackUrl && target.src !== fallbackUrl) {
+              target.src = fallbackUrl;
+              return;
+            }
+            setImgError(true);
+          }}
         />
       ) : initials}
     </div>
@@ -1908,6 +1917,22 @@ function EncounterTracker({
   const completedLocations = locations.filter((location) => loggedByLocation.has(location));
   const orderedLocations = [...openLocations, ...completedLocations];
 
+  // Hide locations that have zero VISIBLE encounters under the current toggle state.
+  // A location stays visible if the player has already logged an encounter there (so they
+  // can review their own catches) or if it has at least one option matching the filters.
+  // Locations whose only encounters are gated by an off toggle (fishing/surfing) reappear
+  // automatically when the user enables that toggle.
+  const renderableLocations = orderedLocations.filter((location) => {
+    if (loggedByLocation.has(location)) return true;
+    const rawEncounters = Array.isArray(encounterOptionsByLocation[location])
+      ? encounterOptionsByLocation[location]
+      : [];
+    const visible = rawEncounters
+      .filter((option) => speciesMatchesMonotype(option.species, monotype))
+      .filter(canShowEncounterOption);
+    return visible.length > 0;
+  });
+
   const chooseLocation = (location: string) => {
     const options = (encounterOptionsByLocation[location] ?? [])
       .filter((option) => speciesMatchesMonotype(option.species, monotype))
@@ -2069,7 +2094,7 @@ function EncounterTracker({
           </div>
         </div>
         <div className="grid gap-2 md:grid-cols-2">
-          {orderedLocations.map((location) => {
+          {renderableLocations.map((location) => {
             const logged = loggedByLocation.get(location);
             const options = (encounterOptionsByLocation[location] ?? [])
               .filter((option) => speciesMatchesMonotype(option.species, monotype))
