@@ -680,6 +680,82 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     ],
   },
   {
+    locationId: 'bw-route-8',
+    displayName: 'Route 8',
+    encounters: [
+      // Puddles — non-winter only (puddles freeze in Winter)
+      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Croagunk', ['Poison', 'Fighting'], 'special', 'Both', 'Puddle swarm-style encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      // Surfing
+      surf('Stunfisk', ['Ground', 'Electric']),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter (95%).', 'Rippling Water'),
+      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
+      // Fishing (Super Rod)
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Marsh route north of Icirrus City, leading to Tubeline Bridge. Verified per Bulbapedia (Unova Route 8 page).',
+      'Puddle tier freezes over in Winter; non-winter only.',
+    ],
+  },
+  {
+    locationId: 'bw-tubeline-bridge',
+    displayName: 'Tubeline Bridge',
+    encounters: [],
+    notes: [
+      'Drawbridge between Route 8 and Route 9. Bulbapedia primary page did not surface a wild-encounter table for BW.',
+      'TODO: Verify whether Tubeline Bridge has bridge-shadow encounters (Ducklett candidate, mirroring Driftveil Drawbridge).',
+    ],
+  },
+  {
+    locationId: 'bw-route-9',
+    displayName: 'Route 9',
+    encounters: [
+      // Regular grass
+      encounter('Liepard', ['Dark'], 'grass'),
+      encounter('Garbodor', ['Poison'], 'grass'),
+      encounter('Minccino', ['Normal'], 'grass'),
+      encounter('Gothorita', ['Psychic'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Duosion', ['Psychic'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      encounter('Pawniard', ['Dark', 'Steel'], 'grass'),
+      // Dark grass
+      darkGrass('Liepard', ['Dark']),
+      darkGrass('Garbodor', ['Poison']),
+      darkGrass('Minccino', ['Normal']),
+      darkGrass('Gothorita', ['Psychic'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Duosion', ['Psychic'], 'White', 'White-exclusive dark-grass encounter.'),
+      darkGrass('Pawniard', ['Dark', 'Steel']),
+      // Rustling grass — rare evolved Psychic mons by version
+      rustling('Audino', ['Normal']),
+      rustling('Cinccino', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Gothitelle', ['Psychic'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+      rustling('Reuniclus', ['Psychic'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      // Swarm (version-exclusive)
+      encounter('Houndour', ['Dark', 'Fire'], 'grass', 'Black', 'Swarm-only encounter (40% during an active swarm day), Black-exclusive.', { condition: 'Swarm' }),
+      encounter('Poochyena', ['Dark'], 'grass', 'White', 'Swarm-only encounter (40% during an active swarm day), White-exclusive.', { condition: 'Swarm' }),
+    ],
+    notes: [
+      'Route between Tubeline Bridge and Opelucid City. Verified per Bulbapedia (Unova Route 9 page).',
+      'Gothorita / Gothitelle (Black) vs Duosion / Reuniclus (White) is the canonical Psychic-line version split (matches the earlier Gothita / Solosis split).',
+      'Houndour (Black) vs Poochyena (White) is the swarm version split.',
+    ],
+  },
+  {
+    locationId: 'bw-opelucid-city',
+    displayName: 'Opelucid City',
+    encounters: [],
+    notes: [
+      'No wild grass/surf/fishing encounters in Opelucid City per Bulbapedia.',
+      'Site of the Drayden (Black) / Iris (White) gym battle (logged separately).',
+      'Shopping Mall Nine (a building reached via Route 9) has no canonical wild encounters and no tracked boss-prep battle, so it is intentionally not added as a location entry.',
+    ],
+  },
+  {
     locationId: 'bw-cold-storage',
     displayName: 'Cold Storage',
     encounters: [
