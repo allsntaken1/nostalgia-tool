@@ -150,6 +150,10 @@ export type EncounterOption = {
   abilities?: string[];
   surfMethod?: boolean;
   fishingMethod?: boolean;
+  /** Optional rod gating for fishing encounters (Old/Good/Super). Purely informational; UI may render as a chip. */
+  rod?: 'Old Rod' | 'Good Rod' | 'Super Rod';
+  /** Optional condition annotation (e.g. "Rock Smash", "Daily", "Tuesdays only", subarea name). Purely informational. */
+  condition?: string;
 };
 
 export const natureOptions = [
