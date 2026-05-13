@@ -4,7 +4,7 @@
 import { type CSSProperties, FormEvent, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Skull } from 'lucide-react';
-import { getAttackMultiplier, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
+import { getAttackMultiplier, getDefensiveMatchups, getMultiplierLabel, getStabStrongAgainst } from '@/lib/nuzlocke/typeChart';
 import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlocke/services/moveService';
 import { getItemData } from '@/lib/nuzlocke/services/itemService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
@@ -59,17 +59,146 @@ const defaultRules: NuzlockeRules = {
   teraRaidEncountersAllowed: false,
 };
 
-const ruleLabels: { key: keyof NuzlockeRules; label: string }[] = [
-  { key: 'dupesClause', label: 'Dupes Clause' },
-  { key: 'shinyClause', label: 'Shiny Clause' },
-  { key: 'levelCaps', label: 'Level Caps' },
-  { key: 'setMode', label: 'Set Mode' },
-  { key: 'noItemsInBattle', label: 'No Items in Battle' },
-  { key: 'starterCountsAsFirstEncounter', label: 'Starter Counts as First Encounter' },
-  { key: 'giftPokemonAllowed', label: 'Gift Pokemon Allowed' },
-  { key: 'staticEncountersAllowed', label: 'Static Encounters Allowed' },
-  { key: 'teraRaidEncountersAllowed', label: 'Tera Raid Encounters Allowed' },
+const ruleLabels: { key: keyof NuzlockeRules; label: string; ruleId: string }[] = [
+  { key: 'dupesClause', label: 'Dupes Clause', ruleId: 'dupesClause' },
+  { key: 'shinyClause', label: 'Shiny Clause', ruleId: 'shinyClause' },
+  { key: 'levelCaps', label: 'Level Caps', ruleId: 'levelCaps' },
+  { key: 'setMode', label: 'Set Mode', ruleId: 'setMode' },
+  { key: 'noItemsInBattle', label: 'No Items in Battle', ruleId: 'noItemsInBattle' },
+  { key: 'starterCountsAsFirstEncounter', label: 'Starter Counts as First Encounter', ruleId: 'starterCountsAsFirstEncounter' },
+  { key: 'giftPokemonAllowed', label: 'Gift Pokemon Allowed', ruleId: 'giftPokemonAllowed' },
+  { key: 'staticEncountersAllowed', label: 'Static Encounters Allowed', ruleId: 'staticEncountersAllowed' },
+  { key: 'teraRaidEncountersAllowed', label: 'Tera Raid Encounters Allowed', ruleId: 'teraRaidEncountersAllowed' },
 ];
+
+type RuleInfo = {
+  id: string;
+  label: string;
+  description: string;
+  example?: string;
+  category: 'Core Rules' | 'Common Optional Rules' | 'Variant Rules';
+};
+
+const rulesDictionary: RuleInfo[] = [
+  {
+    id: 'firstEncounterOnly',
+    label: 'First encounter only',
+    description: 'You may only catch the first eligible Pokemon encountered in each route or area.',
+    example: 'If Route 3 gives you a Pidgey first, that is the Route 3 encounter unless your rules allow a clause to skip it.',
+    category: 'Core Rules',
+  },
+  {
+    id: 'permadeath',
+    label: 'Permadeath',
+    description: 'If a Pokemon faints, it is considered dead and can no longer be used.',
+    example: 'Move it to the graveyard or mark it dead after the battle.',
+    category: 'Core Rules',
+  },
+  {
+    id: 'nicknameRequired',
+    label: 'Nickname required',
+    description: 'Every caught Pokemon must be nicknamed to increase attachment.',
+    example: 'A caught Geodude gets a nickname before joining the team or box.',
+    category: 'Core Rules',
+  },
+  {
+    id: 'dupesClause',
+    label: 'Dupes Clause',
+    description: 'If your first encounter is part of an evolution line you already caught, you may skip it and try again.',
+    example: 'If you already caught Pidgey, you can skip another Pidgey and take the next eligible encounter.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'shinyClause',
+    label: 'Shiny Clause',
+    description: 'Shiny Pokemon may be caught even if they are not the first encounter for the area.',
+    example: 'A random shiny Zubat can be caught as a trophy or usable teammate if your rules allow it.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'giftPokemonAllowed',
+    label: 'Gift Pokemon rules',
+    description: 'Gift Pokemon can be allowed, banned, or counted as the encounter for their location depending on your rules.',
+    example: 'An Eevee gift might count as the city encounter if starter or gift clauses are strict.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'staticEncountersAllowed',
+    label: 'Static encounter rules',
+    description: 'Static Pokemon can be treated as normal area encounters, separate bonus encounters, or banned.',
+    example: 'A Snorlax blocking a route might count as that route encounter.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'levelCaps',
+    label: 'Level cap',
+    description: 'Your Pokemon cannot exceed the next boss or gym leader highest level.',
+    example: 'If the next gym ace is level 21, your team should stay level 21 or lower before the fight.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'noItemsInBattle',
+    label: 'No items in battle',
+    description: 'You cannot use healing, X items, or Poke Balls during trainer battles. Held items are usually allowed unless your rules say otherwise.',
+    example: 'Using an Oran Berry as a held item is usually fine; using a Potion from the bag is not.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'setMode',
+    label: 'Set mode',
+    description: 'You cannot switch Pokemon for free after defeating an opponent Pokemon.',
+    example: 'After knocking out Brock Geodude, you stay in or manually switch and take the incoming turn.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'whiteout',
+    label: 'Whiteout equals run loss',
+    description: 'If the entire party faints, the run is considered wiped even if boxed Pokemon remain.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'speciesClause',
+    label: 'Species clause',
+    description: 'Dupes logic can be extended across the whole evolution family instead of exact species only.',
+    example: 'Catching Caterpie can block Metapod and Butterfree later.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'hardcoreRules',
+    label: 'Hardcore rules',
+    description: 'A stricter style that usually combines level caps, set mode, and no items in battle.',
+    category: 'Variant Rules',
+  },
+  {
+    id: 'monotypeRules',
+    label: 'Monotype rules',
+    description: 'Only Pokemon matching the chosen type, or eventually evolving into it, are eligible.',
+    example: 'A Charmander can be eligible for a Flying monotype if your rules allow future evolution typing.',
+    category: 'Variant Rules',
+  },
+  {
+    id: 'wedlockeSoulLink',
+    label: 'Wedlocke / Soul Link',
+    description: 'Community variants that add pairing rules. Track your specific pairing restrictions in run notes.',
+    category: 'Variant Rules',
+  },
+  {
+    id: 'starterCountsAsFirstEncounter',
+    label: 'Starter Counts as First Encounter',
+    description: 'Your starter uses up the starter area encounter slot.',
+    example: 'If the starter counts, you would not also claim another New Bark or Pallet starter-area encounter.',
+    category: 'Common Optional Rules',
+  },
+  {
+    id: 'teraRaidEncountersAllowed',
+    label: 'Tera Raid Encounters Allowed',
+    description: 'Tera Raid Pokemon may be claimed if your run permits raid encounters.',
+    example: 'Some Scarlet/Violet runs allow one raid per badge or one raid per named area.',
+    category: 'Variant Rules',
+  },
+];
+
+const ruleInfoById = new Map(rulesDictionary.map((rule) => [rule.id, rule]));
 
 const panelClass = 'rounded-2xl border border-white/75 bg-white/90 p-4 shadow-[0_18px_50px_rgba(24,42,64,0.10)] backdrop-blur';
 const softPanelClass = 'rounded-xl bg-white/65 p-3 shadow-sm';
@@ -221,7 +350,7 @@ function mergeBossDefaults(bosses: NuzlockeBoss[], gameVersion: GameVersion, sta
       return {
         ...boss,
         category: defaultBoss.category,
-        levelCap: boss.levelCap || defaultBoss.levelCap,
+        levelCap: boss.levelCap ?? defaultBoss.levelCap,
         pokemon,
       };
     });
@@ -327,7 +456,7 @@ function SpriteSelect({
         <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-md border-2 border-[#182a40] bg-white shadow-[0_12px_30px_rgba(24,42,64,0.16)]">
           {(options || []).map((option) => (
             <button
-              key={option.species}
+              key={[option.species, option.method ?? '', option.condition ?? '', option.version ?? '', option.minLevel ?? '', option.maxLevel ?? ''].join('-')}
               type="button"
               onClick={() => {
                 onChange(option.species);
@@ -1456,14 +1585,17 @@ function RunSetupForm({
         <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Rules</div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {ruleLabels.map((rule) => (
-            <label key={rule.key} className="flex items-center gap-2 rounded-xl bg-white/75 p-3 text-xs font-black shadow-sm">
-              <input
-                type="checkbox"
-                checked={Boolean(rules[rule.key])}
-                onChange={(event) => setRules((current) => ({ ...current, [rule.key]: event.target.checked }))}
-              />
-              {rule.label}
-            </label>
+            <div key={rule.key} className="rounded-xl bg-white/75 p-3 shadow-sm">
+              <label className="flex items-center gap-2 text-xs font-black">
+                <input
+                  type="checkbox"
+                  checked={Boolean(rules[rule.key])}
+                  onChange={(event) => setRules((current) => ({ ...current, [rule.key]: event.target.checked }))}
+                />
+                {rule.label}
+              </label>
+              <RuleHelpChip ruleId={rule.ruleId} compact />
+            </div>
           ))}
         </div>
       </div>
@@ -1683,49 +1815,354 @@ function TeamBarPopup({
 }
 
 function Overview({ run }: { run: NuzlockeRun }) {
-  const team = run.team || [];
-  const encounters = run.encounters || [];
-  const bosses = run.bosses || [];
-  const rules = run.rules || defaultRules;
-  const deaths = team.filter((pokemon) => pokemon.status === 'Dead').length;
-  const caught = encounters.filter((encounter) => encounter.status === 'Caught').length;
-  const completedBosses = bosses.filter((boss) => boss.completed).length;
-  const enabledRules = ruleLabels.filter((rule) => Boolean(rules[rule.key])).map((rule) => rule.label);
-
   return (
-    <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-      <div className={panelClass}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Stat label="Progress" value={`${completedBosses}/${bosses.length || 0}`} />
-          <Stat label="Team Count" value={team.filter((pokemon) => pokemon.status === 'Party').length} />
-          <Stat label="Death Count" value={deaths} />
-          <Stat label="Encounters Caught" value={caught} />
-        </div>
+    <section className="grid gap-4">
+      <RunDashboard run={run} />
+      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <RuleSummary run={run} />
+        <RulesReference />
       </div>
-      <RuleSummary rules={enabledRules} monotype={rules.monotype} />
     </section>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+function RunDashboard({ run }: { run: NuzlockeRun }) {
+  const team = Array.isArray(run.team) ? run.team : [];
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const bosses = Array.isArray(run.bosses) ? run.bosses : [];
+  const locations = getNuzlockeLocations(run.gameVersion);
+  const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
+  const completedBosses = bosses.filter((boss) => boss.completed);
+  const nextBoss = bosses.find((boss) => !boss.completed);
+  const party = team.filter((pokemon) => pokemon.status === 'Party');
+  const boxed = team.filter((pokemon) => pokemon.status === 'Boxed');
+  const deadTeam = team.filter((pokemon) => pokemon.status === 'Dead');
+  const deadEncounters = encounters.filter((encounter) => encounter.status === 'Dead');
+  const claimedStatuses: EncounterStatus[] = ['Caught', 'Failed', 'Skipped', 'Dead'];
+  const claimedLocations = new Set(encounters.filter((encounter) => claimedStatuses.includes(encounter.status)).map((encounter) => encounter.location));
+  const totalEncounterAreas = locations.length || Object.keys(encounterOptionsByLocation).length || encounters.length;
+  const encounterProgressValue = totalEncounterAreas > 0 ? Math.round((claimedLocations.size / totalEncounterAreas) * 100) : 0;
+  const bossProgressValue = bosses.length > 0 ? Math.round((completedBosses.length / bosses.length) * 100) : 0;
+  const caught = encounters.filter((encounter) => encounter.status === 'Caught').length;
+  const failed = encounters.filter((encounter) => encounter.status === 'Failed').length;
+  const skipped = encounters.filter((encounter) => encounter.status === 'Skipped').length;
+  const deathCount = Math.max(deadTeam.length, deadEncounters.length);
+  const recentEvent = (Array.isArray(run.timeline) ? run.timeline : [])[0];
+  const risk = getRunRiskSummary({ party, nextBoss, deathCount });
+  const biggestThreat = getBiggestThreat(nextBoss, party);
+  const bestEncounter = getDashboardEncounterSuggestion({
+    run,
+    locations,
+    encounterOptionsByLocation,
+    claimedLocations,
+    party,
+    nextBoss,
+  });
+  const runStatus = getRunStatusLabel({ bosses, party, deathCount });
+  const catchAttempts = caught + failed;
+  const catchRate = catchAttempts > 0 ? `${caught}/${catchAttempts} caught` : 'No attempts yet';
+
   return (
-    <div className="rounded-xl bg-white/70 p-4 shadow-sm">
+    <section className={panelClass}>
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Run Dashboard</div>
+          <h2 className="text-xl font-black">Progress at a glance</h2>
+        </div>
+        <span className={`rounded-[4px] px-3 py-1.5 text-xs font-black uppercase tracking-[0.08em] shadow-sm ${risk.tone}`}>
+          {risk.label}
+        </span>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <DashboardCard label="Current Status" value={runStatus} detail={`${run.runType} / ${run.gameVersion}`} />
+        <DashboardCard label="Next Boss" value={nextBoss?.name ?? 'Next boss unknown'} detail={nextBoss ? `Cap ${nextBoss.levelCap ?? 'TBD'} / ${nextBoss.category}` : 'Boss data missing or complete.'} />
+        <DashboardCard label="Boss Progress" value={`${completedBosses.length}/${bosses.length || 0} cleared`} detail={<ProgressMeter value={bossProgressValue} />} />
+        <DashboardCard label="Encounter Progress" value={`${claimedLocations.size}/${totalEncounterAreas || 0} areas claimed`} detail={<ProgressMeter value={encounterProgressValue} />} />
+        <DashboardCard label="Team Health" value={`${party.length} active`} detail={`${boxed.length} boxed / ${deathCount} dead`} />
+        <DashboardCard label="Catch Rate" value={catchRate} detail={`${failed} failed / ${skipped} skipped`} />
+        <DashboardCard label="Recent Event" value={recentEvent?.type ?? 'No events yet'} detail={recentEvent?.message ?? 'Start logging encounters or bosses to build the timeline.'} />
+        <DashboardCard label="Biggest Threat" value={biggestThreat.title} detail={biggestThreat.detail} />
+      </div>
+      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr]">
+        <div className="rounded-xl bg-white/70 p-3 shadow-sm">
+          <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Run Risk Summary</div>
+          <p className="mt-2 text-sm font-bold leading-6 text-[#506078]">{risk.detail}</p>
+          {risk.types.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {risk.types.map((type) => <TypeBadge key={type} type={type} />)}
+            </div>
+          ) : null}
+        </div>
+        <div className="rounded-xl bg-white/70 p-3 shadow-sm">
+          <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Best Available Encounter</div>
+          <div className="mt-2 text-sm font-black">{bestEncounter.title}</div>
+          <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{bestEncounter.detail}</p>
+          {bestEncounter.types.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {bestEncounter.types.map((type) => <TypeBadge key={type} type={type} />)}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DashboardCard({ label, value, detail }: { label: string; value: string | number; detail?: React.ReactNode }) {
+  return (
+    <div className="rounded-xl bg-white/70 p-3 shadow-sm">
       <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{label}</div>
-      <div className="mt-2 text-3xl font-black">{value}</div>
+      <div className="mt-2 text-lg font-black">{value}</div>
+      {detail ? <div className="mt-2 text-xs font-bold leading-5 text-[#506078]">{detail}</div> : null}
     </div>
   );
 }
 
-function RuleSummary({ rules, monotype }: { rules: string[]; monotype?: PokemonType }) {
+function ProgressMeter({ value }: { value: number }) {
+  const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#edf2f7]">
+        <div className="h-full rounded-full bg-[var(--nuz-accent)]" style={{ width: `${bounded}%` }} />
+      </div>
+      <span className="text-[11px] font-black">{bounded}%</span>
+    </div>
+  );
+}
+
+function RuleSummary({ run }: { run: NuzlockeRun }) {
+  const rules = run.rules || defaultRules;
+  const enabledRules = ruleLabels.filter((rule) => Boolean(rules[rule.key]));
+
   return (
     <div className={panelClass}>
       <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Rules Summary</div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {(rules || []).map((rule) => <span key={rule} className="rounded-full bg-white px-3 py-1 text-xs font-black shadow-sm">{rule}</span>)}
-        {monotype ? <TypeBadge type={monotype} /> : null}
+        <RuleHelpChip ruleId="firstEncounterOnly" />
+        <RuleHelpChip ruleId="permadeath" />
+        <RuleHelpChip ruleId="nicknameRequired" />
+        {enabledRules.map((rule) => <RuleHelpChip key={rule.ruleId} ruleId={rule.ruleId} />)}
+        {rules.monotype ? <TypeBadge type={rules.monotype} /> : null}
       </div>
     </div>
   );
+}
+
+function RuleHelpChip({ ruleId, compact = false }: { ruleId: string; compact?: boolean }) {
+  const rule = ruleInfoById.get(ruleId);
+  if (!rule) return null;
+
+  return (
+    <details className={`group relative ${compact ? 'mt-2' : ''}`}>
+      <summary
+        aria-label={`${rule.label}: what does this mean?`}
+        className={`list-none rounded-[5px] bg-white px-2 py-1 text-[11px] font-black shadow-sm outline-none transition hover:-translate-y-0.5 focus:ring-2 focus:ring-[var(--nuz-accent)] ${compact ? 'inline-flex cursor-pointer text-[#506078]' : 'cursor-pointer'}`}
+      >
+        {compact ? 'What does this mean?' : rule.label}
+      </summary>
+      <div className="z-20 mt-2 rounded-xl border border-[#d9e2ee] bg-white p-3 text-xs font-bold leading-5 text-[#506078] shadow-[0_14px_35px_rgba(24,42,64,0.16)] sm:absolute sm:w-72">
+        <div className="mb-1 font-black text-[#182a40]">{rule.label}</div>
+        <p>{rule.description}</p>
+        {rule.example ? <p className="mt-2 text-[11px] text-[#6d7890]">Example: {rule.example}</p> : null}
+      </div>
+    </details>
+  );
+}
+
+function RulesReference() {
+  const groupedRules = rulesDictionary.reduce((groups, rule) => {
+    const current = groups[rule.category] || [];
+    return { ...groups, [rule.category]: [...current, rule] };
+  }, {} as Record<RuleInfo['category'], RuleInfo[]>);
+
+  return (
+    <details className={panelClass}>
+      <summary className="cursor-pointer list-none text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)] outline-none focus:ring-2 focus:ring-[var(--nuz-accent)]">
+        View Nuzlocke Rules
+      </summary>
+      <div className="mt-3 grid gap-3">
+        {(['Core Rules', 'Common Optional Rules', 'Variant Rules'] as RuleInfo['category'][]).map((category) => (
+          <div key={category} className="rounded-xl bg-white/65 p-3 shadow-sm">
+            <div className="text-xs font-black uppercase tracking-[0.14em] text-[#506078]">{category}</div>
+            <div className="mt-2 grid gap-2">
+              {(groupedRules[category] || []).map((rule) => (
+                <div key={rule.id} className="rounded-lg bg-white p-2 text-sm shadow-sm">
+                  <div className="font-black">{rule.label}</div>
+                  <div className="mt-1 text-xs font-bold leading-5 text-[#506078]">{rule.description}</div>
+                  {rule.example ? <div className="mt-1 text-[11px] font-bold text-[#6d7890]">Example: {rule.example}</div> : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function getRunStatusLabel({ bosses, party, deathCount }: { bosses: NuzlockeBoss[]; party: NuzlockePokemon[]; deathCount: number }) {
+  if (bosses.length > 0 && bosses.every((boss) => boss.completed)) return 'Completed';
+  if (party.length === 0 && deathCount > 0) return 'Possibly Wiped';
+  return 'In Progress';
+}
+
+function getTeamSharedWeaknesses(party: NuzlockePokemon[]) {
+  const counts = new Map<PokemonType, number>();
+  party.forEach((pokemon) => {
+    const types = Array.isArray(pokemon.types) ? pokemon.types : [];
+    const matchups = getDefensiveMatchups(types);
+    [...matchups.weak4x, ...matchups.weak2x].forEach((type) => counts.set(type, (counts.get(type) || 0) + 1));
+  });
+
+  return Array.from(counts.entries())
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
+}
+
+function getRunRiskSummary({
+  party,
+  nextBoss,
+  deathCount,
+}: {
+  party: NuzlockePokemon[];
+  nextBoss?: NuzlockeBoss;
+  deathCount: number;
+}) {
+  if (party.length === 0) {
+    return {
+      label: 'Needs Team',
+      tone: 'bg-[#f0f2f7] text-[#506078]',
+      detail: 'Add team members for a useful risk summary.',
+      types: [] as PokemonType[],
+    };
+  }
+
+  const bossTypes = nextBoss ? bossAttackTypes(nextBoss) : [];
+  const sharedWeaknesses = getTeamSharedWeaknesses(party);
+  const bossPressure = bossTypes
+    .map((type) => ({
+      type,
+      weakCount: party.filter((pokemon) => getAttackMultiplier(type, Array.isArray(pokemon.types) ? pokemon.types : []) > 1).length,
+      hasResist: party.some((pokemon) => getAttackMultiplier(type, Array.isArray(pokemon.types) ? pokemon.types : []) < 1),
+    }))
+    .filter((item) => item.weakCount > 0 || !item.hasResist)
+    .sort((a, b) => b.weakCount - a.weakCount || a.type.localeCompare(b.type));
+  const worstPressure = bossPressure[0];
+  const relevantTypes = Array.from(new Set([...(worstPressure ? [worstPressure.type] : []), ...sharedWeaknesses.slice(0, 2).map((item) => item.type)]));
+
+  if ((worstPressure?.weakCount ?? 0) >= 3 || deathCount >= 5 || (nextBoss?.deaths ?? 0) > 0) {
+    return {
+      label: 'High Risk',
+      tone: 'bg-[#fff2f0] text-[#9f2c24]',
+      detail: worstPressure
+        ? `${worstPressure.weakCount} active team members are weak to ${worstPressure.type}. Play this next boss carefully.`
+        : `${deathCount} deaths logged. The run is fragile even without clear boss pressure data.`,
+      types: relevantTypes,
+    };
+  }
+
+  if ((worstPressure?.weakCount ?? 0) >= 2 || sharedWeaknesses.some((item) => item.count >= 2) || deathCount >= 2) {
+    return {
+      label: 'Some Risk',
+      tone: 'bg-[#fff4d8] text-[#9a6500]',
+      detail: worstPressure
+        ? `${worstPressure.weakCount} active team members are weak to ${worstPressure.type}. Look for a safer pivot before the fight.`
+        : 'The team has shared defensive weaknesses. Check the type spread before the next boss.',
+      types: relevantTypes,
+    };
+  }
+
+  return {
+    label: 'Stable',
+    tone: 'bg-[#e9f7ef] text-[#267a38]',
+    detail: nextBoss ? 'No major shared weakness overlaps were found from current boss typing. This is not a damage calc.' : 'The current team has few shared weaknesses, but next boss data is limited.',
+    types: relevantTypes,
+  };
+}
+
+function getBiggestThreat(nextBoss: NuzlockeBoss | undefined, party: NuzlockePokemon[]) {
+  if (!nextBoss) return { title: 'Next boss unknown', detail: 'Boss data is missing or every listed boss is complete.' };
+  const notableThreats = Array.isArray(nextBoss.threatMetadata?.notableThreats) ? nextBoss.threatMetadata.notableThreats : [];
+  const highThreat = notableThreats.find((threat) => threat.threatLevel === 'Extreme' || threat.threatLevel === 'High') ?? notableThreats[0];
+  if (highThreat) {
+    return {
+      title: highThreat.species,
+      detail: highThreat.reasons?.[0] ?? `${highThreat.threatLevel} threat listed in boss metadata.`,
+    };
+  }
+
+  if (party.length === 0) return { title: nextBoss.name, detail: 'Add team members to compare boss pressure.' };
+  const pressure = bossAttackTypes(nextBoss)
+    .map((type) => ({ type, count: party.filter((pokemon) => getAttackMultiplier(type, Array.isArray(pokemon.types) ? pokemon.types : []) > 1).length }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))[0];
+
+  if (!pressure) return { title: nextBoss.name, detail: 'No clear type pressure found from listed boss Pokemon.' };
+  return { title: `${pressure.type} pressure`, detail: `${pressure.count} active team member${pressure.count === 1 ? '' : 's'} weak to ${pressure.type}.` };
+}
+
+function getDashboardEncounterSuggestion({
+  run,
+  locations,
+  encounterOptionsByLocation,
+  claimedLocations,
+  party,
+  nextBoss,
+}: {
+  run: NuzlockeRun;
+  locations: string[];
+  encounterOptionsByLocation: Record<string, EncounterOption[]>;
+  claimedLocations: Set<string>;
+  party: NuzlockePokemon[];
+  nextBoss?: NuzlockeBoss;
+}) {
+  const teamTypes = new Set(party.flatMap((pokemon) => (Array.isArray(pokemon.types) ? pokemon.types : [])));
+  const bossTypes = nextBoss ? bossAttackTypes(nextBoss) : [];
+  const sharedWeaknesses = getTeamSharedWeaknesses(party).filter((item) => item.count >= 2).map((item) => item.type);
+  const orderedLocations = locations.length > 0 ? locations : Object.keys(encounterOptionsByLocation);
+  const recommendations = orderedLocations.flatMap((location, locationIndex) => {
+    if (claimedLocations.has(location)) return [];
+    const options = Array.isArray(encounterOptionsByLocation[location]) ? encounterOptionsByLocation[location] : [];
+    return options.filter((option) => !option.version || option.version === 'Both' || option.version === run.gameVersion).map((option) => {
+      const optionTypes = Array.isArray(option.types) ? option.types : [];
+      const resistsBoss = bossTypes.some((type) => getAttackMultiplier(type, optionTypes) > 0 && getAttackMultiplier(type, optionTypes) < 1);
+      const immuneToBoss = bossTypes.some((type) => getAttackMultiplier(type, optionTypes) === 0);
+      const coversSharedWeakness = sharedWeaknesses.some((type) => getAttackMultiplier(type, optionTypes) < 1);
+      const addsNewType = optionTypes.some((type) => !teamTypes.has(type));
+      const score =
+        (immuneToBoss ? 3 : 0) +
+        (resistsBoss ? 2 : 0) +
+        (coversSharedWeakness ? 2 : 0) +
+        (addsNewType ? 1 : 0) +
+        (typeof option.rate === 'number' && option.rate >= 50 ? 1 : 0);
+
+      return { option, location, locationIndex, score, resistsBoss, immuneToBoss, coversSharedWeakness, addsNewType };
+    });
+  })
+    .filter((item) => item.option.species)
+    .sort((a, b) => b.score - a.score || a.locationIndex - b.locationIndex || a.option.species.localeCompare(b.option.species));
+  const best = recommendations[0];
+
+  if (!best) {
+    return {
+      title: 'No available encounter data',
+      detail: 'Claimed areas are skipped. Add encounters or choose a game with encounter tables for suggestions.',
+      types: [] as PokemonType[],
+    };
+  }
+
+  const tags = [
+    best.immuneToBoss ? 'immune to boss type' : '',
+    best.resistsBoss ? 'resists boss type' : '',
+    best.coversSharedWeakness ? 'covers a shared weakness' : '',
+    best.addsNewType ? 'adds a new team type' : '',
+  ].filter(Boolean);
+  return {
+    title: `${best.option.species} / ${best.location}`,
+    detail: tags.length > 0 ? tags.join(' / ') : 'Potential useful encounter based on available route and type data.',
+    types: Array.isArray(best.option.types) ? best.option.types : [],
+  };
 }
 
 function TeamTracker({
@@ -2075,7 +2512,7 @@ function EncounterTracker({
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
             <h3 className="text-base font-black">Pick an encounter area</h3>
             {encounterDataComingSoon ? (
-              <p className="mt-1 text-xs font-bold text-[#506078]">FireRed/LeafGreen early encounter data is partially wired. Later areas are coming soon.</p>
+              <p className="mt-1 text-xs font-bold text-[#506078]">Encounter data for this game is still in progress. Some routes, methods, bosses, or version differences may be missing.</p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] font-black">
@@ -2385,7 +2822,7 @@ function BossTracker({
                   {boss.threatMetadata?.overallDifficulty ? <DangerBadge label={boss.threatMetadata.overallDifficulty} /> : null}
                 </div>
                 <div className="mt-1 text-xs font-bold text-[#506078]">
-                  Cap {boss.levelCap} / Deaths {boss.deaths}{boss.notes ? ` / ${boss.notes}` : ''}
+                  Cap {boss.levelCap ?? 'TBD'} / Deaths {boss.deaths}{boss.notes ? ` / ${boss.notes}` : ''}
                 </div>
                 {boss.completed ? <div className="mt-1 text-xs font-black text-[#2f7d4f]">Completed / {boss.deaths} deaths</div> : null}
               </div>
@@ -2414,7 +2851,7 @@ function BossTracker({
               <div className="mt-2 grid gap-2 sm:grid-cols-[92px_92px_1fr]">
                 <label className="grid gap-1 text-xs font-black">
                   Level cap
-                  <input value={boss.levelCap} onChange={(event) => updateBoss(boss.id, { levelCap: safeNumber(event.target.value) })} type="number" className={fieldClass} />
+                  <input value={boss.levelCap ?? ''} onChange={(event) => updateBoss(boss.id, { levelCap: event.target.value ? safeNumber(event.target.value) : null })} type="number" className={fieldClass} />
                 </label>
                 <label className="grid gap-1 text-xs font-black">
                   Deaths
@@ -2680,7 +3117,7 @@ function BossPrepPanel({
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Boss Prep Mode</div>
-          <div className="text-sm font-black">{boss.name} / Cap {boss.levelCap}</div>
+          <div className="text-sm font-black">{boss.name} / Cap {boss.levelCap ?? 'TBD'}</div>
         </div>
         <label className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-black shadow-sm">
           <input type="checkbox" checked={Boolean(prep?.completed)} onChange={(event) => updatePrep({ completed: event.target.checked })} />
