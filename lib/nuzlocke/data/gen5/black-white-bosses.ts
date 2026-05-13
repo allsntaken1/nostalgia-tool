@@ -196,11 +196,35 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'rival',
     levelCap: 14,
     variantsByRivalStarterChoice: rivalVariants({
-      fire: [mon('Pidove', 12, ['Normal', 'Flying'], { moves: TODO_MOVES }), mon('Pansage', 12, ['Grass'], { moves: TODO_MOVES }), mon('Tepig', 14, ['Fire'], { moves: TODO_MOVES })],
-      water: [mon('Pidove', 12, ['Normal', 'Flying'], { moves: TODO_MOVES }), mon('Panpour', 12, ['Water'], { moves: TODO_MOVES }), mon('Oshawott', 14, ['Water'], { moves: TODO_MOVES })],
-      grass: [mon('Pidove', 12, ['Normal', 'Flying'], { moves: TODO_MOVES }), mon('Pansear', 12, ['Fire'], { moves: TODO_MOVES }), mon('Snivy', 14, ['Grass'], { moves: TODO_MOVES })],
+      // Cheren picks the starter strong against the player. Starter holds an Oran Berry.
+      // Verified per Bulbapedia (Cheren page).
+      fire: [
+        mon('Purrloin', 12, ['Dark'], { ability: 'Unburden', moves: [mv('Fury Swipes', 'Normal', 18), mv('Growl', 'Normal'), mv('Assist', 'Normal'), mv('Sand-Attack', 'Ground')] }),
+        mon('Tepig', 14, ['Fire'], { ability: 'Blaze', item: 'Oran Berry', moves: [mv('Odor Sleuth', 'Normal'), mv('Tail Whip', 'Normal'), mv('Ember', 'Fire', 40), mv('Defense Curl', 'Normal')] }),
+      ],
+      water: [
+        mon('Purrloin', 12, ['Dark'], { ability: 'Unburden', moves: [mv('Fury Swipes', 'Normal', 18), mv('Growl', 'Normal'), mv('Assist', 'Normal'), mv('Sand-Attack', 'Ground')] }),
+        mon('Oshawott', 14, ['Water'], { ability: 'Torrent', item: 'Oran Berry', moves: [mv('Focus Energy', 'Normal'), mv('Tail Whip', 'Normal'), mv('Water Gun', 'Water', 40), mv('Water Sport', 'Water')] }),
+      ],
+      grass: [
+        mon('Purrloin', 12, ['Dark'], { ability: 'Unburden', moves: [mv('Fury Swipes', 'Normal', 18), mv('Growl', 'Normal'), mv('Assist', 'Normal'), mv('Sand-Attack', 'Ground')] }),
+        mon('Snivy', 14, ['Grass'], { ability: 'Overgrow', item: 'Oran Berry', moves: [mv('Growth', 'Normal'), mv('Leer', 'Normal'), mv('Vine Whip', 'Grass', 35), mv('Wrap', 'Normal', 15)] }),
+      ],
     }),
-    notes: 'Route 3 rival battle. TODO: verified move extraction for this battle.',
+    notes: 'Route 3 rival battle. Cheren\'s starter holds an Oran Berry. Verified per Bulbapedia (Cheren page).',
+  }),
+  boss({
+    id: 'team-plasma-wellspring-cave-bw',
+    name: 'Team Plasma (Wellspring Cave)',
+    location: 'Wellspring Cave',
+    order: 9,
+    category: 'evil-team',
+    levelCap: 12,
+    team: [
+      mon('Patrat', 12, ['Normal'], { moves: TODO_MOVES }),
+      mon('Patrat', 12, ['Normal'], { moves: TODO_MOVES }),
+    ],
+    notes: 'Required story double-battle versus two Team Plasma Grunts on 1F of Wellspring Cave, fought alongside Cheren. Each grunt brings a single Patrat at level 12. Verified per Bulbapedia (Wellspring Cave page). TODO: confirm exact Patrat movesets for these specific grunts.',
   }),
   boss({
     id: 'n-2-bw',
@@ -210,26 +234,70 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'boss',
     levelCap: 13,
     team: [
-      mon('Pidove', 13, ['Normal', 'Flying'], { moves: TODO_MOVES }),
-      mon('Tympole', 13, ['Water'], { moves: TODO_MOVES }),
-      mon('Timburr', 13, ['Fighting'], { moves: TODO_MOVES }),
+      mon('Pidove', 13, ['Normal', 'Flying'], { ability: 'Big Pecks', moves: [mv('Gust', 'Flying', 40), mv('Quick Attack', 'Normal', 40), mv('Leer', 'Normal'), mv('Growl', 'Normal')] }),
+      mon('Timburr', 13, ['Fighting'], { ability: 'Sheer Force', moves: [mv('Low Kick', 'Fighting'), mv('Focus Energy', 'Normal'), mv('Bide', 'Normal'), mv('Leer', 'Normal')] }),
+      mon('Tympole', 13, ['Water'], { ability: 'Swift Swim', moves: [mv('Supersonic', 'Normal'), mv('BubbleBeam', 'Water', 65), mv('Growl', 'Normal'), mv('Round', 'Normal', 60)] }),
     ],
-    notes: 'TODO: verified move extraction for early N battle.',
+    notes: 'Second N battle, in front of the Nacrene City museum. Verified per Bulbapedia (N page).',
   }),
   boss({
     id: 'lenora-bw',
     name: 'Lenora',
-    location: 'Nacrene Gym',
+    location: 'Nacrene City',
     order: 11,
     category: 'gym',
     levelCap: 20,
-    team: [mon('Herdier', 18, ['Normal'], { moves: TODO_MOVES }), mon('Watchog', 20, ['Normal'], { moves: TODO_MOVES })],
-    notes: 'TODO: verified move extraction for Lenora.',
+    team: [
+      mon('Herdier', 18, ['Normal'], { ability: 'Intimidate', moves: [mv('Take Down', 'Normal', 90), mv('Bite', 'Dark', 60), mv('Retaliate', 'Normal', 70), mv('Leer', 'Normal')] }),
+      mon('Watchog', 20, ['Normal'], { ability: 'Illuminate', moves: [mv('Leer', 'Normal'), mv('Crunch', 'Dark', 80), mv('Retaliate', 'Normal', 70), mv('Hypnosis', 'Psychic')] }),
+    ],
+    notes: 'Nacrene Gym Leader (Normal-type). Awards the Basic Badge. Verified per Bulbapedia (Lenora page).',
+  }),
+  boss({
+    id: 'team-plasma-pinwheel-forest-bw',
+    name: 'Team Plasma (Pinwheel Forest)',
+    location: 'Pinwheel Forest Inside',
+    order: 11,
+    category: 'evil-team',
+    levelCap: 14,
+    team: [],
+    notes: 'Required story event chasing the stolen Dragon Skull through Pinwheel Forest, fought alongside Burgh. Multiple grunts. Verified that the encounter occurs per Bulbapedia (Pinwheel Forest page), but exact grunt teams and movesets are not surfaced. TODO: populate per-grunt teams when a cartridge-verified source is available.',
+  }),
+  boss({
+    id: 'bianca-3-bw',
+    name: 'Bianca',
+    location: 'Castelia City',
+    order: 11,
+    category: 'rival',
+    levelCap: 20,
+    variantsByRivalStarterChoice: rivalVariants({
+      // Bianca picks the starter weak to the player. Verified per Bulbapedia (Bianca page).
+      // Fought at Castelia Gate (the building between Skyarrow Bridge and Castelia proper).
+      fire: [
+        mon('Herdier', 18, ['Normal'], { ability: 'Intimidate', moves: [mv('Odor Sleuth', 'Normal'), mv('Bite', 'Dark', 60), mv('Helping Hand', 'Normal'), mv('Take Down', 'Normal', 90)] }),
+        mon('Pansear', 18, ['Fire'], { ability: 'Gluttony', moves: [mv('Lick', 'Ghost', 30), mv('Incinerate', 'Fire', 30), mv('Fury Swipes', 'Normal', 18), mv('Yawn', 'Normal')] }),
+        mon('Munna', 18, ['Psychic'], { ability: 'Forewarn', moves: [mv('Yawn', 'Normal'), mv('Psybeam', 'Psychic', 65), mv('Imprison', 'Psychic'), mv('Moonlight', 'Normal')] }),
+        mon('Dewott', 20, ['Water'], { ability: 'Torrent', moves: [mv('Water Sport', 'Water'), mv('Focus Energy', 'Normal'), mv('Razor Shell', 'Water', 75), mv('Fury Cutter', 'Bug', 20)] }),
+      ],
+      water: [
+        mon('Herdier', 18, ['Normal'], { ability: 'Intimidate', moves: [mv('Odor Sleuth', 'Normal'), mv('Bite', 'Dark', 60), mv('Helping Hand', 'Normal'), mv('Take Down', 'Normal', 90)] }),
+        mon('Pansage', 18, ['Grass'], { ability: 'Gluttony', moves: [mv('Lick', 'Ghost', 30), mv('Vine Whip', 'Grass', 35), mv('Fury Swipes', 'Normal', 18), mv('Leech Seed', 'Grass')] }),
+        mon('Munna', 18, ['Psychic'], { ability: 'Forewarn', moves: [mv('Yawn', 'Normal'), mv('Psybeam', 'Psychic', 65), mv('Imprison', 'Psychic'), mv('Moonlight', 'Normal')] }),
+        mon('Servine', 20, ['Grass'], { ability: 'Overgrow', moves: [mv('Wrap', 'Normal', 15), mv('Growth', 'Normal'), mv('Leaf Tornado', 'Grass', 65), mv('Leech Seed', 'Grass')] }),
+      ],
+      grass: [
+        mon('Herdier', 18, ['Normal'], { ability: 'Intimidate', moves: [mv('Odor Sleuth', 'Normal'), mv('Bite', 'Dark', 60), mv('Helping Hand', 'Normal'), mv('Take Down', 'Normal', 90)] }),
+        mon('Panpour', 18, ['Water'], { ability: 'Gluttony', moves: [mv('Lick', 'Ghost', 30), mv('Water Gun', 'Water', 40), mv('Fury Swipes', 'Normal', 18), mv('Water Sport', 'Water')] }),
+        mon('Munna', 18, ['Psychic'], { ability: 'Forewarn', moves: [mv('Yawn', 'Normal'), mv('Psybeam', 'Psychic', 65), mv('Imprison', 'Psychic'), mv('Moonlight', 'Normal')] }),
+        mon('Pignite', 20, ['Fire', 'Fighting'], { ability: 'Blaze', moves: [mv('Defense Curl', 'Normal'), mv('Flame Charge', 'Fire', 50), mv('Arm Thrust', 'Fighting', 15), mv('Smog', 'Poison', 30)] }),
+      ],
+    }),
+    notes: 'Third Bianca rival battle, fought at Castelia Gate (the building between Skyarrow Bridge and Castelia City). Bianca brings 4 Pokémon including an evolved starter. Verified per Bulbapedia (Bianca page).',
   }),
   boss({
     id: 'burgh-bw',
     name: 'Burgh',
-    location: 'Castelia Gym',
+    location: 'Castelia City',
     order: 12,
     category: 'gym',
     levelCap: 23,

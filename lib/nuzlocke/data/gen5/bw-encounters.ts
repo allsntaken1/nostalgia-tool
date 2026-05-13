@@ -50,6 +50,10 @@ const darkGrass = (species: string, types: PokemonType[], version: BwVersion = '
 const rustling = (species: string, types: PokemonType[], version: BwVersion = 'Both', notes?: string): BwEncounter =>
   encounter(species, types, 'grass', version, notes, { condition: 'Rustling Grass' });
 
+/** Tag a cave-method encounter as Dust Cloud (Drilbur etc.). */
+const dustCloud = (species: string, types: PokemonType[], version: BwVersion = 'Both', notes?: string): BwEncounter =>
+  encounter(species, types, 'cave', version, notes, { condition: 'Dust Cloud' });
+
 export const bwEncounterAreas: BwEncounterArea[] = [
   {
     locationId: 'bw-route-1',
@@ -158,6 +162,158 @@ export const bwEncounterAreas: BwEncounterArea[] = [
       'Ruined building west of Striaton City. Verified per Bulbapedia (Dreamyard page).',
       'Story event with Team Plasma grunts logged as a separate boss entry.',
       'Dark-grass encounters are post-badge high-level patches (~level 47-50).',
+    ],
+  },
+  {
+    locationId: 'bw-route-3',
+    displayName: 'Route 3',
+    encounters: [
+      // Standard grass
+      encounter('Patrat', ['Normal'], 'grass'),
+      encounter('Lillipup', ['Normal'], 'grass'),
+      encounter('Purrloin', ['Dark'], 'grass'),
+      encounter('Pidove', ['Normal', 'Flying'], 'grass'),
+      encounter('Blitzle', ['Electric'], 'grass'),
+      // Dark grass — same species set at higher levels
+      darkGrass('Patrat', ['Normal']),
+      darkGrass('Lillipup', ['Normal']),
+      darkGrass('Purrloin', ['Dark']),
+      darkGrass('Pidove', ['Normal', 'Flying']),
+      darkGrass('Blitzle', ['Electric']),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      // Swarm-only encounter — version-exclusive firefly Pokémon
+      encounter('Volbeat', ['Bug'], 'grass', 'Black', 'Swarm-only encounter (40% during an active swarm day) — Black-exclusive.', { condition: 'Swarm' }),
+      encounter('Illumise', ['Bug'], 'grass', 'White', 'Swarm-only encounter (40% during an active swarm day) — White-exclusive.', { condition: 'Swarm' }),
+      // Surfing
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing (Super Rod)
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
+      // Rippling-water Super Rod
+      fish('Seaking', ['Water'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Route between Striaton City and the Wellspring Cave entrance. Verified per Bulbapedia (Unova Route 3 page).',
+      'Site of the Cheren Route 3 rival battle (logged separately).',
+    ],
+  },
+  {
+    locationId: 'bw-wellspring-cave',
+    displayName: 'Wellspring Cave',
+    encounters: [
+      // Standard cave walking
+      encounter('Roggenrola', ['Rock'], 'cave'),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave'),
+      // Dust cloud (cave overworld phenomenon — Drilbur is the canonical occupant)
+      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter inside Wellspring Cave.'),
+      // Surfing — requires HM later in the game
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing (Super Rod)
+      fish('Poliwag', ['Water'], 'Super Rod'),
+      fish('Poliwhirl', ['Water'], 'Super Rod'),
+      fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
+    ],
+    notes: [
+      'Cave accessible from Route 3. Verified per Bulbapedia (Wellspring Cave page).',
+      'Site of the Team Plasma Wellspring Cave double battle (logged separately).',
+    ],
+  },
+  {
+    locationId: 'bw-nacrene-city',
+    displayName: 'Nacrene City',
+    encounters: [],
+    notes: [
+      'No wild grass/surf/fishing encounters in Nacrene City proper per Bulbapedia.',
+      'Museum offers fossil revivals (Cranidos/Shieldon/Tirtouga/Archen depending on store progression) and the Cottonee/Petilil in-game trade (Dye). These story events are not encoded as encounters yet.',
+      'Site of Lenora\'s gym battle and the N Nacrene battle (both logged separately as bosses).',
+      'TODO: Decide schema convention for fossil revival encounters before populating.',
+    ],
+  },
+  {
+    locationId: 'bw-pinwheel-forest-outer',
+    displayName: 'Pinwheel Forest Outside',
+    encounters: [
+      // Standard grass
+      encounter('Pidove', ['Normal', 'Flying'], 'grass'),
+      encounter('Timburr', ['Fighting'], 'grass'),
+      encounter('Tympole', ['Water'], 'grass'),
+      // Version-exclusive Fighting twin
+      encounter('Throh', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      encounter('Sawk', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      // Dark grass
+      darkGrass('Pidove', ['Normal', 'Flying']),
+      darkGrass('Timburr', ['Fighting']),
+      darkGrass('Tympole', ['Water']),
+      darkGrass('Throh', ['Fighting'], 'White', 'White-exclusive dark-grass encounter. TODO: verify version split.'),
+      darkGrass('Sawk', ['Fighting'], 'Black', 'Black-exclusive dark-grass encounter. TODO: verify version split.'),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Throh', ['Fighting'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
+      rustling('Sawk', ['Fighting'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+    ],
+    notes: [
+      'Outer area of Pinwheel Forest, between Nacrene City and Skyarrow Bridge. Verified per Bulbapedia (Pinwheel Forest page).',
+      'Throh (White) / Sawk (Black) is the canonical Gen 5 Fighting twin split — flagged for cartridge re-verification because version exclusivity differs across sources.',
+      'Inner area is gated by Team Plasma grunts until after Lenora\'s gym — see separate "Pinwheel Forest Inside" entry.',
+    ],
+  },
+  {
+    locationId: 'bw-pinwheel-forest-inner',
+    displayName: 'Pinwheel Forest Inside',
+    encounters: [
+      // Standard grass
+      encounter('Sewaddle', ['Bug', 'Grass'], 'grass'),
+      encounter('Cottonee', ['Grass'], 'grass', 'Black', 'Black-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      encounter('Petilil', ['Grass'], 'grass', 'White', 'White-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      encounter('Pidove', ['Normal', 'Flying'], 'grass'),
+      encounter('Venipede', ['Bug', 'Poison'], 'grass'),
+      // Dark grass
+      darkGrass('Swadloon', ['Bug', 'Grass']),
+      darkGrass('Whirlipede', ['Bug', 'Poison']),
+      darkGrass('Tranquill', ['Normal', 'Flying']),
+      darkGrass('Cottonee', ['Grass'], 'Black', 'Black-exclusive dark-grass encounter. TODO: verify version split.'),
+      darkGrass('Petilil', ['Grass'], 'White', 'White-exclusive dark-grass encounter. TODO: verify version split.'),
+      // Rustling grass — Audino + elemental monkeys + evolved version-exclusive grass mons
+      rustling('Audino', ['Normal']),
+      rustling('Pansage', ['Grass'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Pansear', ['Fire'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Panpour', ['Water'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Whimsicott', ['Grass'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive. TODO: verify version split.'),
+      rustling('Lilligant', ['Grass'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive. TODO: verify version split.'),
+      // Surfing (post-Surf)
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing (Super Rod)
+      fish('Goldeen', ['Water'], 'Super Rod'),
+    ],
+    notes: [
+      'Inner section of Pinwheel Forest. Accessible after defeating Lenora (Team Plasma blockade is removed). Verified per Bulbapedia (Pinwheel Forest page).',
+      'Rustling grass here is the only canonical source for an elemental monkey beyond the Striaton story gift.',
+      'Cottonee/Whimsicott (Black) vs. Petilil/Lilligant (White) is the canonical Gen 5 floral grass split — flagged for cartridge re-verification.',
+    ],
+  },
+  {
+    locationId: 'bw-skyarrow-bridge',
+    displayName: 'Skyarrow Bridge',
+    encounters: [],
+    notes: [
+      'Pedestrian-only bridge connecting Pinwheel Forest to Castelia City. No wild encounters.',
+    ],
+  },
+  {
+    locationId: 'bw-castelia-city',
+    displayName: 'Castelia City',
+    encounters: [],
+    notes: [
+      'No wild surfing or fishing encounters in Castelia City proper per Bulbapedia (Castelia City page).',
+      'Zorua is a one-time gift at Game Freak HQ in Castelia City if the player has a fateful-encounter Celebi. Not encoded as an encounter due to its event-distribution requirement.',
+      'Site of Burgh\'s gym battle and the Bianca Castelia Gate rival battle (both logged separately as bosses).',
+      'Castelia Sewers is a Black 2 / White 2 location; Black/White does not use it.',
     ],
   },
 ];
