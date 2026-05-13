@@ -54,6 +54,10 @@ const rustling = (species: string, types: PokemonType[], version: BwVersion = 'B
 const dustCloud = (species: string, types: PokemonType[], version: BwVersion = 'Both', notes?: string): BwEncounter =>
   encounter(species, types, 'cave', version, notes, { condition: 'Dust Cloud' });
 
+/** Tag a walking encounter as Deep Sand (Route 4 / Desert Resort sand patches). */
+const deepSand = (species: string, types: PokemonType[], version: BwVersion = 'Both', notes?: string): BwEncounter =>
+  encounter(species, types, 'grass', version, notes, { condition: 'Deep Sand' });
+
 export const bwEncounterAreas: BwEncounterArea[] = [
   {
     locationId: 'bw-route-1',
@@ -314,6 +318,81 @@ export const bwEncounterAreas: BwEncounterArea[] = [
       'Zorua is a one-time gift at Game Freak HQ in Castelia City if the player has a fateful-encounter Celebi. Not encoded as an encounter due to its event-distribution requirement.',
       'Site of Burgh\'s gym battle and the Bianca Castelia Gate rival battle (both logged separately as bosses).',
       'Castelia Sewers is a Black 2 / White 2 location; Black/White does not use it.',
+    ],
+  },
+  {
+    locationId: 'bw-route-4',
+    displayName: 'Route 4',
+    encounters: [
+      // Deep sand (the route's standard walking encounter, in the sandstorm patches)
+      deepSand('Sandile', ['Ground', 'Dark']),
+      deepSand('Darumaka', ['Fire']),
+      deepSand('Scraggy', ['Dark', 'Fighting']),
+      // Hippopotas is a swarm-only encounter on Route 4
+      encounter('Hippopotas', ['Ground'], 'grass', 'Both', 'Swarm-only encounter (40% rate during an active swarm day).', { condition: 'Swarm' }),
+      // Surfing — Frillish 100% in the standard surf table
+      surf('Frillish', ['Water', 'Ghost']),
+      // Rippling water surf
+      surf('Alomomola', ['Water'], 'Both', 'Rippling-water Surf encounter.', 'Rippling Water'),
+      surf('Jellicent', ['Water', 'Ghost'], 'Both', 'Rare rippling-water Surf encounter (5% rate).', 'Rippling Water'),
+      // Fishing (Super Rod)
+      fish('Krabby', ['Water'], 'Super Rod'),
+      fish('Clamperl', ['Water'], 'Super Rod'),
+      fish('Luvdisc', ['Water'], 'Super Rod', 'Both', 'Rare 5% Super Rod encounter.'),
+      // Rippling-water Super Rod
+      fish('Relicanth', ['Water', 'Rock'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+      fish('Luvdisc', ['Water'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+      fish('Kingler', ['Water'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+      fish('Huntail', ['Water'], 'Super Rod', 'Black', 'Rippling-water Super Rod, Black-exclusive.'),
+      fish('Gorebyss', ['Water'], 'Super Rod', 'White', 'Rippling-water Super Rod, White-exclusive.'),
+    ],
+    notes: [
+      'Sandstorm route north of Castelia City; transitions into Desert Resort. Verified per Bulbapedia (Unova Route 4 page).',
+      'Deep-sand walking encounters use method "grass" with the Deep Sand condition chip, mirroring how Rustling Grass and Dark Grass are encoded.',
+      'Huntail (Black) vs Gorebyss (White) is the canonical Super-Rod rippling-water split.',
+      'Site of the Cheren Route 4 rival battle (logged separately).',
+    ],
+  },
+  {
+    locationId: 'bw-desert-resort',
+    displayName: 'Desert Resort',
+    encounters: [
+      // Deep sand — entrance + interior tables combined. Sigilyph is interior-only per Bulbapedia.
+      deepSand('Sandile', ['Ground', 'Dark']),
+      deepSand('Darumaka', ['Fire']),
+      deepSand('Maractus', ['Grass']),
+      deepSand('Scraggy', ['Dark', 'Fighting'], 'Both', 'Appears in the Entrance area only (interior swaps Scraggy for Sigilyph).'),
+      deepSand('Dwebble', ['Bug', 'Rock']),
+      deepSand('Sigilyph', ['Psychic', 'Flying'], 'Both', 'Appears in the Desert Interior only.'),
+    ],
+    notes: [
+      'Open desert north of Route 4. Verified per Bulbapedia (Desert Resort page).',
+      'The Entrance and Interior areas share most encounters; Scraggy is entrance-only and Sigilyph is interior-only. Current schema does not split subareas so both are listed with subarea notes.',
+      'Volcarona is a postgame static at the bottom of Relic Castle, not encoded here.',
+    ],
+  },
+  {
+    locationId: 'bw-relic-castle',
+    displayName: 'Relic Castle',
+    encounters: [
+      // Early-access cave walking (1F and B1F, reachable from Desert Resort entrance pre-postgame)
+      encounter('Sandile', ['Ground', 'Dark'], 'cave'),
+      encounter('Yamask', ['Ghost'], 'cave'),
+    ],
+    notes: [
+      'Ancient ruins accessible from the Desert Resort. Early-access floors (1F-B1F) only. Verified per Bulbapedia (Relic Castle page).',
+      'Deeper floors (B2F-B6F) are postgame-locked and contain Krokorok / Cofagrigus / Sandslash / Onix / Claydol — intentionally NOT encoded here per scope.',
+      'The Volcarona static encounter at the bottom is postgame and not yet encoded.',
+    ],
+  },
+  {
+    locationId: 'bw-nimbasa-city',
+    displayName: 'Nimbasa City',
+    encounters: [],
+    notes: [
+      'No wild grass/surf/fishing encounters in Nimbasa City per Bulbapedia (Nimbasa City page).',
+      'In-city gifts/items are not encoded: Bicycle from the Day-Care Man (after defeating a Plasma grunt at the city entrance), HM04 Strength, Soothe Bell, Vs. Recorder.',
+      'Site of the N Ferris-wheel rival fight and Elesa\'s gym (both logged separately as bosses).',
     ],
   },
 ];

@@ -308,6 +308,37 @@ export const blackWhiteBosses: BossTrainer[] = [
     ],
   }),
   boss({
+    id: 'cheren-4-bw',
+    name: 'Cheren',
+    location: 'Route 4',
+    order: 13,
+    category: 'rival',
+    levelCap: 22,
+    variantsByRivalStarterChoice: rivalVariants({
+      // Cheren picks the starter strong against the player. Starter holds a Sitrus Berry.
+      // Verified per Bulbapedia (Cheren page).
+      fire: [
+        mon('Pidove', 20, ['Normal', 'Flying'], { ability: 'Super Luck', moves: [mv('Quick Attack', 'Normal', 40), mv('Leer', 'Normal'), mv('Air Cutter', 'Flying', 55), mv('Roost', 'Flying')] }),
+        mon('Pansage', 20, ['Grass'], { ability: 'Gluttony', moves: [mv('Bite', 'Dark', 60), mv('Vine Whip', 'Grass', 35), mv('Leech Seed', 'Grass'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Liepard', 20, ['Dark'], { ability: 'Unburden', moves: [mv('Pursuit', 'Dark', 40), mv('Torment', 'Dark'), mv('Sand-Attack', 'Ground'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Pignite', 22, ['Fire', 'Fighting'], { ability: 'Blaze', item: 'Sitrus Berry', moves: [mv('Flame Charge', 'Fire', 50), mv('Defense Curl', 'Normal'), mv('Arm Thrust', 'Fighting', 15), mv('Smog', 'Poison', 30)] }),
+      ],
+      water: [
+        mon('Pidove', 20, ['Normal', 'Flying'], { ability: 'Super Luck', moves: [mv('Quick Attack', 'Normal', 40), mv('Leer', 'Normal'), mv('Air Cutter', 'Flying', 55), mv('Roost', 'Flying')] }),
+        mon('Pansear', 20, ['Fire'], { ability: 'Gluttony', moves: [mv('Bite', 'Dark', 60), mv('Incinerate', 'Fire', 30), mv('Yawn', 'Normal'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Liepard', 20, ['Dark'], { ability: 'Unburden', moves: [mv('Pursuit', 'Dark', 40), mv('Torment', 'Dark'), mv('Sand-Attack', 'Ground'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Dewott', 22, ['Water'], { ability: 'Torrent', item: 'Sitrus Berry', moves: [mv('Razor Shell', 'Water', 75), mv('Focus Energy', 'Normal'), mv('Water Sport', 'Water'), mv('Fury Cutter', 'Bug', 20)] }),
+      ],
+      grass: [
+        mon('Pidove', 20, ['Normal', 'Flying'], { ability: 'Super Luck', moves: [mv('Quick Attack', 'Normal', 40), mv('Leer', 'Normal'), mv('Air Cutter', 'Flying', 55), mv('Roost', 'Flying')] }),
+        mon('Panpour', 20, ['Water'], { ability: 'Gluttony', moves: [mv('Bite', 'Dark', 60), mv('Water Gun', 'Water', 40), mv('Water Sport', 'Water'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Liepard', 20, ['Dark'], { ability: 'Unburden', moves: [mv('Pursuit', 'Dark', 40), mv('Torment', 'Dark'), mv('Sand-Attack', 'Ground'), mv('Fury Swipes', 'Normal', 18)] }),
+        mon('Servine', 22, ['Grass'], { ability: 'Overgrow', item: 'Sitrus Berry', moves: [mv('Leaf Tornado', 'Grass', 65), mv('Wrap', 'Normal', 15), mv('Leech Seed', 'Grass'), mv('Growth', 'Normal')] }),
+      ],
+    }),
+    notes: 'Fourth Cheren rival battle, fought on Route 4 after Burgh\'s gym. Cheren\'s starter holds a Sitrus Berry. Verified per Bulbapedia (Cheren page).',
+  }),
+  boss({
     id: 'n-3-bw',
     name: 'N',
     location: 'Nimbasa City',
@@ -315,17 +346,17 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'boss',
     levelCap: 22,
     team: [
-      mon('Sandile', 22, ['Ground', 'Dark'], { moves: TODO_MOVES }),
-      mon('Darumaka', 22, ['Fire'], { moves: TODO_MOVES }),
-      mon('Scraggy', 22, ['Dark', 'Fighting'], { moves: TODO_MOVES }),
-      mon('Sigilyph', 22, ['Psychic', 'Flying'], { moves: TODO_MOVES }),
+      mon('Sandile', 22, ['Ground', 'Dark'], { ability: 'Moxie', moves: [mv('Assurance', 'Dark', 60), mv('Embargo', 'Dark'), mv('Sand Tomb', 'Ground', 35), mv('Mud-Slap', 'Ground', 20)] }),
+      mon('Scraggy', 22, ['Dark', 'Fighting'], { ability: 'Shed Skin', moves: [mv('Swagger', 'Normal'), mv('Brick Break', 'Fighting', 75), mv('Headbutt', 'Normal', 70), mv('Faint Attack', 'Dark', 60)] }),
+      mon('Darumaka', 22, ['Fire'], { ability: 'Hustle', moves: [mv('Fire Punch', 'Fire', 75), mv('Headbutt', 'Normal', 70), mv('Facade', 'Normal', 70), mv('Uproar', 'Normal', 90)] }),
+      mon('Sigilyph', 22, ['Psychic', 'Flying'], { ability: 'Magic Guard', moves: [mv('Whirlwind', 'Normal'), mv('Psybeam', 'Psychic', 65), mv('Tailwind', 'Flying'), mv('Air Cutter', 'Flying', 55)] }),
     ],
-    notes: 'TODO: verified move extraction for Nimbasa N battle.',
+    notes: 'Third N battle, at the Rondez-View Ferris Wheel in Nimbasa City. Verified per Bulbapedia (Nimbasa City page).',
   }),
   boss({
     id: 'elesa-bw',
     name: 'Elesa',
-    location: 'Nimbasa Gym',
+    location: 'Nimbasa City',
     order: 14,
     category: 'gym',
     levelCap: 27,
