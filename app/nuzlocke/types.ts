@@ -116,7 +116,7 @@ export type NuzlockeBoss = {
   id: string;
   name: string;
   category: string;
-  levelCap: number;
+  levelCap: number | null;
   completed: boolean;
   notes: string;
   deaths: number;

@@ -150,12 +150,16 @@ export type EncounterOption = {
   abilities?: string[];
   surfMethod?: boolean;
   fishingMethod?: boolean;
+  method?: string;
   /** Optional rod gating for fishing encounters (Old/Good/Super). Rendered as a chip when present. */
   rod?: 'Old Rod' | 'Good Rod' | 'Super Rod';
   /** Optional condition annotation (e.g. "Rock Smash", "Daily", "Tuesdays only", subarea name). Rendered as a chip when present. */
   condition?: string;
-  /** Optional version-exclusivity marker. Only set for entries that are NOT 'Both'. */
-  version?: 'X' | 'Y';
+  /** Optional version-exclusivity marker. Only set for entries that are NOT broadly available. */
+  version?: GameVersion | 'Both';
+  rate?: number;
+  minLevel?: number;
+  maxLevel?: number;
 };
 
 export const natureOptions = [

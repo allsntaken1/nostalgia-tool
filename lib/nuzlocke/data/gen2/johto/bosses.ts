@@ -1,45 +1,129 @@
-import type { StarterChoice } from '@/app/nuzlocke/types';
+import type { PokemonType, StarterChoice } from '@/app/nuzlocke/types';
+
+export type Gen2BossPokemon = {
+  species: string;
+  level: number;
+  types: PokemonType[];
+  moves: [];
+};
 
 export type Gen2BossSkeleton = {
   id: string;
   name: string;
   category: string;
   locationId: string;
+  location: string;
   order: number;
-  baseTeam: [];
-  variantsByRivalStarterChoice?: Partial<Record<StarterChoice, []>>;
+  levelCap: number | null;
+  baseTeam: Gen2BossPokemon[];
+  variantsByRivalStarterChoice?: Partial<Record<StarterChoice, Gen2BossPokemon[]>>;
+  notes: string[];
 };
 
-function boss(id: string, name: string, category: string, locationId: string, order: number, rival = false): Gen2BossSkeleton {
+const mon = (species: string, level: number, types: PokemonType[]): Gen2BossPokemon => ({ species, level, types, moves: [] });
+
+function boss({
+  id,
+  name,
+  category,
+  locationId,
+  location,
+  order,
+  levelCap = null,
+  baseTeam = [],
+  variantsByRivalStarterChoice,
+  notes = ['TODO: Populate verified Gen 2 boss team data.'],
+}: {
+  id: string;
+  name: string;
+  category: string;
+  locationId: string;
+  location: string;
+  order: number;
+  levelCap?: number | null;
+  baseTeam?: Gen2BossPokemon[];
+  variantsByRivalStarterChoice?: Partial<Record<StarterChoice, Gen2BossPokemon[]>>;
+  notes?: string[];
+}): Gen2BossSkeleton {
   return {
     id,
     name,
     category,
     locationId,
+    location,
     order,
-    baseTeam: [],
-    ...(rival ? { variantsByRivalStarterChoice: { grass: [], fire: [], water: [] } } : {}),
+    levelCap,
+    baseTeam,
+    ...(variantsByRivalStarterChoice ? { variantsByRivalStarterChoice } : {}),
+    notes,
   };
 }
 
+const emptyStarterVariants: Partial<Record<StarterChoice, Gen2BossPokemon[]>> = { grass: [], fire: [], water: [] };
+
 export const gen2JohtoBosses: Gen2BossSkeleton[] = [
-  boss('rival-1-gen2', 'Rival 1', 'Rival', 'cherrygrove-city', 1, true),
-  boss('falkner-gen2', 'Falkner', 'Gym Leader', 'violet-city', 2),
-  boss('bugsy-gen2', 'Bugsy', 'Gym Leader', 'azalea-town', 3),
-  boss('rival-2-gen2', 'Rival 2', 'Rival', 'azalea-town', 4, true),
-  boss('whitney-gen2', 'Whitney', 'Gym Leader', 'goldenrod-city', 5),
-  boss('rival-3-gen2', 'Rival 3', 'Rival', 'burned-tower', 6, true),
-  boss('morty-gen2', 'Morty', 'Gym Leader', 'ecruteak-city', 7),
-  boss('chuck-gen2', 'Chuck', 'Gym Leader', 'cianwood-city', 8),
-  boss('jasmine-gen2', 'Jasmine', 'Gym Leader', 'olivine-city', 9),
-  boss('pryce-gen2', 'Pryce', 'Gym Leader', 'mahogany-town', 10),
-  boss('rocket-admins-gen2', 'Team Rocket Admin Fights', 'Evil Team', 'team-rocket-hq', 11),
-  boss('clair-gen2', 'Clair', 'Gym Leader', 'blackthorn-city', 12),
-  boss('rival-victory-road-gen2', 'Rival Victory Road', 'Rival', 'victory-road', 13, true),
-  boss('will-gen2', 'Will', 'Elite Four', 'indigo-plateau', 14),
-  boss('koga-gen2', 'Koga', 'Elite Four', 'indigo-plateau', 15),
-  boss('bruno-gen2', 'Bruno', 'Elite Four', 'indigo-plateau', 16),
-  boss('karen-gen2', 'Karen', 'Elite Four', 'indigo-plateau', 17),
-  boss('lance-gen2', 'Lance', 'Champion', 'indigo-plateau', 18),
-  boss('red-gen2', 'Red', 'Optional Postgame', 'mt-silver', 19),
+  boss({
+    id: 'rival-1-gen2',
+    name: 'Rival 1',
+    category: 'rival',
+    locationId: 'cherrygrove-city',
+    location: 'Cherrygrove City',
+    order: 1,
+    levelCap: 5,
+    variantsByRivalStarterChoice: {
+      grass: [mon('Cyndaquil', 5, ['Fire'])],
+      fire: [mon('Totodile', 5, ['Water'])],
+      water: [mon('Chikorita', 5, ['Grass'])],
+    },
+    notes: [
+      'Rival starter variants use the universal player starter mapping: grass -> Cyndaquil, fire -> Totodile, water -> Chikorita.',
+      'TODO: Verify Gen 2 movesets before adding moves.',
+    ],
+  }),
+  boss({
+    id: 'elder-li-gen2',
+    name: 'Elder Li',
+    category: 'boss',
+    locationId: 'sprout-tower',
+    location: 'Sprout Tower',
+    order: 2,
+    levelCap: 10,
+    baseTeam: [
+      mon('Bellsprout', 7, ['Grass', 'Poison']),
+      mon('Bellsprout', 7, ['Grass', 'Poison']),
+      mon('Hoothoot', 10, ['Normal', 'Flying']),
+    ],
+    notes: ['TODO: Verify Gen 2 movesets before adding moves.'],
+  }),
+  boss({
+    id: 'falkner-gen2',
+    name: 'Falkner',
+    category: 'gym',
+    locationId: 'violet-city',
+    location: 'Violet Gym',
+    order: 3,
+    levelCap: 9,
+    baseTeam: [
+      mon('Pidgey', 7, ['Normal', 'Flying']),
+      mon('Pidgeotto', 9, ['Normal', 'Flying']),
+    ],
+    notes: ['TODO: Verify Gen 2 movesets before adding moves.'],
+  }),
+  boss({ id: 'bugsy-gen2', name: 'Bugsy', category: 'Gym Leader', locationId: 'azalea-town', location: 'Azalea Town', order: 4 }),
+  boss({ id: 'rival-2-gen2', name: 'Rival 2', category: 'Rival', locationId: 'azalea-town', location: 'Azalea Town', order: 5, variantsByRivalStarterChoice: emptyStarterVariants }),
+  boss({ id: 'whitney-gen2', name: 'Whitney', category: 'Gym Leader', locationId: 'goldenrod-city', location: 'Goldenrod City', order: 6 }),
+  boss({ id: 'rival-3-gen2', name: 'Rival 3', category: 'Rival', locationId: 'burned-tower', location: 'Burned Tower', order: 7, variantsByRivalStarterChoice: emptyStarterVariants }),
+  boss({ id: 'morty-gen2', name: 'Morty', category: 'Gym Leader', locationId: 'ecruteak-city', location: 'Ecruteak City', order: 8 }),
+  boss({ id: 'chuck-gen2', name: 'Chuck', category: 'Gym Leader', locationId: 'cianwood-city', location: 'Cianwood City', order: 9 }),
+  boss({ id: 'jasmine-gen2', name: 'Jasmine', category: 'Gym Leader', locationId: 'olivine-city', location: 'Olivine City', order: 10 }),
+  boss({ id: 'pryce-gen2', name: 'Pryce', category: 'Gym Leader', locationId: 'mahogany-town', location: 'Mahogany Town', order: 11 }),
+  boss({ id: 'rocket-admins-gen2', name: 'Team Rocket Admin Fights', category: 'Evil Team', locationId: 'team-rocket-hq', location: 'Team Rocket HQ', order: 12 }),
+  boss({ id: 'clair-gen2', name: 'Clair', category: 'Gym Leader', locationId: 'blackthorn-city', location: 'Blackthorn City', order: 13 }),
+  boss({ id: 'rival-victory-road-gen2', name: 'Rival Victory Road', category: 'Rival', locationId: 'victory-road', location: 'Victory Road', order: 14, variantsByRivalStarterChoice: emptyStarterVariants }),
+  boss({ id: 'will-gen2', name: 'Will', category: 'Elite Four', locationId: 'indigo-plateau', location: 'Indigo Plateau', order: 15 }),
+  boss({ id: 'koga-gen2', name: 'Koga', category: 'Elite Four', locationId: 'indigo-plateau', location: 'Indigo Plateau', order: 16 }),
+  boss({ id: 'bruno-gen2', name: 'Bruno', category: 'Elite Four', locationId: 'indigo-plateau', location: 'Indigo Plateau', order: 17 }),
+  boss({ id: 'karen-gen2', name: 'Karen', category: 'Elite Four', locationId: 'indigo-plateau', location: 'Indigo Plateau', order: 18 }),
+  boss({ id: 'lance-gen2', name: 'Lance', category: 'Champion', locationId: 'indigo-plateau', location: 'Indigo Plateau', order: 19 }),
+  boss({ id: 'red-gen2', name: 'Red', category: 'Optional Postgame', locationId: 'mt-silver', location: 'Mt. Silver', order: 20 }),
 ];
