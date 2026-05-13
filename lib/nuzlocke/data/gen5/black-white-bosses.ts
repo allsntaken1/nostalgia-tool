@@ -452,15 +452,16 @@ export const blackWhiteBosses: BossTrainer[] = [
   boss({
     id: 'brycen-bw',
     name: 'Brycen',
-    location: 'Icirrus Gym',
+    location: 'Icirrus City',
     order: 18,
     category: 'gym',
     levelCap: 39,
     team: [
-      mon('Vanillish', 37, ['Ice'], { moves: [mv('Acid Armor', 'Poison'), mv('Astonish', 'Ghost', 30), mv('Mirror Shot', 'Steel', 65), mv('Frost Breath', 'Ice', 40)] }),
-      mon('Cryogonal', 37, ['Ice'], { moves: [mv('Reflect', 'Psychic'), mv('Rapid Spin', 'Normal', 20), mv('Aurora Beam', 'Ice', 65), mv('Frost Breath', 'Ice', 40)] }),
-      mon('Beartic', 39, ['Ice'], { moves: [mv('Swagger', 'Normal'), mv('Brine', 'Water', 65), mv('Slash', 'Normal', 70), mv('Icicle Crash', 'Ice', 85)] }),
+      mon('Vanillish', 37, ['Ice'], { ability: 'Ice Body', moves: [mv('Acid Armor', 'Poison'), mv('Astonish', 'Ghost', 30), mv('Mirror Shot', 'Steel', 65), mv('Frost Breath', 'Ice', 40)] }),
+      mon('Cryogonal', 37, ['Ice'], { ability: 'Levitate', moves: [mv('Reflect', 'Psychic'), mv('Rapid Spin', 'Normal', 20), mv('Aurora Beam', 'Ice', 65), mv('Frost Breath', 'Ice', 40)] }),
+      mon('Beartic', 39, ['Ice'], { ability: 'Snow Cloak', moves: [mv('Swagger', 'Normal'), mv('Brine', 'Water', 65), mv('Slash', 'Normal', 70), mv('Icicle Crash', 'Ice', 85)] }),
     ],
+    notes: 'Icirrus Gym Leader (Ice-type). Awards the Freeze Badge. Verified per Bulbapedia (Brycen page).',
   }),
   boss({
     id: 'drayden-black-bw',

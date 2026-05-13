@@ -578,6 +578,108 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     ],
   },
   {
+    locationId: 'bw-twist-mountain',
+    displayName: 'Twist Mountain',
+    encounters: [
+      // Cave walking — all five species appear year-round with shifting rates.
+      // Cubchoo / Cryogonal are emphasized in Winter; Boldore / Gurdurr drop in Winter.
+      encounter('Boldore', ['Rock'], 'cave'),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave'),
+      encounter('Gurdurr', ['Fighting'], 'cave'),
+      encounter('Cubchoo', ['Ice'], 'cave', 'Both', 'Dominant in Winter (45% rate); rare in other seasons.'),
+      encounter('Cryogonal', ['Ice'], 'cave', 'Both', 'Rare year-round; slightly more common in Winter (5%).'),
+      // Dust cloud
+      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter inside Twist Mountain.'),
+    ],
+    notes: [
+      'Cave between Route 7 and Icirrus City. Verified per Bulbapedia (Twist Mountain page).',
+      'Floor tables (B1F-3F) share the same species set with seasonal rate variation; schema does not split subareas so the union is listed here.',
+      'Postgame depths / drill-section encounters intentionally omitted from the main-story list.',
+    ],
+  },
+  {
+    locationId: 'bw-icirrus-city',
+    displayName: 'Icirrus City',
+    encounters: [
+      // Puddles — non-winter only (puddles freeze over in Winter).
+      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      // Surfing
+      surf('Stunfisk', ['Ground', 'Electric']),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter.', 'Rippling Water'),
+      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
+      // Fishing
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Icicle-themed city housing Brycen\'s gym (Gym 7). Verified per Bulbapedia (Icirrus City page).',
+      'Puddle encounters disappear in Winter when the wetlands freeze.',
+      'Site of Brycen\'s gym battle (logged separately as a boss).',
+    ],
+  },
+  {
+    locationId: 'bw-dragonspiral-tower',
+    displayName: 'Dragonspiral Tower',
+    encounters: [
+      // Outer / entrance grass — seasonal swaps
+      encounter('Tranquill', ['Normal', 'Flying'], 'grass', 'Both', 'Spring / Summer / Autumn only.', { condition: 'Spring/Summer/Autumn' }),
+      encounter('Vanillite', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
+      encounter('Deerling', ['Normal', 'Grass'], 'grass', 'Both', 'Form varies by season.'),
+      encounter('Mienfoo', ['Fighting'], 'grass'),
+      encounter('Druddigon', ['Dragon'], 'grass', 'Both', 'Rare 10% outer-grass encounter.'),
+      encounter('Cubchoo', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
+      // Dark grass — Winter-only at this location per Bulbapedia
+      darkGrass('Vanillish', ['Ice'], 'Both', 'Winter only (Dark Grass).'),
+      darkGrass('Sawsbuck', ['Normal', 'Grass'], 'Both', 'Winter form. Winter only (Dark Grass).'),
+      darkGrass('Mienfoo', ['Fighting'], 'Both', 'Winter only (Dark Grass).'),
+      darkGrass('Beartic', ['Ice'], 'Both', 'Winter only (Dark Grass).'),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      // Surfing (water around the tower)
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing (Super Rod) — dragon-line specialty location
+      fish('Dratini', ['Dragon'], 'Super Rod'),
+      fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
+      fish('Dragonair', ['Dragon'], 'Super Rod', 'Both', 'Rare 5% Super Rod encounter.'),
+      // Rippling-water Super Rod
+      fish('Dragonite', ['Dragon', 'Flying'], 'Super Rod', 'Both', 'Rare 1% rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Ancient tower north of Icirrus, reached after Brycen. Outer/entrance/Outside-area encounters listed here. Verified per Bulbapedia (Dragonspiral Tower page).',
+      'Story site of the Reshiram (B) / Zekrom (W) awakening — handled as a legendary boss entry separately when populated.',
+      'Postgame inner-tower depths are intentionally omitted from the main-story list.',
+    ],
+  },
+  {
+    locationId: 'bw-moor-of-icirrus',
+    displayName: 'Moor of Icirrus',
+    encounters: [
+      // Puddles — non-winter only
+      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
+      // Surfing
+      surf('Stunfisk', ['Ground', 'Electric']),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter (95%).', 'Rippling Water'),
+      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
+      // Fishing
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Marshland accessible from Icirrus City. Verified per Bulbapedia (Moor of Icirrus page).',
+      'Puddle tier freezes over in Winter — those entries become unavailable.',
+    ],
+  },
+  {
     locationId: 'bw-cold-storage',
     displayName: 'Cold Storage',
     encounters: [
