@@ -246,23 +246,24 @@ export const bwEncounterAreas: BwEncounterArea[] = [
       encounter('Pidove', ['Normal', 'Flying'], 'grass'),
       encounter('Timburr', ['Fighting'], 'grass'),
       encounter('Tympole', ['Water'], 'grass'),
-      // Version-exclusive Fighting twin
-      encounter('Throh', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
-      encounter('Sawk', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      // Version-exclusive Fighting twin — Throh is Black-exclusive, Sawk is White-exclusive
+      // (corrected in Pass 4 against Bulbapedia Lostlorn Forest cross-reference).
+      encounter('Throh', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Sawk', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter.'),
       // Dark grass
       darkGrass('Pidove', ['Normal', 'Flying']),
       darkGrass('Timburr', ['Fighting']),
       darkGrass('Tympole', ['Water']),
-      darkGrass('Throh', ['Fighting'], 'White', 'White-exclusive dark-grass encounter. TODO: verify version split.'),
-      darkGrass('Sawk', ['Fighting'], 'Black', 'Black-exclusive dark-grass encounter. TODO: verify version split.'),
+      darkGrass('Throh', ['Fighting'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Sawk', ['Fighting'], 'White', 'White-exclusive dark-grass encounter.'),
       // Rustling grass
       rustling('Audino', ['Normal']),
-      rustling('Throh', ['Fighting'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
-      rustling('Sawk', ['Fighting'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+      rustling('Throh', ['Fighting'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+      rustling('Sawk', ['Fighting'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
     ],
     notes: [
       'Outer area of Pinwheel Forest, between Nacrene City and Skyarrow Bridge. Verified per Bulbapedia (Pinwheel Forest page).',
-      'Throh (White) / Sawk (Black) is the canonical Gen 5 Fighting twin split — flagged for cartridge re-verification because version exclusivity differs across sources.',
+      'Throh (Black) / Sawk (White) is the canonical Gen 5 Fighting twin split (verified against Bulbapedia Lostlorn Forest cross-reference in Pass 4; Pass 2 entry had the split inverted and has been corrected).',
       'Inner area is gated by Team Plasma grunts until after Lenora\'s gym — see separate "Pinwheel Forest Inside" entry.',
     ],
   },
@@ -272,23 +273,25 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     encounters: [
       // Standard grass
       encounter('Sewaddle', ['Bug', 'Grass'], 'grass'),
-      encounter('Cottonee', ['Grass'], 'grass', 'Black', 'Black-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
-      encounter('Petilil', ['Grass'], 'grass', 'White', 'White-exclusive grass encounter. TODO: re-verify version split against cartridge.'),
+      // Cottonee/Whimsicott is White-exclusive, Petilil/Lilligant is Black-exclusive
+      // (corrected in Pass 4 against Bulbapedia Lostlorn Forest cross-reference).
+      encounter('Cottonee', ['Grass'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      encounter('Petilil', ['Grass'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
       encounter('Pidove', ['Normal', 'Flying'], 'grass'),
       encounter('Venipede', ['Bug', 'Poison'], 'grass'),
       // Dark grass
       darkGrass('Swadloon', ['Bug', 'Grass']),
       darkGrass('Whirlipede', ['Bug', 'Poison']),
       darkGrass('Tranquill', ['Normal', 'Flying']),
-      darkGrass('Cottonee', ['Grass'], 'Black', 'Black-exclusive dark-grass encounter. TODO: verify version split.'),
-      darkGrass('Petilil', ['Grass'], 'White', 'White-exclusive dark-grass encounter. TODO: verify version split.'),
+      darkGrass('Cottonee', ['Grass'], 'White', 'White-exclusive dark-grass encounter.'),
+      darkGrass('Petilil', ['Grass'], 'Black', 'Black-exclusive dark-grass encounter.'),
       // Rustling grass — Audino + elemental monkeys + evolved version-exclusive grass mons
       rustling('Audino', ['Normal']),
       rustling('Pansage', ['Grass'], 'Both', 'Rare 10% rustling-grass encounter.'),
       rustling('Pansear', ['Fire'], 'Both', 'Rare 10% rustling-grass encounter.'),
       rustling('Panpour', ['Water'], 'Both', 'Rare 10% rustling-grass encounter.'),
-      rustling('Whimsicott', ['Grass'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive. TODO: verify version split.'),
-      rustling('Lilligant', ['Grass'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive. TODO: verify version split.'),
+      rustling('Whimsicott', ['Grass'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
+      rustling('Lilligant', ['Grass'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
       // Surfing (post-Surf)
       surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
       surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
@@ -298,7 +301,7 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     notes: [
       'Inner section of Pinwheel Forest. Accessible after defeating Lenora (Team Plasma blockade is removed). Verified per Bulbapedia (Pinwheel Forest page).',
       'Rustling grass here is the only canonical source for an elemental monkey beyond the Striaton story gift.',
-      'Cottonee/Whimsicott (Black) vs. Petilil/Lilligant (White) is the canonical Gen 5 floral grass split — flagged for cartridge re-verification.',
+      'Cottonee/Whimsicott (White) vs. Petilil/Lilligant (Black) is the canonical Gen 5 floral grass split (verified against Bulbapedia Lostlorn Forest cross-reference in Pass 4; Pass 2 entry had the split inverted and has been corrected).',
     ],
   },
   {
@@ -393,6 +396,175 @@ export const bwEncounterAreas: BwEncounterArea[] = [
       'No wild grass/surf/fishing encounters in Nimbasa City per Bulbapedia (Nimbasa City page).',
       'In-city gifts/items are not encoded: Bicycle from the Day-Care Man (after defeating a Plasma grunt at the city entrance), HM04 Strength, Soothe Bell, Vs. Recorder.',
       'Site of the N Ferris-wheel rival fight and Elesa\'s gym (both logged separately as bosses).',
+    ],
+  },
+  {
+    locationId: 'bw-route-5',
+    displayName: 'Route 5',
+    encounters: [
+      // Regular grass
+      encounter('Liepard', ['Dark'], 'grass'),
+      encounter('Trubbish', ['Poison'], 'grass'),
+      encounter('Minccino', ['Normal'], 'grass'),
+      encounter('Gothita', ['Psychic'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Solosis', ['Psychic'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      // Dark grass
+      darkGrass('Liepard', ['Dark']),
+      darkGrass('Trubbish', ['Poison']),
+      darkGrass('Minccino', ['Normal']),
+      darkGrass('Gothita', ['Psychic'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Solosis', ['Psychic'], 'White', 'White-exclusive dark-grass encounter.'),
+      // Rustling grass — Audino mostly, with Cinccino and Emolga as rare entries
+      rustling('Audino', ['Normal']),
+      rustling('Cinccino', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      // Swarm (Smeargle)
+      encounter('Smeargle', ['Normal'], 'grass', 'Both', 'Swarm-only encounter (40% rate during an active swarm day).', { condition: 'Swarm' }),
+    ],
+    notes: [
+      'Mid-game route connecting Nimbasa City to Driftveil Drawbridge. Verified per Bulbapedia (Unova Route 5 page).',
+      'Gothita (Black) vs. Solosis (White) is the canonical Psychic-line version split.',
+      'No Surf/Fishing tables on Route 5 itself; the route\'s water access is via the Driftveil Drawbridge.',
+    ],
+  },
+  {
+    locationId: 'bw-driftveil-drawbridge',
+    displayName: 'Driftveil Drawbridge',
+    encounters: [
+      // Flying-Pokémon shadow ambush — encoded as method: 'special' with a Bridge Shadow condition
+      // so the UI surfaces it distinctly from grass/cave entries.
+      encounter('Ducklett', ['Water', 'Flying'], 'special', 'Both', 'Bridge-shadow ambush encounter (100% rate) when a flying Pokémon\'s shadow passes overhead.', { condition: 'Bridge Shadow' }),
+    ],
+    notes: [
+      'Drawbridge between Route 5 and Driftveil City. Wild encounters occur via the flying-Pokémon shadow mechanic; the same shadow can drop wing items. Verified per Bulbapedia (Driftveil Drawbridge page).',
+    ],
+  },
+  {
+    locationId: 'bw-driftveil-city',
+    displayName: 'Driftveil City',
+    encounters: [
+      // Surfing
+      surf('Frillish', ['Water', 'Ghost']),
+      // Rippling-water surf
+      surf('Alomomola', ['Water'], 'Both', 'Rippling-water Surf encounter (95% rate).', 'Rippling Water'),
+      surf('Jellicent', ['Water', 'Ghost'], 'Both', 'Rare rippling-water Surf encounter (5% rate).', 'Rippling Water'),
+      // Fishing (Super Rod)
+      fish('Krabby', ['Water'], 'Super Rod'),
+      fish('Chinchou', ['Water', 'Electric'], 'Super Rod'),
+      fish('Luvdisc', ['Water'], 'Super Rod', 'Both', 'Rare 5% Super Rod encounter.'),
+      // Rippling-water Super Rod
+      fish('Kingler', ['Water'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+      fish('Lanturn', ['Water', 'Electric'], 'Super Rod', 'Both', 'Rare rippling-water Super Rod encounter.'),
+    ],
+    notes: [
+      'Port city housing Clay\'s gym (Gym 5). Verified per Bulbapedia (Driftveil City page).',
+      'In-game Minccino-for-Basculin trade (Red-Striped in Black, Blue-Striped in White) is not encoded as a wild encounter.',
+      'Site of the Bianca Driftveil rival fight and Clay\'s gym battle (both logged separately as bosses).',
+    ],
+  },
+  {
+    locationId: 'bw-cold-storage',
+    displayName: 'Cold Storage',
+    encounters: [
+      // Exterior grass — the storage building interior has no wild encounters
+      encounter('Herdier', ['Normal'], 'grass'),
+      encounter('Timburr', ['Fighting'], 'grass'),
+      encounter('Minccino', ['Normal'], 'grass'),
+      encounter('Vanillite', ['Ice'], 'grass'),
+      // Dark grass (post-badge tier)
+      darkGrass('Herdier', ['Normal']),
+      darkGrass('Timburr', ['Fighting']),
+      darkGrass('Minccino', ['Normal']),
+      darkGrass('Vanillite', ['Ice']),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Stoutland', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Cinccino', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+    ],
+    notes: [
+      'Refrigerated storage facility south of Driftveil City. All wild encounters occur on the exterior grass; the storage warehouse building itself has no wild Pokémon. Verified per Bulbapedia (Cold Storage page).',
+      'Site of the required Team Plasma story sequence (logged as a separate boss entry).',
+      'Schema does not split interior vs exterior subareas; the absence of interior wild encounters is captured in this note.',
+    ],
+  },
+  {
+    locationId: 'bw-route-16',
+    displayName: 'Route 16',
+    encounters: [
+      // Regular grass
+      encounter('Liepard', ['Dark'], 'grass'),
+      encounter('Trubbish', ['Poison'], 'grass'),
+      encounter('Minccino', ['Normal'], 'grass'),
+      encounter('Gothita', ['Psychic'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      encounter('Solosis', ['Psychic'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      // Dark grass
+      darkGrass('Liepard', ['Dark']),
+      darkGrass('Trubbish', ['Poison']),
+      darkGrass('Minccino', ['Normal']),
+      darkGrass('Gothita', ['Psychic'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      darkGrass('Solosis', ['Psychic'], 'White', 'White-exclusive dark-grass encounter.'),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Cinccino', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      // Swarm (Pineco — Route 16 specific)
+      encounter('Pineco', ['Bug'], 'grass', 'Both', 'Swarm-only encounter (40% rate during an active swarm day).', { condition: 'Swarm' }),
+    ],
+    notes: [
+      'Route between the Marvelous Bridge and Lostlorn Forest. POSTGAME ONLY in Black/White — accessible only after the Marvelous Bridge is built post-credits. Verified per Bulbapedia (Unova Route 16 page).',
+      'Encounter table closely mirrors Route 5 with Pineco swap replacing Smeargle as the swarm slot.',
+    ],
+  },
+  {
+    locationId: 'bw-lostlorn-forest',
+    displayName: 'Lostlorn Forest',
+    encounters: [
+      // Regular grass
+      encounter('Tranquill', ['Normal', 'Flying'], 'grass'),
+      encounter('Swadloon', ['Bug', 'Grass'], 'grass'),
+      encounter('Venipede', ['Bug', 'Poison'], 'grass'),
+      encounter('Cottonee', ['Grass'], 'grass', 'White', 'White-exclusive grass encounter.'),
+      encounter('Petilil', ['Grass'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
+      // Dark grass
+      darkGrass('Tranquill', ['Normal', 'Flying']),
+      darkGrass('Swadloon', ['Bug', 'Grass']),
+      darkGrass('Venipede', ['Bug', 'Poison']),
+      darkGrass('Cottonee', ['Grass'], 'White', 'White-exclusive dark-grass encounter.'),
+      darkGrass('Petilil', ['Grass'], 'Black', 'Black-exclusive dark-grass encounter.'),
+      // Rustling grass — Audino majority, plus monkey trio and version-exclusive evolved grass mons
+      rustling('Audino', ['Normal']),
+      rustling('Pansage', ['Grass'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Pansear', ['Fire'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Panpour', ['Water'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Leavanny', ['Bug', 'Grass'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Whimsicott', ['Grass'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
+      rustling('Lilligant', ['Grass'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+      // Surfing
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Fishing
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
+    ],
+    notes: [
+      'Hidden forest accessible via Route 16. POSTGAME ONLY in Black/White — reachable only after the Marvelous Bridge is built post-credits. Verified per Bulbapedia (Lostlorn Forest page).',
+      'The mysterious Zoroark NPC event (requires event Shiny Legendary Beast) is not encoded as an encounter — it is a distribution-gated event similar to the Castelia Zorua gift.',
+      'TODO: Verify Heracross/Pinsir static availability in BW Lostlorn (some sources mention them via foreign-trainer overworld interaction).',
+    ],
+  },
+  {
+    locationId: 'bw-marvelous-bridge',
+    displayName: 'Marvelous Bridge',
+    encounters: [
+      // Flying-Pokémon shadow ambush
+      encounter('Swanna', ['Water', 'Flying'], 'special', 'Both', 'Bridge-shadow ambush encounter (100% rate) when a flying Pokémon\'s shadow passes overhead.', { condition: 'Bridge Shadow' }),
+    ],
+    notes: [
+      'Bridge connecting Opelucid City to Route 15. POSTGAME ONLY in Black/White — opens only after defeating Ghetsis and the credits roll. Verified per Bulbapedia (Marvelous Bridge page).',
+      'The Magikarp Salesman ($500) is not encoded as a wild encounter (it is a purchase event).',
     ],
   },
 ];
