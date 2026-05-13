@@ -374,12 +374,12 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'boss',
     levelCap: 28,
     team: [
-      mon('Boldore', 28, ['Rock'], { moves: TODO_MOVES }),
-      mon('Ferroseed', 28, ['Grass', 'Steel'], { moves: TODO_MOVES }),
-      mon('Joltik', 28, ['Bug', 'Electric'], { moves: TODO_MOVES }),
-      mon('Klink', 28, ['Steel'], { moves: TODO_MOVES }),
+      mon('Boldore', 28, ['Rock'], { ability: 'Sturdy', moves: [mv('Mud-Slap', 'Ground', 20), mv('Iron Defense', 'Steel'), mv('Smack Down', 'Rock', 50), mv('Power Gem', 'Rock', 80)] }),
+      mon('Ferroseed', 28, ['Grass', 'Steel'], { ability: 'Iron Barbs', moves: [mv('Metal Claw', 'Steel', 50), mv('Pin Missile', 'Bug', 25), mv('Gyro Ball', 'Steel'), mv('Iron Defense', 'Steel')] }),
+      mon('Joltik', 28, ['Bug', 'Electric'], { ability: 'Unnerve', moves: [mv('Electroweb', 'Electric', 55), mv('Bug Bite', 'Bug', 60), mv('Gastro Acid', 'Poison'), mv('Slash', 'Normal', 70)] }),
+      mon('Klink', 28, ['Steel'], { ability: 'Plus', moves: [mv('Gear Grind', 'Steel', 50), mv('ThunderShock', 'Electric', 40), mv('Bind', 'Normal', 15), mv('Charge Beam', 'Electric', 50)] }),
     ],
-    notes: 'TODO: verified move extraction for Chargestone Cave N battle.',
+    notes: 'Fourth N battle, deep inside Chargestone Cave. Verified per Bulbapedia (Chargestone Cave page).',
   }),
   boss({
     id: 'bianca-4-bw',
@@ -438,15 +438,16 @@ export const blackWhiteBosses: BossTrainer[] = [
   boss({
     id: 'skyla-bw',
     name: 'Skyla',
-    location: 'Mistralton Gym',
+    location: 'Mistralton City',
     order: 17,
     category: 'gym',
     levelCap: 35,
     team: [
-      mon('Swoobat', 33, ['Psychic', 'Flying'], { moves: [mv('Acrobatics', 'Flying', 55), mv('Amnesia', 'Psychic'), mv('Assurance', 'Dark', 50), mv('Heart Stamp', 'Psychic', 60)] }),
-      mon('Unfezant', 33, ['Normal', 'Flying'], { moves: [mv('Leer', 'Normal'), mv('Quick Attack', 'Normal', 40), mv('Air Slash', 'Flying', 75), mv('Razor Wind', 'Normal', 80)] }),
-      mon('Swanna', 35, ['Water', 'Flying'], { moves: [mv('Aqua Ring', 'Water'), mv('Aerial Ace', 'Flying', 60), mv('BubbleBeam', 'Water', 65), mv('Air Slash', 'Flying', 75)] }),
+      mon('Swoobat', 33, ['Psychic', 'Flying'], { ability: 'Unaware', moves: [mv('Acrobatics', 'Flying', 55), mv('Amnesia', 'Psychic'), mv('Assurance', 'Dark', 50), mv('Heart Stamp', 'Psychic', 60)] }),
+      mon('Unfezant', 33, ['Normal', 'Flying'], { ability: 'Big Pecks', moves: [mv('Leer', 'Normal'), mv('Quick Attack', 'Normal', 40), mv('Air Slash', 'Flying', 75), mv('Razor Wind', 'Normal', 80)] }),
+      mon('Swanna', 35, ['Water', 'Flying'], { ability: 'Keen Eye', moves: [mv('Aqua Ring', 'Water'), mv('Aerial Ace', 'Flying', 60), mv('BubbleBeam', 'Water', 65), mv('Air Slash', 'Flying', 75)] }),
     ],
+    notes: 'Mistralton Gym Leader (Flying-type). Awards the Jet Badge. Verified per Bulbapedia (Skyla page).',
   }),
   boss({
     id: 'brycen-bw',

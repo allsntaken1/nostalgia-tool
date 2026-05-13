@@ -463,6 +463,121 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     ],
   },
   {
+    locationId: 'bw-route-6',
+    displayName: 'Route 6',
+    encounters: [
+      // Regular grass — seasonal swaps for Tranquill/Swadloon (spring/summer/autumn) vs Vanillite (winter)
+      encounter('Tranquill', ['Normal', 'Flying'], 'grass', 'Both', 'Spring / Summer / Autumn only.', { condition: 'Spring/Summer/Autumn' }),
+      encounter('Swadloon', ['Bug', 'Grass'], 'grass', 'Both', 'Spring / Summer / Autumn only.', { condition: 'Spring/Summer/Autumn' }),
+      encounter('Vanillite', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
+      encounter('Deerling', ['Normal', 'Grass'], 'grass', 'Both', 'Form (Spring / Summer / Autumn / Winter) varies by season.'),
+      encounter('Karrablast', ['Bug'], 'grass'),
+      encounter('Foongus', ['Grass', 'Poison'], 'grass'),
+      // Dark grass — same seasonal pattern at higher levels
+      darkGrass('Tranquill', ['Normal', 'Flying'], 'Both', 'Spring / Summer / Autumn only.'),
+      darkGrass('Swadloon', ['Bug', 'Grass'], 'Both', 'Spring / Summer / Autumn only.'),
+      darkGrass('Vanillite', ['Ice'], 'Both', 'Winter only.'),
+      darkGrass('Deerling', ['Normal', 'Grass'], 'Both', 'Form varies by season.'),
+      darkGrass('Karrablast', ['Bug']),
+      darkGrass('Foongus', ['Grass', 'Poison']),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rare 5% rustling-grass encounter (Spring/Summer/Autumn).'),
+      rustling('Leavanny', ['Bug', 'Grass'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 20% rustling-grass encounter.'),
+      // Surfing
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
+      // Rippling-water Surf
+      surf('Basculin', ['Water'], 'Both', 'Rippling-water Surf (form varies by version).', 'Rippling Water'),
+      surf('Politoed', ['Water'], 'Both', 'Rare 5% rippling-water Surf encounter.', 'Rippling Water'),
+      // Fishing (Super Rod)
+      fish('Poliwag', ['Water'], 'Super Rod'),
+      fish('Poliwhirl', ['Water'], 'Super Rod'),
+      // Swarm (version-exclusive)
+      encounter('Plusle', ['Electric'], 'grass', 'Black', 'Swarm-only encounter (40% during an active swarm day), Black-exclusive.', { condition: 'Swarm' }),
+      encounter('Minun', ['Electric'], 'grass', 'White', 'Swarm-only encounter (40% during an active swarm day), White-exclusive.', { condition: 'Swarm' }),
+    ],
+    notes: [
+      'Forest route between Driftveil City and Chargestone Cave. Verified per Bulbapedia (Unova Route 6 page).',
+      'Seasonal swaps: Tranquill / Swadloon appear Spring/Summer/Autumn; Vanillite replaces them in Winter. Deerling\'s form changes with the season but is available year-round.',
+      'Plusle (Black) vs Minun (White) is the canonical swarm version split.',
+    ],
+  },
+  {
+    locationId: 'bw-chargestone-cave',
+    displayName: 'Chargestone Cave',
+    encounters: [
+      // Cave walking — 1F/B1F and B2F have nearly identical tables; merging since schema doesn't split floors
+      encounter('Boldore', ['Rock'], 'cave'),
+      encounter('Joltik', ['Bug', 'Electric'], 'cave'),
+      encounter('Ferroseed', ['Grass', 'Steel'], 'cave'),
+      encounter('Klink', ['Steel'], 'cave'),
+      encounter('Tynamo', ['Electric'], 'cave', 'Both', 'Rare cave encounter (2% on 1F/B1F, 8% on B2F).'),
+      // Dust cloud
+      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter inside Chargestone Cave (all floors).'),
+    ],
+    notes: [
+      'Electromagnetic cave connecting Route 6 to Mistralton City. Verified per Bulbapedia (Chargestone Cave page).',
+      'Floor tables (1F/B1F vs B2F) share the same species set with slight rate differences; schema does not split subareas so the union is listed here.',
+      'Site of the required N Chargestone Cave story battle (logged separately as a boss).',
+    ],
+  },
+  {
+    locationId: 'bw-mistralton-city',
+    displayName: 'Mistralton City',
+    encounters: [],
+    notes: [
+      'No standard wild grass/surf/fishing encounter table for Mistralton City in Bulbapedia\'s primary page.',
+      'Cargo plane town housing Skyla\'s gym (Gym 6). Larvesta egg from Cedric Juniper is part of the post-Skyla Route 18 sequence and is not encoded as a Mistralton encounter.',
+      'Site of Skyla\'s gym battle (logged separately as a boss).',
+      'TODO: Verify whether Mistralton has any reachable Surf/Fishing tiles during the main story; Bulbapedia did not surface a table for this Pass.',
+    ],
+  },
+  {
+    locationId: 'bw-celestial-tower',
+    displayName: 'Celestial Tower',
+    encounters: [
+      // Tower walking — Litwick on lower floors, Elgyem rising in frequency higher up
+      encounter('Litwick', ['Ghost', 'Fire'], 'cave'),
+      encounter('Elgyem', ['Psychic'], 'cave', 'Both', 'Appears on 3F-5F, rate climbs from 15% on 3F to 50% on 5F.'),
+    ],
+    notes: [
+      'Bell tower west of Mistralton City reachable via Route 7. Tower-walking method is encoded as "cave" since the project does not split tower interiors. Verified per Bulbapedia (Celestial Tower page).',
+      'Litwick dominates 2F (100%) and tapers off ascending floors as Elgyem becomes more common.',
+    ],
+  },
+  {
+    locationId: 'bw-route-7',
+    displayName: 'Route 7',
+    encounters: [
+      // Regular grass
+      encounter('Watchog', ['Normal'], 'grass'),
+      encounter('Zebstrika', ['Electric'], 'grass'),
+      encounter('Foongus', ['Grass', 'Poison'], 'grass'),
+      encounter('Deerling', ['Normal', 'Grass'], 'grass', 'Both', 'Form varies by season.'),
+      encounter('Tranquill', ['Normal', 'Flying'], 'grass'),
+      encounter('Cubchoo', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
+      // Dark grass
+      darkGrass('Watchog', ['Normal']),
+      darkGrass('Zebstrika', ['Electric']),
+      darkGrass('Foongus', ['Grass', 'Poison']),
+      darkGrass('Tranquill', ['Normal', 'Flying']),
+      darkGrass('Deerling', ['Normal', 'Grass'], 'Both', 'Form varies by season.'),
+      darkGrass('Cubchoo', ['Ice'], 'Both', 'Winter only.'),
+      // Rustling grass
+      rustling('Audino', ['Normal']),
+      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rare 5% rustling-grass encounter.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
+    ],
+    notes: [
+      'Mountainous route between Mistralton City, Celestial Tower, and Twist Mountain. Verified per Bulbapedia (Unova Route 7 page).',
+      'Cubchoo is winter-only; Deerling\'s sprite form changes with the season but is available year-round.',
+      'Story-position note: Route 7 is canonically accessed post-Skyla in BW; included in Pass 5 per the explicit scope list. Twist Mountain (eastern continuation) is post-Skyla and not yet populated.',
+      'TODO: Populate Mistralton-area Bouffalant trade reference if the tracker convention starts encoding in-game trades as encounter entries.',
+    ],
+  },
+  {
     locationId: 'bw-cold-storage',
     displayName: 'Cold Storage',
     encounters: [
