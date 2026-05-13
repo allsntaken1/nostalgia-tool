@@ -205,7 +205,10 @@ export const frlgBosses: BossTrainer[] = [
       mon('Nidoqueen', 41, ['Poison', 'Ground'], { ability: 'Poison Point', moves: [mv('Body Slam', 'Normal', 85), mv('Earthquake', 'Ground', 100), mv('Toxic', 'Poison'), mv('Double Kick', 'Fighting', 30)] }),
     ],
   }),
-  boss({ id: 'rival-silph-co-frlg', name: 'Rival Silph Co.', locationId: 'silph-co', location: 'Silph Co.', order: 13.5, category: 'rival', notes: 'TODO: Populate verified FRLG Silph Co. rival variants in the next rival data pass.' }),
+  // Rival 5 at Silph Co. — placeholder until verified team data lands. Setting an explicit
+  // levelCap so the boss sorts in-progression and doesn't render as "Cap 1" via the empty-team
+  // fallback. The rival's ace at Silph Co. is canonically lv 41 (final-evolution starter line).
+  boss({ id: 'rival-silph-co-frlg', name: 'Rival Silph Co.', locationId: 'silph-co', location: 'Silph Co.', order: 13.5, category: 'rival', levelCap: 41, notes: 'TODO: Populate verified FRLG Silph Co. rival variants in the next rival data pass.' }),
   boss({
     id: 'giovanni-viridian-frlg',
     name: 'Giovanni 3',

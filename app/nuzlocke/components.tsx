@@ -197,6 +197,28 @@ function isRun(value: unknown): value is NuzlockeRun {
   return typeof run.id === 'string' && typeof run.runName === 'string' && typeof run.gameVersion === 'string';
 }
 
+/** Warning text appended to boss notes by bossTrainerToRunBoss when no starter is picked yet. */
+const STARTER_SYNC_WARNING = 'Choose your starter type to sync rival battles.';
+
+/**
+ * Reconcile saved boss notes against the freshly-built default notes.
+ *
+ * When the player picks their starter, the default notes drop the
+ * `STARTER_SYNC_WARNING` sentinel because the rival variant has resolved. But
+ * `...boss` (saved data) keeps the OLD notes verbatim, so the warning lingers.
+ * If the default no longer carries the warning, strip it from the saved copy.
+ * Otherwise, preserve any user-edited notes as-is.
+ */
+function reconcileBossNotes(savedNotes: string | undefined, defaultNotes: string | undefined): string {
+  const saved = (savedNotes ?? '').trim();
+  const defaults = (defaultNotes ?? '').trim();
+  if (!saved) return defaults;
+  if (saved.includes(STARTER_SYNC_WARNING) && !defaults.includes(STARTER_SYNC_WARNING)) {
+    return saved.replace(STARTER_SYNC_WARNING, '').replace(/\s{2,}/g, ' ').trim();
+  }
+  return saved;
+}
+
 function mergeBossDefaults(bosses: NuzlockeBoss[], gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
   const currentBosses = Array.isArray(bosses) ? bosses : [];
   return getNuzlockeBosses(gameVersion, starterChoice).map((defaultBoss) => {
@@ -222,6 +244,7 @@ function mergeBossDefaults(bosses: NuzlockeBoss[], gameVersion: GameVersion, sta
         ...boss,
         category: defaultBoss.category,
         levelCap: boss.levelCap || defaultBoss.levelCap,
+        notes: reconcileBossNotes(boss.notes, defaultBoss.notes),
         pokemon,
       };
     });
@@ -1018,15 +1041,38 @@ function trainerSpriteSlug(name: string) {
 function TrainerSprite({ name }: { name: string }) {
   const slug = trainerSpriteSlug(name);
   const src = `https://play.pokemonshowdown.com/sprites/trainers/${slug}.png`;
+  const [imgError, setImgError] = useState(false);
+  useEffect(() => {
+    setImgError(false);
+  }, [src]);
+
+  // Fall back to a trainer-class initials chip when no canonical sprite exists
+  // (common for project-specific labels like "Rival 1" / "Rival Silph Co.").
+  const initials = (name || '?')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || '?';
 
   return (
     <span className="flex h-16 w-16 shrink-0 items-end justify-center rounded-2xl bg-white/70 shadow-sm">
-      <img
-        src={src}
-        alt={`${name} trainer sprite`}
-        className="max-h-16 max-w-14 object-contain"
-        style={{ imageRendering: 'pixelated' }}
-      />
+      {imgError ? (
+        <span
+          aria-label={`${name} sprite unavailable`}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#182a40] bg-white text-sm font-black text-[#182a40]"
+        >
+          {initials}
+        </span>
+      ) : (
+        <img
+          src={src}
+          alt={`${name} trainer sprite`}
+          className="max-h-16 max-w-14 object-contain"
+          style={{ imageRendering: 'pixelated' }}
+          onError={() => setImgError(true)}
+        />
+      )}
     </span>
   );
 }
