@@ -985,6 +985,8 @@ export function getXyEncounterOptions(gameVersion: GameVersion): Record<string, 
         fishingMethod: item.method === 'fishing' || undefined,
         ...(item.rod ? { rod: item.rod } : {}),
         ...(item.condition ? { condition: item.condition } : {}),
+        // Preserve version exclusivity for UI chip rendering; only set when X/Y-specific.
+        ...(item.version === 'X' || item.version === 'Y' ? { version: item.version } : {}),
       }));
 
     acc[area.displayName] = options;

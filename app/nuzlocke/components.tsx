@@ -1894,14 +1894,19 @@ function EncounterTracker({
   });
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
+  const [showRockSmashEncounters, setShowRockSmashEncounters] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [manualAbilityOptions, setManualAbilityOptions] = useState<string[]>([]);
   const fetchedAbilityData = useAbilityData(form.pokemon);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
-  const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean }) =>
-    (!option.surfMethod || showSurfEncounters) && (!option.fishingMethod || showFishingEncounters);
+  // Rock Smash entries are encoded as `condition === 'Rock Smash'` (method "special").
+  const isRockSmashOption = (option: { condition?: string }) => option.condition === 'Rock Smash';
+  const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean; condition?: string }) =>
+    (!option.surfMethod || showSurfEncounters)
+    && (!option.fishingMethod || showFishingEncounters)
+    && (!isRockSmashOption(option) || showRockSmashEncounters);
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
   const selectedAbilityOptions =
     fetchedAbilityData.length > 0
@@ -2091,6 +2096,14 @@ function EncounterTracker({
               />
               Fishing
             </label>
+            <label className="flex items-center gap-2 rounded-lg bg-white/70 px-2 py-1.5 shadow-sm">
+              <input
+                type="checkbox"
+                checked={showRockSmashEncounters}
+                onChange={(event) => setShowRockSmashEncounters(event.target.checked)}
+              />
+              Rock Smash
+            </label>
           </div>
         </div>
         <div className="grid gap-2 md:grid-cols-2">
@@ -2131,6 +2144,9 @@ function EncounterTracker({
                   <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                     {options.length > 0 ? options.map((option) => {
                       const isDupe = dupesClauseEnabled && caughtSpecies.has(option.species.toLowerCase());
+                      const hasMethodChips = Boolean(
+                        (option.surfMethod && !option.rod) || option.rod || option.condition || option.version,
+                      );
                       return (
                         <button
                           key={option.species}
@@ -2143,9 +2159,30 @@ function EncounterTracker({
                           className={`relative flex items-center gap-2 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5 ${isDupe ? 'grayscale opacity-55' : ''}`}
                         >
                           <MonsterToken species={option.species} types={option.types} compact />
-                          <span>
-                            <span className="block">{option.species}</span>
+                          <span className="min-w-0">
+                            <span className="block truncate">{option.species}</span>
                             <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
+                            {hasMethodChips ? (
+                              <span className="mt-1 flex flex-wrap gap-1">
+                                {option.surfMethod && !option.rod ? (
+                                  <span className="rounded-md bg-[#1976d2] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">Surf</span>
+                                ) : null}
+                                {option.rod ? (
+                                  <span className="rounded-md bg-[#00838f] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">{option.rod}</span>
+                                ) : null}
+                                {option.condition ? (
+                                  <span className={`rounded-md px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white ${
+                                    option.condition === 'Rock Smash' ? 'bg-[#8d6e63]' : 'bg-[#546e7a]'
+                                  }`}>{option.condition}</span>
+                                ) : null}
+                                {option.version === 'X' ? (
+                                  <span className="rounded-md bg-[#1565c0] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white" title="X-exclusive encounter">X only</span>
+                                ) : null}
+                                {option.version === 'Y' ? (
+                                  <span className="rounded-md bg-[#c62828] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white" title="Y-exclusive encounter">Y only</span>
+                                ) : null}
+                              </span>
+                            ) : null}
                           </span>
                           {isDupe ? <span className="absolute right-2 top-2 rounded-[4px] bg-[#182a40] px-1.5 py-1 text-[9px] uppercase tracking-[0.1em] text-white">Dupe</span> : null}
                         </button>
