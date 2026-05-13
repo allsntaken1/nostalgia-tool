@@ -1,6 +1,6 @@
 import type { GameVersion, PokemonType, StarterChoice, TrainerThreatMetadata } from '@/app/nuzlocke/types';
 
-export type DataStatus = 'Skeleton' | 'Partial' | 'Working Complete' | 'Complete';
+export type DataStatus = 'Skeleton' | 'Partial' | 'In Audit' | 'Working Complete' | 'Complete';
 
 export interface BossPokemon {
   species: string;

@@ -12,7 +12,7 @@ export const frlgMetadata: Record<'FireRed' | 'LeafGreen', {
   moduleId: FrlgGameSet;
   supportsStarterChoice: true;
   starterChoiceMode: 'type-only';
-  status: 'skeleton';
+  status: 'in-audit';
 }> = {
   FireRed: {
     displayName: 'FireRed',
@@ -23,7 +23,7 @@ export const frlgMetadata: Record<'FireRed' | 'LeafGreen', {
     moduleId: 'frlg',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'in-audit',
   },
   LeafGreen: {
     displayName: 'LeafGreen',
@@ -34,7 +34,7 @@ export const frlgMetadata: Record<'FireRed' | 'LeafGreen', {
     moduleId: 'frlg',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'in-audit',
   },
 };
 
