@@ -83,11 +83,23 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'rival',
     levelCap: 7,
     variantsByRivalStarterChoice: rivalVariants({
-      fire: [mon('Lillipup', 6, ['Normal'], { moves: TODO_MOVES }), mon('Oshawott', 7, ['Water'], { moves: TODO_MOVES })],
-      water: [mon('Lillipup', 6, ['Normal'], { moves: TODO_MOVES }), mon('Snivy', 7, ['Grass'], { moves: TODO_MOVES })],
-      grass: [mon('Lillipup', 6, ['Normal'], { moves: TODO_MOVES }), mon('Tepig', 7, ['Fire'], { moves: TODO_MOVES })],
+      // Variant keys are the RIVAL's starter type (returned by getRivalStarterChoice).
+      // Bianca picks the starter weak to the player; her variant.fire team is shown
+      // when the player chose Snivy, etc.
+      fire: [
+        mon('Lillipup', 6, ['Normal'], { ability: 'Vital Spirit', moves: [mv('Leer', 'Normal'), mv('Tackle', 'Normal', 50), mv('Odor Sleuth', 'Normal')] }),
+        mon('Oshawott', 7, ['Water'], { ability: 'Torrent', moves: [mv('Tackle', 'Normal', 50), mv('Tail Whip', 'Normal'), mv('Water Gun', 'Water', 40)] }),
+      ],
+      water: [
+        mon('Lillipup', 6, ['Normal'], { ability: 'Vital Spirit', moves: [mv('Leer', 'Normal'), mv('Tackle', 'Normal', 50), mv('Odor Sleuth', 'Normal')] }),
+        mon('Snivy', 7, ['Grass'], { ability: 'Overgrow', moves: [mv('Tackle', 'Normal', 50), mv('Leer', 'Normal'), mv('Vine Whip', 'Grass', 35)] }),
+      ],
+      grass: [
+        mon('Lillipup', 6, ['Normal'], { ability: 'Vital Spirit', moves: [mv('Leer', 'Normal'), mv('Tackle', 'Normal', 50), mv('Odor Sleuth', 'Normal')] }),
+        mon('Tepig', 7, ['Fire'], { ability: 'Blaze', moves: [mv('Tackle', 'Normal', 50), mv('Tail Whip', 'Normal'), mv('Ember', 'Fire', 40)] }),
+      ],
     }),
-    notes: 'Route 2 rival battle. TODO: verified move extraction for this battle.',
+    notes: 'Route 2 rival battle. Verified per Bulbapedia (Bianca page).',
   }),
   boss({
     id: 'n-1-bw',
@@ -96,8 +108,10 @@ export const blackWhiteBosses: BossTrainer[] = [
     order: 4,
     category: 'boss',
     levelCap: 7,
-    team: [mon('Purrloin', 7, ['Dark'], { moves: TODO_MOVES })],
-    notes: 'TODO: verified move extraction for early N battle.',
+    team: [
+      mon('Purrloin', 7, ['Dark'], { ability: 'Unburden', moves: [mv('Scratch', 'Normal', 40), mv('Growl', 'Normal')] }),
+    ],
+    notes: 'First N battle, in the Accumula Town square after his speech. Verified per Bulbapedia (Accumula Town page).',
   }),
   boss({
     id: 'cheren-2-bw',
@@ -107,11 +121,33 @@ export const blackWhiteBosses: BossTrainer[] = [
     category: 'rival',
     levelCap: 8,
     variantsByRivalStarterChoice: rivalVariants({
-      fire: [mon('Purrloin', 8, ['Dark'], { moves: TODO_MOVES }), mon('Tepig', 8, ['Fire'], { moves: TODO_MOVES })],
-      water: [mon('Purrloin', 8, ['Dark'], { moves: TODO_MOVES }), mon('Oshawott', 8, ['Water'], { moves: TODO_MOVES })],
-      grass: [mon('Purrloin', 8, ['Dark'], { moves: TODO_MOVES }), mon('Snivy', 8, ['Grass'], { moves: TODO_MOVES })],
+      fire: [
+        mon('Purrloin', 8, ['Dark'], { ability: 'Unburden', moves: [mv('Scratch', 'Normal', 40), mv('Growl', 'Normal'), mv('Assist', 'Normal')] }),
+        mon('Tepig', 8, ['Fire'], { ability: 'Blaze', item: 'Oran Berry', moves: [mv('Tackle', 'Normal', 50), mv('Tail Whip', 'Normal'), mv('Ember', 'Fire', 40)] }),
+      ],
+      water: [
+        mon('Purrloin', 8, ['Dark'], { ability: 'Unburden', moves: [mv('Scratch', 'Normal', 40), mv('Growl', 'Normal'), mv('Assist', 'Normal')] }),
+        mon('Oshawott', 8, ['Water'], { ability: 'Torrent', item: 'Oran Berry', moves: [mv('Tackle', 'Normal', 50), mv('Tail Whip', 'Normal'), mv('Water Gun', 'Water', 40)] }),
+      ],
+      grass: [
+        mon('Purrloin', 8, ['Dark'], { ability: 'Unburden', moves: [mv('Scratch', 'Normal', 40), mv('Growl', 'Normal'), mv('Assist', 'Normal')] }),
+        mon('Snivy', 8, ['Grass'], { ability: 'Overgrow', item: 'Oran Berry', moves: [mv('Tackle', 'Normal', 50), mv('Leer', 'Normal'), mv('Vine Whip', 'Grass', 35)] }),
+      ],
     }),
-    notes: 'Striaton City rival battle. TODO: verified move extraction for this battle.',
+    notes: 'Striaton City rival battle. Starter holds an Oran Berry. Verified per Bulbapedia (Cheren page).',
+  }),
+  boss({
+    id: 'team-plasma-dreamyard-bw',
+    name: 'Team Plasma (Dreamyard)',
+    location: 'Dreamyard',
+    order: 5,
+    category: 'evil-team',
+    levelCap: 10,
+    team: [
+      mon('Patrat', 10, ['Normal'], { moves: TODO_MOVES }),
+      mon('Purrloin', 10, ['Dark'], { moves: TODO_MOVES }),
+    ],
+    notes: 'Required story double-battle versus two Team Plasma Grunts at the Dreamyard, fought alongside Cheren after Bianca\'s Musharna is attacked. Each grunt brings one Pokémon at level 10 (Patrat and Purrloin, one per grunt). Verified per Bulbapedia (Dreamyard page). TODO: confirm exact Patrat/Purrloin movesets for these specific grunts.',
   }),
   boss({
     id: 'chili-bw',

@@ -5,6 +5,7 @@ import { blackWhiteBosses } from './black-white-bosses';
 import { b2w2Routes, bwRoutes } from './gen5-routes';
 import { getGen5TrainerSkeletons } from './gen5-trainers';
 import { gen5Metadata, supportsGen5Data } from './metadata';
+import { getBwEncounterOptions } from './bw-encounters';
 
 export { blackWhiteBosses } from './black-white-bosses';
 export { b2w2Gyms } from './b2w2-gyms';
@@ -17,6 +18,7 @@ export { b2w2Routes, bwRoutes } from './gen5-routes';
 export { gen5StaticEncounters } from './gen5-static-encounters';
 export { getGen5TrainerSkeletons } from './gen5-trainers';
 export { gen5Metadata, supportsGen5Data } from './metadata';
+export { bwEncounterAreas, bwEncounterNotes, getBwEncounterOptions } from './bw-encounters';
 
 function routeSet(gameVersion: GameVersion) {
   return gameVersion === 'Black 2' || gameVersion === 'White 2' ? b2w2Routes : bwRoutes;
@@ -29,6 +31,17 @@ export function getGen5Locations(gameVersion: GameVersion) {
 
 export function getGen5EncounterOptions(gameVersion: GameVersion) {
   if (!supportsGen5Data(gameVersion)) return {};
+  // BW pulls from the structured `bwEncounterAreas` (rich data per location); any location
+  // not present in that map falls back to an empty option list so the UI still renders the
+  // route name without crashing.
+  if (gameVersion === 'Black' || gameVersion === 'White') {
+    const populated = getBwEncounterOptions(gameVersion);
+    return routeSet(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
+      acc[route.displayName] = populated[route.displayName] ?? [];
+      return acc;
+    }, populated);
+  }
+  // B2W2 still uses the skeleton fallback until structured data lands.
   return routeSet(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
     acc[route.displayName] = [];
     return acc;
