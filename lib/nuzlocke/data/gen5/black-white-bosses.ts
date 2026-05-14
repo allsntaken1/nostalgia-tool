@@ -152,7 +152,7 @@ export const blackWhiteBosses: BossTrainer[] = [
   boss({
     id: 'chili-bw',
     name: 'Chili',
-    location: 'Striaton Gym',
+    location: 'Striaton City',
     order: 6,
     category: 'gym',
     levelCap: 14,
@@ -165,7 +165,7 @@ export const blackWhiteBosses: BossTrainer[] = [
   boss({
     id: 'cress-bw',
     name: 'Cress',
-    location: 'Striaton Gym',
+    location: 'Striaton City',
     order: 7,
     category: 'gym',
     levelCap: 14,
@@ -178,7 +178,7 @@ export const blackWhiteBosses: BossTrainer[] = [
   boss({
     id: 'cilan-bw',
     name: 'Cilan',
-    location: 'Striaton Gym',
+    location: 'Striaton City',
     order: 8,
     category: 'gym',
     levelCap: 14,
