@@ -350,11 +350,10 @@ function reconcileBossNotes(savedNotes: string | undefined, defaultNotes: string
 
 function mergeBossDefaults(bosses: NuzlockeBoss[], gameVersion: GameVersion, starterChoice?: StarterChoice | null) {
   const currentBosses = Array.isArray(bosses) ? bosses : [];
-  const preferDefaultRoster = gameVersion === 'FireRed' || gameVersion === 'LeafGreen';
   return getNuzlockeBosses(gameVersion, starterChoice).map((defaultBoss) => {
       const boss = currentBosses.find((item) => item.id === defaultBoss.id) ?? defaultBoss;
       const defaultPokemon = defaultBoss?.pokemon ?? [];
-      const pokemon = preferDefaultRoster && defaultPokemon.length > 0
+      const pokemon = defaultPokemon.length > 0
         ? defaultPokemon
         : Array.isArray(boss.pokemon) && boss.pokemon.length > 0
         ? boss.pokemon.map((member) => {
@@ -1162,6 +1161,19 @@ function trainerSpriteSlug(name: string) {
     Hop: 'hop',
     Bede: 'bede',
     Marnie: 'marnie',
+    Shauna: 'shauna',
+    'Professor Sycamore': 'sycamore',
+    'Team Flare Grunts (Glittering Cave)': 'flaregrunt',
+    'Team Flare (Kalos Power Plant)': 'flaregrunt',
+    'Team Flare (Poké Ball Factory)': 'flaregrunt',
+    'Korrina (Mega Evolution)': 'korrina',
+    'Calem/Serena (Tower of Mastery)': 'calem',
+    'Calem/Serena (Pre-League)': 'calem',
+    'Lysandre (Lysandre Labs)': 'lysandre',
+    'Lysandre (Team Flare Secret HQ)': 'lysandre',
+    Aliana: 'scientistf',
+    Celosia: 'scientistf',
+    'Kimono Girls': 'kimonogirl',
     Roark: 'roark',
     Gardenia: 'gardenia',
     Cynthia: 'cynthia-gen4',

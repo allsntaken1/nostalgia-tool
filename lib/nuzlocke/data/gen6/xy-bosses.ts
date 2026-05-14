@@ -49,33 +49,33 @@ const boss = ({
   ...(variantsByRivalStarterChoice ? { variantsByRivalStarterChoice } : {}),
 });
 
-// Player's starter type maps to which starter the rival owns.
+// Variant keys are the rival starter type after the shared resolver maps the player's choice.
 // Shauna picks the starter WEAK to the player.
-//   player grass (Chespin) -> Shauna Froakie (water)
-//   player fire (Fennekin) -> Shauna Chespin (grass)
-//   player water (Froakie) -> Shauna Fennekin (fire)
+//   rival fire key (player grass/Chespin) -> Shauna Froakie (water)
+//   rival water key (player fire/Fennekin) -> Shauna Chespin (grass)
+//   rival grass key (player water/Froakie) -> Shauna Fennekin (fire)
 const shaunaStarterVariants = (
   froakie: BossTrainerPokemon[],
   chespin: BossTrainerPokemon[],
   fennekin: BossTrainerPokemon[],
 ): BossTrainer['variantsByRivalStarterChoice'] => ({
-  grass: froakie,
-  fire: chespin,
-  water: fennekin,
+  fire: froakie,
+  water: chespin,
+  grass: fennekin,
 });
 
 // Serena/Calem (the rival) picks the starter STRONG against the player.
-//   player grass (Chespin) -> rival Fennekin (fire)
-//   player fire (Fennekin) -> rival Froakie (water)
-//   player water (Froakie) -> rival Chespin (grass)
+//   rival fire key (player grass/Chespin) -> rival Fennekin (fire)
+//   rival water key (player fire/Fennekin) -> rival Froakie (water)
+//   rival grass key (player water/Froakie) -> rival Chespin (grass)
 const calemStarterVariants = (
   fennekin: BossTrainerPokemon[],
   froakie: BossTrainerPokemon[],
   chespin: BossTrainerPokemon[],
 ): BossTrainer['variantsByRivalStarterChoice'] => ({
-  grass: fennekin,
-  fire: froakie,
-  water: chespin,
+  fire: fennekin,
+  water: froakie,
+  grass: chespin,
 });
 
 export const xyBosses: BossTrainer[] = [
@@ -88,11 +88,11 @@ export const xyBosses: BossTrainer[] = [
     levelCap: 5,
     team: [],
     variantsByRivalStarterChoice: shaunaStarterVariants(
-      // player grass -> Shauna Froakie
+      // rival fire key (player grass) -> Shauna Froakie
       [mon('Froakie', 5, ['Water'], { ability: 'Torrent', moves: [mv('Pound', 'Normal', 40), mv('Growl', 'Normal'), mv('Bubble', 'Water', 40)] })],
-      // player fire -> Shauna Chespin
+      // rival water key (player fire) -> Shauna Chespin
       [mon('Chespin', 5, ['Grass'], { ability: 'Overgrow', moves: [mv('Tackle', 'Normal', 40), mv('Growl', 'Normal'), mv('Vine Whip', 'Grass', 45)] })],
-      // player water -> Shauna Fennekin
+      // rival grass key (player water) -> Shauna Fennekin
       [mon('Fennekin', 5, ['Fire'], { ability: 'Blaze', moves: [mv('Scratch', 'Normal', 40), mv('Tail Whip', 'Normal'), mv('Ember', 'Fire', 40)] })],
     ),
     notes: 'First battle in Aquacorde Town immediately after picking your starter. Shauna picks the starter weak to yours. Winning is not mandatory (no whiteout). Verified per Bulbapedia (Shauna page).',
@@ -185,11 +185,11 @@ export const xyBosses: BossTrainer[] = [
       mon('Absol', 28, ['Dark'], { ability: 'Super Luck', moves: [mv('Bite', 'Dark', 60), mv('Slash', 'Normal', 70), mv('Quick Attack', 'Normal', 40)] }),
     ],
     variantsByRivalStarterChoice: calemStarterVariants(
-      // player grass -> rival Braixen (Fennekin line)
+      // rival fire key (player grass) -> rival Braixen (Fennekin line)
       [mon('Braixen', 30, ['Fire'], { ability: 'Blaze', moves: [mv('Psybeam', 'Psychic', 65), mv('Fire Spin', 'Fire', 35)] })],
-      // player fire -> rival Frogadier (Froakie line)
+      // rival water key (player fire) -> rival Frogadier (Froakie line)
       [mon('Frogadier', 30, ['Water'], { ability: 'Torrent', moves: [mv('Quick Attack', 'Normal', 40), mv('Water Pulse', 'Water', 60)] })],
-      // player water -> rival Quilladin (Chespin line)
+      // rival grass key (player water) -> rival Quilladin (Chespin line)
       [mon('Quilladin', 30, ['Grass'], { ability: 'Overgrow', moves: [mv('Bite', 'Dark', 60), mv('Needle Arm', 'Grass', 60)] })],
     ),
     notes: 'Rival battle in Shalour City after Korrina\'s Mega story. Rival uses Meowstic + Absol + evolved starter strong against yours. Verified per Bulbapedia (Calem page).',
