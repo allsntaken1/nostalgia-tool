@@ -3,6 +3,7 @@ import type { GameVersion, PokemonType } from '@/app/nuzlocke/types';
 
 type HgssVersion = 'Both' | 'HeartGold' | 'SoulSilver';
 type HgssEncounterMethod = 'grass' | 'cave' | 'surfing' | 'fishing' | 'gift' | 'static' | 'trade' | 'special' | 'legendary';
+type HgssRod = 'Old Rod' | 'Good Rod' | 'Super Rod';
 
 type HgssEncounter = {
   species: string;
@@ -10,6 +11,10 @@ type HgssEncounter = {
   method: HgssEncounterMethod;
   version: HgssVersion;
   notes?: string;
+  /** Optional rod tier for fishing entries (passes through to UI chip). */
+  rod?: HgssRod;
+  /** Optional condition annotation: "Rock Smash", "Headbutt", "Morning", "Day", "Night", etc. */
+  condition?: string;
 };
 
 type HgssEncounterArea = {
@@ -19,16 +24,54 @@ type HgssEncounterArea = {
   notes: string[];
 };
 
-const conditionTodo = 'TODO: condition-specific encounter data not fully represented: morning/day/night/headbutt/radio/swarm/etc.';
-const rodTodo = 'Fishing rod tiers are collapsed to one fishing option per species in this flat UI.';
+const conditionTodo = 'TODO: condition-specific encounter data not fully represented: morning/day/night/radio/swarm/etc.';
+const rodTodo = 'Fishing rod tiers were collapsed to a single fishing option per species in earlier passes; Pass 2 adds the optional `rod` field where verified, leaving legacy entries unchanged.';
 
-const encounter = (species: string, types: PokemonType[], method: HgssEncounterMethod, version: HgssVersion = 'Both', notes?: string): HgssEncounter => ({
+const encounter = (
+  species: string,
+  types: PokemonType[],
+  method: HgssEncounterMethod,
+  version: HgssVersion = 'Both',
+  notes?: string,
+  extras: { rod?: HgssRod; condition?: string } = {},
+): HgssEncounter => ({
   species,
   types,
   method,
   version,
   notes,
+  ...extras,
 });
+
+/** Fishing helper with explicit rod tier. */
+const fish = (
+  species: string,
+  types: PokemonType[],
+  rod: HgssRod,
+  version: HgssVersion = 'Both',
+  notes?: string,
+): HgssEncounter => encounter(species, types, 'fishing', version, notes, { rod });
+
+/**
+ * Rock Smash helper — uses method "special" + condition annotation (matches BW pattern).
+ * Currently unused while Rock Smash tables are being verified per location; kept as
+ * infrastructure so the next data pass can call it without re-introducing the helper.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const rockSmash = (
+  species: string,
+  types: PokemonType[],
+  version: HgssVersion = 'Both',
+  notes?: string,
+): HgssEncounter => encounter(species, types, 'special', version, notes, { condition: 'Rock Smash' });
+
+/** Headbutt helper — uses method "special" + condition annotation. */
+const headbutt = (
+  species: string,
+  types: PokemonType[],
+  version: HgssVersion = 'Both',
+  notes?: string,
+): HgssEncounter => encounter(species, types, 'special', version, notes, { condition: 'Headbutt' });
 
 export const hgssEncounterAreas: HgssEncounterArea[] = [
   {
@@ -171,20 +214,33 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Quagsire', ['Water', 'Ground'], 'surfing'),
       encounter('Tentacool', ['Water', 'Poison'], 'surfing'),
       encounter('Tentacruel', ['Water', 'Poison'], 'surfing'),
-      encounter('Goldeen', ['Water'], 'fishing'),
-      encounter('Seaking', ['Water'], 'fishing'),
-      encounter('Magikarp', ['Water'], 'fishing'),
-      encounter('Krabby', ['Water'], 'fishing'),
-      encounter('Kingler', ['Water'], 'fishing'),
-      encounter('Staryu', ['Water'], 'fishing'),
-      encounter('Corsola', ['Water', 'Rock'], 'fishing'),
+      // Fishing — 1F/B1F (Goldeen line) — Old Rod / Good Rod / Super Rod tiers per Bulbapedia.
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod', 'Both', 'Rare 10% Super Rod encounter.'),
+      // Fishing — B2F (Krabby line + Corsola) — Old Rod / Good Rod / Super Rod tiers per Bulbapedia.
+      fish('Magikarp', ['Water'], 'Old Rod', 'Both', 'B2F fishing.'),
+      fish('Krabby', ['Water'], 'Old Rod', 'Both', 'B2F fishing.'),
+      fish('Magikarp', ['Water'], 'Good Rod', 'Both', 'B2F fishing.'),
+      fish('Krabby', ['Water'], 'Good Rod', 'Both', 'B2F fishing.'),
+      fish('Corsola', ['Water', 'Rock'], 'Good Rod', 'Both', 'B2F fishing.'),
+      fish('Magikarp', ['Water'], 'Super Rod', 'Both', 'B2F fishing.'),
+      fish('Krabby', ['Water'], 'Super Rod', 'Both', 'B2F fishing.'),
+      fish('Kingler', ['Water'], 'Super Rod', 'Both', 'B2F fishing.'),
+      fish('Corsola', ['Water', 'Rock'], 'Super Rod', 'Both', 'B2F fishing.'),
+      // Staryu retained as Super Rod placeholder — Bulbapedia HG/SS table did not list it; flagging for verify.
+      encounter('Staryu', ['Water'], 'fishing', 'Both', 'TODO: verify Staryu fishing slot at Union Cave; not surfaced on Bulbapedia HG/SS table this pass.'),
       encounter('Lapras', ['Water', 'Ice'], 'static', 'HeartGold', 'Friday static encounter in the lower Union Cave pool.'),
     ],
     notes: [
-      'Union Cave floors are collapsed into one area for now.',
+      'Union Cave floors are collapsed into one area; rod tiers split per Bulbapedia (Union Cave page).',
+      'B2F has the Krabby/Corsola tables; 1F/B1F have the Goldeen/Seaking table.',
       'Friday Lapras and Arceus event conditions are real HGSS conditions but not fully represented by the current schema.',
       conditionTodo,
-      rodTodo,
     ],
   },
   {
@@ -233,10 +289,25 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Paras', ['Bug', 'Grass'], 'grass'),
       encounter('Psyduck', ['Water'], 'surfing'),
       encounter('Golduck', ['Water'], 'surfing'),
-      encounter('Poliwag', ['Water'], 'fishing'),
-      encounter('Magikarp', ['Water'], 'fishing'),
+      // Fishing — rod tiers per Bulbapedia (Ilex Forest page).
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Poliwag', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Poliwag', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Poliwag', ['Water'], 'Super Rod'),
+      // Headbutt — Group A (Lv 3-5) + Group B (Lv 6-8) per Bulbapedia.
+      headbutt('Caterpie', ['Bug'], 'Both', 'Headbutt Group A.'),
+      headbutt('Metapod', ['Bug'], 'Both', 'Headbutt Group A.'),
+      headbutt('Weedle', ['Bug', 'Poison'], 'Both', 'Headbutt Group A.'),
+      headbutt('Kakuna', ['Bug', 'Poison'], 'Both', 'Headbutt Group A.'),
+      headbutt('Hoothoot', ['Normal', 'Flying'], 'Both', 'Headbutt — appears in both Group A and Group B trees.'),
+      headbutt('Butterfree', ['Bug', 'Flying'], 'Both', 'Headbutt Group B.'),
+      headbutt('Beedrill', ['Bug', 'Poison'], 'Both', 'Headbutt Group B.'),
+      headbutt('Noctowl', ['Normal', 'Flying'], 'Both', 'Headbutt Group B.'),
+      headbutt('Pineco', ['Bug'], 'Both', 'Headbutt Group B.'),
     ],
-    notes: [conditionTodo, rodTodo],
+    notes: [conditionTodo],
   },
   {
     locationId: 'johto-route-34',
@@ -270,8 +341,8 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
     displayName: 'Johto Route 35',
     encounters: [
       encounter('Pidgey', ['Normal', 'Flying'], 'grass'),
-      encounter('Nidoran F', ['Poison'], 'grass'),
-      encounter('Nidoran M', ['Poison'], 'grass'),
+      encounter('NidoranF', ['Poison'], 'grass'),
+      encounter('NidoranM', ['Poison'], 'grass'),
       encounter('Abra', ['Psychic'], 'grass'),
       encounter('Drowzee', ['Psychic'], 'grass'),
       encounter('Ditto', ['Normal'], 'grass'),
@@ -303,8 +374,8 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
     displayName: 'Johto Route 36',
     encounters: [
       encounter('Pidgey', ['Normal', 'Flying'], 'grass'),
-      encounter('Nidoran F', ['Poison'], 'grass'),
-      encounter('Nidoran M', ['Poison'], 'grass'),
+      encounter('NidoranF', ['Poison'], 'grass'),
+      encounter('NidoranM', ['Poison'], 'grass'),
       encounter('Growlithe', ['Fire'], 'grass', 'HeartGold'),
       encounter('Vulpix', ['Fire'], 'grass', 'SoulSilver'),
       encounter('Hoothoot', ['Normal', 'Flying'], 'grass'),
@@ -357,12 +428,24 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
     encounters: [
       encounter('Rattata', ['Normal'], 'grass', 'HeartGold'),
       encounter('Meowth', ['Normal'], 'grass', 'SoulSilver'),
-      encounter("Farfetch'd", ['Normal', 'Flying'], 'grass'),
+      encounter('Farfetchd', ['Normal', 'Flying'], 'grass'),
       encounter('Tauros', ['Normal'], 'grass'),
       encounter('Snubbull', ['Normal'], 'grass'),
       encounter('Miltank', ['Normal'], 'grass'),
+      // Headbutt — Group A (Lv 13-14) per Bulbapedia.
+      headbutt('Exeggcute', ['Grass', 'Psychic'], 'Both', 'Headbutt Group A.'),
+      headbutt('Hoothoot', ['Normal', 'Flying'], 'Both', 'Headbutt Group A.'),
+      headbutt('Pineco', ['Bug'], 'Both', 'Headbutt Group A.'),
+      // Headbutt — Group B (Lv 15-16) per Bulbapedia.
+      headbutt('Ledyba', ['Bug', 'Flying'], 'HeartGold', 'Headbutt Group B, HeartGold-only.'),
+      headbutt('Spinarak', ['Bug', 'Poison'], 'SoulSilver', 'Headbutt Group B, SoulSilver-only.'),
+      // Special eastern Route 38 tree (via Route 39 connection) — Heracross-adjacent tree.
+      headbutt('Burmy', ['Bug'], 'Both', 'Special eastern Headbutt tree (Plant Cloak).'),
     ],
-    notes: [conditionTodo],
+    notes: [
+      conditionTodo,
+      'Group-A vs Group-B Headbutt trees are aggregated under method "special" + condition "Headbutt"; the per-tree grouping detail lives in the per-entry notes.',
+    ],
   },
   {
     locationId: 'johto-route-39',
@@ -371,7 +454,7 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Rattata', ['Normal'], 'grass', 'HeartGold'),
       encounter('Raticate', ['Normal'], 'grass'),
       encounter('Meowth', ['Normal'], 'grass', 'SoulSilver'),
-      encounter("Farfetch'd", ['Normal', 'Flying'], 'grass'),
+      encounter('Farfetchd', ['Normal', 'Flying'], 'grass'),
       encounter('Tauros', ['Normal'], 'grass'),
       encounter('Miltank', ['Normal'], 'grass'),
     ],
@@ -472,12 +555,17 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Marill', ['Water'], 'cave'),
       encounter('Goldeen', ['Water'], 'surfing'),
       encounter('Seaking', ['Water'], 'surfing'),
-      encounter('Goldeen', ['Water'], 'fishing'),
-      encounter('Seaking', ['Water'], 'fishing'),
-      encounter('Magikarp', ['Water'], 'fishing'),
+      // Fishing — rod tiers per Bulbapedia (Mt. Mortar page).
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod', 'Both', 'Rare 10% Super Rod encounter.'),
       encounter('Tyrogue', ['Fighting'], 'gift', 'Both', 'Karate King Kiyo gift after battle.'),
     ],
-    notes: ['Mt. Mortar floors are collapsed into one area for now.', conditionTodo, rodTodo],
+    notes: ['Mt. Mortar floors are collapsed into one area; rod tiers split per Bulbapedia.', conditionTodo],
   },
   {
     locationId: 'mahogany-town',
@@ -793,7 +881,7 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Growlithe', ['Fire'], 'grass', 'HeartGold'),
       encounter('Vulpix', ['Fire'], 'grass', 'SoulSilver'),
       encounter('Diglett', ['Ground'], 'grass'),
-      encounter("Farfetch'd", ['Normal', 'Flying'], 'grass'),
+      encounter('Farfetchd', ['Normal', 'Flying'], 'grass'),
       encounter('Tauros', ['Normal'], 'grass'),
       encounter('Hoppip', ['Grass', 'Flying'], 'grass'),
       encounter('Girafarig', ['Normal', 'Psychic'], 'grass'),
@@ -830,11 +918,13 @@ export function getHgssEncounterOptions(gameVersion: GameVersion): Record<string
   return hgssEncounterAreas.reduce<Record<string, EncounterOption[]>>((acc, area) => {
     const options = (Array.isArray(area.encounters) ? area.encounters : [])
       .filter((item) => item.version === 'Both' || item.version === gameVersion)
-      .map((item) => ({
+      .map((item): EncounterOption => ({
         species: item.species,
         types: item.types,
-        surfMethod: item.method === 'surfing',
-        fishingMethod: item.method === 'fishing',
+        surfMethod: item.method === 'surfing' || undefined,
+        fishingMethod: item.method === 'fishing' || undefined,
+        ...(item.rod ? { rod: item.rod } : {}),
+        ...(item.condition ? { condition: item.condition } : {}),
       }));
 
     acc[area.displayName] = options;
