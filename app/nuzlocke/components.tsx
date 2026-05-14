@@ -14,6 +14,7 @@ import {
   type EncounterOption,
   gameGroups,
   getAbilityOptions,
+  getEncounterDataWarning,
   getNuzlockeBosses,
   getNuzlockeEncounterOptions,
   getNuzlockeLocations,
@@ -21,7 +22,6 @@ import {
   getPokemonSpriteUrl,
   pokemonSpeciesSlug,
   heldItemOptions,
-  isEncounterSkeletonGame,
   natureOptions,
   nuzlockeStorageKey,
   pokemonTypes,
@@ -2380,7 +2380,7 @@ function EncounterTracker({
   const dupesClauseEnabled = Boolean(run.rules?.dupesClause);
   const locations = getNuzlockeLocations(run.gameVersion);
   const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
-  const encounterDataComingSoon = isEncounterSkeletonGame(run.gameVersion);
+  const encounterDataWarning = getEncounterDataWarning(run.gameVersion);
   const firstOpenLocation = locations.find((location) => !caughtLocations.has(location)) ?? locations[0];
   const initialOptions = encounterOptionsByLocation[firstOpenLocation] ?? [];
   const [form, setForm] = useState({
@@ -2397,18 +2397,35 @@ function EncounterTracker({
   const [showSurfEncounters, setShowSurfEncounters] = useState(false);
   const [showFishingEncounters, setShowFishingEncounters] = useState(false);
   const [showRockSmashEncounters, setShowRockSmashEncounters] = useState(false);
+  const [showHeadbuttEncounters, setShowHeadbuttEncounters] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [manualAbilityOptions, setManualAbilityOptions] = useState<string[]>([]);
   const fetchedAbilityData = useAbilityData(form.pokemon);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
-  // Rock Smash entries are encoded as `condition === 'Rock Smash'` (method "special").
   const isRockSmashOption = (option: { condition?: string }) => option.condition === 'Rock Smash';
-  const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean; condition?: string }) =>
+  const isHeadbuttOption = (option: { method?: string; condition?: string }) =>
+    option.method === 'headbutt' || option.condition === 'Headbutt' || Boolean(option.condition?.startsWith('Headbutt:'));
+  const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean; method?: string; condition?: string }) =>
     (!option.surfMethod || showSurfEncounters)
     && (!option.fishingMethod || showFishingEncounters)
-    && (!isRockSmashOption(option) || showRockSmashEncounters);
+    && (!isRockSmashOption(option) || showRockSmashEncounters)
+    && (!isHeadbuttOption(option) || showHeadbuttEncounters);
+  const getMethodChipLabel = (option: EncounterOption) => {
+    if (!option.method || option.method === 'grass' || option.method === 'headbutt') return null;
+    if (option.surfMethod && !option.rod) return 'Surf';
+    if (option.rod) return null;
+    return option.method
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  };
+  const getVersionChipLabel = (version?: EncounterOption['version']) => {
+    if (!version || version === 'Both') return null;
+    return `${version} only`;
+  };
   const visibleEncounterOptions = encounterOptions.filter(canShowEncounterOption);
   const selectedAbilityOptions =
     fetchedAbilityData.length > 0
@@ -2576,8 +2593,8 @@ function EncounterTracker({
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Route Board</div>
             <h3 className="text-base font-black">Pick an encounter area</h3>
-            {encounterDataComingSoon ? (
-              <p className="mt-1 text-xs font-bold text-[#506078]">Encounter data for this game is still in progress. Some routes, methods, bosses, or version differences may be missing.</p>
+            {encounterDataWarning ? (
+              <p className="mt-1 text-xs font-bold text-[#506078]">{encounterDataWarning.message}</p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] font-black">
@@ -2605,6 +2622,14 @@ function EncounterTracker({
                 onChange={(event) => setShowRockSmashEncounters(event.target.checked)}
               />
               Rock Smash
+            </label>
+            <label className="flex items-center gap-2 rounded-lg bg-white/70 px-2 py-1.5 shadow-sm">
+              <input
+                type="checkbox"
+                checked={showHeadbuttEncounters}
+                onChange={(event) => setShowHeadbuttEncounters(event.target.checked)}
+              />
+              Headbutt
             </label>
           </div>
         </div>
@@ -2646,12 +2671,15 @@ function EncounterTracker({
                   <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                     {options.length > 0 ? options.map((option) => {
                       const isDupe = dupesClauseEnabled && caughtSpecies.has(option.species.toLowerCase());
+                      const isHeadbutt = isHeadbuttOption(option);
+                      const methodChipLabel = getMethodChipLabel(option);
+                      const versionChipLabel = getVersionChipLabel(option.version);
                       const hasMethodChips = Boolean(
-                        (option.surfMethod && !option.rod) || option.rod || option.condition || option.version,
+                        methodChipLabel || option.rod || isHeadbutt || option.condition || versionChipLabel,
                       );
                       return (
                         <button
-                          key={option.species}
+                          key={[option.species, option.method ?? '', option.condition ?? '', option.version ?? '', option.minLevel ?? '', option.maxLevel ?? ''].join('-')}
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
@@ -2666,22 +2694,22 @@ function EncounterTracker({
                             <span className="mt-1 flex flex-wrap gap-1">{option.types.map((type) => <TypeBadge key={type} type={type} />)}</span>
                             {hasMethodChips ? (
                               <span className="mt-1 flex flex-wrap gap-1">
-                                {option.surfMethod && !option.rod ? (
-                                  <span className="rounded-md bg-[#1976d2] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">Surf</span>
+                                {methodChipLabel ? (
+                                  <span className="rounded-md bg-[#1976d2] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">{methodChipLabel}</span>
                                 ) : null}
                                 {option.rod ? (
                                   <span className="rounded-md bg-[#00838f] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">{option.rod}</span>
                                 ) : null}
+                                {isHeadbutt ? (
+                                  <span className="rounded-md bg-[#6d4c41] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white">Headbutt</span>
+                                ) : null}
                                 {option.condition ? (
                                   <span className={`rounded-md px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white ${
-                                    option.condition === 'Rock Smash' ? 'bg-[#8d6e63]' : 'bg-[#546e7a]'
+                                    option.condition === 'Rock Smash' ? 'bg-[#8d6e63]' : isHeadbutt ? 'bg-[#795548]' : 'bg-[#546e7a]'
                                   }`}>{option.condition}</span>
                                 ) : null}
-                                {option.version === 'X' ? (
-                                  <span className="rounded-md bg-[#1565c0] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white" title="X-exclusive encounter">X only</span>
-                                ) : null}
-                                {option.version === 'Y' ? (
-                                  <span className="rounded-md bg-[#c62828] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white" title="Y-exclusive encounter">Y only</span>
+                                {versionChipLabel ? (
+                                  <span className="rounded-md bg-[#1565c0] px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white" title={`${option.version}-exclusive encounter`}>{versionChipLabel}</span>
                                 ) : null}
                               </span>
                             ) : null}
@@ -2691,7 +2719,7 @@ function EncounterTracker({
                       );
                     }) : (
                       <span className="rounded-xl bg-white p-3 text-xs font-black text-[#6f7b8d]">
-                        {encounterDataComingSoon ? 'Encounter data coming soon.' : 'No listed encounters match the current filters.'}
+                        {encounterDataWarning?.emptyState ?? 'No listed encounters match the current filters.'}
                       </span>
                     )}
                   </div>
@@ -3131,6 +3159,29 @@ function pokemonDisplayTypes(pokemon: Pick<NuzlockePokemon, 'species' | 'types'>
   return pokemon.types?.length ? pokemon.types : pokemonTypesForSpecies(pokemon.species);
 }
 
+function bossPrepEffectiveLevel(pokemon: NuzlockePokemon, bossLevelCap: number | null | undefined, encounters: NuzlockeEncounter[]) {
+  const level = Number(pokemon.level);
+  const cap = Number(bossLevelCap);
+  const hasStoredLevel = Number.isFinite(level) && level > 0;
+  const hasCap = Number.isFinite(cap) && cap > 0;
+
+  if (!hasCap) return hasStoredLevel ? level : 1;
+  const sourceEncounter = pokemon.encounterId
+    ? encounters.find((encounter) => encounter.id === pokemon.encounterId)
+    : encounters.find((encounter) => encounter.pokemon === pokemon.species && encounter.location === pokemon.metLocation);
+  const sourceLevel = Number(sourceEncounter?.levelMet);
+  const stillAtMetLevel = Number.isFinite(sourceLevel) && sourceLevel > 0 && sourceLevel === level;
+
+  return !hasStoredLevel || stillAtMetLevel || level <= 5 ? cap : level;
+}
+
+function normalizeBossPrepTeamLevels(team: NuzlockePokemon[], bossLevelCap: number | null | undefined, encounters: NuzlockeEncounter[]) {
+  return team.map((pokemon) => {
+    const effectiveLevel = bossPrepEffectiveLevel(pokemon, bossLevelCap, encounters);
+    return effectiveLevel === pokemon.level ? pokemon : { ...pokemon, level: effectiveLevel };
+  });
+}
+
 function BossPrepPanel({
   boss,
   run,
@@ -3145,22 +3196,24 @@ function BossPrepPanel({
   updateBoss: (bossId: string, changes: Partial<NuzlockeBoss>) => void;
 }) {
   const team = (Array.isArray(run.team) ? run.team : []).filter((pokemon) => pokemon.status === 'Party');
-  const plannedIds = Array.isArray(prep?.plannedTeamIds) && prep?.plannedTeamIds.length ? prep.plannedTeamIds : team.map((pokemon) => pokemon.id);
-  const plannedTeam = team.filter((pokemon) => plannedIds.includes(pokemon.id));
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const prepTeam = normalizeBossPrepTeamLevels(team, boss.levelCap, encounters);
+  const plannedIds = Array.isArray(prep?.plannedTeamIds) && prep?.plannedTeamIds.length ? prep.plannedTeamIds : prepTeam.map((pokemon) => pokemon.id);
+  const plannedTeam = prepTeam.filter((pokemon) => plannedIds.includes(pokemon.id));
   const bossTeam = Array.isArray(boss.pokemon) ? boss.pokemon : [];
   const bossMaxLevel = Math.max(boss.levelCap || 1, ...bossTeam.map((pokemon) => pokemon.level || 1));
-  const overleveled = team.filter((pokemon) => Number(pokemon.level) > Number(boss.levelCap || bossMaxLevel));
-  const underleveled = team.filter((pokemon) => Number(pokemon.level) < Math.max(1, Number(boss.levelCap || bossMaxLevel) - 4));
+  const overleveled = prepTeam.filter((pokemon) => Number(pokemon.level) > Number(boss.levelCap || bossMaxLevel));
+  const underleveled = prepTeam.filter((pokemon) => Number(pokemon.level) < Math.max(1, Number(boss.levelCap || bossMaxLevel) - 4));
   const defensiveTypes = bossDefensiveTypes(boss);
-  const coverage = teamCoverageTypes(plannedTeam.length ? plannedTeam : team);
+  const coverage = teamCoverageTypes(plannedTeam.length ? plannedTeam : prepTeam);
   const missingCoverage = defensiveTypes.filter((targetType) => !coverage.some((ownType) => getAttackMultiplier(ownType, [targetType]) >= 2));
-  const sortedLeads = [...team].sort((a, b) => leadScore(b, boss) - leadScore(a, boss));
+  const sortedLeads = [...prepTeam].sort((a, b) => leadScore(b, boss) - leadScore(a, boss));
   const safeLeads = sortedLeads.slice(0, 3);
   const riskyLeads = sortedLeads.filter((pokemon) => leadScore(pokemon, boss) <= -2).slice(0, 3);
-  const [selectedTeamId, setSelectedTeamId] = useState(prep?.leadPokemonId || team[0]?.id || '');
+  const [selectedTeamId, setSelectedTeamId] = useState(prep?.leadPokemonId || prepTeam[0]?.id || '');
   const [selectedBossIndex, setSelectedBossIndex] = useState(0);
   const [editingMoves, setEditingMoves] = useState(false);
-  const selectedTeamPokemon = team.find((pokemon) => pokemon.id === selectedTeamId) ?? team[0];
+  const selectedTeamPokemon = prepTeam.find((pokemon) => pokemon.id === selectedTeamId) ?? prepTeam[0];
   const selectedBossPokemon = bossTeam[selectedBossIndex] ?? bossTeam[0];
 
   const togglePlanned = (pokemonId: string) => {
@@ -3183,6 +3236,7 @@ function BossPrepPanel({
         <div>
           <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Boss Prep Mode</div>
           <div className="text-sm font-black">{boss.name} / Cap {boss.levelCap ?? 'TBD'}</div>
+          <div className="mt-1 text-[11px] font-bold text-[#506078]">Player Pokemon are assumed to be at the current level cap unless manually tracked.</div>
         </div>
         <label className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-black shadow-sm">
           <input type="checkbox" checked={Boolean(prep?.completed)} onChange={(event) => updatePrep({ completed: event.target.checked })} />
@@ -3229,10 +3283,14 @@ function BossPrepPanel({
           <PrepSection title="Level Cap Check">
             {team.length === 0 ? <EmptyPrepText text="No current team yet." /> : null}
             {team.map((pokemon) => {
-              const delta = Number(pokemon.level) - Number(boss.levelCap || bossMaxLevel);
+              const assumedLevel = bossPrepEffectiveLevel(pokemon, boss.levelCap, encounters);
+              const delta = Number(assumedLevel) - Number(boss.levelCap || bossMaxLevel);
               return (
                 <div key={pokemon.id} className="flex items-center justify-between rounded-lg bg-white px-2 py-1 text-xs font-black shadow-sm">
-                  <span>{pokemon.nickname || pokemon.species} / Lv {pokemon.level}</span>
+                  <span>
+                    {pokemon.nickname || pokemon.species} / Lv {pokemon.level}
+                    {assumedLevel !== pokemon.level ? <span className="ml-1 text-[10px] text-[#506078]">(prep assumes Lv {assumedLevel})</span> : null}
+                  </span>
                   <PrepStatusBadge status={delta > 0 ? 'Over Cap' : delta < -4 ? 'Under' : 'OK'} />
                 </div>
               );
@@ -3246,7 +3304,7 @@ function BossPrepPanel({
           <PrepSection title="My Planned Team">
             {team.length === 0 ? <EmptyPrepText text="Add party members first." /> : null}
             <div className="grid gap-1 sm:grid-cols-2">
-              {team.map((pokemon) => (
+              {prepTeam.map((pokemon) => (
                 <button
                   type="button"
                   key={pokemon.id}
@@ -3306,7 +3364,7 @@ function BossPrepPanel({
 
       <PrepSection title="Held Items">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {(plannedTeam.length ? plannedTeam : team).map((pokemon) => (
+          {(plannedTeam.length ? plannedTeam : prepTeam).map((pokemon) => (
             <label key={pokemon.id} className="grid gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--nuz-accent)]">
               {pokemon.nickname || pokemon.species}
               <span className="flex items-center gap-2">
@@ -3327,7 +3385,7 @@ function BossPrepPanel({
       <PrepSection title="My Team Moves">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1">
-            {(plannedTeam.length ? plannedTeam : team).flatMap((pokemon) => (prep?.plannedMoves?.[pokemon.id] || []).filter(Boolean).map((move) => (
+            {(plannedTeam.length ? plannedTeam : prepTeam).flatMap((pokemon) => (prep?.plannedMoves?.[pokemon.id] || []).filter(Boolean).map((move) => (
               <span key={`${pokemon.id}-${move}`} className="rounded-[4px] bg-white px-2 py-1 text-[10px] font-black shadow-sm">{pokemon.nickname || pokemon.species}: {move}</span>
             )))}
           </div>
@@ -3335,7 +3393,7 @@ function BossPrepPanel({
         </div>
         {editingMoves ? (
           <div className="grid gap-2 lg:grid-cols-2">
-            {(plannedTeam.length ? plannedTeam : team).map((pokemon) => (
+            {(plannedTeam.length ? plannedTeam : prepTeam).map((pokemon) => (
               <PrepPokemonMoveInputs
                 key={pokemon.id}
                 pokemon={pokemon}
@@ -3355,7 +3413,7 @@ function BossPrepPanel({
       />
 
       <DamageCalculator
-        plannedTeam={plannedTeam.length ? plannedTeam : team}
+        plannedTeam={plannedTeam.length ? plannedTeam : prepTeam}
         bossTeam={bossTeam}
         plannedMoves={prep?.plannedMoves || {}}
         gameVersion={run.gameVersion}

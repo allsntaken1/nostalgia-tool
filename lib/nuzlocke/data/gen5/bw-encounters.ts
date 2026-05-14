@@ -16,6 +16,9 @@ type BwEncounter = {
   version: BwVersion;
   notes?: string;
   rod?: BwRod;
+  minLevel?: number;
+  maxLevel?: number;
+  rate?: number;
   /** Free-text annotation for non-standard contexts (Rustling Grass, Dark Grass, Rippling Water, day-of-week). */
   condition?: string;
 };
@@ -33,8 +36,15 @@ const encounter = (
   method: BwEncounterMethod,
   version: BwVersion = 'Both',
   notes?: string,
-  extras: { rod?: BwRod; condition?: string } = {},
+  extras: Pick<Partial<BwEncounter>, 'rod' | 'condition' | 'minLevel' | 'maxLevel' | 'rate'> = {},
 ): BwEncounter => ({ species, types, method, version, notes, ...extras });
+
+const details = (minLevel: number, maxLevel: number, rate?: number, condition?: string) => ({
+  minLevel,
+  maxLevel,
+  ...(typeof rate === 'number' ? { rate } : {}),
+  ...(condition ? { condition } : {}),
+});
 
 const fish = (species: string, types: PokemonType[], rod: BwRod, version: BwVersion = 'Both', notes?: string): BwEncounter =>
   encounter(species, types, 'fishing', version, notes, { rod });
@@ -59,6 +69,8 @@ const deepSand = (species: string, types: PokemonType[], version: BwVersion = 'B
   encounter(species, types, 'grass', version, notes, { condition: 'Deep Sand' });
 
 export const bwEncounterAreas: BwEncounterArea[] = [
+  // TODO: BW encounter locationIds are currently bw-prefixed while route IDs are not.
+  // Runtime maps these areas by displayName, so leave ids unchanged until saved-run migration is planned.
   {
     locationId: 'bw-route-1',
     displayName: 'Route 1',
@@ -578,128 +590,117 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     ],
   },
   {
+    locationId: 'bw-mistralton-cave',
+    displayName: 'Mistralton Cave',
+    encounters: [
+      encounter('Boldore', ['Rock'], 'cave', 'Both', undefined, details(28, 31, 50)),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave', 'Both', undefined, details(28, 30, 30)),
+      encounter('Axew', ['Dragon'], 'cave', 'Both', undefined, details(30, 31, 20)),
+      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter, 100% of Pokemon dust clouds.',),
+      encounter('Cobalion', ['Steel', 'Fighting'], 'legendary', 'Both', 'Static legendary in Guidance Chamber after reaching the chamber. Respawns after Hall of Fame if defeated or run from.', details(42, 42, 100, 'Guidance Chamber')),
+    ],
+    notes: [
+      'Optional cave reached from Route 6 using Surf. Verified per Bulbapedia (Mistralton Cave page).',
+      '1F-2F and Guidance Chamber share the same Black/White walking table; schema does not split floors.',
+      'Cobalion is encoded as legendary because the schema already supports one-time legendary encounters.',
+    ],
+  },
+  {
     locationId: 'bw-twist-mountain',
     displayName: 'Twist Mountain',
     encounters: [
-      // Cave walking — all five species appear year-round with shifting rates.
-      // Cubchoo / Cryogonal are emphasized in Winter; Boldore / Gurdurr drop in Winter.
-      encounter('Boldore', ['Rock'], 'cave'),
-      encounter('Woobat', ['Psychic', 'Flying'], 'cave'),
-      encounter('Gurdurr', ['Fighting'], 'cave'),
-      encounter('Cubchoo', ['Ice'], 'cave', 'Both', 'Dominant in Winter (45% rate); rare in other seasons.'),
-      encounter('Cryogonal', ['Ice'], 'cave', 'Both', 'Rare year-round; slightly more common in Winter (5%).'),
-      // Dust cloud
-      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter inside Twist Mountain.'),
+      encounter('Boldore', ['Rock'], 'cave', 'Both', 'Seasonal rates vary across non-winter and winter tables.', details(28, 31)),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave', 'Both', 'Seasonal rates vary across spring/summer/autumn/winter tables.', details(28, 31)),
+      encounter('Gurdurr', ['Fighting'], 'cave', 'Both', 'Seasonal rates vary across non-winter and winter tables.', details(28, 30)),
+      encounter('Cubchoo', ['Ice'], 'cave', 'Both', 'Appears more frequently in winter.', details(28, 31)),
+      encounter('Cryogonal', ['Ice'], 'cave', 'Both', 'Rare cave encounter; seasonal rates vary.', details(28, 31)),
+      dustCloud('Drilbur', ['Ground'], 'Both', 'Dust-cloud-only encounter, 100% of Pokemon dust clouds.'),
     ],
     notes: [
-      'Cave between Route 7 and Icirrus City. Verified per Bulbapedia (Twist Mountain page).',
-      'Floor tables (B1F-3F) share the same species set with seasonal rate variation; schema does not split subareas so the union is listed here.',
-      'Postgame depths / drill-section encounters intentionally omitted from the main-story list.',
+      'Cave between Route 7 and Icirrus City, accessible after the Jet Badge in Black/White. Verified per Bulbapedia (Twist Mountain page).',
+      'Rates differ by season and floor grouping; this flat entry preserves species, level ranges, and season notes without flattening rates incorrectly.',
     ],
   },
   {
     locationId: 'bw-icirrus-city',
     displayName: 'Icirrus City',
-    encounters: [
-      // Puddles — non-winter only (puddles freeze over in Winter).
-      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      // Surfing
-      surf('Stunfisk', ['Ground', 'Electric']),
-      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter.', 'Rippling Water'),
-      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
-      // Fishing
-      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
-      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
-      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
-    ],
+    encounters: [],
     notes: [
-      'Icicle-themed city housing Brycen\'s gym (Gym 7). Verified per Bulbapedia (Icirrus City page).',
-      'Puddle encounters disappear in Winter when the wetlands freeze.',
-      'Site of Brycen\'s gym battle (logged separately as a boss).',
+      'No standard wild encounter table is listed for Icirrus City itself in Black/White; nearby encounters live in Twist Mountain, Dragonspiral Tower, Route 8, and Moor of Icirrus.',
     ],
   },
   {
     locationId: 'bw-dragonspiral-tower',
     displayName: 'Dragonspiral Tower',
     encounters: [
-      // Outer / entrance grass — seasonal swaps
-      encounter('Tranquill', ['Normal', 'Flying'], 'grass', 'Both', 'Spring / Summer / Autumn only.', { condition: 'Spring/Summer/Autumn' }),
-      encounter('Vanillite', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
-      encounter('Deerling', ['Normal', 'Grass'], 'grass', 'Both', 'Form varies by season.'),
-      encounter('Mienfoo', ['Fighting'], 'grass'),
-      encounter('Druddigon', ['Dragon'], 'grass', 'Both', 'Rare 10% outer-grass encounter.'),
-      encounter('Cubchoo', ['Ice'], 'grass', 'Both', 'Winter only.', { condition: 'Winter' }),
-      // Dark grass — Winter-only at this location per Bulbapedia
-      darkGrass('Vanillish', ['Ice'], 'Both', 'Winter only (Dark Grass).'),
-      darkGrass('Sawsbuck', ['Normal', 'Grass'], 'Both', 'Winter form. Winter only (Dark Grass).'),
-      darkGrass('Mienfoo', ['Fighting'], 'Both', 'Winter only (Dark Grass).'),
-      darkGrass('Beartic', ['Ice'], 'Both', 'Winter only (Dark Grass).'),
-      // Rustling grass
-      rustling('Audino', ['Normal']),
-      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
-      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rare 5% rustling-grass encounter.'),
-      // Surfing (water around the tower)
-      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
-      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
-      // Fishing (Super Rod) — dragon-line specialty location
-      fish('Dratini', ['Dragon'], 'Super Rod'),
+      encounter('Tranquill', ['Normal', 'Flying'], 'grass', 'Both', 'Entrance/outside grass in spring, summer, and autumn.', details(30, 32, 30, 'Spring/Summer/Autumn')),
+      encounter('Vanillite', ['Ice'], 'grass', 'Both', 'Winter-only grass encounter.', details(31, 33, 30, 'Winter')),
+      encounter('Deerling', ['Normal', 'Grass'], 'grass', 'Both', 'Form varies by season.', details(30, 32, 30)),
+      encounter('Mienfoo', ['Fighting'], 'grass', 'Both', undefined, details(30, 33, 30)),
+      encounter('Druddigon', ['Dragon'], 'grass', 'Both', 'Not available in winter grass outside/entrance.', details(31, 33, 10, 'Spring/Summer/Autumn')),
+      encounter('Cubchoo', ['Ice'], 'grass', 'Both', 'Winter-only grass encounter.', details(33, 33, 10, 'Winter')),
+      darkGrass('Vanillish', ['Ice'], 'Both', 'Winter-only dark grass.'),
+      darkGrass('Sawsbuck', ['Normal', 'Grass'], 'Both', 'Winter-only dark grass; form varies by season in detailed tables.'),
+      darkGrass('Mienfoo', ['Fighting'], 'Both', 'Winter-only dark grass.'),
+      darkGrass('Beartic', ['Ice'], 'Both', 'Winter-only dark grass.'),
+      rustling('Audino', ['Normal'], 'Both', 'Rustling grass; 85% outside non-winter, 90% in winter.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rustling grass, 10%.'),
+      rustling('Unfezant', ['Normal', 'Flying'], 'Both', 'Rustling grass, 5% outside non-winter.'),
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.', undefined),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.', undefined),
+      surf('Basculin', ['Water'], 'Black', 'Red-Striped form via rippling-water Surf.', 'Rippling Water'),
+      surf('Basculin', ['Water'], 'White', 'Blue-Striped form via rippling-water Surf.', 'Rippling Water'),
+      fish('Dratini', ['Dragon'], 'Super Rod', 'Both', 'Super Rod encounter, 55%.'),
       fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
       fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
-      fish('Dragonair', ['Dragon'], 'Super Rod', 'Both', 'Rare 5% Super Rod encounter.'),
-      // Rippling-water Super Rod
-      fish('Dragonite', ['Dragon', 'Flying'], 'Super Rod', 'Both', 'Rare 1% rippling-water Super Rod encounter.'),
+      fish('Dragonair', ['Dragon'], 'Super Rod', 'Both', 'Super Rod encounter, 5%; also appears in rippling-water fishing.'),
+      encounter('Golett', ['Ground', 'Ghost'], 'cave', 'Both', 'Interior 1F/2F encounter; encoded as cave for tower interiors.', details(30, 33)),
+      encounter('Druddigon', ['Dragon'], 'cave', 'Both', 'Interior 1F encounter; encoded as cave for tower interiors.', details(30, 33)),
+      encounter('Mienfoo', ['Fighting'], 'cave', 'Both', 'Interior 1F encounter; encoded as cave for tower interiors.', details(33, 33)),
     ],
     notes: [
-      'Ancient tower north of Icirrus, reached after Brycen. Outer/entrance/Outside-area encounters listed here. Verified per Bulbapedia (Dragonspiral Tower page).',
-      'Story site of the Reshiram (B) / Zekrom (W) awakening — handled as a legendary boss entry separately when populated.',
-      'Postgame inner-tower depths are intentionally omitted from the main-story list.',
-    ],
-  },
-  {
-    locationId: 'bw-moor-of-icirrus',
-    displayName: 'Moor of Icirrus',
-    encounters: [
-      // Puddles — non-winter only
-      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      // Surfing
-      surf('Stunfisk', ['Ground', 'Electric']),
-      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter (95%).', 'Rippling Water'),
-      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
-      // Fishing
-      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
-      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
-      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
-    ],
-    notes: [
-      'Marshland accessible from Icirrus City. Verified per Bulbapedia (Moor of Icirrus page).',
-      'Puddle tier freezes over in Winter — those entries become unavailable.',
+      'Black/White Dragonspiral Tower has entrance/outside seasonal grass plus interior tower encounters. Verified per Bulbapedia (Dragonspiral Tower page).',
+      'Schema does not split entrance/outside/interior floors cleanly, so subarea details are preserved in notes/conditions.',
+      'Reshiram/Zekrom fallback appearance at Dragonspiral is not encoded here; the normal story legendary is represented at N\'s Castle.',
     ],
   },
   {
     locationId: 'bw-route-8',
     displayName: 'Route 8',
     encounters: [
-      // Puddles — non-winter only (puddles freeze in Winter)
-      encounter('Palpitoad', ['Water', 'Ground'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Shelmet', ['Bug'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Stunfisk', ['Ground', 'Electric'], 'special', 'Both', 'Puddle encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      encounter('Croagunk', ['Poison', 'Fighting'], 'special', 'Both', 'Puddle swarm-style encounter (Spring/Summer/Autumn only).', { condition: 'Puddle (Non-Winter)' }),
-      // Surfing
-      surf('Stunfisk', ['Ground', 'Electric']),
-      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter (95%).', 'Rippling Water'),
-      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter (5%).', 'Rippling Water'),
-      // Fishing (Super Rod)
-      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
-      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod'),
-      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water Super Rod encounter.'),
+      encounter('Palpitoad', ['Water', 'Ground'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle grass encounters in winter.', details(30, 33, 40, 'Puddle: Spring/Summer/Autumn')),
+      encounter('Shelmet', ['Bug'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle grass encounters in winter.', details(30, 33, 40, 'Puddle: Spring/Summer/Autumn')),
+      encounter('Stunfisk', ['Ground', 'Electric'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle grass encounters in winter.', details(31, 32, 20, 'Puddle: Spring/Summer/Autumn')),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Surf encounter, 100%.'),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter, 95%.', 'Rippling Water'),
+      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter, 5%.', 'Rippling Water'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod', 'Both', 'Super Rod encounter, 60%; also appears while fishing in rippling water.'),
+      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod', 'Both', 'Super Rod encounter, 40%; also appears while fishing in rippling water.'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 20%.'),
+      encounter('Croagunk', ['Poison', 'Fighting'], 'grass', 'Both', 'Swarm-only puddle encounter in spring/summer/autumn.', details(15, 55, 40, 'Swarm')),
     ],
     notes: [
-      'Marsh route north of Icirrus City, leading to Tubeline Bridge. Verified per Bulbapedia (Unova Route 8 page).',
-      'Puddle tier freezes over in Winter; non-winter only.',
+      'Wet route between Icirrus City and Tubeline Bridge. Verified per Bulbapedia (Unova Route 8 page).',
+      'Puddle encounters are seasonal and absent in winter; Surf/Fishing encounters remain representable with method chips.',
+    ],
+  },
+  {
+    locationId: 'bw-moor-of-icirrus',
+    displayName: 'Moor of Icirrus',
+    encounters: [
+      encounter('Palpitoad', ['Water', 'Ground'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle encounters in winter.', details(30, 33, 40, 'Puddle: Spring/Summer/Autumn')),
+      encounter('Shelmet', ['Bug'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle encounters in winter.', details(30, 33, 40, 'Puddle: Spring/Summer/Autumn')),
+      encounter('Stunfisk', ['Ground', 'Electric'], 'grass', 'Both', 'Puddle encounter in spring/summer/autumn; no puddle encounters in winter.', details(31, 32, 20, 'Puddle: Spring/Summer/Autumn')),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Surf encounter, 100%.'),
+      surf('Stunfisk', ['Ground', 'Electric'], 'Both', 'Rippling-water Surf encounter, 95%.', 'Rippling Water'),
+      surf('Seismitoad', ['Water', 'Ground'], 'Both', 'Rare rippling-water Surf encounter, 5%.', 'Rippling Water'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod', 'Both', 'Super Rod encounter, 60%; also appears while fishing in rippling water.'),
+      fish('Stunfisk', ['Ground', 'Electric'], 'Super Rod', 'Both', 'Super Rod encounter, 40%; also appears while fishing in rippling water.'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 20%.'),
+    ],
+    notes: [
+      'Optional wetland north of Route 8. Verified per Bulbapedia (Moor of Icirrus page).',
+      'Puddle encounter table mirrors Route 8; winter freezes the wetlands and removes puddle encounter slots.',
     ],
   },
   {
@@ -707,42 +708,36 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     displayName: 'Tubeline Bridge',
     encounters: [],
     notes: [
-      'Drawbridge between Route 8 and Route 9. Bulbapedia primary page did not surface a wild-encounter table for BW.',
-      'TODO: Verify whether Tubeline Bridge has bridge-shadow encounters (Ducklett candidate, mirroring Driftveil Drawbridge).',
+      'No wild encounter table for Tubeline Bridge in Black/White.',
     ],
   },
   {
     locationId: 'bw-route-9',
     displayName: 'Route 9',
     encounters: [
-      // Regular grass
-      encounter('Liepard', ['Dark'], 'grass'),
-      encounter('Garbodor', ['Poison'], 'grass'),
-      encounter('Minccino', ['Normal'], 'grass'),
-      encounter('Gothorita', ['Psychic'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
-      encounter('Duosion', ['Psychic'], 'grass', 'White', 'White-exclusive grass encounter.'),
-      encounter('Pawniard', ['Dark', 'Steel'], 'grass'),
-      // Dark grass
-      darkGrass('Liepard', ['Dark']),
-      darkGrass('Garbodor', ['Poison']),
-      darkGrass('Minccino', ['Normal']),
-      darkGrass('Gothorita', ['Psychic'], 'Black', 'Black-exclusive dark-grass encounter.'),
-      darkGrass('Duosion', ['Psychic'], 'White', 'White-exclusive dark-grass encounter.'),
-      darkGrass('Pawniard', ['Dark', 'Steel']),
-      // Rustling grass — rare evolved Psychic mons by version
-      rustling('Audino', ['Normal']),
-      rustling('Cinccino', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
-      rustling('Gothitelle', ['Psychic'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
-      rustling('Reuniclus', ['Psychic'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
-      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
-      // Swarm (version-exclusive)
-      encounter('Houndour', ['Dark', 'Fire'], 'grass', 'Black', 'Swarm-only encounter (40% during an active swarm day), Black-exclusive.', { condition: 'Swarm' }),
-      encounter('Poochyena', ['Dark'], 'grass', 'White', 'Swarm-only encounter (40% during an active swarm day), White-exclusive.', { condition: 'Swarm' }),
+      encounter('Liepard', ['Dark'], 'grass', 'Both', undefined, details(33, 33, 10)),
+      encounter('Garbodor', ['Poison'], 'grass', 'Both', undefined, details(31, 33, 20)),
+      encounter('Minccino', ['Normal'], 'grass', 'Both', undefined, details(32, 32, 20)),
+      encounter('Gothorita', ['Psychic'], 'grass', 'Black', 'Black-exclusive grass encounter.', details(31, 34, 30)),
+      encounter('Duosion', ['Psychic'], 'grass', 'White', 'White-exclusive grass encounter.', details(31, 34, 30)),
+      encounter('Pawniard', ['Dark', 'Steel'], 'grass', 'Both', undefined, details(31, 34, 20)),
+      darkGrass('Liepard', ['Dark'], 'Both', 'Dark grass, 10%.'),
+      darkGrass('Garbodor', ['Poison'], 'Both', 'Dark grass, 20%.'),
+      darkGrass('Minccino', ['Normal'], 'Both', 'Dark grass, 20%.'),
+      darkGrass('Gothorita', ['Psychic'], 'Black', 'Black-exclusive dark-grass encounter, 30%.'),
+      darkGrass('Duosion', ['Psychic'], 'White', 'White-exclusive dark-grass encounter, 30%.'),
+      darkGrass('Pawniard', ['Dark', 'Steel'], 'Both', 'Dark grass, 20%; level/rate rows vary by version.'),
+      rustling('Audino', ['Normal'], 'Both', 'Rustling grass, 80%.'),
+      rustling('Cinccino', ['Normal'], 'Both', 'Rustling grass, 5%.'),
+      rustling('Gothitelle', ['Psychic'], 'Black', 'Black-exclusive rustling grass, 5%.'),
+      rustling('Reuniclus', ['Psychic'], 'White', 'White-exclusive rustling grass, 5%.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rustling grass, 10%.'),
+      encounter('Houndour', ['Dark', 'Fire'], 'grass', 'Black', 'Swarm-only encounter, Black-exclusive.', details(15, 55, 40, 'Swarm')),
+      encounter('Poochyena', ['Dark'], 'grass', 'White', 'Swarm-only encounter, White-exclusive.', details(15, 55, 40, 'Swarm')),
     ],
     notes: [
-      'Route between Tubeline Bridge and Opelucid City. Verified per Bulbapedia (Unova Route 9 page).',
-      'Gothorita / Gothitelle (Black) vs Duosion / Reuniclus (White) is the canonical Psychic-line version split (matches the earlier Gothita / Solosis split).',
-      'Houndour (Black) vs Poochyena (White) is the swarm version split.',
+      'Short route between Tubeline Bridge and Opelucid City. Verified per Bulbapedia (Unova Route 9 page).',
+      'Challenger\'s Cave entrance is postgame-only and not encoded in this Route 9 table.',
     ],
   },
   {
@@ -750,92 +745,166 @@ export const bwEncounterAreas: BwEncounterArea[] = [
     displayName: 'Opelucid City',
     encounters: [],
     notes: [
-      'No wild grass/surf/fishing encounters in Opelucid City per Bulbapedia.',
-      'Site of the Drayden (Black) / Iris (White) gym battle (logged separately).',
-      'Shopping Mall Nine (a building reached via Route 9) has no canonical wild encounters and no tracked boss-prep battle, so it is intentionally not added as a location entry.',
+      'No standard wild encounter table for Opelucid City in Black/White.',
     ],
   },
   {
     locationId: 'bw-route-10',
     displayName: 'Route 10',
     encounters: [
-      // Regular grass
-      encounter('Herdier', ['Normal'], 'grass'),
-      encounter('Throh', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
-      encounter('Sawk', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter.'),
-      encounter('Foongus', ['Grass', 'Poison'], 'grass'),
-      encounter('Bouffalant', ['Normal'], 'grass'),
-      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'Black', 'Black-exclusive grass encounter.'),
-      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'White', 'White-exclusive grass encounter.'),
-      // Dark grass
-      darkGrass('Herdier', ['Normal']),
-      darkGrass('Throh', ['Fighting'], 'Black', 'Black-exclusive dark-grass encounter.'),
-      darkGrass('Sawk', ['Fighting'], 'White', 'White-exclusive dark-grass encounter.'),
-      darkGrass('Amoonguss', ['Grass', 'Poison']),
-      darkGrass('Bouffalant', ['Normal']),
-      darkGrass('Rufflet', ['Normal', 'Flying'], 'Black', 'Black-exclusive dark-grass encounter.'),
-      darkGrass('Vullaby', ['Dark', 'Flying'], 'White', 'White-exclusive dark-grass encounter.'),
-      // Rustling grass
-      rustling('Audino', ['Normal']),
-      rustling('Stoutland', ['Normal'], 'Both', 'Rare 5% rustling-grass encounter.'),
-      rustling('Throh', ['Fighting'], 'Black', 'Rare 5% rustling-grass encounter, Black-exclusive.'),
-      rustling('Sawk', ['Fighting'], 'White', 'Rare 5% rustling-grass encounter, White-exclusive.'),
-      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rare 10% rustling-grass encounter.'),
-      // Swarm
-      encounter('Tyrogue', ['Fighting'], 'grass', 'Both', 'Swarm-only encounter (40% during an active swarm day).', { condition: 'Swarm' }),
+      encounter('Herdier', ['Normal'], 'grass', 'Both', undefined, details(33, 34, 30)),
+      encounter('Throh', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter.', details(33, 36, 10)),
+      encounter('Sawk', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter.', details(33, 36, 10)),
+      encounter('Foongus', ['Grass', 'Poison'], 'grass', 'Both', undefined, details(34, 35, 10)),
+      encounter('Bouffalant', ['Normal'], 'grass', 'Both', undefined, details(34, 35, 20)),
+      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'White', 'White-exclusive grass encounter.', details(34, 36, 30)),
+      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'Black', 'Black-exclusive grass encounter.', details(34, 36, 30)),
+      darkGrass('Herdier', ['Normal'], 'Both', 'Dark grass, 30%.'),
+      darkGrass('Throh', ['Fighting'], 'White', 'White-exclusive dark grass, 10%.'),
+      darkGrass('Sawk', ['Fighting'], 'Black', 'Black-exclusive dark grass, 10%.'),
+      darkGrass('Amoonguss', ['Grass', 'Poison'], 'Both', 'Dark grass, 10%.'),
+      darkGrass('Bouffalant', ['Normal'], 'Both', 'Dark grass, 20%.'),
+      darkGrass('Rufflet', ['Normal', 'Flying'], 'White', 'White-exclusive dark grass, 30%.'),
+      darkGrass('Vullaby', ['Dark', 'Flying'], 'Black', 'Black-exclusive dark grass, 30%.'),
+      rustling('Audino', ['Normal'], 'Both', 'Rustling grass, 80%.'),
+      rustling('Stoutland', ['Normal'], 'Both', 'Rustling grass, 5%.'),
+      rustling('Throh', ['Fighting'], 'White', 'White-exclusive rustling grass, 5%.'),
+      rustling('Sawk', ['Fighting'], 'Black', 'Black-exclusive rustling grass, 5%.'),
+      rustling('Emolga', ['Electric', 'Flying'], 'Both', 'Rustling grass, 10%.'),
+      encounter('Tyrogue', ['Fighting'], 'grass', 'Both', 'Swarm-only encounter.', details(15, 55, 40, 'Swarm')),
+      encounter('Foongus', ['Grass', 'Poison'], 'static', 'Both', 'Fake item encounter near Opelucid entrance.', details(30, 30, 100, 'Fake Item')),
+      encounter('Amoonguss', ['Grass', 'Poison'], 'static', 'Both', 'Fake item encounters in dark grass.', details(40, 40, 100, 'Fake Item')),
     ],
     notes: [
-      'Final route before Victory Road. Verified per Bulbapedia (Unova Route 10 page).',
-      'Throh (Black) / Sawk (White) and Rufflet (Black) / Vullaby (White) are the canonical version splits at Route 10.',
+      'Final route before Badge Check Gates and Victory Road. Verified per Bulbapedia (Unova Route 10 page).',
+      'Static fake-item Foongus/Amoonguss are encoded because they are catchable one-time encounters and the schema supports static encounters.',
     ],
   },
   {
     locationId: 'bw-victory-road',
     displayName: 'Victory Road',
     encounters: [
-      // Outside area — rough terrain
-      encounter('Fraxure', ['Dragon'], 'grass', 'Both', 'Outside rough terrain (rare 5%).'),
-      encounter('Mienfoo', ['Fighting'], 'grass', 'Both', 'Outside rough terrain.'),
-      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'Black', 'Black-exclusive outside rough-terrain encounter.'),
-      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'White', 'White-exclusive outside rough-terrain encounter.'),
-      encounter('Heatmor', ['Fire'], 'grass', 'Both', 'Outside rough terrain.'),
-      // Cave (1F-7F consolidated)
-      encounter('Boldore', ['Rock'], 'cave'),
-      encounter('Woobat', ['Psychic', 'Flying'], 'cave'),
-      encounter('Mienfoo', ['Fighting'], 'cave'),
-      encounter('Durant', ['Bug', 'Steel'], 'cave'),
-      encounter('Deino', ['Dark', 'Dragon'], 'cave', 'Both', '1F only (20% rate).'),
-      // Dust cloud
-      dustCloud('Excadrill', ['Ground', 'Steel'], 'Both', 'Dust-cloud-only encounter inside Victory Road (any floor).'),
-      // Surfing
+      encounter('Fraxure', ['Dragon'], 'grass', 'Both', 'Outside rough terrain encounter.', details(40, 40, 5, 'Outside Rough')),
+      encounter('Mienfoo', ['Fighting'], 'grass', 'Both', 'Outside rough terrain and cave encounter.', details(38, 41)),
+      encounter('Rufflet', ['Normal', 'Flying'], 'grass', 'White', 'White-exclusive outside rough terrain encounter.', details(37, 40, 35, 'Outside Rough')),
+      encounter('Vullaby', ['Dark', 'Flying'], 'grass', 'Black', 'Black-exclusive outside rough terrain encounter.', details(37, 40, 35, 'Outside Rough')),
+      encounter('Heatmor', ['Fire'], 'grass', 'Both', 'Outside rough terrain encounter.', details(37, 40, 45, 'Outside Rough')),
+      encounter('Boldore', ['Rock'], 'cave', 'Both', 'Cave floor rates/levels vary by room.', details(37, 41)),
+      encounter('Woobat', ['Psychic', 'Flying'], 'cave', 'Both', 'Cave floor rates/levels vary by room.', details(37, 42)),
+      encounter('Durant', ['Bug', 'Steel'], 'cave', 'Both', 'Common cave encounter across rooms.', details(37, 42, 40)),
+      encounter('Deino', ['Dark', 'Dragon'], 'cave', 'Both', '1F middle/rightmost room encounter.', details(38, 40, 20)),
+      dustCloud('Excadrill', ['Ground', 'Steel'], 'Both', 'Dust-cloud-only encounter, 100% of Pokemon dust clouds.'),
       surf('Basculin', ['Water'], 'Black', 'Red-Striped form via Surf, Black-only.'),
       surf('Basculin', ['Water'], 'White', 'Blue-Striped form via Surf, White-only.'),
-      // Fishing (Super Rod)
-      fish('Poliwag', ['Water'], 'Super Rod'),
-      fish('Poliwhirl', ['Water'], 'Super Rod'),
-      fish('Poliwrath', ['Water', 'Fighting'], 'Super Rod', 'Both', 'Rare Super Rod encounter.'),
+      fish('Poliwag', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 45%.'),
+      fish('Poliwhirl', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 15%; also appears in rippling-water fishing.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'Black', 'Red-Striped form, Black-only.'),
+      fish('Basculin', ['Water'], 'Super Rod', 'White', 'Blue-Striped form, White-only.'),
+      fish('Poliwrath', ['Water', 'Fighting'], 'Super Rod', 'Both', 'Rare rippling-water fishing encounter, 5%.'),
+      encounter('Terrakion', ['Rock', 'Fighting'], 'legendary', 'Both', 'Static legendary in Trial Chamber after battling Cobalion in Mistralton Cave.', details(42, 42, 100, 'Trial Chamber')),
     ],
     notes: [
-      'Maze leading to the Pokémon League. Verified per Bulbapedia (Victory Road Black/White page).',
-      'Floor tables (1F-7F) consolidated since schema does not split subareas; rate ranges captured per-species via notes.',
-      'Deino is 1F-only in BW — a notable rare encounter for nuzlocke prep.',
+      'Victory Road has multiple room tables; this flat entry preserves the union of Black/White species with level/rate notes where safe. Verified per Bulbapedia (Victory Road Black and White page).',
+      'Terrakion is encoded as legendary because the schema already supports one-time legendary encounters.',
     ],
   },
   {
     locationId: 'bw-pokemon-league',
-    displayName: 'Pokémon League',
+    displayName: 'Pokemon League',
     encounters: [],
     notes: [
-      'No wild encounters inside the Pokémon League building. Site of the Elite Four and Champion battles (logged separately as bosses).',
+      'No wild encounter table for the Pokemon League in Black/White.',
     ],
   },
   {
-    locationId: 'bw-n-castle',
+    locationId: 'bw-ns-castle',
     displayName: "N's Castle",
-    encounters: [],
+    encounters: [
+      encounter('Reshiram', ['Dragon', 'Fire'], 'legendary', 'Black', 'Story legendary before N in Pokemon Black.', details(50, 50, 100, 'Story Legendary')),
+      encounter('Zekrom', ['Dragon', 'Electric'], 'legendary', 'White', 'Story legendary before N in Pokemon White.', details(50, 50, 100, 'Story Legendary')),
+    ],
     notes: [
-      'No wild encounters inside N\'s Castle. Story climax dungeon hosting the final N and Ghetsis battles (logged separately).',
-      'Reshiram (Black) / Zekrom (White) static legendary encounter is part of the boss flow; if encoded as a static encounter, it would go under Dragonspiral Tower or here depending on convention.',
+      'N\'s Castle has no normal wild encounter table in Black/White.',
+      'The story legendary is encoded here as a legendary encounter because the schema supports one-time legendary encounters.',
+    ],
+  },
+  {
+    locationId: 'bw-route-17',
+    displayName: 'Route 17',
+    encounters: [
+      surf('Frillish', ['Water', 'Ghost'], 'Both', 'Surf encounter, 100%.'),
+      surf('Alomomola', ['Water'], 'Both', 'Rippling-water Surf encounter, 95%.', 'Rippling Water'),
+      surf('Jellicent', ['Water', 'Ghost'], 'Both', 'Rare rippling-water Surf encounter, 5%.', 'Rippling Water'),
+      fish('Finneon', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 45%.'),
+      fish('Horsea', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 55%.'),
+      fish('Seadra', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Qwilfish', ['Water', 'Poison'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Lumineon', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 15%.'),
+      fish('Kingdra', ['Water', 'Dragon'], 'Super Rod', 'Both', 'Rare rippling-water fishing encounter, 5%.'),
+    ],
+    notes: [
+      'Sea route west of Route 1. Verified per Bulbapedia (Unova Route 17 page).',
+      'This is Surf-access optional content in Black/White, not B2W2 data.',
+    ],
+  },
+  {
+    locationId: 'bw-route-18',
+    displayName: 'Route 18',
+    encounters: [
+      encounter('Watchog', ['Normal'], 'grass', 'Both', undefined, details(28, 30, 20)),
+      encounter('Throh', ['Fighting'], 'grass', 'White', 'White-exclusive grass encounter.', details(29, 31, 10)),
+      encounter('Sawk', ['Fighting'], 'grass', 'Black', 'Black-exclusive grass encounter.', details(29, 31, 10)),
+      encounter('Dwebble', ['Bug', 'Rock'], 'grass', 'Both', undefined, details(30, 31, 30)),
+      encounter('Scraggy', ['Dark', 'Fighting'], 'grass', 'Both', undefined, details(28, 31, 40)),
+      darkGrass('Watchog', ['Normal'], 'Both', 'Dark grass, 20%.'),
+      darkGrass('Throh', ['Fighting'], 'White', 'White-exclusive dark grass, 10%.'),
+      darkGrass('Sawk', ['Fighting'], 'Black', 'Black-exclusive dark grass, 10%.'),
+      darkGrass('Crustle', ['Bug', 'Rock'], 'Both', 'Dark grass, 30%.'),
+      darkGrass('Scraggy', ['Dark', 'Fighting'], 'Both', 'Dark grass, 40%.'),
+      rustling('Audino', ['Normal'], 'Both', 'Rustling grass, 95%.'),
+      rustling('Throh', ['Fighting'], 'White', 'White-exclusive rustling grass, 5%.'),
+      rustling('Sawk', ['Fighting'], 'Black', 'Black-exclusive rustling grass, 5%.'),
+      surf('Frillish', ['Water', 'Ghost'], 'Both', 'Surf encounter, 100%.'),
+      surf('Alomomola', ['Water'], 'Both', 'Rippling-water Surf encounter, 95%.', 'Rippling Water'),
+      surf('Jellicent', ['Water', 'Ghost'], 'Both', 'Rare rippling-water Surf encounter, 5%.', 'Rippling Water'),
+      fish('Horsea', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 55%.'),
+      fish('Chinchou', ['Water', 'Electric'], 'Super Rod', 'Both', 'Rare Super Rod encounter, 1%.'),
+      fish('Finneon', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 44%.'),
+      fish('Seadra', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Qwilfish', ['Water', 'Poison'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Kingdra', ['Water', 'Dragon'], 'Super Rod', 'Both', 'Rare rippling-water fishing encounter, 5%.'),
+      fish('Lumineon', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 15%.'),
+      encounter('Exeggcute', ['Grass', 'Psychic'], 'grass', 'Both', 'Swarm-only encounter.', details(15, 55, 40, 'Swarm')),
+      encounter('Larvesta', ['Bug', 'Fire'], 'gift', 'Both', 'Egg gift from the Route 18 house.', details(1, 1, 100, 'Egg Gift')),
+    ],
+    notes: [
+      'Island route west of Route 17. Verified per Bulbapedia (Unova Route 18 page).',
+      'Larvesta is represented as a gift encounter because the schema supports gift encounters; egg handling itself is not modeled beyond level/condition.',
+    ],
+  },
+  {
+    locationId: 'bw-p2-laboratory',
+    displayName: 'P2 Laboratory',
+    encounters: [
+      encounter('Watchog', ['Normal'], 'grass', 'Both', undefined, details(28, 31, 36)),
+      encounter('Herdier', ['Normal'], 'grass', 'Both', undefined, details(28, 31, 36)),
+      encounter('Scraggy', ['Dark', 'Fighting'], 'grass', 'Both', undefined, details(29, 31, 14)),
+      encounter('Klink', ['Steel'], 'grass', 'Both', undefined, details(29, 31, 14)),
+      rustling('Audino', ['Normal'], 'Both', 'Rustling grass, 95%.'),
+      rustling('Stoutland', ['Normal'], 'Both', 'Rustling grass, 5%.'),
+      surf('Frillish', ['Water', 'Ghost'], 'Both', 'Surf encounter, 100%.'),
+      surf('Alomomola', ['Water'], 'Both', 'Rippling-water Surf encounter, 95%.', 'Rippling Water'),
+      surf('Jellicent', ['Water', 'Ghost'], 'Both', 'Rare rippling-water Surf encounter, 5%.', 'Rippling Water'),
+      fish('Horsea', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 55%.'),
+      fish('Finneon', ['Water'], 'Super Rod', 'Both', 'Super Rod encounter, 45%.'),
+      fish('Seadra', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Qwilfish', ['Water', 'Poison'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 40%.'),
+      fish('Kingdra', ['Water', 'Dragon'], 'Super Rod', 'Both', 'Rare rippling-water fishing encounter, 5%.'),
+      fish('Lumineon', ['Water'], 'Super Rod', 'Both', 'Rippling-water fishing encounter, 15%.'),
+    ],
+    notes: [
+      'Optional island facility reached from Route 17. Verified per Bulbapedia (P2 Laboratory page).',
+      'Genesect Drive event requires an event Genesect and is not encoded as an encounter.',
     ],
   },
   {
@@ -973,7 +1042,7 @@ export const bwEncounterNotes = {
 /**
  * Build the flat `EncounterOption` map for a given BW game version.
  * Filters out encounters that don't apply to the requested version and preserves the
- * rod/condition/version fields so the UI can render chips.
+ * method/rod/condition/version fields so the UI can render chips and future filters.
  */
 export function getBwEncounterOptions(gameVersion: GameVersion): Record<string, EncounterOption[]> {
   if (gameVersion !== 'Black' && gameVersion !== 'White') return {};
@@ -984,10 +1053,16 @@ export function getBwEncounterOptions(gameVersion: GameVersion): Record<string, 
       .map((item): EncounterOption => ({
         species: item.species,
         types: item.types,
+        method: item.method,
+        version: item.version,
         surfMethod: item.method === 'surfing' || undefined,
         fishingMethod: item.method === 'fishing' || undefined,
         ...(item.rod ? { rod: item.rod } : {}),
         ...(item.condition ? { condition: item.condition } : {}),
+        ...(typeof item.minLevel === 'number' ? { minLevel: item.minLevel } : {}),
+        ...(typeof item.maxLevel === 'number' ? { maxLevel: item.maxLevel } : {}),
+        ...(typeof item.rate === 'number' ? { rate: item.rate } : {}),
+        ...(item.notes ? { notes: item.notes } : {}),
       }));
 
     acc[area.displayName] = options;

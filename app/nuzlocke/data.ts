@@ -14,7 +14,7 @@ type GameDataStatus = 'Skeleton' | 'Partial' | 'In Audit' | 'Working Complete' |
 
 export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean; dataStatus?: GameDataStatus }[] }[] = [
   { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
-  { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
+  { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Partial' })) },
   {
     generation: 'Gen 3',
     games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
@@ -31,7 +31,14 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
       dataStatus: name === 'HeartGold' || name === 'SoulSilver' ? 'Partial' : 'Skeleton',
     })),
   },
-  { generation: 'Gen 5', games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' })) },
+  {
+    generation: 'Gen 5',
+    games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({
+      name: name as GameVersion,
+      supported: true,
+      dataStatus: (name === 'Black' || name === 'White' ? 'Partial' : 'Skeleton') as GameDataStatus,
+    })),
+  },
   {
     generation: 'Gen 6',
     games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({
@@ -159,7 +166,7 @@ export type EncounterOption = {
   abilities?: string[];
   surfMethod?: boolean;
   fishingMethod?: boolean;
-  method?: string;
+  method?: 'grass' | 'cave' | 'surfing' | 'fishing' | 'gift' | 'static' | 'trade' | 'special' | 'legendary' | 'headbutt' | string;
   /** Optional rod gating for fishing encounters (Old/Good/Super). Rendered as a chip when present. */
   rod?: 'Old Rod' | 'Good Rod' | 'Super Rod';
   /** Optional condition annotation (e.g. "Rock Smash", "Daily", "Tuesdays only", subarea name). Rendered as a chip when present. */
@@ -169,6 +176,7 @@ export type EncounterOption = {
   rate?: number;
   minLevel?: number;
   maxLevel?: number;
+  notes?: string;
 };
 
 export const natureOptions = [
@@ -1566,6 +1574,24 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
   return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsXyData(gameVersion);
+}
+
+export function getEncounterDataWarning(gameVersion: GameVersion) {
+  if (gameVersion === 'Black' || gameVersion === 'White') {
+    return {
+      title: 'Partial data available',
+      message: 'Encounter and boss data for this game is partially complete. Some late-game areas, optional encounters, or special mechanics may still be missing.',
+      emptyState: 'No listed encounters match the current filters.',
+    };
+  }
+
+  if (!isEncounterSkeletonGame(gameVersion)) return null;
+
+  return {
+    title: 'Encounter data coming soon',
+    message: 'Encounter data for this game is still in progress. Some routes, methods, bosses, or version differences may be missing.',
+    emptyState: 'Encounter data coming soon.',
+  };
 }
 
 export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null) {

@@ -8,7 +8,7 @@ export const gen2JohtoMetadata = {
   gameSet: 'gen2-johto',
   supportsStarterChoice: true,
   starterChoiceMode: 'type-only',
-  status: 'skeleton',
+  status: 'partial',
 };
 
 export function supportsGen2Data(gameVersion: GameVersion) {

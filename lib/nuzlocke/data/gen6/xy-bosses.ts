@@ -411,9 +411,31 @@ export const xyBosses: BossTrainer[] = [
     location: 'Victory Road',
     order: 25,
     category: 'rival',
-    levelCap: 63,
-    team: [],
-    notes: 'Final pre-Elite Four rival battle. Bulbapedia\'s rival battle list (Tower of Mastery, Coumarine City, Route 14, Poké Ball Factory multi, Anistar City, Kiloude City) does not include a separate Victory Road encounter; the late-game rival fights between Snowbelle and the League are the Anistar fight + Kiloude (postgame). TODO: verify whether this entry should instead represent the Coumarine City, Route 14, or Anistar City rival fight, and populate verified team/levels.',
+    levelCap: 61,
+    team: [
+      mon('Meowstic', 57, ['Psychic'], { ability: 'Keen Eye' }),
+    ],
+    variantsByRivalStarterChoice: calemStarterVariants(
+      [
+        mon('Jolteon', 57, ['Electric'], { ability: 'Volt Absorb' }),
+        mon('Altaria', 58, ['Dragon', 'Flying'], { ability: 'Natural Cure' }),
+        mon('Absol', 59, ['Dark'], { ability: 'Super Luck' }),
+        mon('Delphox', 61, ['Fire', 'Psychic'], { ability: 'Blaze' }),
+      ],
+      [
+        mon('Flareon', 57, ['Fire'], { ability: 'Flash Fire' }),
+        mon('Altaria', 58, ['Dragon', 'Flying'], { ability: 'Natural Cure' }),
+        mon('Absol', 59, ['Dark'], { ability: 'Super Luck' }),
+        mon('Greninja', 61, ['Water', 'Dark'], { ability: 'Torrent' }),
+      ],
+      [
+        mon('Vaporeon', 57, ['Water'], { ability: 'Water Absorb' }),
+        mon('Altaria', 58, ['Dragon', 'Flying'], { ability: 'Natural Cure' }),
+        mon('Absol', 59, ['Dark'], { ability: 'Super Luck' }),
+        mon('Chesnaught', 61, ['Grass', 'Fighting'], { ability: 'Overgrow' }),
+      ],
+    ),
+    notes: 'Final pre-Elite Four rival battle on Victory Road. Team species, levels, types, and abilities verified per Bulbapedia (Calem/Serena page). TODO: populate verified movesets in a dedicated moveset pass.',
   }),
   boss({
     id: 'xy-malva',
