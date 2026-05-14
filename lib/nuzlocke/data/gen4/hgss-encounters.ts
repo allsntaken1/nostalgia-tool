@@ -52,12 +52,7 @@ const fish = (
   notes?: string,
 ): HgssEncounter => encounter(species, types, 'fishing', version, notes, { rod });
 
-/**
- * Rock Smash helper — uses method "special" + condition annotation (matches BW pattern).
- * Currently unused while Rock Smash tables are being verified per location; kept as
- * infrastructure so the next data pass can call it without re-introducing the helper.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/** Rock Smash helper — uses method "special" + condition annotation (matches BW pattern). */
 const rockSmash = (
   species: string,
   types: PokemonType[],
@@ -366,8 +361,21 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Pidgey', ['Normal', 'Flying'], 'grass'),
       encounter('Hoothoot', ['Normal', 'Flying'], 'grass'),
       encounter('Sunkern', ['Grass'], 'grass'),
+      // Headbutt — Group A (Lv 10-12) per Bulbapedia.
+      headbutt('Exeggcute', ['Grass', 'Psychic'], 'Both', 'Headbutt Group A.'),
+      headbutt('Hoothoot', ['Normal', 'Flying'], 'Both', 'Headbutt — appears in both Group A and Group B.'),
+      headbutt('Pineco', ['Bug'], 'Both', 'Headbutt Group A.'),
+      // Headbutt — Group B (Lv 13-15) per Bulbapedia.
+      headbutt('Ledyba', ['Bug', 'Flying'], 'HeartGold', 'Headbutt Group B, HeartGold-only.'),
+      headbutt('Spinarak', ['Bug', 'Poison'], 'SoulSilver', 'Headbutt Group B, SoulSilver-only.'),
+      // Northeast cliff Headbutt trees (Rock Climb required, Lv 18-25).
+      headbutt('Cherubi', ['Grass'], 'Both', 'Northeast cliff Headbutt tree (requires Rock Climb).'),
     ],
-    notes: ['Bug-Catching Contest data is TODO until condition support is added.', conditionTodo],
+    notes: [
+      'Bug-Catching Contest data is TODO until condition support is added.',
+      'Northeast cliff Headbutt trees require Rock Climb (post-badge progression).',
+      conditionTodo,
+    ],
   },
   {
     locationId: 'johto-route-36',
@@ -634,8 +642,18 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
       encounter('Golbat', ['Poison', 'Flying'], 'cave'),
       encounter('Jynx', ['Ice', 'Psychic'], 'cave'),
       encounter('Swinub', ['Ice', 'Ground'], 'cave'),
+      encounter('Delibird', ['Ice', 'Flying'], 'cave', 'HeartGold', 'HeartGold-only cave encounter (20% rate).'),
+      // Pokégear-radio encounters (Hoenn/Sinnoh Sound) — flagged for future radio-condition support.
+      encounter('Makuhita', ['Fighting'], 'special', 'Both', 'Pokégear Hoenn Sound radio encounter.', { condition: 'Hoenn Sound' }),
+      encounter('Absol', ['Dark'], 'special', 'Both', 'Pokégear Hoenn Sound radio encounter.', { condition: 'Hoenn Sound' }),
+      encounter('Chingling', ['Psychic'], 'special', 'Both', 'Pokégear Sinnoh Sound radio encounter.', { condition: 'Sinnoh Sound' }),
+      encounter('Bronzor', ['Steel', 'Psychic'], 'special', 'Both', 'Pokégear Sinnoh Sound radio encounter.', { condition: 'Sinnoh Sound' }),
     ],
-    notes: ['Ice Path floors are collapsed into one area for now.', conditionTodo],
+    notes: [
+      'Ice Path floors (1F-B3F) are collapsed into one area; encounter sets are near-identical across floors per Bulbapedia.',
+      'Radio-call encounters use condition "Hoenn Sound" / "Sinnoh Sound" so future UI can filter them.',
+      conditionTodo,
+    ],
   },
   {
     locationId: 'blackthorn-city',
@@ -653,12 +671,16 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
     encounters: [
       encounter('Magikarp', ['Water'], 'surfing'),
       encounter('Dratini', ['Dragon'], 'surfing'),
-      encounter('Magikarp', ['Water'], 'fishing'),
-      encounter('Dratini', ['Dragon'], 'fishing'),
-      encounter('Dragonair', ['Dragon'], 'fishing'),
+      // Fishing — rod tiers per Bulbapedia (Dragon's Den page).
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Dratini', ['Dragon'], 'Good Rod', 'Both', 'Rare 10% Good Rod encounter.'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Dratini', ['Dragon'], 'Super Rod'),
+      fish('Dragonair', ['Dragon'], 'Super Rod', 'Both', 'Rare 10% Super Rod encounter.'),
       encounter('Dratini', ['Dragon'], 'gift', 'Both', 'Elder gift after the Dragon Shrine quiz.'),
     ],
-    notes: ['Dragon Shrine story-progress conditions and fishing rod tiers are collapsed for now.', rodTodo],
+    notes: ['Rod tiers split per Bulbapedia.', 'Dragon Shrine quiz gift is a one-time post-Clair story reward.'],
   },
   {
     locationId: 'johto-route-45',
@@ -679,17 +701,33 @@ export const hgssEncounterAreas: HgssEncounterArea[] = [
     locationId: 'dark-cave',
     displayName: 'Dark Cave',
     encounters: [
+      // Cave walking — Route 31 entrance side
       encounter('Zubat', ['Poison', 'Flying'], 'cave'),
-      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
       encounter('Geodude', ['Rock', 'Ground'], 'cave'),
-      encounter('Dunsparce', ['Normal'], 'cave'),
-      encounter('Wobbuffet', ['Psychic'], 'cave'),
+      encounter('Dunsparce', ['Normal'], 'cave', 'Both', 'Rare 1% Route 31 side encounter.'),
+      // Cave walking — Route 45 entrance side
+      encounter('Golbat', ['Poison', 'Flying'], 'cave', 'Both', 'Route 45 side cave encounter.'),
+      encounter('Graveler', ['Rock', 'Ground'], 'cave', 'Both', 'Route 45 side cave encounter.'),
+      encounter('Wobbuffet', ['Psychic'], 'cave', 'Both', 'Route 45 side cave encounter.'),
+      // Surfing — same Magikarp table both sides
       encounter('Magikarp', ['Water'], 'surfing'),
-      encounter('Goldeen', ['Water'], 'fishing'),
-      encounter('Seaking', ['Water'], 'fishing'),
-      encounter('Magikarp', ['Water'], 'fishing'),
+      // Fishing — rod tiers per Bulbapedia (Dark Cave page).
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod', 'Both', 'Rare 10% Super Rod encounter.'),
+      // Rock Smash — Geodude + Dunsparce (rare Dunsparce signature encounter).
+      rockSmash('Geodude', ['Rock', 'Ground']),
+      rockSmash('Dunsparce', ['Normal'], 'Both', 'Rock Smash is the main route for Dunsparce in HGSS (80% rate).'),
     ],
-    notes: ['Dark Cave entrances are collapsed into one area for now.', conditionTodo, rodTodo, 'Rock Smash encounters are TODO until condition support is added.'],
+    notes: [
+      'Dark Cave Route 31 side and Route 45 side share fishing/surf but have distinct cave walking tables; consolidated per-entry via notes.',
+      'Rock Smash adds Dunsparce as a much more reliable encounter than the 1% cave-walking rate.',
+      conditionTodo,
+    ],
   },
   {
     locationId: 'johto-route-46',
