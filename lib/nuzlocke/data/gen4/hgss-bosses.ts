@@ -44,9 +44,10 @@ const starterVariants = (
   waterLine: BossTrainerPokemon[],
   grassLine: BossTrainerPokemon[],
 ): BossTrainer['variantsByRivalStarterChoice'] => ({
-  grass: fireLine,
-  fire: waterLine,
-  water: grassLine,
+  // Keys are the rival starter type after the shared resolver maps the player's choice.
+  fire: fireLine,
+  water: waterLine,
+  grass: grassLine,
 });
 
 export const hgssBosses: BossTrainer[] = [
