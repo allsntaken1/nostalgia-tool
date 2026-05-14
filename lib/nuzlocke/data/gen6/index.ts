@@ -30,7 +30,7 @@ export function getXyBosses(gameVersion: GameVersion, starterChoice?: StarterCho
   return safeBosses
     .filter((trainer) => trainer.game === 'Both' || trainer.game === gameVersion)
     .slice()
-    .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.recommendedOrder - b.recommendedOrder)
+    .sort((a, b) => a.recommendedOrder - b.recommendedOrder || (a.levelCap ?? 0) - (b.levelCap ?? 0))
     .map((trainer) => bossTrainerToRunBoss(trainer, starterChoice));
 }
 
