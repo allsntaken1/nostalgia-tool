@@ -11,7 +11,12 @@ export interface BossTrainer {
   game: GameVersion | 'Both';
   location: string;
   recommendedOrder: number;
-  levelCap?: number;
+  /**
+   * Numeric level cap. Pass `null` (or omit) to mark the boss as a skeleton entry with no
+   * known cap — the converter forwards `null` into the run model and the UI renders it as
+   * "TBD" rather than fabricating a number. Numeric values pass through unchanged.
+   */
+  levelCap?: number | null;
   notes?: string;
   badge?: string;
   city?: string;
@@ -62,11 +67,27 @@ export function bossTrainerToRunBoss(trainer: BossTrainer, playerStarterChoice?:
   const notes = [trainer.notes || trainer.location, warning].filter(Boolean).join(' ');
   const safeTeam = Array.isArray(team) ? team : [];
 
+  // Level cap resolution:
+  //   1. Explicit numeric `trainer.levelCap` wins.
+  //   2. Explicit `null` (skeleton intent) stays null.
+  //   3. Undefined + non-empty team => derive from highest Pokémon level.
+  //   4. Undefined + empty team => null (don't fabricate a fake level cap of 1).
+  let resolvedLevelCap: number | null;
+  if (typeof trainer.levelCap === 'number') {
+    resolvedLevelCap = trainer.levelCap;
+  } else if (trainer.levelCap === null) {
+    resolvedLevelCap = null;
+  } else if (safeTeam.length > 0) {
+    resolvedLevelCap = Math.max(...safeTeam.map((pokemon) => pokemon.level), 1);
+  } else {
+    resolvedLevelCap = null;
+  }
+
   return {
     id: trainer.id,
     name: trainer.name,
     category: trainer.category,
-    levelCap: trainer.levelCap ?? Math.max(...safeTeam.map((pokemon) => pokemon.level), 1),
+    levelCap: resolvedLevelCap,
     completed: false,
     notes,
     deaths: 0,

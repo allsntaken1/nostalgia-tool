@@ -6,7 +6,9 @@ import { getGen4Bosses, getGen4EncounterGroupsForTypeLookup, getGen4EncounterOpt
 import { getGen5Bosses, getGen5EncounterGroupsForTypeLookup, getGen5EncounterOptions, getGen5Locations, supportsGen5Data } from '@/lib/nuzlocke/data/gen5';
 import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
 import { getXyBosses, getXyEncounterGroupsForTypeLookup, getXyEncounterOptionsForGame, getXyLocations, supportsXyData } from '@/lib/nuzlocke/data/gen6';
+import { getGen7Bosses, getGen7EncounterGroupsForTypeLookup, getGen7EncounterOptions, getGen7Locations, supportsGen7Data } from '@/lib/nuzlocke/data/gen7';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
+import { getCachedPokemonSpriteUrl } from '@/lib/nuzlocke/data/pokemon-cache';
 
 export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 
@@ -47,7 +49,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
       dataStatus: (name === 'X' || name === 'Y' ? 'Partial' : undefined) as 'Partial' | undefined,
     })),
   },
-  { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: false })) },
+  { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' as GameDataStatus })) },
   {
     generation: 'Gen 8',
     games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].map((name) => ({
@@ -900,8 +902,15 @@ export function pokemonSpeciesSlug(species: string): string {
 export function getPokemonSpriteUrl(species: string) {
   const cleanSpecies = species.split('/')[0]?.trim();
   if (!cleanSpecies) return '';
+  // 1. Prefer the local cache (populated by scripts/generate-pokemon-cache.ts).
+  //    This is the only path that hits no network on render — pure JSON lookup.
+  const cachedSprite = getCachedPokemonSpriteUrl(cleanSpecies);
+  if (cachedSprite) return cachedSprite;
+  // 2. Hardcoded national-dex IDs from this file (legacy fast-path; survives
+  //    until the cache is regenerated and covers the species).
   const id = pokemonSpriteIds[cleanSpecies];
   if (id) return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+  // 3. Final slug-based fallback to Showdown sprites (no API call; static CDN).
   const slug = pokemonSpeciesSlug(species);
   if (!slug) return '';
   return `https://play.pokemonshowdown.com/sprites/gen5/${slug}.png`;
@@ -945,6 +954,11 @@ const xyStarterOptions: EncounterOption[] = [
   { species: 'Fennekin', types: ['Fire'] },
   { species: 'Froakie', types: ['Water'] },
 ];
+const gen7StarterOptions: EncounterOption[] = [
+  { species: 'Rowlet', types: ['Grass', 'Flying'] },
+  { species: 'Litten', types: ['Fire'] },
+  { species: 'Popplio', types: ['Water'] },
+];
 
 /**
  * Universal "Starter Pokémon" pseudo-location name. Used by every game that doesn't
@@ -959,6 +973,11 @@ function getStarterOptionsForGame(gameVersion: GameVersion): EncounterOption[] {
     case 'X':
     case 'Y':
       return xyStarterOptions;
+    case 'Sun':
+    case 'Moon':
+    case 'Ultra Sun':
+    case 'Ultra Moon':
+      return gen7StarterOptions;
     case 'FireRed':
     case 'LeafGreen':
       return frlgStarterOptions;
@@ -1539,6 +1558,7 @@ function getBaseNuzlockeLocations(gameVersion: GameVersion): string[] {
   if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
   if (supportsXyData(gameVersion)) return getXyLocations(gameVersion);
+  if (supportsGen7Data(gameVersion)) return getGen7Locations(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
 }
@@ -1551,6 +1571,7 @@ function getBaseNuzlockeEncounterOptions(gameVersion: GameVersion): Record<strin
   if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
   if (supportsXyData(gameVersion)) return getXyEncounterOptionsForGame(gameVersion);
+  if (supportsGen7Data(gameVersion)) return getGen7EncounterOptions(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
 }
@@ -1573,7 +1594,7 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
-  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsXyData(gameVersion);
+  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsXyData(gameVersion) || supportsGen7Data(gameVersion);
 }
 
 export function getEncounterDataWarning(gameVersion: GameVersion) {
@@ -1610,9 +1631,11 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
                 ? getGen5Bosses(gameVersion, starterChoice)
                 : supportsXyData(gameVersion)
                   ? getXyBosses(gameVersion, starterChoice)
-                  : supportsGen8Data(gameVersion)
-                    ? getGen8Bosses(gameVersion, starterChoice)
-                    : getScarletVioletBosses(gameVersion);
+                  : supportsGen7Data(gameVersion)
+                    ? getGen7Bosses(gameVersion, starterChoice)
+                    : supportsGen8Data(gameVersion)
+                      ? getGen8Bosses(gameVersion, starterChoice)
+                      : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
   const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
@@ -1663,7 +1686,7 @@ function resolveStarterAce(gameVersion: GameVersion, pokemon: NuzlockeBossPokemo
 }
 
 export function getPokemonTypesFromData(species: string) {
-  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), ...getGen4EncounterGroupsForTypeLookup(), ...getGen5EncounterGroupsForTypeLookup(), ...getXyEncounterGroupsForTypeLookup(), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
+  const encounterGroups = [redBlueEncounterOptions, yellowEncounterOptions, ...getGen2EncounterGroupsForTypeLookup(), getFrlgEncounterOptions('FireRed'), ...getGen4EncounterGroupsForTypeLookup(), ...getGen5EncounterGroupsForTypeLookup(), ...getXyEncounterGroupsForTypeLookup(), ...getGen7EncounterGroupsForTypeLookup(), scarletVioletEncounterOptions, ...getGen8EncounterGroupsForTypeLookup()];
   for (const group of encounterGroups) {
     for (const options of Object.values(group)) {
       const safeOptions = Array.isArray(options) ? options : [];

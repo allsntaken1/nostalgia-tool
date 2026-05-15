@@ -9,6 +9,7 @@ import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlo
 import { getItemData } from '@/lib/nuzlocke/services/itemService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
 import { readNuzlockeApiCache, writeNuzlockeApiCache } from '@/lib/nuzlocke/services/apiCache';
+import { getCachedPokemonAbilities, getCachedPokemonTypes } from '@/lib/nuzlocke/data/pokemon-cache';
 import { normalizeStarterChoice, starterChoiceLabel } from '@/lib/nuzlocke/starter';
 import {
   type EncounterOption,
@@ -1011,38 +1012,24 @@ function bossTypes(boss: NuzlockeBoss) {
   return mapped[boss.id] ?? pokemonTypesForSpecies(boss.pokemon?.[0]?.species ?? '');
 }
 
-function normalizePokemonApiName(species: string) {
-  // Share the same form-slug override map used by sprite resolution so PokéAPI fetches
-  // and sprite URLs always agree on which form to query.
-  return pokemonSpeciesSlug(species);
-}
-
 function usePublicPokemonTypes(species: string, fallbackTypes: PokemonType[]) {
   const fallbackKey = fallbackTypes.join('|');
   const [types, setTypes] = useState<PokemonType[]>(fallbackTypes);
 
   useEffect(() => {
-    setTypes(fallbackTypes);
-    if (fallbackTypes.length > 0 || !species || species.includes('Team') || species.includes('Ace')) return;
-
-    let active = true;
-    fetch(`https://pokeapi.co/api/v2/pokemon/${normalizePokemonApiName(species)}`)
-      .then((response) => (response?.ok ? response.json() : null))
-      .then((data) => {
-        if (!active || !data?.types) return;
-        const fetchedTypes = data.types
-          .map((entry: { type?: { name?: string } }) => {
-            const name = entry.type?.name;
-            return name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
-          })
-          .filter((name: string): name is PokemonType => pokemonTypes.includes(name as PokemonType));
-        if (fetchedTypes.length > 0) setTypes(fetchedTypes);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      active = false;
-    };
+    if (fallbackTypes.length > 0) {
+      setTypes(fallbackTypes);
+      return;
+    }
+    if (!species || species.includes('Team') || species.includes('Ace')) {
+      setTypes(fallbackTypes);
+      return;
+    }
+    // Local cache only — no PokéAPI calls at render time. If the cache hasn't
+    // been generated yet (or doesn't know this species), fall back to whatever
+    // typed defaults the caller passed.
+    const cached = getCachedPokemonTypes(species);
+    setTypes(cached && cached.length > 0 ? cached : fallbackTypes);
   }, [species, fallbackKey]);
 
   return types;
@@ -2520,33 +2507,20 @@ function EncounterTracker({
 
   useEffect(() => {
     if (!manualEntry || !form.pokemon.trim()) return;
-
-    let active = true;
-    fetch(`https://pokeapi.co/api/v2/pokemon/${normalizePokemonApiName(form.pokemon)}`)
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data) => {
-        if (!active || !data?.types) return;
-        const fetchedTypes = data.types
-          .map((entry: { type?: { name?: string } }) => {
-            const name = entry.type?.name;
-            return name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
-          })
-          .filter((name: string): name is PokemonType => pokemonTypes.includes(name as PokemonType));
-        if (fetchedTypes.length > 0) setForm((current) => ({ ...current, types: fetchedTypes }));
-        const fetchedAbilities = (data.abilities || [])
-          .map((entry: { ability?: { name?: string } }) => entry.ability?.name)
-          .filter(Boolean)
-          .map((name: string) => name.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' '));
-        if (fetchedAbilities.length > 0) {
-          setManualAbilityOptions([...fetchedAbilities, 'Not Sure']);
-          setForm((current) => current.ability && current.ability !== 'Primary Ability' ? current : { ...current, ability: fetchedAbilities[0] });
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      active = false;
-    };
+    // Local-cache lookup only; no PokéAPI calls at render time.
+    const cachedTypes = getCachedPokemonTypes(form.pokemon);
+    if (cachedTypes && cachedTypes.length > 0) {
+      setForm((current) => ({ ...current, types: cachedTypes }));
+    }
+    const cachedAbilities = getCachedPokemonAbilities(form.pokemon);
+    if (cachedAbilities.length > 0) {
+      setManualAbilityOptions([...cachedAbilities, 'Not Sure']);
+      setForm((current) =>
+        current.ability && current.ability !== 'Primary Ability'
+          ? current
+          : { ...current, ability: cachedAbilities[0] },
+      );
+    }
   }, [manualEntry, form.pokemon]);
 
   const addEncounter = (event: FormEvent<HTMLFormElement>) => {
