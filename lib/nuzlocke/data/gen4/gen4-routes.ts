@@ -21,6 +21,18 @@ export const gen4Routes: RouteData[] = [
   { id: 'eterna-forest', displayName: 'Eterna Forest', order: 18, region: 'sinnoh', gameSet: 'gen4', tags: ['forest'] },
   { id: 'route-205-north', displayName: 'Route 205 (North)', order: 19, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'eterna-city', displayName: 'Eterna City', order: 20, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'route-206', displayName: 'Route 206 (Cycling Road)', order: 21, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'wayward-cave', displayName: 'Wayward Cave', order: 22, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'route-207', displayName: 'Route 207', order: 23, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'mt-coronet-1f', displayName: 'Mt. Coronet 1F (West Entrance)', order: 24, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'route-208', displayName: 'Route 208', order: 25, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'hearthome-city', displayName: 'Hearthome City', order: 26, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'route-209', displayName: 'Route 209', order: 27, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'lost-tower', displayName: 'Lost Tower', order: 28, region: 'sinnoh', gameSet: 'gen4', tags: ['tower'] },
+  { id: 'solaceon-town', displayName: 'Solaceon Town', order: 29, region: 'sinnoh', gameSet: 'gen4', tags: ['town'] },
+  { id: 'solaceon-ruins', displayName: 'Solaceon Ruins', order: 30, region: 'sinnoh', gameSet: 'gen4', tags: ['dungeon'] },
+  { id: 'route-210-south', displayName: 'Route 210 (South)', order: 31, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-215', displayName: 'Route 215', order: 32, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
 ];
 
 export const hgssRoutes: RouteData[] = [

@@ -1663,7 +1663,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum') {
     return {
       title: 'Partial data available',
-      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Eterna City / Gardenia. Honey-tree species, Poké Radar chains, dual-slot Gen III insertion species, swarms, and remaining gyms/Galactic story remain TODO.',
+      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Hearthome / Fantina (Platinum gym order). Honey-tree species, Poké Radar chains, dual-slot Gen III insertion species, swarms, day/night gating, and remaining gyms/Galactic story past Hearthome remain TODO.',
       emptyState: 'No standard DPP encounter is currently tracked for this location.',
     };
   }
