@@ -1716,14 +1716,43 @@ function NuzlockeDashboard({
     setTeamBarAction(null);
   }, [teamBarAction, run.id, updateRun, addTimeline]);
 
+  // Mobile-only quick status: derive next boss + team count + deaths for the compact header line.
+  const teamSafe = Array.isArray(run.team) ? run.team : [];
+  const bossesSafe = Array.isArray(run.bosses) ? run.bosses : [];
+  const partyCount = teamSafe.filter((p) => p.status === 'Party').length;
+  const deathCount = teamSafe.filter((p) => p.status === 'Dead').length;
+  const nextBossForHeader = bossesSafe.find((b) => !b.completed);
+
+  // Section-jump map for the mobile action bar; switches tab + scrolls the section into view.
+  const jumpTo = (target: Tab, anchorId: string) => {
+    setTab(target);
+    // Wait a frame for the tab content to mount before scrolling.
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById(anchorId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  };
+
   return (
-    <div className="grid gap-3 pb-28">
+    <div className="grid gap-3 pb-40 md:pb-28">
       <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool / {run.gameVersion} / {run.runType}</div>
             <h1 className="text-2xl font-black">Pokemon Nuzlocke Tracker</h1>
             <div className="mt-1 text-sm font-black text-[#506078]">{run.runName}</div>
+            {/* Mobile-only compact run-status line. */}
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-black text-[#506078] md:hidden">
+              <span className="rounded-full bg-[var(--nuz-accent-soft)] px-2 py-0.5 text-[var(--nuz-accent)]">{run.gameVersion}</span>
+              <span>•</span>
+              <span>Next: {nextBossForHeader?.name ?? '—'}{nextBossForHeader?.levelCap ? ` (Cap ${nextBossForHeader.levelCap})` : ''}</span>
+              <span>•</span>
+              <span>Team {partyCount}/6</span>
+              <span>•</span>
+              <span aria-label="Deaths">💀 {deathCount}</span>
+            </div>
             <div className="mt-2">{storageTools}</div>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -1736,9 +1765,10 @@ function NuzlockeDashboard({
             <button
               key={item}
               onClick={() => setTab(item)}
-              className={`shrink-0 rounded-xl px-3 py-2 text-xs font-black shadow-sm transition ${
+              className={`shrink-0 rounded-xl px-3 py-2 min-h-11 text-xs font-black shadow-sm transition ${
                 tab === item ? 'bg-[#182a40] text-white' : 'bg-white/80 hover:bg-white'
               }`}
+              aria-pressed={tab === item}
             >
               {item}
             </button>
@@ -1746,13 +1776,41 @@ function NuzlockeDashboard({
         </div>
       </section>
 
-      {tab === 'Overview' ? <Overview run={run} /> : null}
-      {tab === 'Team / Box' ? <TeamTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
-      {tab === 'Encounters' ? <EncounterTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
-      {tab === 'Badges / Bosses' ? <BossTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /> : null}
-      {tab === 'Graveyard' ? <Graveyard run={run} /> : null}
-      {tab === 'Timeline' ? <TimelineLog run={run} /> : null}
+      {tab === 'Overview' ? <div id="nuzlocke-current-goal"><Overview run={run} /></div> : null}
+      {tab === 'Team / Box' ? <div id="nuzlocke-team"><TeamTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /></div> : null}
+      {tab === 'Encounters' ? <div id="nuzlocke-encounters"><EncounterTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /></div> : null}
+      {tab === 'Badges / Bosses' ? <div id="nuzlocke-bosses"><BossTracker run={run} updateRun={updateRun} addTimeline={addTimeline} /></div> : null}
+      {tab === 'Graveyard' ? <div id="nuzlocke-graveyard"><Graveyard run={run} /></div> : null}
+      {tab === 'Timeline' ? <div id="nuzlocke-run-tools"><TimelineLog run={run} /></div> : null}
       <CurrentTeamBar run={run} onQuickStatus={(pokemonId, action) => setTeamBarAction({ pokemonId, action })} />
+      {/* Mobile-only section-jump bar. Sits above the team bar; both respect safe-area-inset-bottom. */}
+      <nav
+        aria-label="Mobile section navigation"
+        className="fixed inset-x-0 z-40 border-t border-white/70 bg-white/95 px-2 py-1 shadow-[0_-8px_20px_rgba(24,42,64,0.10)] backdrop-blur md:hidden"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+      >
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-1">
+          {([
+            { label: 'Goal', tab: 'Overview' as Tab, anchor: 'nuzlocke-current-goal' },
+            { label: 'Team', tab: 'Team / Box' as Tab, anchor: 'nuzlocke-team' },
+            { label: 'Routes', tab: 'Encounters' as Tab, anchor: 'nuzlocke-encounters' },
+            { label: 'Bosses', tab: 'Badges / Bosses' as Tab, anchor: 'nuzlocke-bosses' },
+            { label: 'Grave', tab: 'Graveyard' as Tab, anchor: 'nuzlocke-graveyard' },
+          ]).map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => jumpTo(item.tab, item.anchor)}
+              className={`min-h-11 flex-1 rounded-lg px-2 py-1 text-[11px] font-black transition ${
+                tab === item.tab ? 'bg-[#182a40] text-white' : 'bg-white/80 hover:bg-white active:bg-white'
+              }`}
+              aria-pressed={tab === item.tab}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }
@@ -1777,7 +1835,10 @@ function CurrentTeamBar({
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/70 bg-white/85 px-3 py-2 shadow-[0_-14px_35px_rgba(24,42,64,0.12)] backdrop-blur">
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/70 bg-white/85 px-3 py-2 shadow-[0_-14px_35px_rgba(24,42,64,0.12)] backdrop-blur"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)' }}
+      >
         <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto">
           <div className="shrink-0 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Current Team</div>
           {slots.map((pokemon, index) => {
