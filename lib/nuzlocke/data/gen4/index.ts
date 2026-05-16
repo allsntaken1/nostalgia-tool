@@ -3,6 +3,8 @@ import type { EncounterOption } from '@/app/nuzlocke/data';
 import { bossTrainerToRunBoss } from '@/lib/nuzlocke/data/gen8/types';
 import { hgssBosses } from './hgss-bosses';
 import { getHgssEncounterOptions } from './hgss-encounters';
+import { getDppEncounterOptionsForGame } from './dpp-encounters';
+import { getDppBossesForGame } from './dpp-bosses';
 import { gen4Routes, hgssRoutes } from './gen4-routes';
 import { getGen4TrainerSkeletons } from './gen4-trainers';
 import { gen4Metadata, supportsGen4Data } from './metadata';
@@ -30,9 +32,14 @@ export function getGen4Locations(gameVersion: GameVersion) {
   return routeSet(gameVersion).map((route) => route.displayName);
 }
 
+function isDpp(gameVersion: GameVersion): gameVersion is 'Diamond' | 'Pearl' | 'Platinum' {
+  return gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum';
+}
+
 export function getGen4EncounterOptions(gameVersion: GameVersion) {
   if (!supportsGen4Data(gameVersion)) return {};
   if (gameVersion === 'HeartGold' || gameVersion === 'SoulSilver') return getHgssEncounterOptions(gameVersion);
+  if (isDpp(gameVersion)) return getDppEncounterOptionsForGame(gameVersion);
   return routeSet(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
     acc[route.displayName] = [];
     return acc;
@@ -46,6 +53,12 @@ export function getGen4Bosses(gameVersion: GameVersion, starterChoice?: StarterC
       .slice()
       .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.recommendedOrder - b.recommendedOrder)
       .map((boss) => bossTrainerToRunBoss(boss, starterChoice));
+  }
+  if (isDpp(gameVersion)) {
+    return getDppBossesForGame(gameVersion)
+      .slice()
+      .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.recommendedOrder - b.recommendedOrder)
+      .map((trainer) => bossTrainerToRunBoss(trainer, starterChoice));
   }
   return getGen4TrainerSkeletons(gameVersion).map((trainer) => ({
     id: trainer.id,
