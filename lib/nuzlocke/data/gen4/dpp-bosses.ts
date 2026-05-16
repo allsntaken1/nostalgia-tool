@@ -217,6 +217,133 @@ const dppBosses: BossTrainer[] = [
     ],
     notes: 'Platinum Eterna Gym. Cherubi → Cherrim; Turtwig swaps Withdraw → Sunny Day; levels +1 on first two slots.',
   }),
+
+  // -- DPP Pass 2 (Eterna → Hearthome / Fantina) --
+
+  // Jupiter at Eterna Galactic Building. DP Lv 18/20, Platinum Lv 21/23.
+  boss({
+    id: 'dpp-galactic-jupiter-eterna-d',
+    name: 'Commander Jupiter (Eterna Galactic Building)',
+    location: 'Eterna Galactic Building',
+    order: 23,
+    category: 'evil-team',
+    levelCap: 20,
+    game: 'Diamond',
+    team: [
+      mon('Zubat', 18, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Skuntank', 20, ['Poison', 'Dark'], { ability: 'Stench', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Eterna Galactic Building battle. Per-Pokémon moves not surfaced — TODO.',
+  }),
+  boss({
+    id: 'dpp-galactic-jupiter-eterna-p',
+    name: 'Commander Jupiter (Eterna Galactic Building)',
+    location: 'Eterna Galactic Building',
+    order: 23,
+    category: 'evil-team',
+    levelCap: 20,
+    game: 'Pearl',
+    team: [
+      mon('Zubat', 18, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Skuntank', 20, ['Poison', 'Dark'], { ability: 'Stench', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Eterna Galactic Building battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-jupiter-eterna-pt',
+    name: 'Commander Jupiter (Eterna Galactic Building)',
+    location: 'Eterna Galactic Building',
+    order: 23,
+    category: 'evil-team',
+    levelCap: 23,
+    game: 'Platinum',
+    team: [
+      mon('Zubat', 21, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Skuntank', 23, ['Poison', 'Dark'], { ability: 'Stench', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Eterna Galactic Building battle. Levels +3 vs DP. Per-Pokémon moves not surfaced — TODO.',
+  }),
+
+  // Fantina — different progression position between DP and Platinum.
+  //   Platinum: 3rd Gym in Hearthome, Lv 24/24/26.
+  //   Diamond/Pearl: 5th Gym in Hearthome, Lv 32/34/36.
+  // Both placements live here under their canonical level caps; ordering between game versions
+  // is handled by the dispatcher sort which keys on (levelCap, recommendedOrder).
+  boss({
+    id: 'dpp-gym-fantina-pt',
+    name: 'Gym Leader Fantina',
+    location: 'Hearthome City Gym',
+    order: 27,
+    category: 'gym',
+    levelCap: 26,
+    game: 'Platinum',
+    team: [
+      mon('Duskull', 24, ['Ghost'], {
+        ability: 'Levitate',
+        moves: [mv('Will-O-Wisp', 'Fire'), mv('Future Sight', 'Psychic', 120), mv('Shadow Sneak', 'Ghost', 40), mv('Pursuit', 'Dark', 40)],
+      }),
+      mon('Haunter', 24, ['Ghost', 'Poison'], {
+        ability: 'Levitate',
+        moves: [mv('Shadow Claw', 'Ghost', 70), mv('Sucker Punch', 'Dark', 70), mv('Confuse Ray', 'Ghost'), mv('Hypnosis', 'Psychic')],
+      }),
+      mon('Mismagius', 26, ['Ghost'], {
+        ability: 'Levitate',
+        item: 'Sitrus Berry',
+        moves: [mv('Shadow Ball', 'Ghost', 80), mv('Psybeam', 'Psychic', 65), mv('Magical Leaf', 'Grass', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+    ],
+    notes: 'Platinum Hearthome Gym (3rd in order). Earns Relic Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-fantina-d',
+    name: 'Gym Leader Fantina',
+    location: 'Hearthome City Gym',
+    order: 50,
+    category: 'gym',
+    levelCap: 36,
+    game: 'Diamond',
+    team: [
+      mon('Drifblim', 32, ['Ghost', 'Flying'], {
+        ability: 'Aftermath',
+        moves: [mv('Ominous Wind', 'Ghost', 60), mv('Gust', 'Flying', 40), mv('Astonish', 'Ghost', 30), mv('Minimize', 'Normal')],
+      }),
+      mon('Gengar', 34, ['Ghost', 'Poison'], {
+        ability: 'Levitate',
+        moves: [mv('Shadow Claw', 'Ghost', 70), mv('Poison Jab', 'Poison', 80), mv('Confuse Ray', 'Ghost'), mv('Spite', 'Ghost')],
+      }),
+      mon('Mismagius', 36, ['Ghost'], {
+        ability: 'Levitate',
+        item: 'Sitrus Berry',
+        moves: [mv('Shadow Ball', 'Ghost', 80), mv('Psybeam', 'Psychic', 65), mv('Magical Leaf', 'Grass', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+    ],
+    notes: 'Diamond Hearthome Gym (5th in DP order, after Maylene/Wake). Earns Relic Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-fantina-p',
+    name: 'Gym Leader Fantina',
+    location: 'Hearthome City Gym',
+    order: 50,
+    category: 'gym',
+    levelCap: 36,
+    game: 'Pearl',
+    team: [
+      mon('Drifblim', 32, ['Ghost', 'Flying'], {
+        ability: 'Aftermath',
+        moves: [mv('Ominous Wind', 'Ghost', 60), mv('Gust', 'Flying', 40), mv('Astonish', 'Ghost', 30), mv('Minimize', 'Normal')],
+      }),
+      mon('Gengar', 34, ['Ghost', 'Poison'], {
+        ability: 'Levitate',
+        moves: [mv('Shadow Claw', 'Ghost', 70), mv('Poison Jab', 'Poison', 80), mv('Confuse Ray', 'Ghost'), mv('Spite', 'Ghost')],
+      }),
+      mon('Mismagius', 36, ['Ghost'], {
+        ability: 'Levitate',
+        item: 'Sitrus Berry',
+        moves: [mv('Shadow Ball', 'Ghost', 80), mv('Psybeam', 'Psychic', 65), mv('Magical Leaf', 'Grass', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+    ],
+    notes: 'Pearl Hearthome Gym (5th in DP order). Identical team to Diamond.',
+  }),
 ];
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {
