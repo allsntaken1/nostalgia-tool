@@ -423,10 +423,14 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     team: [
       mon('Togedemaru', 33, ['Electric', 'Steel'], {
         ability: 'Lightning Rod',
-        notes: "USUM Totem replaces SM Vikavolt. Ability sourced from Sophocles wikitext. Aura boost, held item, moves, and allies not surfaced this pass — TODO.",
+        item: 'Sitrus Berry',
+        moves: [mv('Zing Zap', 'Electric', 80), mv('Spiky Shield', 'Grass'), mv('Iron Head', 'Steel', 80), mv('Bounce', 'Flying', 85)],
+        notes: 'Aura boost: +2 Defense. Calls Skarmory turn 1; calls Dedenne when HP < ~2/3.',
       }),
+      mon('Skarmory', 31, ['Steel', 'Flying'], { notes: 'Totem ally turn 1.' }),
+      mon('Dedenne', 31, ['Electric', 'Fairy'], { notes: 'Totem secondary ally.' }),
     ],
-    notes: 'USUM swaps Sophocles\'s Totem from Vikavolt (SM) to Togedemaru. Full battle details TODO.',
+    notes: 'USUM Mount Hokulani Totem (replaces SM Vikavolt). Earns Electrium Z on victory.',
   }),
   skeletonBoss('usum-trial-acerola', 'Trial Captain Acerola', 'Thrifty Megamart (Abandoned)', 32, 'trial-captain', 'Captain Acerola'),
   boss({
@@ -871,16 +875,30 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     category: 'elite-four',
     levelCap: 57,
     team: [
-      mon('Armaldo', 56, ['Rock', 'Bug']),
-      mon('Cradily', 56, ['Rock', 'Grass']),
-      mon('Gigalith', 56, ['Rock']),
-      mon('Probopass', 56, ['Rock', 'Steel']),
+      mon('Armaldo', 56, ['Rock', 'Bug'], {
+        ability: 'Battle Armor',
+        moves: [mv('Crush Claw', 'Normal', 75), mv('X-Scissor', 'Bug', 80), mv('Rock Blast', 'Rock', 25)],
+      }),
+      mon('Cradily', 56, ['Rock', 'Grass'], {
+        ability: 'Suction Cups',
+        moves: [mv('Rock Tomb', 'Rock', 60), mv('Energy Ball', 'Grass', 90), mv('Stealth Rock', 'Rock')],
+      }),
+      mon('Gigalith', 56, ['Rock'], {
+        ability: 'Sand Stream',
+        moves: [mv('Stone Edge', 'Rock', 100), mv('Bulldoze', 'Ground', 60), mv('Iron Head', 'Steel', 80)],
+      }),
+      mon('Probopass', 56, ['Rock', 'Steel'], {
+        ability: 'Sturdy',
+        moves: [mv('Earth Power', 'Ground', 90), mv('Power Gem', 'Rock', 80), mv('Thunder Wave', 'Electric'), mv('Sandstorm', 'Rock')],
+      }),
       mon('Lycanroc', 57, ['Rock'], {
+        ability: 'Keen Eye',
         item: 'Rockium Z',
-        notes: 'Midnight Form. Z-Move Continental Crush.',
+        moves: [mv('Crunch', 'Dark', 80), mv('Stone Edge', 'Rock', 100), mv('Counter', 'Fighting'), mv('Rock Climb', 'Normal', 90)],
+        notes: 'Midnight Form. Z-Move Continental Crush from Stone Edge.',
       }),
     ],
-    notes: 'USUM Elite Four Olivia. Swaps SM Relicanth/Carbink/Alolan Golem → Armaldo/Cradily/Gigalith. Per-Pokémon abilities/moves not surfaced — TODO.',
+    notes: 'USUM Elite Four Olivia. Swaps SM Relicanth/Carbink/Alolan Golem → Armaldo/Cradily/Gigalith.',
   }),
   boss({
     id: 'usum-e4-acerola',
@@ -890,16 +908,31 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     category: 'elite-four',
     levelCap: 57,
     team: [
-      mon('Banette', 56, ['Ghost'], { notes: 'USUM swap (SM had Sableye in this slot).' }),
-      mon('Drifblim', 56, ['Ghost', 'Flying']),
-      mon('Dhelmise', 56, ['Grass', 'Ghost']),
-      mon('Froslass', 56, ['Ice', 'Ghost']),
+      mon('Banette', 56, ['Ghost'], {
+        ability: 'Insomnia',
+        moves: [mv('Shadow Claw', 'Ghost', 70), mv('Feint Attack', 'Dark', 60), mv('Infestation', 'Bug', 20), mv('Screech', 'Normal')],
+        notes: 'USUM swap (SM had Sableye in this slot).',
+      }),
+      mon('Drifblim', 56, ['Ghost', 'Flying'], {
+        ability: 'Aftermath',
+        moves: [mv('Ominous Wind', 'Ghost', 60), mv('Focus Energy', 'Normal'), mv('Amnesia', 'Psychic'), mv('Baton Pass', 'Normal')],
+      }),
+      mon('Dhelmise', 56, ['Grass', 'Ghost'], {
+        ability: 'Steelworker',
+        moves: [mv('Slam', 'Normal', 80), mv('Shadow Ball', 'Ghost', 80), mv('Energy Ball', 'Grass', 90), mv('Whirlpool', 'Water', 35)],
+      }),
+      mon('Froslass', 56, ['Ice', 'Ghost'], {
+        ability: 'Snow Cloak',
+        moves: [mv('Blizzard', 'Ice', 110), mv('Shadow Ball', 'Ghost', 80), mv('Confuse Ray', 'Ghost'), mv('Ice Shard', 'Ice', 40)],
+      }),
       mon('Palossand', 57, ['Ghost', 'Ground'], {
+        ability: 'Water Compaction',
         item: 'Ghostium Z',
+        moves: [mv('Shadow Ball', 'Ghost', 80), mv('Earth Power', 'Ground', 90), mv('Giga Drain', 'Grass', 75), mv('Iron Defense', 'Steel')],
         notes: 'Z-Move Never-Ending Nightmare.',
       }),
     ],
-    notes: 'USUM Elite Four Acerola. Swaps SM Sableye → Banette. Per-Pokémon abilities/moves not surfaced — TODO.',
+    notes: 'USUM Elite Four Acerola. Swaps SM Sableye → Banette.',
   }),
   boss({
     id: 'usum-e4-kahili',
@@ -909,16 +942,33 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     category: 'elite-four',
     levelCap: 57,
     team: [
-      mon('Braviary', 56, ['Normal', 'Flying'], { notes: 'USUM swap (SM had Skarmory).' }),
-      mon('Hawlucha', 56, ['Fighting', 'Flying'], { notes: 'USUM swap (SM had Crobat).' }),
-      mon('Oricorio', 56, ['Fire', 'Flying'], { notes: 'Baile Style.' }),
-      mon('Mandibuzz', 56, ['Dark', 'Flying']),
+      mon('Braviary', 56, ['Normal', 'Flying'], {
+        ability: 'Sheer Force',
+        moves: [mv('Crush Claw', 'Normal', 75), mv('Brave Bird', 'Flying', 120), mv('Air Slash', 'Flying', 75), mv('Scary Face', 'Normal')],
+        notes: 'USUM swap (SM had Skarmory).',
+      }),
+      mon('Hawlucha', 56, ['Fighting', 'Flying'], {
+        ability: 'Mold Breaker',
+        moves: [mv('Flying Press', 'Fighting', 100), mv('Throat Chop', 'Dark', 80), mv('Dual Chop', 'Dragon', 40), mv('Poison Jab', 'Poison', 80)],
+        notes: 'USUM swap (SM had Crobat).',
+      }),
+      mon('Oricorio', 56, ['Fire', 'Flying'], {
+        ability: 'Dancer',
+        moves: [mv('Revelation Dance', 'Fire', 90), mv('Teeter Dance', 'Normal'), mv('Air Slash', 'Flying', 75), mv('Feather Dance', 'Flying')],
+        notes: 'Baile Style.',
+      }),
+      mon('Mandibuzz', 56, ['Dark', 'Flying'], {
+        ability: 'Big Pecks',
+        moves: [mv('Bone Rush', 'Ground', 25), mv('Brave Bird', 'Flying', 120), mv('Punishment', 'Dark', 60), mv('Flatter', 'Dark')],
+      }),
       mon('Toucannon', 57, ['Normal', 'Flying'], {
+        ability: 'Skill Link',
         item: 'Flyinium Z',
+        moves: [mv('Bullet Seed', 'Grass', 25), mv('Rock Blast', 'Rock', 25), mv('Beak Blast', 'Flying', 100), mv('Screech', 'Normal')],
         notes: 'Z-Move Supersonic Skystrike.',
       }),
     ],
-    notes: 'USUM Elite Four Kahili. Swaps SM Skarmory→Braviary, Crobat→Hawlucha. Per-Pokémon abilities/moves not surfaced — TODO.',
+    notes: 'USUM Elite Four Kahili. Swaps SM Skarmory→Braviary, Crobat→Hawlucha.',
   }),
 
   // -- Gladion Mount Lanakila (USUM Pass 5 verified) --
