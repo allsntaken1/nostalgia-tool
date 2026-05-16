@@ -364,14 +364,52 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: 'USUM Akala Grand Trial: swaps Nosepass/Boldore for fossil pair Anorith/Lileep; +1 levels vs SM.',
   }),
 
-  // Ula'ula captains + totems — USUM swaps Acerola's totem.
+  // -- Ula'ula captains + totems (USUM Pass 3) --
   skeletonBoss('usum-trial-sophocles', 'Trial Captain Sophocles', 'Mount Hokulani', 30, 'trial-captain', 'Captain Sophocles'),
-  skeletonBoss('usum-totem-togedemaru', 'Totem Togedemaru', 'Mount Hokulani', 31, 'totem', 'Totem Togedemaru'),
-  skeletonBoss('usum-trial-acerola', 'Trial Captain Acerola', 'Thrifty Megamart', 32, 'trial-captain', 'Captain Acerola'),
-  skeletonBoss('usum-totem-mimikyu', 'Totem Mimikyu', 'Thrifty Megamart', 33, 'totem', 'Totem Mimikyu'),
+  boss({
+    id: 'usum-totem-togedemaru',
+    name: 'Totem Togedemaru',
+    location: 'Mount Hokulani (Hokulani Observatory)',
+    order: 31,
+    category: 'totem',
+    levelCap: 33,
+    team: [
+      mon('Togedemaru', 33, ['Electric', 'Steel'], {
+        ability: 'Lightning Rod',
+        notes: "USUM Totem replaces SM Vikavolt. Ability sourced from Sophocles wikitext. Aura boost, held item, moves, and allies not surfaced this pass — TODO.",
+      }),
+    ],
+    notes: 'USUM swaps Sophocles\'s Totem from Vikavolt (SM) to Togedemaru. Full battle details TODO.',
+  }),
+  skeletonBoss('usum-trial-acerola', 'Trial Captain Acerola', 'Thrifty Megamart (Abandoned)', 32, 'trial-captain', 'Captain Acerola'),
+  skeletonBoss('usum-totem-mimikyu', 'Totem Mimikyu', 'Thrifty Megamart (Abandoned)', 33, 'totem', 'Totem Mimikyu'),
 
-  // Ula'ula Kahuna.
-  skeletonBoss('usum-kahuna-nanu', 'Kahuna Nanu', 'Malie City', 34, 'kahuna', 'Kahuna Nanu'),
+  // -- Ula'ula Kahuna (USUM Pass 3 verified) --
+  boss({
+    id: 'usum-kahuna-nanu',
+    name: 'Kahuna Nanu',
+    location: 'Malie City',
+    order: 34,
+    category: 'kahuna',
+    levelCap: 44,
+    team: [
+      mon('Sableye', 43, ['Dark', 'Ghost'], {
+        ability: 'Keen Eye',
+        moves: [mv('Power Gem', 'Rock', 80), mv('Shadow Ball', 'Ghost', 80), mv('Fake Out', 'Normal', 40)],
+      }),
+      mon('Krokorok', 43, ['Ground', 'Dark'], {
+        ability: 'Intimidate',
+        moves: [mv('Crunch', 'Dark', 80), mv('Assurance', 'Dark', 60), mv('Swagger', 'Normal'), mv('Earthquake', 'Ground', 100)],
+      }),
+      mon('Alolan Persian', 44, ['Dark'], {
+        ability: 'Fur Coat',
+        item: 'Darkinium Z',
+        moves: [mv('Power Gem', 'Rock', 80), mv('Fake Out', 'Normal', 40), mv('Dark Pulse', 'Dark', 80)],
+        notes: 'Uses Black Hole Eclipse (Darkinium Z) at the first opportunity.',
+      }),
+    ],
+    notes: "USUM Ula'ula Grand Trial. Levels +5 vs SM (Sableye/Krokorok 38→43, Persian 39→44).",
+  }),
 
   // Poni captains + totems.
   skeletonBoss('usum-trial-mina', 'Trial Captain Mina', 'Poni Island', 40, 'trial-captain', 'Captain Mina'),
@@ -383,6 +421,26 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
 
   // Team Skull.
   skeletonBoss('usum-skull-plumeria', 'Plumeria (Skull Admin)', 'Various', 50, 'evil-team', 'Plumeria battles'),
+  boss({
+    id: 'usum-skull-guzma-malie',
+    name: 'Guzma (Malie Garden)',
+    location: 'Malie Garden',
+    order: 37,
+    category: 'evil-team',
+    levelCap: 34,
+    team: [
+      mon('Golisopod', 34, ['Bug', 'Water'], {
+        ability: 'Emergency Exit',
+        moves: [mv('Sucker Punch', 'Dark', 70), mv('Razor Shell', 'Water', 75), mv('First Impression', 'Bug', 90)],
+      }),
+      mon('Masquerain', 34, ['Bug', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Air Slash', 'Flying', 75), mv('Bug Buzz', 'Bug', 90), mv('Icy Wind', 'Ice', 55)],
+        notes: 'USUM swap — SM had Ariados in this slot.',
+      }),
+    ],
+    notes: 'USUM Guzma Malie Garden battle. Swaps Ariados → Masquerain vs SM; levels +3-4.',
+  }),
   skeletonBoss('usum-skull-guzma-po-town', 'Guzma (Po Town)', 'Po Town', 51, 'evil-team', 'Guzma at Shady House'),
 
   // Aether — USUM reframes Lusamine.
@@ -400,8 +458,45 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
   skeletonBoss('usum-necrozma-megalo', 'Ultra Necrozma', 'Megalo Tower (Ultra Megalopolis)', 56, 'boss',
     'Ultra Necrozma fight at Megalo Tower'),
 
-  // Later Hau battles (early Melemele/Akala battles populated above).
-  skeletonBoss('usum-rival-hau-malie', 'Hau (Malie Garden)', 'Malie Garden', 35, 'rival', 'Hau Malie Garden battle'),
+  // Later Hau battles (early Melemele/Akala battles populated above; Malie populated below).
+  boss({
+    id: 'usum-rival-hau-malie',
+    name: 'Hau (Malie City)',
+    location: 'Malie City',
+    order: 29,
+    category: 'rival',
+    levelCap: 30,
+    baseTeam: [
+      mon('Alolan Raichu', 29, ['Electric', 'Psychic'], {
+        ability: 'Surge Surfer',
+        moves: [mv('Electro Ball', 'Electric', null), mv('Quick Attack', 'Normal', 40), mv('Psychic', 'Psychic', 90)],
+      }),
+      mon('Noibat', 28, ['Flying', 'Dragon'], {
+        ability: 'Frisk',
+        moves: [mv('Wing Attack', 'Flying', 60), mv('Bite', 'Dark', 60)],
+      }),
+      mon('Tauros', 28, ['Normal'], {
+        moves: [mv('Pursuit', 'Dark', 40), mv('Horn Attack', 'Normal', 65)],
+        notes: 'USUM-added party member.',
+      }),
+    ],
+    variantsByRivalStarterChoice: {
+      // Player grass → Hau Flareon (counters grass) + Brionne (weak to grass) Waterium Z.
+      grass: [
+        mon('Flareon', 28, ['Fire'], { ability: 'Flash Fire' }),
+        mon('Brionne', 30, ['Water'], { ability: 'Torrent', item: 'Waterium Z' }),
+      ],
+      fire: [
+        mon('Vaporeon', 28, ['Water'], { ability: 'Water Absorb' }),
+        mon('Dartrix', 30, ['Grass', 'Flying'], { ability: 'Overgrow', item: 'Grassium Z' }),
+      ],
+      water: [
+        mon('Leafeon', 28, ['Grass'], { ability: 'Leaf Guard' }),
+        mon('Torracat', 30, ['Fire'], { ability: 'Blaze', item: 'Firium Z' }),
+      ],
+    },
+    notes: "USUM Malie Hau battle has 5 Pokémon (vs SM's 3): adds Noibat and Tauros, levels +1 across the board.",
+  }),
   skeletonBoss('usum-rival-hau-vast-poni', 'Hau (Vast Poni Canyon)', 'Vast Poni Canyon', 44, 'rival', 'Hau Vast Poni Canyon battle'),
   skeletonBoss('usum-rival-hau-league', 'Hau (League)', 'Pokémon League', 60, 'rival', 'Hau Pokémon League battle'),
 
