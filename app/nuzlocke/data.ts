@@ -49,7 +49,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
       dataStatus: 'Partial' as GameDataStatus,
     })),
   },
-  { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' as GameDataStatus })) },
+  { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Partial' as GameDataStatus })) },
   {
     generation: 'Gen 8',
     games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].map((name) => ({
@@ -1627,6 +1627,14 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
       title: 'ORAS data in progress',
       message: 'Omega Ruby / Alpha Sapphire encounters and boss teams are live through the Pokemon League; postgame and deferred encounter systems remain TODO.',
       emptyState: 'No standard ORAS encounter is currently tracked for this location.',
+    };
+  }
+
+  if (supportsGen7Data(gameVersion)) {
+    return {
+      title: 'Partial data available',
+      message: 'Sun/Moon and Ultra Sun/Ultra Moon main-story encounters and bosses are live through the Pokemon League. SOS chains, Island Scan, day/night condition rows, Episode RR, and a few Totem/URS detail fields remain TODO.',
+      emptyState: 'No standard encounter is currently tracked for this location.',
     };
   }
 
