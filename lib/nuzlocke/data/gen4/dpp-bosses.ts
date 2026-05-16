@@ -534,6 +534,162 @@ const dppBosses: BossTrainer[] = [
     team: [mon('Croagunk', 31, ['Poison', 'Fighting'], { ability: 'Anticipation' })],
     notes: 'Platinum Valor Lakefront pursuit grunt. Swaps Glameow → Croagunk; Lv +6 vs DP.',
   }),
+
+  // -- DPP Pass 4 (Canalave / Byron + Lake/Galactic arc) --
+
+  // Byron Canalave Gym — DP Lv 36/36/39 (Bronzor/Steelix/Bastiodon); Platinum Lv 37/38/41 (Magneton/Steelix/Bastiodon).
+  boss({
+    id: 'dpp-gym-byron-d',
+    name: 'Gym Leader Byron',
+    location: 'Canalave City Gym',
+    order: 44,
+    category: 'gym',
+    levelCap: 39,
+    game: 'Diamond',
+    team: [
+      mon('Bronzor', 36, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Extrasensory', 'Psychic', 80), mv('Confuse Ray', 'Ghost'), mv('Hypnosis', 'Psychic')],
+      }),
+      mon('Steelix', 36, ['Steel', 'Ground'], {
+        ability: 'Sturdy',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Dragon Breath', 'Dragon', 60), mv('Ice Fang', 'Ice', 65), mv('Sandstorm', 'Rock')],
+      }),
+      mon('Bastiodon', 39, ['Rock', 'Steel'], {
+        ability: 'Sturdy',
+        item: 'Chesto Berry',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Ancient Power', 'Rock', 60), mv('Iron Defense', 'Steel'), mv('Rest', 'Psychic')],
+      }),
+    ],
+    notes: 'Diamond Canalave Gym. Earns Mine Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-byron-p',
+    name: 'Gym Leader Byron',
+    location: 'Canalave City Gym',
+    order: 44,
+    category: 'gym',
+    levelCap: 39,
+    game: 'Pearl',
+    team: [
+      mon('Bronzor', 36, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Extrasensory', 'Psychic', 80), mv('Confuse Ray', 'Ghost'), mv('Hypnosis', 'Psychic')],
+      }),
+      mon('Steelix', 36, ['Steel', 'Ground'], {
+        ability: 'Sturdy',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Dragon Breath', 'Dragon', 60), mv('Ice Fang', 'Ice', 65), mv('Sandstorm', 'Rock')],
+      }),
+      mon('Bastiodon', 39, ['Rock', 'Steel'], {
+        ability: 'Sturdy',
+        item: 'Chesto Berry',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Ancient Power', 'Rock', 60), mv('Iron Defense', 'Steel'), mv('Rest', 'Psychic')],
+      }),
+    ],
+    notes: 'Pearl Canalave Gym. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-gym-byron-pt',
+    name: 'Gym Leader Byron',
+    location: 'Canalave City Gym',
+    order: 44,
+    category: 'gym',
+    levelCap: 41,
+    game: 'Platinum',
+    team: [
+      mon('Magneton', 37, ['Electric', 'Steel'], {
+        ability: 'Magnet Pull',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Thunderbolt', 'Electric', 90), mv('Tri Attack', 'Normal', 80), mv('Metal Sound', 'Steel')],
+      }),
+      mon('Steelix', 38, ['Steel', 'Ground'], {
+        ability: 'Rock Head',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Earthquake', 'Ground', 100), mv('Ice Fang', 'Ice', 65), mv('Sandstorm', 'Rock')],
+      }),
+      mon('Bastiodon', 41, ['Rock', 'Steel'], {
+        ability: 'Sturdy',
+        item: 'Sitrus Berry',
+        moves: [mv('Metal Burst', 'Steel'), mv('Stone Edge', 'Rock', 100), mv('Iron Defense', 'Steel'), mv('Taunt', 'Dark')],
+      }),
+    ],
+    notes: 'Platinum Canalave Gym. Swaps Bronzor → Magneton; +1-2 levels; expanded move pools.',
+  }),
+
+  // Mars second battle at Lake Verity — DP Lv 37/37/39; Platinum Lv 38/38/40.
+  boss({
+    id: 'dpp-galactic-mars-lake-verity-d',
+    name: 'Commander Mars (Lake Verity)',
+    location: 'Lake Verity',
+    order: 46,
+    category: 'evil-team',
+    levelCap: 39,
+    game: 'Diamond',
+    team: [
+      mon('Golbat', 37, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Toxic', 'Poison'), mv('Supersonic', 'Normal')],
+      }),
+      mon('Bronzor', 37, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Iron Defense', 'Steel'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 39, ['Normal'], {
+        ability: 'Thick Fat',
+        item: 'Sitrus Berry',
+        moves: [mv('Slash', 'Normal', 70), mv('Faint Attack', 'Dark', 60), mv('Hypnosis', 'Psychic'), mv('Fake Out', 'Normal', 40)],
+      }),
+    ],
+    notes: 'Diamond Lake Verity Mars second battle (after Spear Pillar prep).',
+  }),
+  boss({
+    id: 'dpp-galactic-mars-lake-verity-p',
+    name: 'Commander Mars (Lake Verity)',
+    location: 'Lake Verity',
+    order: 46,
+    category: 'evil-team',
+    levelCap: 39,
+    game: 'Pearl',
+    team: [
+      mon('Golbat', 37, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Toxic', 'Poison'), mv('Supersonic', 'Normal')],
+      }),
+      mon('Bronzor', 37, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Iron Defense', 'Steel'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 39, ['Normal'], {
+        ability: 'Thick Fat',
+        item: 'Sitrus Berry',
+        moves: [mv('Slash', 'Normal', 70), mv('Faint Attack', 'Dark', 60), mv('Hypnosis', 'Psychic'), mv('Fake Out', 'Normal', 40)],
+      }),
+    ],
+    notes: 'Pearl Lake Verity Mars second battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-mars-lake-verity-pt',
+    name: 'Commander Mars (Lake Verity)',
+    location: 'Lake Verity',
+    order: 46,
+    category: 'evil-team',
+    levelCap: 40,
+    game: 'Platinum',
+    team: [
+      mon('Golbat', 38, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Toxic', 'Poison'), mv('Supersonic', 'Normal')],
+      }),
+      mon('Bronzor', 38, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Iron Defense', 'Steel'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 40, ['Normal'], {
+        ability: 'Thick Fat',
+        item: 'Sitrus Berry',
+        moves: [mv('Slash', 'Normal', 70), mv('Faint Attack', 'Dark', 60), mv('Hypnosis', 'Psychic'), mv('Fake Out', 'Normal', 40)],
+      }),
+    ],
+    notes: 'Platinum Lake Verity Mars second battle. Levels +1 vs DP.',
+  }),
 ];
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {
