@@ -5,11 +5,32 @@ import { xyLocations } from './routes';
 import { getXyEncounterOptions } from './xy-encounters';
 import { supportsXyData, xyMetadata } from './metadata';
 import { xyBosses } from './xy-bosses';
+import {
+  getOrasBosses,
+  getOrasEncounterOptionsForGame,
+  getOrasLocations,
+  getOrasMetadata,
+  supportsOrasData,
+} from './oras';
 
 export { xyLocations } from './routes';
 export { getXyEncounterOptions, xyEncounterAreas, xyEncounterNotes } from './xy-encounters';
 export { supportsXyData, xyMetadata } from './metadata';
 export { xyBosses } from './xy-bosses';
+export {
+  getOrasBosses,
+  getOrasEncounterOptionsForGame,
+  getOrasLocations,
+  getOrasMetadata,
+  supportsOrasData,
+  orasBosses,
+  orasEncounterAreas,
+  orasEncounterNotes,
+  orasGames,
+  orasLocations,
+  orasMetadata,
+  orasStarterEncounters,
+} from './oras';
 
 export function getXyLocations(gameVersion: GameVersion): string[] {
   if (!supportsXyData(gameVersion)) return [];
@@ -40,4 +61,32 @@ export function getXyEncounterGroupsForTypeLookup() {
 
 export function getXyMetadata(gameVersion: GameVersion) {
   return supportsXyData(gameVersion) ? xyMetadata[gameVersion] : null;
+}
+
+export function supportsGen6Data(gameVersion: GameVersion) {
+  return supportsXyData(gameVersion) || supportsOrasData(gameVersion);
+}
+
+export function getGen6Locations(gameVersion: GameVersion): string[] {
+  if (supportsXyData(gameVersion)) return getXyLocations(gameVersion);
+  if (supportsOrasData(gameVersion)) return getOrasLocations(gameVersion);
+  return [];
+}
+
+export function getGen6EncounterOptions(gameVersion: GameVersion): Record<string, EncounterOption[]> {
+  if (supportsXyData(gameVersion)) return getXyEncounterOptionsForGame(gameVersion);
+  if (supportsOrasData(gameVersion)) return getOrasEncounterOptionsForGame(gameVersion);
+  return {};
+}
+
+export function getGen6Bosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null): NuzlockeBoss[] {
+  if (supportsXyData(gameVersion)) return getXyBosses(gameVersion, starterChoice);
+  if (supportsOrasData(gameVersion)) return getOrasBosses(gameVersion, starterChoice);
+  return [];
+}
+
+export function getGen6Metadata(gameVersion: GameVersion) {
+  if (supportsXyData(gameVersion)) return getXyMetadata(gameVersion);
+  if (supportsOrasData(gameVersion)) return getOrasMetadata(gameVersion);
+  return null;
 }
