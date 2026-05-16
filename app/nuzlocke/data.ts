@@ -30,7 +30,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: name === 'HeartGold' || name === 'SoulSilver' ? 'Partial' : 'Skeleton',
+      dataStatus: name === 'HeartGold' || name === 'SoulSilver' ? 'Partial' : 'Partial',
     })),
   },
   {
@@ -1001,6 +1001,11 @@ function getStarterOptionsForGame(gameVersion: GameVersion): EncounterOption[] {
     case 'Brilliant Diamond':
     case 'Shining Pearl':
       return bdspStarterOptions;
+    case 'Diamond':
+    case 'Pearl':
+    case 'Platinum':
+      // Sinnoh starters are the same line as BDSP — reuse the existing helper.
+      return bdspStarterOptions;
     case 'Sword':
     case 'Shield':
       return swshStarterOptions;
@@ -1652,6 +1657,14 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
       title: 'Partial data available',
       message: 'HeartGold / SoulSilver encounters and boss teams are live through the Kanto Pokemon League. SOS-style swarms, full day-of-week/time matrices, Bug-Catching Contest, Safari Zone block mechanics, and a few minor TODOs remain.',
       emptyState: 'No standard HGSS encounter is currently tracked for this location.',
+    };
+  }
+
+  if (gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum') {
+    return {
+      title: 'Partial data available',
+      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Eterna City / Gardenia. Honey-tree species, Poké Radar chains, dual-slot Gen III insertion species, swarms, and remaining gyms/Galactic story remain TODO.',
+      emptyState: 'No standard DPP encounter is currently tracked for this location.',
     };
   }
 

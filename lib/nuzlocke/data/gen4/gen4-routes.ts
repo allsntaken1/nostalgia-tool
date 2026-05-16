@@ -1,10 +1,26 @@
 import type { RouteData } from '@/lib/nuzlocke/data/shared';
 
-// TODO: Expand Gen 4 route/location coverage in future data passes.
 export const gen4Routes: RouteData[] = [
-  { id: 'starter', displayName: 'Starter', order: 1, region: 'sinnoh', gameSet: 'gen4', tags: ['starter'], notes: ['TODO: Populate starter encounter handling per game.'] },
-  { id: 'route-201', displayName: 'Route 201', order: 2, region: 'sinnoh', gameSet: 'gen4', tags: ['route'], notes: ['TODO: Populate Diamond/Pearl/Platinum encounters.'] },
-  { id: 'oreburgh-city', displayName: 'Oreburgh City', order: 3, region: 'sinnoh', gameSet: 'gen4', tags: ['town', 'gym', 'boss-area'], notes: ['TODO: Populate city metadata and gym routing.'] },
+  { id: 'twinleaf-town', displayName: 'Twinleaf Town', order: 1, region: 'sinnoh', gameSet: 'gen4', tags: ['town', 'starter'] },
+  { id: 'route-201', displayName: 'Route 201', order: 2, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'lake-verity', displayName: 'Lake Verity', order: 3, region: 'sinnoh', gameSet: 'gen4', tags: ['area'] },
+  { id: 'sandgem-town', displayName: 'Sandgem Town', order: 4, region: 'sinnoh', gameSet: 'gen4', tags: ['town'] },
+  { id: 'route-202', displayName: 'Route 202', order: 5, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'jubilife-city', displayName: 'Jubilife City', order: 6, region: 'sinnoh', gameSet: 'gen4', tags: ['city'] },
+  { id: 'route-203', displayName: 'Route 203', order: 7, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'oreburgh-gate', displayName: 'Oreburgh Gate', order: 8, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'oreburgh-city', displayName: 'Oreburgh City', order: 9, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'oreburgh-mine', displayName: 'Oreburgh Mine', order: 10, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'route-204-south', displayName: 'Route 204 (South)', order: 11, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'ravaged-path', displayName: 'Ravaged Path', order: 12, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'route-204-north', displayName: 'Route 204 (North)', order: 13, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'floaroma-town', displayName: 'Floaroma Town', order: 14, region: 'sinnoh', gameSet: 'gen4', tags: ['town'] },
+  { id: 'floaroma-meadow', displayName: 'Floaroma Meadow', order: 15, region: 'sinnoh', gameSet: 'gen4', tags: ['area'] },
+  { id: 'valley-windworks', displayName: 'Valley Windworks', order: 16, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'boss-area'] },
+  { id: 'route-205-south', displayName: 'Route 205 (South)', order: 17, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'eterna-forest', displayName: 'Eterna Forest', order: 18, region: 'sinnoh', gameSet: 'gen4', tags: ['forest'] },
+  { id: 'route-205-north', displayName: 'Route 205 (North)', order: 19, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'eterna-city', displayName: 'Eterna City', order: 20, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
 ];
 
 export const hgssRoutes: RouteData[] = [
