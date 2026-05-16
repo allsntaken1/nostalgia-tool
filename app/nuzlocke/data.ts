@@ -1638,6 +1638,38 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
     };
   }
 
+  if (gameVersion === 'X' || gameVersion === 'Y') {
+    return {
+      title: 'Partial data available',
+      message: 'X / Y encounters and boss teams are live through the Pokemon League. Some optional encounters, Hidden Power slots, and version-difference refinements remain TODO.',
+      emptyState: 'No standard XY encounter is currently tracked for this location.',
+    };
+  }
+
+  if (supportsGen4Data(gameVersion) && (gameVersion === 'HeartGold' || gameVersion === 'SoulSilver')) {
+    return {
+      title: 'Partial data available',
+      message: 'HeartGold / SoulSilver encounters and boss teams are live through the Kanto Pokemon League. SOS-style swarms, full day-of-week/time matrices, Bug-Catching Contest, Safari Zone block mechanics, and a few minor TODOs remain.',
+      emptyState: 'No standard HGSS encounter is currently tracked for this location.',
+    };
+  }
+
+  if (supportsFrlg(gameVersion)) {
+    return {
+      title: 'Data in audit',
+      message: 'FireRed / LeafGreen main-story data is populated and currently in audit. Some optional encounters and minor refinements may still be pending verification.',
+      emptyState: 'No standard FRLG encounter is currently tracked for this location.',
+    };
+  }
+
+  if (supportsGen2Data(gameVersion)) {
+    return {
+      title: 'Partial data available',
+      message: 'Gold / Silver / Crystal Johto encounters and bosses are partially populated. Kanto post-Champion content, radio swarms, and time-of-day refinements remain TODO.',
+      emptyState: 'No standard GSC encounter is currently tracked for this location.',
+    };
+  }
+
   if (!isEncounterSkeletonGame(gameVersion)) return null;
 
   return {
