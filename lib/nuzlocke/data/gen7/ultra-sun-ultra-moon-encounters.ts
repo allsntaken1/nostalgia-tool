@@ -310,6 +310,217 @@ const populatedAreas: UsumEncounterArea[] = [
     ],
     notes: ['USUM addition vs SM: Mareep (30% grass).'],
   },
+
+  // =========================================================================================
+  // USUM Pass 2 — Akala Island progression (Bulbapedia raw wikitext verified).
+  // =========================================================================================
+  {
+    locationId: 'alola-route-5',
+    displayName: 'Route 5',
+    encounters: [
+      // Southern grass.
+      encounter('Caterpie', ['Bug'], 'grass'),
+      encounter('Metapod', ['Bug'], 'grass'),
+      encounter('Butterfree', ['Bug', 'Flying'], 'grass', 'Both', 'Southern half, rare 1%.'),
+      encounter('Lillipup', ['Normal'], 'grass'),
+      encounter('Pikipek', ['Normal', 'Flying'], 'grass'),
+      encounter('Grubbin', ['Bug'], 'grass'),
+      encounter('Fomantis', ['Grass'], 'grass'),
+      berryPile('Crabrawler', ['Fighting']),
+      // Northern grass + dirt-cloud ambush.
+      encounter('Bonsly', ['Rock'], 'grass', 'Both', 'Northern half.'),
+      encounter('Trumbeak', ['Normal', 'Flying'], 'grass', 'Both', 'Northern half.'),
+      encounter('Alolan Diglett', ['Ground', 'Steel'], 'special', 'Both', 'Northern half dirt-cloud ambush.', { condition: 'Dirt Cloud Ambush' }),
+    ],
+    notes: ['Encounter list matches SM; trainer roster differs in USUM. Island Scan (Grovyle Fri) omitted.'],
+  },
+  {
+    locationId: 'alola-brooklet-hill',
+    displayName: 'Brooklet Hill',
+    encounters: [
+      // Brooklet Hill proper grass.
+      encounter('Paras', ['Bug', 'Grass'], 'grass'),
+      encounter('Psyduck', ['Water'], 'grass'),
+      encounter('Poliwag', ['Water'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Surskit', ['Bug', 'Water'], 'grass'),
+      encounter('Dewpider', ['Water', 'Bug'], 'grass'),
+      encounter('Morelull', ['Grass', 'Fairy'], 'grass'),
+      // Brooklet Hill proper surf.
+      surf('Psyduck', ['Water']),
+      surf('Poliwag', ['Water']),
+      surf('Surskit', ['Bug', 'Water']),
+      surf('Dewpider', ['Water', 'Bug']),
+      // Brooklet Hill proper fishing — USUM adds Basculin.
+      fish('Goldeen', ['Water']),
+      fish('Magikarp', ['Water']),
+      fish('Feebas', ['Water']),
+      fish('Basculin', ['Water'], 'Both', false, 'USUM-new fishing species.'),
+      fish('Goldeen', ['Water'], 'Both', true),
+      fish('Magikarp', ['Water'], 'Both', true),
+      fish('Feebas', ['Water'], 'Both', true),
+      fish('Basculin', ['Water'], 'Both', true, 'USUM-new Bubbling Spot species.'),
+      // Totem's Den (post-trial).
+      surf('Tentacool', ['Water', 'Poison'], 'Both', "Totem's Den area surf."),
+      surf('Wingull', ['Water', 'Flying'], 'Both', "Totem's Den area surf."),
+      surf('Finneon', ['Water'], 'Both', "Totem's Den area surf."),
+      fish('Alomomola', ['Water'], 'Both', false, "Totem's Den area fishing."),
+      fish('Wishiwashi', ['Water'], 'Both', false, "Totem's Den area fishing."),
+    ],
+    notes: ['Totem Araquanid replaces SM Totem Wishiwashi — modeled as boss data.', 'USUM adds Basculin to fishing pool.', "Totem's Den has its own surf/fish tables accessible after trial completion."],
+  },
+  {
+    locationId: 'alola-route-6',
+    displayName: 'Route 6',
+    encounters: [
+      encounter('Alolan Rattata', ['Dark', 'Normal'], 'grass'),
+      encounter('Eevee', ['Normal'], 'grass'),
+      encounter('Igglybuff', ['Normal', 'Fairy'], 'grass'),
+      encounter('Lillipup', ['Normal'], 'grass'),
+      encounter('Pikipek', ['Normal', 'Flying'], 'grass'),
+      encounter('Yungoos', ['Normal'], 'grass'),
+      encounter('Grubbin', ['Bug'], 'grass'),
+      encounter('Mudbray', ['Ground'], 'grass'),
+      encounter('Oricorio', ['Psychic', 'Flying'], 'grass', 'Both', "Pa'u Style — southern fields only."),
+    ],
+    notes: ['USUM Route 6 drops the SM Sun/Moon version splits; species are unified per Bulbapedia.', 'Island Scan (Ralts) omitted — Island Scan is TODO.'],
+  },
+  {
+    locationId: 'alola-royal-avenue',
+    displayName: 'Royal Avenue',
+    encounters: [
+      encounter('Barboach', ['Water', 'Ground'], 'special', 'Both', 'In-game trade — Barboach "Babo" (Lv 21, holds Pecha Berry) for a Tentacool.', { condition: 'In-game Trade' }),
+    ],
+    notes: ['No wild encounter table for Royal Avenue per Bulbapedia.'],
+  },
+  {
+    locationId: 'alola-route-7',
+    displayName: 'Route 7',
+    encounters: [
+      encounter('Alolan Diglett', ['Ground', 'Steel'], 'special', 'Both', 'Dirt-cloud ambush.', { condition: 'Dirt Cloud Ambush' }),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Finneon', ['Water']),
+      surf('Pyukumuku', ['Water']),
+      // Fishing — USUM rates differ from SM significantly.
+      fish('Staryu', ['Water'], 'Both', false, 'USUM normal fishing 5% (vs SM 1%).'),
+      fish('Magikarp', ['Water']),
+      fish('Wishiwashi', ['Water']),
+      fish('Staryu', ['Water'], 'Both', true, 'USUM Bubbling Spot Staryu — 35%.'),
+      fish('Magikarp', ['Water'], 'Both', true),
+      fish('Wishiwashi', ['Water'], 'Both', true),
+    ],
+    notes: ['USUM fishing rates differ markedly from SM.', 'Island Scan (Spheal Mon, knows Belly Drum in USUM vs Aqua Ring in SM) omitted.'],
+  },
+  {
+    locationId: 'alola-wela-volcano-park',
+    displayName: 'Wela Volcano Park',
+    encounters: [
+      encounter('Cubone', ['Ground'], 'grass'),
+      encounter('Kangaskhan', ['Normal'], 'grass', 'Both', 'Rare 1%.'),
+      encounter('Magby', ['Fire'], 'grass'),
+      encounter('Fletchling', ['Normal', 'Flying'], 'grass'),
+      encounter('Salandit', ['Poison', 'Fire'], 'grass'),
+    ],
+    notes: [
+      'USUM Totem is Alolan Marowak in both versions (SM split this Sun/Moon-only). Modeled as boss data.',
+    ],
+  },
+  {
+    locationId: 'alola-route-8',
+    displayName: 'Route 8',
+    encounters: [
+      encounter('Alolan Rattata', ['Dark', 'Normal'], 'grass'),
+      encounter('Fletchling', ['Normal', 'Flying'], 'grass', 'Both', 'USUM uses Fletchling here, not Fletchinder as in SM.'),
+      encounter('Trumbeak', ['Normal', 'Flying'], 'grass'),
+      encounter('Yungoos', ['Normal'], 'grass'),
+      encounter('Salandit', ['Poison', 'Fire'], 'grass'),
+      encounter('Stufful', ['Normal', 'Fighting'], 'grass'),
+      berryPile('Crabrawler', ['Fighting']),
+      encounter('Wimpod', ['Bug', 'Water'], 'special', 'Both', 'Wimpod ambush — flees on approach.', { condition: 'Wimpod Ambush' }),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Finneon', ['Water']),
+      surf('Mantyke', ['Water', 'Flying'], 'Both', 'USUM-new surf species.'),
+      fish('Magikarp', ['Water']),
+      fish('Chinchou', ['Water', 'Electric']),
+      fish('Remoraid', ['Water'], 'Both', false, 'USUM-new fishing species.'),
+      fish('Wishiwashi', ['Water']),
+    ],
+    notes: [
+      'USUM swaps Fletchinder → Fletchling, adds Mantyke (surf) and Remoraid (fishing).',
+      'Island Scan (Combusken in USUM vs Luxio in SM) omitted.',
+    ],
+  },
+  {
+    locationId: 'alola-lush-jungle',
+    displayName: 'Lush Jungle',
+    encounters: [
+      encounter('Caterpie', ['Bug'], 'grass'),
+      encounter('Metapod', ['Bug'], 'grass'),
+      encounter('Paras', ['Bug', 'Grass'], 'grass'),
+      encounter('Bonsly', ['Rock'], 'grass'),
+      encounter('Trumbeak', ['Normal', 'Flying'], 'grass'),
+      encounter('Fomantis', ['Grass'], 'grass'),
+      encounter('Morelull', ['Grass', 'Fairy'], 'grass'),
+      encounter('Steenee', ['Grass'], 'grass', 'Both', 'USUM-new grass species.'),
+      encounter('Comfey', ['Fairy'], 'grass'),
+    ],
+    notes: [
+      'Totem Lurantis modeled as boss data.',
+      'USUM main-area grass adds Steenee.',
+      'USUM trial structure differs from SM (item-selection mechanic).',
+      'USUM Sun/Moon-style Parasect/Shiinotic/Passimian/Oranguru splits are not confirmed identical — left out of grass list to avoid contamination.',
+    ],
+  },
+  {
+    locationId: 'alola-digletts-tunnel',
+    displayName: "Diglett's Tunnel",
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Alolan Diglett', ['Ground', 'Steel'], 'cave'),
+      encounter('Larvitar', ['Rock', 'Ground'], 'cave', 'Both', 'USUM-exclusive 10% cave encounter.'),
+      encounter('Alolan Diglett', ['Ground', 'Steel'], 'special', 'Both', 'Dirt-cloud ambush.', { condition: 'Dirt Cloud Ambush' }),
+    ],
+    notes: ['USUM addition vs SM: Larvitar in cave. Encounter levels +1 vs SM (20-23 instead of 19-22).'],
+  },
+  {
+    locationId: 'alola-konikoni-city',
+    displayName: 'Konikoni City',
+    encounters: [
+      encounter('Poliwhirl', ['Water'], 'special', 'Both', 'In-game trade — Poliwhirl "Whirly" (Lv 22) for a Zubat.', { condition: 'In-game Trade' }),
+    ],
+    notes: ['No wild encounter table for Konikoni City per Bulbapedia.', 'Ditto Five mini-event added in USUM (not modeled as encounters).'],
+  },
+  {
+    locationId: 'alola-memorial-hill',
+    displayName: 'Memorial Hill',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'grass'),
+      encounter('Gastly', ['Ghost', 'Poison'], 'grass'),
+      encounter('Phantump', ['Ghost', 'Grass'], 'grass'),
+    ],
+    notes: ['Species identical to SM; USUM bumps levels 21-24 (vs SM 20-23) and adds Zubat/Golbat SOS-ally chains (not modeled).'],
+  },
+  {
+    locationId: 'alola-akala-outskirts',
+    displayName: 'Akala Outskirts',
+    encounters: [
+      encounter('Alolan Raticate', ['Dark', 'Normal'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Nosepass', ['Rock'], 'grass'),
+      encounter('Gumshoos', ['Normal'], 'grass'),
+      encounter('Stufful', ['Normal', 'Fighting'], 'grass'),
+      encounter('Natu', ['Psychic', 'Flying'], 'grass', 'Both', 'USUM-new grass species.'),
+    ],
+    notes: ['USUM addition vs SM: Natu (20% grass). Gumshoos/Stufful rate shifts in USUM.'],
+  },
+  {
+    locationId: 'alola-hano-grand-resort',
+    displayName: 'Hano Grand Resort',
+    encounters: [],
+    notes: ['No wild encounter table for Hano Grand Resort per Bulbapedia.'],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));

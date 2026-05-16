@@ -157,6 +157,37 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: "USUM Paniola Hau expanded to four Pokémon (adds Eevee) vs SM's two. Rival starter holds Normalium Z.",
   }),
 
+  // -- Gladion early battles (USUM Pass 2 verified) --
+  boss({
+    id: 'usum-gladion-route-5',
+    name: 'Gladion (Route 5)',
+    location: 'Route 5',
+    order: 18,
+    category: 'rival',
+    levelCap: 18,
+    team: [
+      mon('Zorua', 17, ['Dark'], {
+        ability: 'Illusion',
+        notes: 'USUM-added party member; SM had Zubat in this slot. Disguise illusion mechanic.',
+      }),
+      mon('Zubat', 17, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Type: Null', 18, ['Normal'], { ability: 'Battle Armor' }),
+    ],
+    notes: 'First USUM Gladion battle on Route 5. Adds Zorua to his roster vs SM.',
+  }),
+  boss({
+    id: 'usum-gladion-battle-royal',
+    name: 'Gladion (Battle Royal Dome)',
+    location: 'Battle Royal Dome',
+    order: 19,
+    category: 'rival',
+    levelCap: 20,
+    team: [
+      mon('Type: Null', 20, ['Normal'], { ability: 'Battle Armor' }),
+    ],
+    notes: 'Optional non-mandatory Gladion battle at the Battle Royal Dome. Level +1 vs SM (20 vs 19).',
+  }),
+
   // -- Captain Ilima (USUM places the pre-trial showcase battle at Hau'oli City, not Trainers' School) --
   boss({
     id: 'usum-trial-ilima',
@@ -241,17 +272,97 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: "USUM Melemele Grand Trial: Hala swaps Mankey for Machop and brings slightly higher levels vs SM.",
   }),
 
-  // Akala captains + totems.
+  // -- Akala captains + totems (USUM Pass 2 verified) --
   skeletonBoss('usum-trial-lana', 'Trial Captain Lana', 'Brooklet Hill', 20, 'trial-captain', 'Captain Lana'),
-  skeletonBoss('usum-totem-araquanid', 'Totem Araquanid', 'Brooklet Hill', 21, 'totem', 'Totem Araquanid'),
+  boss({
+    id: 'usum-totem-araquanid',
+    name: 'Totem Araquanid',
+    location: 'Brooklet Hill',
+    order: 21,
+    category: 'totem',
+    levelCap: 20,
+    team: [
+      mon('Araquanid', 20, ['Water', 'Bug'], {
+        ability: 'Water Bubble',
+        item: 'Wacan Berry',
+        moves: [mv('Leech Life', 'Bug', 80), mv('Bubble', 'Water', 40), mv('Bite', 'Dark', 60), mv('Aurora Beam', 'Ice', 65)],
+        notes: 'Aura boost: +1 Speed. Calls Dewpider first turn, then Masquerain (both Lv 18).',
+      }),
+      mon('Dewpider', 18, ['Water', 'Bug'], { notes: 'Totem ally turn 1.' }),
+      mon('Masquerain', 18, ['Bug', 'Flying'], { notes: 'Totem secondary ally.' }),
+    ],
+    notes: 'USUM Totem Araquanid replaces SM Totem Wishiwashi for Lana\'s trial.',
+  }),
   skeletonBoss('usum-trial-kiawe', 'Trial Captain Kiawe', 'Wela Volcano Park', 22, 'trial-captain', 'Captain Kiawe'),
-  skeletonBoss('usum-totem-salazzle-marowak', 'Totem Pokémon (Wela Volcano Park)', 'Wela Volcano Park', 23, 'totem',
-    'Totem Salazzle (Ultra Sun) / Totem Alolan Marowak (Ultra Moon)'),
+  boss({
+    id: 'usum-totem-marowak',
+    name: 'Totem Alolan Marowak',
+    location: 'Wela Volcano Park',
+    order: 23,
+    category: 'totem',
+    levelCap: 22,
+    team: [
+      mon('Alolan Marowak', 22, ['Fire', 'Ghost'], {
+        ability: 'Cursed Body',
+        item: 'Thick Club',
+        moves: [mv('Hex', 'Ghost', 65), mv('Flame Wheel', 'Fire', 60), mv('Brick Break', 'Fighting', 75), mv('Detect', 'Fighting')],
+        notes: 'Aura boost: +2 Speed. Calls Salazzle (female, Lv 20) as ally.',
+      }),
+      mon('Salazzle', 20, ['Poison', 'Fire'], {
+        ability: 'Corrosion',
+        moves: [mv('Poison Gas', 'Poison'), mv('Venoshock', 'Poison', 65), mv('Flame Burst', 'Fire', 70), mv('Torment', 'Dark')],
+        notes: 'Totem ally.',
+      }),
+    ],
+    notes: 'USUM unifies Wela Volcano Totem on Alolan Marowak (no Sun/Moon split). Removes the SM Salazzle Sun-exclusive Totem.',
+  }),
   skeletonBoss('usum-trial-mallow', 'Trial Captain Mallow', 'Lush Jungle', 24, 'trial-captain', 'Captain Mallow'),
-  skeletonBoss('usum-totem-lurantis', 'Totem Lurantis', 'Lush Jungle', 25, 'totem', 'Totem Lurantis'),
+  boss({
+    id: 'usum-totem-lurantis',
+    name: 'Totem Lurantis',
+    location: 'Lush Jungle',
+    order: 25,
+    category: 'totem',
+    levelCap: 24,
+    team: [
+      mon('Lurantis', 24, ['Grass'], {
+        ability: 'Leaf Guard',
+        item: 'Power Herb',
+        moves: [mv('Low Sweep', 'Fighting', 65), mv('X-Scissor', 'Bug', 80), mv('Solar Blade', 'Grass', 125), mv('Synthesis', 'Grass')],
+        notes: 'Aura boost: +2 Speed. Calls Kecleon turn 1, then Comfey if HP < 2/3.',
+      }),
+      mon('Kecleon', 22, ['Normal'], { notes: 'Totem ally turn 1 (USUM replaces SM Trumbeak).' }),
+      mon('Comfey', 22, ['Fairy'], { notes: 'Totem secondary ally (USUM replaces SM Castform).' }),
+    ],
+    notes: 'USUM Lurantis swaps Razor Leaf → Low Sweep, ally chain Trumbeak/Castform → Kecleon/Comfey.',
+  }),
 
-  // Akala Kahuna.
-  skeletonBoss('usum-kahuna-olivia', 'Kahuna Olivia', 'Ruins of Life (Konikoni)', 26, 'kahuna', 'Kahuna Olivia'),
+  // -- Akala Kahuna (USUM Pass 2 verified) --
+  boss({
+    id: 'usum-kahuna-olivia',
+    name: 'Kahuna Olivia',
+    location: 'Ruins of Life (Konikoni)',
+    order: 26,
+    category: 'kahuna',
+    levelCap: 28,
+    team: [
+      mon('Anorith', 27, ['Rock', 'Bug'], {
+        ability: 'Battle Armor',
+        moves: [mv('Bug Bite', 'Bug', 60), mv('Smack Down', 'Rock', 50), mv('Metal Claw', 'Steel', 50)],
+      }),
+      mon('Lileep', 27, ['Rock', 'Grass'], {
+        ability: 'Suction Cups',
+        moves: [mv('Giga Drain', 'Grass', 75), mv('Ancient Power', 'Rock', 60), mv('Brine', 'Water', 65)],
+      }),
+      mon('Lycanroc', 28, ['Rock'], {
+        ability: 'Vital Spirit',
+        item: 'Rockium Z',
+        moves: [mv('Bite', 'Dark', 60), mv('Rock Tomb', 'Rock', 60)],
+        notes: 'Midnight Form. Uses Continental Crush (Rockium Z) at the first opportunity.',
+      }),
+    ],
+    notes: 'USUM Akala Grand Trial: swaps Nosepass/Boldore for fossil pair Anorith/Lileep; +1 levels vs SM.',
+  }),
 
   // Ula'ula captains + totems — USUM swaps Acerola's totem.
   skeletonBoss('usum-trial-sophocles', 'Trial Captain Sophocles', 'Mount Hokulani', 30, 'trial-captain', 'Captain Sophocles'),
