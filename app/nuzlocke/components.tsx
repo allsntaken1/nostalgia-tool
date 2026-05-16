@@ -1743,15 +1743,14 @@ function NuzlockeDashboard({
             <div className="text-xs font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">RepeatChannel Tool / {run.gameVersion} / {run.runType}</div>
             <h1 className="text-2xl font-black">Pokemon Nuzlocke Tracker</h1>
             <div className="mt-1 text-sm font-black text-[#506078]">{run.runName}</div>
-            {/* Mobile-only compact run-status line. */}
-            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-black text-[#506078] md:hidden">
-              <span className="rounded-full bg-[var(--nuz-accent-soft)] px-2 py-0.5 text-[var(--nuz-accent)]">{run.gameVersion}</span>
-              <span>•</span>
-              <span>Next: {nextBossForHeader?.name ?? '—'}{nextBossForHeader?.levelCap ? ` (Cap ${nextBossForHeader.levelCap})` : ''}</span>
-              <span>•</span>
-              <span>Team {partyCount}/6</span>
-              <span>•</span>
-              <span aria-label="Deaths">💀 {deathCount}</span>
+            {/* Mobile-only compact run-status line (single-line, truncates gracefully). */}
+            <div className="mt-1 flex items-center gap-1 text-[11px] font-black text-[#506078] md:hidden">
+              <span className="shrink-0 rounded bg-[var(--nuz-accent-soft)] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[var(--nuz-accent)]">{run.gameVersion}</span>
+              <span className="truncate">
+                {nextBossForHeader ? `Next: ${nextBossForHeader.name}${nextBossForHeader.levelCap ? ` (${nextBossForHeader.levelCap})` : ''}` : 'No next boss'}
+              </span>
+              <span className="shrink-0">· Team {partyCount}/6</span>
+              <span className="shrink-0" aria-label="Deaths">· 💀 {deathCount}</span>
             </div>
             <div className="mt-2">{storageTools}</div>
           </div>
@@ -1760,7 +1759,8 @@ function NuzlockeDashboard({
             {toolbar}
           </div>
         </div>
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        {/* Top tab strip — hidden on mobile (the bottom jump bar replaces it for thumb reach). */}
+        <div className="mt-3 hidden gap-2 overflow-x-auto pb-1 md:flex">
           {tabs.map((item) => (
             <button
               key={item}
@@ -1986,17 +1986,42 @@ function RunDashboard({ run }: { run: NuzlockeRun }) {
           {risk.label}
         </span>
       </div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <DashboardCard label="Current Status" value={runStatus} detail={`${run.runType} / ${run.gameVersion}`} />
-        <DashboardCard label="Next Boss" value={nextBoss?.name ?? 'Next boss unknown'} detail={nextBoss ? `Cap ${nextBoss.levelCap ?? 'TBD'} / ${nextBoss.category}` : 'Boss data missing or complete.'} />
-        <DashboardCard label="Boss Progress" value={`${completedBosses.length}/${bosses.length || 0} cleared`} detail={<ProgressMeter value={bossProgressValue} />} />
-        <DashboardCard label="Encounter Progress" value={`${claimedLocations.size}/${totalEncounterAreas || 0} areas claimed`} detail={<ProgressMeter value={encounterProgressValue} />} />
-        <DashboardCard label="Team Health" value={`${party.length} active`} detail={`${boxed.length} boxed / ${deathCount} dead`} />
+      <div className="grid grid-cols-2 gap-2 md:gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <DashboardCard label="Status" value={runStatus} detail={`${run.runType} / ${run.gameVersion}`} />
+        <DashboardCard label="Next Boss" value={nextBoss?.name ?? 'Unknown'} detail={nextBoss ? `Cap ${nextBoss.levelCap ?? 'TBD'} / ${nextBoss.category}` : 'Boss data missing or complete.'} />
+        <DashboardCard label="Boss Progress" value={`${completedBosses.length}/${bosses.length || 0}`} detail={<ProgressMeter value={bossProgressValue} />} />
+        <DashboardCard label="Encounters" value={`${claimedLocations.size}/${totalEncounterAreas || 0}`} detail={<ProgressMeter value={encounterProgressValue} />} />
+        <DashboardCard label="Team" value={`${party.length} active`} detail={`${boxed.length} boxed / ${deathCount} dead`} />
         <DashboardCard label="Catch Rate" value={catchRate} detail={`${failed} failed / ${skipped} skipped`} />
-        <DashboardCard label="Recent Event" value={recentEvent?.type ?? 'No events yet'} detail={recentEvent?.message ?? 'Start logging encounters or bosses to build the timeline.'} />
+        <DashboardCard label="Recent" value={recentEvent?.type ?? 'No events'} detail={recentEvent?.message ?? 'Start logging encounters or bosses to build the timeline.'} />
         <DashboardCard label="Biggest Threat" value={biggestThreat.title} detail={biggestThreat.detail} />
       </div>
-      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr]">
+      {/* Risk + Best Encounter panels — collapsed behind details on mobile, side-by-side on desktop. */}
+      <details className="mt-3 rounded-xl bg-white/70 p-3 shadow-sm md:hidden">
+        <summary className="cursor-pointer text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Boss Prep + Best Encounter</summary>
+        <div className="mt-3 grid gap-3">
+          <div>
+            <div className="text-[11px] font-black uppercase tracking-wider text-[var(--nuz-accent)]">Run Risk</div>
+            <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{risk.detail}</p>
+            {risk.types.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {risk.types.map((type) => <TypeBadge key={type} type={type} />)}
+              </div>
+            ) : null}
+          </div>
+          <div>
+            <div className="text-[11px] font-black uppercase tracking-wider text-[var(--nuz-accent)]">Best Available Encounter</div>
+            <div className="mt-1 text-sm font-black">{bestEncounter.title}</div>
+            <p className="mt-1 text-xs font-bold leading-5 text-[#506078]">{bestEncounter.detail}</p>
+            {bestEncounter.types.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {bestEncounter.types.map((type) => <TypeBadge key={type} type={type} />)}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </details>
+      <div className="mt-3 hidden grid gap-3 lg:grid-cols-[1fr_1fr] md:grid">
         <div className="rounded-xl bg-white/70 p-3 shadow-sm">
           <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">Run Risk Summary</div>
           <p className="mt-2 text-sm font-bold leading-6 text-[#506078]">{risk.detail}</p>
@@ -2023,10 +2048,10 @@ function RunDashboard({ run }: { run: NuzlockeRun }) {
 
 function DashboardCard({ label, value, detail }: { label: string; value: string | number; detail?: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-white/70 p-3 shadow-sm">
-      <div className="text-xs font-black uppercase tracking-[0.16em] text-[var(--nuz-accent)]">{label}</div>
-      <div className="mt-2 text-lg font-black">{value}</div>
-      {detail ? <div className="mt-2 text-xs font-bold leading-5 text-[#506078]">{detail}</div> : null}
+    <div className="rounded-xl bg-white/70 p-2 md:p-3 shadow-sm">
+      <div className="text-[10px] md:text-xs font-black uppercase tracking-[0.12em] md:tracking-[0.16em] text-[var(--nuz-accent)]">{label}</div>
+      <div className="mt-1 md:mt-2 text-sm md:text-lg font-black leading-tight truncate">{value}</div>
+      {detail ? <div className="mt-1 md:mt-2 text-[11px] md:text-xs font-bold leading-4 md:leading-5 text-[#506078]">{detail}</div> : null}
     </div>
   );
 }
