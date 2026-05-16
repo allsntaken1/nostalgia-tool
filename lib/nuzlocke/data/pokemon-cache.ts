@@ -166,6 +166,42 @@ export function isPokemonCachePopulated(): boolean {
   return pokemonList.length > 0;
 }
 
+/**
+ * Returns a flat list of canonical display names from the cache, sorted by national-dex ID.
+ * Useful for populating searchable comboboxes / `<datalist>` suggestion sets without forcing
+ * callers to import the JSON directly.
+ */
+let cachedDisplayNameList: string[] | null = null;
+export function getAllCachedPokemonNames(): string[] {
+  if (cachedDisplayNameList) return cachedDisplayNameList;
+  const names = pokemonList
+    .slice()
+    .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+    .map((p) => {
+      // Convert PokéAPI slug ("mr-mime") to a display-ish name ("Mr-mime") — callers typically
+      // resolve against the canonical alias table when re-keying, but for autocomplete the slug
+      // form is fine.
+      const slug = p.slug || p.name;
+      if (!slug) return '';
+      // Special-case the most common name reversals so the dropdown is readable.
+      if (slug === 'mr-mime') return 'Mr. Mime';
+      if (slug === 'mr-rime') return 'Mr. Rime';
+      if (slug === 'farfetchd') return "Farfetch'd";
+      if (slug === 'sirfetchd') return "Sirfetch'd";
+      if (slug === 'nidoran-f') return 'NidoranF';
+      if (slug === 'nidoran-m') return 'NidoranM';
+      if (slug === 'flabebe') return 'Flabébé';
+      // Generic Title-Case fallback for everything else.
+      return slug
+        .split('-')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    })
+    .filter((name): name is string => Boolean(name));
+  cachedDisplayNameList = names;
+  return names;
+}
+
 export function getPokemonCacheGeneratedAt(): string | null {
   return cache?.generatedAt ?? null;
 }

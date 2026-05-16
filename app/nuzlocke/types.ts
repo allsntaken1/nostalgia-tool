@@ -110,6 +110,11 @@ export type NuzlockeEncounter = {
   nature: string;
   ability: string;
   notes: string;
+  /** True when the logged species differs from the route's canonical listed species
+   *  (randomizer / dual-slot / shiny-hunt / whatever the player actually caught). */
+  isCustomSpecies?: boolean;
+  /** Original canonical species offered by the route, if `isCustomSpecies` is true. */
+  originalSpecies?: string;
 };
 
 export type NuzlockeBoss = {
