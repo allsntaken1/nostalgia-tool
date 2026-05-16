@@ -2473,6 +2473,44 @@ function EncounterTracker({
   const [showHeadbuttEncounters, setShowHeadbuttEncounters] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [manualAbilityOptions, setManualAbilityOptions] = useState<string[]>([]);
+  // Quick-log sheet (mobile-prioritized; renders on desktop too as a centered modal).
+  // Opens when the user taps a species inside an expanded route — avoids scrolling
+  // down to the full encounter form for routine catches.
+  const [quickLog, setQuickLog] = useState<{ location: string; species: string; types: PokemonType[] } | null>(null);
+  const [quickForm, setQuickForm] = useState<{ status: EncounterStatus; nickname: string; levelMet: string; notes: string }>({
+    status: 'Caught',
+    nickname: '',
+    levelMet: '5',
+    notes: '',
+  });
+  const openQuickLog = (location: string, option: { species: string; types: PokemonType[] }) => {
+    setQuickLog({ location, species: option.species, types: Array.isArray(option.types) ? option.types : [] });
+    setQuickForm({ status: 'Caught', nickname: '', levelMet: '5', notes: '' });
+  };
+  const closeQuickLog = () => setQuickLog(null);
+  const saveQuickLog = () => {
+    if (!quickLog) return;
+    const encounter: NuzlockeEncounter = {
+      id: makeId('encounter'),
+      location: quickLog.location,
+      pokemon: quickLog.species,
+      nickname: quickForm.nickname.trim(),
+      levelMet: safeNumber(quickForm.levelMet),
+      status: quickForm.status,
+      types: quickLog.types,
+      nature: 'Not Sure',
+      ability: getAbilityOptions(quickLog.species)[0],
+      notes: quickForm.notes.trim(),
+    };
+    updateRun(run.id, (current) =>
+      addTimeline(
+        { ...current, encounters: [encounter, ...(current.encounters || [])] },
+        encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged',
+        `${encounter.location}: ${encounter.pokemon || encounter.status}.`,
+      ),
+    );
+    closeQuickLog();
+  };
   const fetchedAbilityData = useAbilityData(form.pokemon);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
@@ -2746,7 +2784,11 @@ function EncounterTracker({
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
+                            // Keep desktop sticky-form prefill behavior...
                             choosePokemon(option.species);
+                            // ...and additionally open the quick-log sheet so mobile users
+                            // can log without scrolling to the form at the bottom.
+                            openQuickLog(location, { species: option.species, types: option.types });
                           }}
                           style={typeCardStyle(option.types)}
                           className={`relative flex items-center gap-2 rounded-xl bg-white p-2 text-left text-xs font-black shadow-sm transition hover:-translate-y-0.5 ${isDupe ? 'grayscale opacity-55' : ''}`}
@@ -2880,6 +2922,106 @@ function EncounterTracker({
           <button disabled={form.status === 'Caught' && locationAlreadyCaught} className="rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-2.5 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)] disabled:opacity-45">Add Encounter</button>
         </div>
       </form>
+      {/* Quick-log bottom sheet (mobile) / centered modal (desktop). Opens when the user
+          taps a species inside an expanded route. Same data path as the main form:
+          updateRun + addTimeline; status/level/nickname/notes all persist. */}
+      {quickLog ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0c1730]/45 backdrop-blur-sm md:items-center" role="dialog" aria-modal="true" aria-label="Quick encounter editor">
+          <button
+            type="button"
+            aria-label="Close encounter editor"
+            onClick={closeQuickLog}
+            className="absolute inset-0 cursor-default"
+          />
+          <div
+            className="relative z-10 w-full max-w-lg overflow-y-auto rounded-t-3xl border border-white/80 bg-white p-4 shadow-[0_-24px_60px_rgba(12,23,48,0.25)] md:rounded-3xl md:p-5"
+            style={{ maxHeight: 'min(85vh, 720px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Log Encounter</div>
+                <div className="mt-1 text-base font-black leading-tight">{quickLog.species}</div>
+                <div className="mt-0.5 text-xs font-bold text-[#506078]">{quickLog.location}</div>
+                {quickLog.types.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap gap-1">{quickLog.types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={closeQuickLog}
+                aria-label="Close"
+                className="rounded-full bg-[#f4f7f3] px-3 py-1.5 text-sm font-black shadow-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid gap-3">
+              <div className="grid grid-cols-2 gap-1.5">
+                {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setQuickForm((current) => ({ ...current, status }))}
+                    className={`min-h-11 rounded-xl px-3 py-2 text-sm font-black shadow-sm transition ${
+                      quickForm.status === status ? 'bg-[#182a40] text-white' : 'bg-[#f4f7f3] text-[#182a40]'
+                    }`}
+                    aria-pressed={quickForm.status === status}
+                  >
+                    {status === 'Failed' ? 'Missed' : status === 'Skipped' ? 'Skip/Dupe' : status}
+                  </button>
+                ))}
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[1fr_104px]">
+                <label className="grid gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Nickname</span>
+                  <input
+                    value={quickForm.nickname}
+                    onChange={(event) => setQuickForm({ ...quickForm, nickname: event.target.value })}
+                    placeholder="(optional)"
+                    className={`${fieldClass} min-h-11`}
+                  />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Level</span>
+                  <input
+                    value={quickForm.levelMet}
+                    onChange={(event) => setQuickForm({ ...quickForm, levelMet: event.target.value })}
+                    type="number"
+                    min="1"
+                    inputMode="numeric"
+                    className={`${fieldClass} min-h-11`}
+                  />
+                </label>
+              </div>
+              <label className="grid gap-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Notes</span>
+                <textarea
+                  value={quickForm.notes}
+                  onChange={(event) => setQuickForm({ ...quickForm, notes: event.target.value })}
+                  placeholder="Anything to remember about this encounter…"
+                  className={`${fieldClass} min-h-20`}
+                />
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={closeQuickLog}
+                  className="min-h-11 flex-1 rounded-xl bg-[#f4f7f3] px-4 py-2 text-sm font-black shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveQuickLog}
+                  className="min-h-11 flex-[2] rounded-xl bg-[var(--nuz-accent-soft)] px-4 py-2 text-sm font-black shadow-[0_8px_20px_rgba(24,42,64,0.14)]"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
