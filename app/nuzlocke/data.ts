@@ -15,7 +15,7 @@ export const nuzlockeStorageKey = 'repeatchannel_nuzlocke_runs';
 type GameDataStatus = 'Skeleton' | 'Partial' | 'In Audit' | 'Working Complete' | 'Complete';
 
 export const gameGroups: { generation: string; games: { name: GameVersion; supported: boolean; dataStatus?: GameDataStatus }[] }[] = [
-  { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true })) },
+  { generation: 'Gen 1', games: ['Red', 'Blue', 'Yellow'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Complete' as GameDataStatus })) },
   { generation: 'Gen 2', games: ['Gold', 'Silver', 'Crystal'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Partial' })) },
   {
     generation: 'Gen 3',
@@ -55,9 +55,10 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].map((name) => ({
       name: name as GameVersion,
       supported: true,
+      dataStatus: 'Complete' as GameDataStatus,
     })),
   },
-  { generation: 'Gen 9', games: ['Scarlet', 'Violet'].map((name) => ({ name: name as GameVersion, supported: true })) },
+  { generation: 'Gen 9', games: ['Scarlet', 'Violet'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Complete' as GameDataStatus })) },
 ];
 
 export const runTypes: RunType[] = [
