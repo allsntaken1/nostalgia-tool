@@ -74,5 +74,6 @@ export const hgssRoutes: RouteData[] = [
   { id: 'pewter-city', displayName: 'Pewter City', order: 55, region: 'kanto', gameSet: 'hgss', tags: ['city', 'gym', 'postgame'] },
   { id: 'viridian-city', displayName: 'Viridian City', order: 56, region: 'kanto', gameSet: 'hgss', tags: ['city', 'gym', 'postgame'] },
   { id: 'seafoam-islands', displayName: 'Seafoam Islands', order: 57, region: 'kanto', gameSet: 'hgss', tags: ['cave', 'gym', 'postgame'] },
-  { id: 'mt-silver', displayName: 'Mt. Silver', order: 58, region: 'johto', gameSet: 'hgss', tags: ['postgame', 'boss-area'], notes: ['TODO: Populate HGSS encounters.'] },
+  { id: 'mt-silver', displayName: 'Mt. Silver', order: 58, region: 'johto', gameSet: 'hgss', tags: ['postgame', 'boss-area'] },
+  { id: 'cerulean-cave', displayName: 'Cerulean Cave', order: 59, region: 'kanto', gameSet: 'hgss', tags: ['cave', 'postgame', 'legendary'] },
 ];
