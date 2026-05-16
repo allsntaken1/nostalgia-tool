@@ -768,6 +768,177 @@ const populatedAreas: UsumEncounterArea[] = [
       'Team Rainbow Rocket "Episode RR" occupies the facility postgame (separate boss content).',
     ],
   },
+
+  // =========================================================================================
+  // USUM Pass 5 — Poni Island + Ultra Megalopolis + League finale (Bulbapedia raw wikitext verified).
+  // =========================================================================================
+  {
+    locationId: 'alola-seafolk-village',
+    displayName: 'Seafolk Village',
+    encounters: [
+      fish('Magikarp', ['Water']),
+      fish('Wailmer', ['Water']),
+      fish('Dhelmise', ['Grass', 'Ghost'], 'Both', false, 'USUM 5% (vs SM 1%).'),
+      fish('Magikarp', ['Water'], 'Both', true),
+      fish('Wailmer', ['Water'], 'Both', true),
+      fish('Dhelmise', ['Grass', 'Ghost'], 'Both', true, 'USUM Bubbling Spot 35% (vs SM 10%).'),
+    ],
+    notes: ['Fishing-only village. USUM Dhelmise rates raised significantly.'],
+  },
+  {
+    locationId: 'alola-poni-wilds',
+    displayName: 'Poni Wilds',
+    encounters: [
+      // USUM swaps Raticate/Exeggcute/Gumshoos for Furfrou/Inkay vs SM.
+      encounter('Granbull', ['Fairy'], 'grass'),
+      encounter('Pelipper', ['Water', 'Flying'], 'grass'),
+      encounter('Gastrodon', ['Water', 'Ground'], 'grass', 'Both', 'East Sea form.'),
+      encounter('Furfrou', ['Normal'], 'grass', 'Both', 'USUM-new grass species (replaces SM Raticate/Exeggcute/Gumshoos).'),
+      encounter('Inkay', ['Dark', 'Psychic'], 'grass', 'Both', 'USUM-new grass species.'),
+      berryPile('Crabrawler', ['Fighting']),
+      encounter('Wimpod', ['Bug', 'Water'], 'special', 'Both', 'Wimpod ambush.', { condition: 'Wimpod Ambush' }),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Lapras', ['Water', 'Ice']),
+      surf('Pelipper', ['Water', 'Flying']),
+      surf('Gastrodon', ['Water', 'Ground']),
+      surf('Lumineon', ['Water']),
+      encounter('Wailmer', ['Water'], 'special', 'Both', 'Water splash.', { condition: 'Water Splash' }),
+      encounter('Wailord', ['Water'], 'special', 'Both', 'Water splash.', { condition: 'Water Splash' }),
+      fish('Magikarp', ['Water']),
+      fish('Wailmer', ['Water']),
+      fish('Relicanth', ['Water', 'Rock']),
+      fish('Magikarp', ['Water'], 'Both', true),
+      fish('Wailmer', ['Water'], 'Both', true),
+      fish('Relicanth', ['Water', 'Rock'], 'Both', true),
+    ],
+    notes: ['USUM grass differs from SM. Island Scan (Greninja Fri in USUM vs Samurott in SM) omitted.'],
+  },
+  {
+    locationId: 'alola-ancient-poni-path',
+    displayName: 'Ancient Poni Path',
+    encounters: [
+      encounter('Granbull', ['Fairy'], 'grass'),
+      encounter('Pelipper', ['Water', 'Flying'], 'grass'),
+      encounter('Gastrodon', ['Water', 'Ground'], 'grass', 'Both', 'East Sea form.'),
+      encounter('Furfrou', ['Normal'], 'grass', 'Both', 'USUM-new (replaces SM Raticate/Exeggcute).'),
+      encounter('Inkay', ['Dark', 'Psychic'], 'grass', 'Both', 'USUM-new.'),
+    ],
+    notes: ['USUM grass roster matches Poni Wilds. Island Scan (Delphox Sat in USUM vs Emboar in SM) omitted.'],
+  },
+  {
+    locationId: 'alola-poni-breaker-coast',
+    displayName: 'Poni Breaker Coast',
+    encounters: [
+      encounter('Wimpod', ['Bug', 'Water'], 'special', 'Both', 'Wimpod ambush.', { condition: 'Wimpod Ambush' }),
+      // USUM adds full surf table; SM had fishing-only.
+      surf('Tentacruel', ['Water', 'Poison'], 'Both', 'USUM-new surf method here.'),
+      surf('Pelipper', ['Water', 'Flying'], 'Both', 'USUM-new surf method.'),
+      surf('Gastrodon', ['Water', 'Ground'], 'Both', 'USUM-new surf method (East Sea).'),
+      surf('Lumineon', ['Water'], 'Both', 'USUM-new surf method.'),
+      surf('Lapras', ['Water', 'Ice'], 'Both', 'USUM-new surf method (rare 5%).'),
+      fish('Magikarp', ['Water']),
+      fish('Wailmer', ['Water']),
+      fish('Carvanha', ['Water', 'Dark'], 'Both', false, 'USUM swap (SM had Sharpedo).'),
+      fish('Relicanth', ['Water', 'Rock'], 'Both', false, 'Rare 1%.'),
+      fish('Magikarp', ['Water'], 'Both', true),
+      fish('Wailmer', ['Water'], 'Both', true),
+      fish('Carvanha', ['Water', 'Dark'], 'Both', true, 'USUM-new bubbling species.'),
+      fish('Relicanth', ['Water', 'Rock'], 'Both', true, 'USUM Bubbling Spot 10%.'),
+    ],
+    notes: ['USUM adds full surf method here (SM had fishing-only). Carvanha replaces SM Sharpedo.'],
+  },
+  {
+    locationId: 'alola-vast-poni-canyon',
+    displayName: 'Vast Poni Canyon',
+    encounters: [
+      // Brown grass — USUM swaps Murkrow → Mienfoo.
+      encounter('Machoke', ['Fighting'], 'grass'),
+      encounter('Mienfoo', ['Fighting'], 'grass', 'Both', 'USUM-new (replaces SM Murkrow).'),
+      encounter('Skarmory', ['Steel', 'Flying'], 'grass'),
+      encounter('Boldore', ['Rock'], 'grass'),
+      encounter('Carbink', ['Rock', 'Fairy'], 'grass'),
+      encounter('Lycanroc', ['Rock'], 'grass', 'Ultra Sun', 'Lycanroc Midday — Ultra Sun-exclusive.'),
+      encounter('Lycanroc', ['Rock'], 'grass', 'Ultra Moon', 'Lycanroc Midnight — Ultra Moon-exclusive.'),
+      encounter('Jangmo-o', ['Dragon'], 'grass'),
+      // Caves.
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Alolan Dugtrio', ['Ground', 'Steel'], 'cave'),
+      encounter('Boldore', ['Rock'], 'cave'),
+      encounter('Carbink', ['Rock', 'Fairy'], 'cave'),
+      encounter('Alolan Dugtrio', ['Ground', 'Steel'], 'special', 'Both', 'Dirt-cloud ambush within caves.', { condition: 'Dirt Cloud Ambush' }),
+      // Water — USUM differs significantly from SM.
+      surf('Golbat', ['Poison', 'Flying'], 'Both', 'USUM dominant surf species.'),
+      surf('Golduck', ['Water']),
+      fish('Magikarp', ['Water']),
+      fish('Barboach', ['Water', 'Ground']),
+      fish('Corphish', ['Water'], 'Both', false, 'USUM-new (replaces SM Dratini).'),
+      fish('Basculin', ['Water'], 'Both', false, 'USUM-new fishing species (both forms).'),
+    ],
+    notes: ['Lycanroc Midday=US, Lycanroc Midnight=UM (same as SM Sun/Moon mapping).', 'Totem Kommo-o modeled as boss data.', 'USUM swaps Murkrow→Mienfoo (grass) and Dratini→Corphish/Basculin (fishing).'],
+  },
+  {
+    locationId: 'alola-altar',
+    displayName: 'Altar of the Sunne / Altar of the Moone',
+    encounters: [
+      // USUM story Necrozma fusion sequence — Solgaleo/Lunala captured here per version.
+      encounter('Solgaleo', ['Psychic', 'Steel'], 'legendary', 'Ultra Sun', 'Ultra Sun story legendary (Lv 60). Nebby evolves into Solgaleo; later possessed by Necrozma into Dusk Mane form.'),
+      encounter('Lunala', ['Psychic', 'Ghost'], 'legendary', 'Ultra Moon', 'Ultra Moon story legendary (Lv 60). Nebby evolves into Lunala; later possessed by Necrozma into Dawn Wings form.'),
+    ],
+    notes: [
+      'USUM altar sequence triggers Necrozma fusion (Dusk Mane Solgaleo in US / Dawn Wings Lunala in UM) — handled as boss data.',
+      'Cross-version altar access via Ultra Wormhole is postgame-only.',
+    ],
+  },
+  {
+    locationId: 'alola-mount-lanakila',
+    displayName: 'Mount Lanakila',
+    encounters: [
+      // Base area — USUM-only.
+      encounter('Alolan Raticate', ['Dark', 'Normal'], 'grass', 'Both', 'USUM-new base-area encounter (Lv 30-33).'),
+      encounter('Gumshoos', ['Normal'], 'grass', 'Both', 'USUM-new base-area encounter.'),
+      // Upper grass.
+      encounter('Alolan Sandshrew', ['Ice', 'Steel'], 'grass'),
+      encounter('Alolan Vulpix', ['Ice'], 'grass'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'grass'),
+      encounter('Absol', ['Dark'], 'grass'),
+      encounter('Snorunt', ['Ice'], 'grass'),
+      // Icy cave.
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'cave'),
+      encounter('Absol', ['Dark'], 'cave'),
+      encounter('Snorunt', ['Ice'], 'cave'),
+      encounter('Drampa', ['Normal', 'Dragon'], 'cave'),
+      // USUM-exclusive static Necrozma in the crater.
+      encounter('Necrozma', ['Psychic'], 'static', 'Both', 'USUM-exclusive static at Lv 65 (Prism Armor; holds Ultranecrozium Z). Respawns after title defenses if defeated/fled. Cannot be Shiny.'),
+    ],
+    notes: ['USUM adds base-area grass tier (Lv 30-33) — accessible from Tapu Village pre-League.', 'Necrozma static is USUM-only (SM has no Necrozma here).'],
+  },
+  {
+    locationId: 'alola-pokemon-league',
+    displayName: 'Pokémon League',
+    encounters: [],
+    notes: ['No wild encounters at the Pokémon League itself. Elite Four and Champion battles modeled as boss data. USUM Champion is Hau (replaces SM Kukui).'],
+  },
+  {
+    locationId: 'alola-ultra-megalopolis',
+    displayName: 'Ultra Megalopolis',
+    encounters: [
+      encounter('Poipole', ['Poison'], 'gift', 'Both', 'Gift after defeating Ultra Necrozma at Megalo Tower. URS members offer a Poipole interested in joining the player; can be declined and retrieved later.'),
+    ],
+    notes: [
+      'USUM-exclusive Ultra Space city. Megalo Tower is the Ultra Necrozma battle site (modeled as boss data).',
+      'Evolving Pikachu/Cubone/Exeggcute here yields Kantonian (not Alolan) forms.',
+    ],
+  },
+  {
+    locationId: 'alola-ultra-space',
+    displayName: 'Ultra Space / Ultra Warp Ride',
+    encounters: [],
+    notes: [
+      'USUM-exclusive postgame procedural-encounter dimension. Hosts most cover legendaries from prior generations + Ultra Beasts via Ultra Wormhole travel.',
+      'TODO: Ultra Warp Ride encounter mechanics are not modeled as a flat encounter table — schema mismatch.',
+    ],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
