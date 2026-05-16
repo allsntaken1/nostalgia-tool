@@ -43,6 +43,15 @@ export const gen4Routes: RouteData[] = [
   { id: 'route-212-south', displayName: 'Route 212 (South)', order: 40, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'route-212-north', displayName: 'Route 212 (North)', order: 41, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'route-210-north', displayName: 'Route 210 (North)', order: 42, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-218', displayName: 'Route 218', order: 43, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'canalave-city', displayName: 'Canalave City', order: 44, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'iron-island', displayName: 'Iron Island', order: 45, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'optional'] },
+  { id: 'fuego-ironworks', displayName: 'Fuego Ironworks', order: 46, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'optional'] },
+  { id: 'lake-valor', displayName: 'Lake Valor', order: 47, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'boss-area', 'legendary'] },
+  { id: 'lake-verity-return', displayName: 'Lake Verity (Return)', order: 48, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'boss-area'] },
+  { id: 'route-219', displayName: 'Route 219', order: 49, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-220', displayName: 'Route 220', order: 50, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-221', displayName: 'Route 221', order: 51, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
 ];
 
 export const hgssRoutes: RouteData[] = [
