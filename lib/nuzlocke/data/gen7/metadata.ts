@@ -13,7 +13,7 @@ type Gen7MetadataEntry = {
   moduleId: Gen7GameSet;
   supportsStarterChoice: true;
   starterChoiceMode: 'type-only';
-  status: 'skeleton';
+  status: 'partial';
 };
 
 export const gen7Metadata: Record<Gen7Game, Gen7MetadataEntry> = {
@@ -25,7 +25,7 @@ export const gen7Metadata: Record<Gen7Game, Gen7MetadataEntry> = {
     moduleId: 'sm',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'partial',
   },
   Moon: {
     displayName: 'Moon',
@@ -35,7 +35,7 @@ export const gen7Metadata: Record<Gen7Game, Gen7MetadataEntry> = {
     moduleId: 'sm',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'partial',
   },
   'Ultra Sun': {
     displayName: 'Ultra Sun',
@@ -45,7 +45,7 @@ export const gen7Metadata: Record<Gen7Game, Gen7MetadataEntry> = {
     moduleId: 'usum',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'partial',
   },
   'Ultra Moon': {
     displayName: 'Ultra Moon',
@@ -55,7 +55,7 @@ export const gen7Metadata: Record<Gen7Game, Gen7MetadataEntry> = {
     moduleId: 'usum',
     supportsStarterChoice: true,
     starterChoiceMode: 'type-only',
-    status: 'skeleton',
+    status: 'partial',
   },
 };
 
