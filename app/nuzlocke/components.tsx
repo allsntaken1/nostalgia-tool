@@ -9,7 +9,7 @@ import { getMoveData, getPokemonLevelMoves, type PokemonMove } from '@/lib/nuzlo
 import { getItemData } from '@/lib/nuzlocke/services/itemService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
 import { readNuzlockeApiCache, writeNuzlockeApiCache } from '@/lib/nuzlocke/services/apiCache';
-import { getCachedPokemonAbilities, getCachedPokemonTypes } from '@/lib/nuzlocke/data/pokemon-cache';
+import { getAllCachedPokemonNames, getCachedPokemonAbilities, getCachedPokemonTypes } from '@/lib/nuzlocke/data/pokemon-cache';
 import { normalizeStarterChoice, starterChoiceLabel } from '@/lib/nuzlocke/starter';
 import {
   type EncounterOption,
@@ -2476,41 +2476,127 @@ function EncounterTracker({
   // Quick-log sheet (mobile-prioritized; renders on desktop too as a centered modal).
   // Opens when the user taps a species inside an expanded route — avoids scrolling
   // down to the full encounter form for routine catches.
-  const [quickLog, setQuickLog] = useState<{ location: string; species: string; types: PokemonType[] } | null>(null);
-  const [quickForm, setQuickForm] = useState<{ status: EncounterStatus; nickname: string; levelMet: string; notes: string }>({
+  const [quickLog, setQuickLog] = useState<{ location: string; canonicalSpecies: string; canonicalTypes: PokemonType[] } | null>(null);
+  const [quickForm, setQuickForm] = useState<{
+    status: EncounterStatus;
+    species: string;
+    nickname: string;
+    nature: string;
+    ability: string;
+    notes: string;
+  }>({
     status: 'Caught',
+    species: '',
     nickname: '',
-    levelMet: '5',
+    nature: '',
+    ability: '',
     notes: '',
   });
+  // Recent values (custom species, abilities, natures) persisted in localStorage so the
+  // datalist suggestions remember what the player has been using across sessions.
+  const RECENT_VALUES_KEY = 'nuzlocke-encounter-recent-values-v1';
+  type RecentValues = { species: string[]; abilities: string[]; natures: string[] };
+  const [recentValues, setRecentValues] = useState<RecentValues>({ species: [], abilities: [], natures: [] });
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(RECENT_VALUES_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<RecentValues>;
+      setRecentValues({
+        species: Array.isArray(parsed.species) ? parsed.species.slice(0, 25) : [],
+        abilities: Array.isArray(parsed.abilities) ? parsed.abilities.slice(0, 25) : [],
+        natures: Array.isArray(parsed.natures) ? parsed.natures.slice(0, 25) : [],
+      });
+    } catch { /* ignore parse failures */ }
+  }, []);
+  const pushRecent = (next: RecentValues) => {
+    setRecentValues(next);
+    try { window.localStorage.setItem(RECENT_VALUES_KEY, JSON.stringify(next)); } catch { /* ignore quota errors */ }
+  };
+  const recordRecent = (kind: keyof RecentValues, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const current = recentValues[kind] || [];
+    const deduped = [trimmed, ...current.filter((v) => v.toLowerCase() !== trimmed.toLowerCase())].slice(0, 25);
+    pushRecent({ ...recentValues, [kind]: deduped });
+  };
+
   const openQuickLog = (location: string, option: { species: string; types: PokemonType[] }) => {
-    setQuickLog({ location, species: option.species, types: Array.isArray(option.types) ? option.types : [] });
-    setQuickForm({ status: 'Caught', nickname: '', levelMet: '5', notes: '' });
+    const types = Array.isArray(option.types) ? option.types : [];
+    setQuickLog({ location, canonicalSpecies: option.species, canonicalTypes: types });
+    setQuickForm({
+      status: 'Caught',
+      species: option.species,
+      nickname: '',
+      nature: '',
+      ability: '',
+      notes: '',
+    });
   };
   const closeQuickLog = () => setQuickLog(null);
   const saveQuickLog = () => {
     if (!quickLog) return;
+    const typedSpecies = quickForm.species.trim() || quickLog.canonicalSpecies;
+    const isCustom = typedSpecies.toLowerCase() !== quickLog.canonicalSpecies.toLowerCase();
+    // If user typed a custom species, prefer cache-resolved types; otherwise use route types.
+    const resolvedTypes = isCustom
+      ? (getCachedPokemonTypes(typedSpecies) ?? pokemonTypesForSpecies(typedSpecies) ?? quickLog.canonicalTypes)
+      : quickLog.canonicalTypes;
     const encounter: NuzlockeEncounter = {
       id: makeId('encounter'),
       location: quickLog.location,
-      pokemon: quickLog.species,
+      pokemon: typedSpecies,
       nickname: quickForm.nickname.trim(),
-      levelMet: safeNumber(quickForm.levelMet),
+      levelMet: 0, // Level no longer captured in the quick editor; team-level normalization handles this elsewhere.
       status: quickForm.status,
-      types: quickLog.types,
-      nature: 'Not Sure',
-      ability: getAbilityOptions(quickLog.species)[0],
+      types: Array.isArray(resolvedTypes) ? resolvedTypes : [],
+      nature: quickForm.nature.trim(),
+      ability: quickForm.ability.trim(),
       notes: quickForm.notes.trim(),
+      ...(isCustom ? { isCustomSpecies: true, originalSpecies: quickLog.canonicalSpecies } : {}),
     };
     updateRun(run.id, (current) =>
       addTimeline(
         { ...current, encounters: [encounter, ...(current.encounters || [])] },
         encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged',
-        `${encounter.location}: ${encounter.pokemon || encounter.status}.`,
+        `${encounter.location}: ${encounter.pokemon || encounter.status}${isCustom ? ' (custom)' : ''}.`,
       ),
     );
+    // Remember user-typed values for next time.
+    if (isCustom) recordRecent('species', typedSpecies);
+    if (encounter.ability) recordRecent('abilities', encounter.ability);
+    if (encounter.nature) recordRecent('natures', encounter.nature);
     closeQuickLog();
   };
+
+  // Build datalist option sets for the quick-log sheet. Memoized on the sheet's open state.
+  const cachedSpeciesNames = useMemo(() => getAllCachedPokemonNames(), []);
+  const speciesSuggestions = useMemo(() => {
+    if (!quickLog) return [] as string[];
+    const set = new Set<string>();
+    set.add(quickLog.canonicalSpecies);
+    for (const name of recentValues.species) set.add(name);
+    for (const name of cachedSpeciesNames) set.add(name);
+    return Array.from(set);
+  }, [quickLog, recentValues.species, cachedSpeciesNames]);
+  const abilitySuggestions = useMemo(() => {
+    if (!quickLog) return [] as string[];
+    const cached = getCachedPokemonAbilities(quickForm.species || quickLog.canonicalSpecies);
+    const set = new Set<string>();
+    for (const ability of cached) set.add(ability);
+    for (const ability of recentValues.abilities) set.add(ability);
+    return Array.from(set);
+  }, [quickLog, quickForm.species, recentValues.abilities]);
+  const natureSuggestions = useMemo(() => {
+    // Pull the simple name out of "Adamant (+Atk / -SpA)"-style natureOptions entries.
+    const base = natureOptions
+      .filter((option) => option !== 'Not Sure')
+      .map((option) => option.split(' ')[0])
+      .filter((name): name is string => Boolean(name));
+    const set = new Set<string>(base);
+    for (const nature of recentValues.natures) set.add(nature);
+    return Array.from(set);
+  }, [recentValues.natures]);
   const fetchedAbilityData = useAbilityData(form.pokemon);
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
@@ -2764,9 +2850,27 @@ function EncounterTracker({
                   {logged ? <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black shadow-sm">{logged.status}</span> : null}
                 </div>
                 {logged ? (
-                  <div className="mt-2 flex items-center gap-2 text-xs font-bold text-[#506078]">
+                  <div className="mt-2 flex items-start gap-2 text-xs font-bold text-[#506078]">
                     <MonsterToken species={logged.pokemon || 'Unknown'} types={logged.types} compact />
-                    <span>{logged.pokemon || 'No Pokemon recorded'} / Lv {logged.levelMet}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="font-black text-[#182a40]">
+                          {logged.nickname ? `${logged.nickname} (${logged.pokemon})` : (logged.pokemon || 'No Pokemon recorded')}
+                        </span>
+                        {logged.isCustomSpecies ? (
+                          <span className="rounded-full bg-[#fff7e0] px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-[#8b6500]">Custom</span>
+                        ) : null}
+                      </div>
+                      {(logged.nature || logged.ability) ? (
+                        <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
+                          {logged.nature ? <span className="rounded bg-white px-1.5 py-0.5 font-black text-[#506078]">{logged.nature}</span> : null}
+                          {logged.ability ? <span className="rounded bg-white px-1.5 py-0.5 font-black text-[#506078]">{logged.ability}</span> : null}
+                        </div>
+                      ) : null}
+                      {logged.isCustomSpecies && logged.originalSpecies ? (
+                        <div className="mt-0.5 text-[10px] font-bold text-[#8a97aa]">Route default: {logged.originalSpecies}</div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : isSelected ? (
                   <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
@@ -2924,8 +3028,16 @@ function EncounterTracker({
       </form>
       {/* Quick-log bottom sheet (mobile) / centered modal (desktop). Opens when the user
           taps a species inside an expanded route. Same data path as the main form:
-          updateRun + addTimeline; status/level/nickname/notes all persist. */}
-      {quickLog ? (
+          updateRun + addTimeline. Captures species (typeable, optional custom),
+          status, nickname, nature, ability, notes. Level is intentionally omitted
+          here since route-data normalization handles team-level concerns separately. */}
+      {quickLog ? (() => {
+        const typedSpecies = quickForm.species.trim();
+        const isCustom = typedSpecies.length > 0 && typedSpecies.toLowerCase() !== quickLog.canonicalSpecies.toLowerCase();
+        const hasExactMatch =
+          typedSpecies.length === 0
+          || speciesSuggestions.some((name) => name.toLowerCase() === typedSpecies.toLowerCase());
+        return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0c1730]/45 backdrop-blur-sm md:items-center" role="dialog" aria-modal="true" aria-label="Quick encounter editor">
           <button
             type="button"
@@ -2940,10 +3052,15 @@ function EncounterTracker({
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
                 <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Log Encounter</div>
-                <div className="mt-1 text-base font-black leading-tight">{quickLog.species}</div>
+                <div className="mt-1 text-base font-black leading-tight">{quickLog.canonicalSpecies}</div>
                 <div className="mt-0.5 text-xs font-bold text-[#506078]">{quickLog.location}</div>
-                {quickLog.types.length > 0 ? (
-                  <div className="mt-1 flex flex-wrap gap-1">{quickLog.types.map((type) => <TypeBadge key={type} type={type} />)}</div>
+                {quickLog.canonicalTypes.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap gap-1">{quickLog.canonicalTypes.map((type) => <TypeBadge key={type} type={type} />)}</div>
+                ) : null}
+                {isCustom ? (
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#fff7e0] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#8b6500]">
+                    Randomizer / Custom
+                  </div>
                 ) : null}
               </div>
               <button
@@ -2955,6 +3072,15 @@ function EncounterTracker({
                 ✕
               </button>
             </div>
+            <datalist id="quicklog-species-list">
+              {speciesSuggestions.map((name) => <option key={name} value={name} />)}
+            </datalist>
+            <datalist id="quicklog-ability-list">
+              {abilitySuggestions.map((name) => <option key={name} value={name} />)}
+            </datalist>
+            <datalist id="quicklog-nature-list">
+              {natureSuggestions.map((name) => <option key={name} value={name} />)}
+            </datalist>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-1.5">
                 {(['Caught', 'Failed', 'Skipped', 'Dead'] as EncounterStatus[]).map((status) => (
@@ -2971,24 +3097,51 @@ function EncounterTracker({
                   </button>
                 ))}
               </div>
-              <div className="grid gap-2 sm:grid-cols-[1fr_104px]">
+              <label className="grid gap-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Pokémon (type to search or enter custom)</span>
+                <input
+                  value={quickForm.species}
+                  onChange={(event) => setQuickForm({ ...quickForm, species: event.target.value })}
+                  list="quicklog-species-list"
+                  placeholder={quickLog.canonicalSpecies}
+                  autoComplete="off"
+                  className={`${fieldClass} min-h-11`}
+                />
+                {typedSpecies && !hasExactMatch ? (
+                  <span className="text-[10px] font-bold text-[#8b6500]">
+                    Will save as custom: &quot;{typedSpecies}&quot; (route default: {quickLog.canonicalSpecies})
+                  </span>
+                ) : null}
+              </label>
+              <label className="grid gap-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Nickname</span>
+                <input
+                  value={quickForm.nickname}
+                  onChange={(event) => setQuickForm({ ...quickForm, nickname: event.target.value })}
+                  placeholder="(optional)"
+                  className={`${fieldClass} min-h-11`}
+                />
+              </label>
+              <div className="grid gap-2 sm:grid-cols-2">
                 <label className="grid gap-1">
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Nickname</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Nature</span>
                   <input
-                    value={quickForm.nickname}
-                    onChange={(event) => setQuickForm({ ...quickForm, nickname: event.target.value })}
-                    placeholder="(optional)"
+                    value={quickForm.nature}
+                    onChange={(event) => setQuickForm({ ...quickForm, nature: event.target.value })}
+                    list="quicklog-nature-list"
+                    placeholder="e.g. Adamant"
+                    autoComplete="off"
                     className={`${fieldClass} min-h-11`}
                   />
                 </label>
                 <label className="grid gap-1">
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Level</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#506078]">Ability</span>
                   <input
-                    value={quickForm.levelMet}
-                    onChange={(event) => setQuickForm({ ...quickForm, levelMet: event.target.value })}
-                    type="number"
-                    min="1"
-                    inputMode="numeric"
+                    value={quickForm.ability}
+                    onChange={(event) => setQuickForm({ ...quickForm, ability: event.target.value })}
+                    list="quicklog-ability-list"
+                    placeholder="e.g. Levitate"
+                    autoComplete="off"
                     className={`${fieldClass} min-h-11`}
                   />
                 </label>
@@ -3021,7 +3174,8 @@ function EncounterTracker({
             </div>
           </div>
         </div>
-      ) : null}
+        );
+      })() : null}
     </section>
   );
 }
