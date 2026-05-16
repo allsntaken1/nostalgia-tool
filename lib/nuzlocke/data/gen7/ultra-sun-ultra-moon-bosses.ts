@@ -482,13 +482,63 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: "USUM Ula'ula Grand Trial. Levels +5 vs SM (Sableye/Krokorok 38→43, Persian 39→44).",
   }),
 
-  // Poni captains + totems.
+  // -- Poni Island (USUM Pass 5 verified for Kommo-o + Hapu; Ribombee still partial) --
   skeletonBoss('usum-trial-mina', 'Trial Captain Mina', 'Poni Island', 40, 'trial-captain', 'Captain Mina'),
-  skeletonBoss('usum-totem-kommoo', "Totem Kommo-o", 'Vast Poni Canyon', 41, 'totem', "Totem Kommo-o"),
-  skeletonBoss('usum-totem-ribombee', 'Totem Ribombee', 'Poni Island', 42, 'totem', 'Totem Ribombee (USUM-added Mina trial)'),
+  boss({
+    id: 'usum-totem-kommoo',
+    name: 'Totem Kommo-o',
+    location: 'Vast Poni Canyon',
+    order: 41,
+    category: 'totem',
+    levelCap: 49,
+    team: [
+      mon('Kommo-o', 49, ['Dragon', 'Fighting'], {
+        ability: 'Soundproof',
+        item: 'Roseli Berry',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Dragon Claw', 'Dragon', 80), mv('Thunder Punch', 'Electric', 75), mv('Poison Jab', 'Poison', 80)],
+        notes: 'Aura boost: +1 to all stats. Calls Noivern (Lv 48) first; calls Scizor (Lv 46) if needed.',
+      }),
+      mon('Noivern', 48, ['Flying', 'Dragon'], { notes: 'Totem ally — USUM replaces SM Hakamo-o.' }),
+      mon('Scizor', 46, ['Bug', 'Steel'], { notes: 'Totem secondary ally.' }),
+    ],
+    notes: 'USUM Kommo-o +4 levels vs SM (49 vs 45); held item Mental Herb → Roseli Berry; movepool fully different. Ally chain Hakamo-o → Noivern.',
+  }),
+  // Totem Ribombee — Mina's USUM trial. Bulbapedia summary doesn't surface the Totem-specific
+  // battle stats this pass (only her standard trainer team), so kept as skeleton with TODO.
+  skeletonBoss('usum-totem-ribombee', 'Totem Ribombee', 'Poni Island', 42, 'totem',
+    "Totem Ribombee (USUM-added Mina trial). Per-Pokémon level/ability/moves/aura/allies not surfaced by raw wikitext this pass"),
 
-  // Poni Kahuna.
-  skeletonBoss('usum-kahuna-hapu', 'Kahuna Hapu', 'Exeggutor Island', 43, 'kahuna', 'Kahuna Hapu'),
+  // -- Poni Kahuna (USUM Pass 5 verified) --
+  boss({
+    id: 'usum-kahuna-hapu',
+    name: 'Kahuna Hapu',
+    location: 'Exeggutor Island',
+    order: 43,
+    category: 'kahuna',
+    levelCap: 54,
+    team: [
+      mon('Golurk', 53, ['Ground', 'Ghost'], {
+        ability: 'No Guard',
+        moves: [mv('Hammer Arm', 'Fighting', 100), mv('Earthquake', 'Ground', 100), mv('Shadow Punch', 'Ghost', 60), mv('Stealth Rock', 'Rock')],
+        notes: 'USUM-new vs SM (replaces Alolan Dugtrio).',
+      }),
+      mon('Gastrodon', 53, ['Water', 'Ground'], {
+        ability: 'Sticky Hold',
+        moves: [mv('Muddy Water', 'Water', 90), mv('Mud Bomb', 'Ground', 65), mv('Recover', 'Normal')],
+      }),
+      mon('Flygon', 53, ['Ground', 'Dragon'], {
+        ability: 'Levitate',
+        moves: [mv('Earth Power', 'Ground', 90), mv('Dragon Breath', 'Dragon', 60)],
+      }),
+      mon('Mudsdale', 54, ['Ground'], {
+        ability: 'Stamina',
+        item: 'Groundium Z',
+        moves: [mv('Heavy Slam', 'Steel'), mv('Earthquake', 'Ground', 100), mv('Double Kick', 'Fighting', 30), mv('Payback', 'Dark', 50)],
+        notes: 'Uses Tectonic Rage (Groundium Z) at the first opportunity.',
+      }),
+    ],
+    notes: "USUM Poni Grand Trial. Swaps SM Alolan Dugtrio → Golurk; +6 levels overall.",
+  }),
 
   // -- Team Skull (USUM Pass 4 verified) --
   boss({
@@ -665,8 +715,22 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     'Ultra Recon Squad battles (Soliera/Phyco)'),
 
   // Necrozma (Megalo Tower) — USUM-exclusive postgame target.
-  skeletonBoss('usum-necrozma-megalo', 'Ultra Necrozma', 'Megalo Tower (Ultra Megalopolis)', 56, 'boss',
-    'Ultra Necrozma fight at Megalo Tower'),
+  boss({
+    id: 'usum-necrozma-megalo',
+    name: 'Ultra Necrozma',
+    location: 'Megalo Tower (Ultra Megalopolis)',
+    order: 57,
+    category: 'boss',
+    levelCap: 60,
+    team: [
+      mon('Necrozma', 60, ['Psychic'], {
+        ability: 'Neuroforce',
+        notes: 'Ultra Necrozma form. Aura boost: +1 Atk/Def/SpA/SpD/Speed. Cannot be caught, fled from, or made Shiny — must be defeated.',
+        moves: [mv('Photon Geyser', 'Psychic', 100), mv('Smart Strike', 'Steel', 70), mv('Power Gem', 'Rock', 80), mv('Dragon Pulse', 'Dragon', 85)],
+      }),
+    ],
+    notes: 'Mandatory USUM story boss at Megalo Tower. After victory, URS gifts the player a Poipole.',
+  }),
 
   // Later Hau battles (early Melemele/Akala battles populated above; Malie populated below).
   boss({
@@ -708,15 +772,182 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: "USUM Malie Hau battle has 5 Pokémon (vs SM's 3): adds Noibat and Tauros, levels +1 across the board.",
   }),
   skeletonBoss('usum-rival-hau-vast-poni', 'Hau (Vast Poni Canyon)', 'Vast Poni Canyon', 44, 'rival', 'Hau Vast Poni Canyon battle'),
-  skeletonBoss('usum-rival-hau-league', 'Hau (League)', 'Pokémon League', 60, 'rival', 'Hau Pokémon League battle'),
+  boss({
+    id: 'usum-rival-hau-mount-lanakila',
+    name: 'Hau (Mount Lanakila pre-League)',
+    location: 'Mount Lanakila',
+    order: 55,
+    category: 'rival',
+    levelCap: 54,
+    baseTeam: [
+      mon('Alolan Raichu', 53, ['Electric', 'Psychic'], { ability: 'Surge Surfer' }),
+      mon('Komala', 53, ['Normal'], { ability: 'Comatose' }),
+    ],
+    variantsByRivalStarterChoice: {
+      grass: [
+        mon('Flareon', 53, ['Fire'], { ability: 'Flash Fire' }),
+        mon('Primarina', 54, ['Water', 'Fairy'], { ability: 'Torrent', item: 'Waterium Z' }),
+      ],
+      fire: [
+        mon('Vaporeon', 53, ['Water'], { ability: 'Water Absorb' }),
+        mon('Decidueye', 54, ['Grass', 'Ghost'], { ability: 'Overgrow', item: 'Grassium Z' }),
+      ],
+      water: [
+        mon('Leafeon', 53, ['Grass'], { ability: 'Leaf Guard' }),
+        mon('Incineroar', 54, ['Fire', 'Dark'], { ability: 'Blaze', item: 'Firium Z' }),
+      ],
+    },
+    notes: 'USUM Hau battle at Mount Lanakila pre-League. 4 Pokémon — same overall pattern as SM.',
+  }),
+  boss({
+    id: 'usum-rival-hau-league',
+    name: 'Champion Hau (Pokémon League)',
+    location: 'Pokémon League',
+    order: 64,
+    category: 'champion',
+    levelCap: 60,
+    baseTeam: [
+      mon('Alolan Raichu', 59, ['Electric', 'Psychic'], { ability: 'Surge Surfer' }),
+      mon('Tauros', 59, ['Normal'], { notes: 'USUM-new vs SM Kukui Champion battle.' }),
+      mon('Noivern', 59, ['Flying', 'Dragon'], { ability: 'Frisk' }),
+      mon('Crabominable', 59, ['Fighting', 'Ice'], { ability: 'Iron Fist' }),
+    ],
+    variantsByRivalStarterChoice: {
+      grass: [
+        mon('Flareon', 59, ['Fire'], { ability: 'Flash Fire' }),
+        mon('Primarina', 60, ['Water', 'Fairy'], { ability: 'Torrent', item: 'Waterium Z' }),
+      ],
+      fire: [
+        mon('Vaporeon', 59, ['Water'], { ability: 'Water Absorb' }),
+        mon('Decidueye', 60, ['Grass', 'Ghost'], { ability: 'Overgrow', item: 'Grassium Z' }),
+      ],
+      water: [
+        mon('Leafeon', 59, ['Grass'], { ability: 'Leaf Guard' }),
+        mon('Incineroar', 60, ['Fire', 'Dark'], { ability: 'Blaze', item: 'Firium Z' }),
+      ],
+    },
+    notes: 'USUM final boss: Hau is Champion (replaces SM Kukui). 6-Pokémon team. Per-move data not surfaced — TODO.',
+  }),
 
   // Elite Four — USUM tweaks the lineup (Molayne replaces Hala on the panel; Hala becomes Kahuna postgame).
-  skeletonBoss('usum-e4-molayne', 'Elite Four Molayne', 'Pokémon League', 57, 'elite-four', 'Elite Four Molayne'),
-  skeletonBoss('usum-e4-olivia', 'Elite Four Olivia', 'Pokémon League', 58, 'elite-four', 'Elite Four Olivia'),
-  skeletonBoss('usum-e4-acerola', 'Elite Four Acerola', 'Pokémon League', 59, 'elite-four', 'Elite Four Acerola'),
-  skeletonBoss('usum-e4-kahili', 'Elite Four Kahili', 'Pokémon League', 60, 'elite-four', 'Elite Four Kahili'),
+  boss({
+    id: 'usum-e4-molayne',
+    name: 'Elite Four Molayne',
+    location: 'Pokémon League',
+    order: 60,
+    category: 'elite-four',
+    levelCap: 57,
+    team: [
+      mon('Klefki', 56, ['Steel', 'Fairy'], {
+        ability: 'Prankster',
+        moves: [mv('Spikes', 'Ground'), mv('Thunder Wave', 'Electric'), mv('Flash Cannon', 'Steel', 80), mv('Reflect', 'Psychic')],
+      }),
+      mon('Bisharp', 56, ['Dark', 'Steel'], {
+        ability: 'Defiant',
+        moves: [mv('Night Slash', 'Dark', 70), mv('Iron Head', 'Steel', 80), mv('X-Scissor', 'Bug', 80), mv('Metal Sound', 'Steel')],
+      }),
+      mon('Magnezone', 56, ['Electric', 'Steel'], {
+        ability: 'Sturdy',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Thunderbolt', 'Electric', 90), mv('Tri Attack', 'Normal', 80), mv('Screech', 'Normal')],
+      }),
+      mon('Metagross', 56, ['Steel', 'Psychic'], {
+        ability: 'Clear Body',
+        moves: [mv('Hammer Arm', 'Fighting', 100), mv('Meteor Mash', 'Steel', 90), mv('Bullet Punch', 'Steel', 40), mv('Zen Headbutt', 'Psychic', 80)],
+      }),
+      mon('Alolan Dugtrio', 57, ['Ground', 'Steel'], {
+        ability: 'Tangling Hair',
+        item: 'Steelium Z',
+        moves: [mv('Earthquake', 'Ground', 100), mv('Iron Head', 'Steel', 80), mv('Sucker Punch', 'Dark', 70), mv('Fissure', 'Ground')],
+        notes: 'Uses Corkscrew Crash (Steelium Z) at the first opportunity.',
+      }),
+    ],
+    notes: 'USUM Elite Four Molayne (Steel specialist) — replaces SM Hala on the panel.',
+  }),
+  boss({
+    id: 'usum-e4-olivia',
+    name: 'Elite Four Olivia',
+    location: 'Pokémon League',
+    order: 61,
+    category: 'elite-four',
+    levelCap: 57,
+    team: [
+      mon('Armaldo', 56, ['Rock', 'Bug']),
+      mon('Cradily', 56, ['Rock', 'Grass']),
+      mon('Gigalith', 56, ['Rock']),
+      mon('Probopass', 56, ['Rock', 'Steel']),
+      mon('Lycanroc', 57, ['Rock'], {
+        item: 'Rockium Z',
+        notes: 'Midnight Form. Z-Move Continental Crush.',
+      }),
+    ],
+    notes: 'USUM Elite Four Olivia. Swaps SM Relicanth/Carbink/Alolan Golem → Armaldo/Cradily/Gigalith. Per-Pokémon abilities/moves not surfaced — TODO.',
+  }),
+  boss({
+    id: 'usum-e4-acerola',
+    name: 'Elite Four Acerola',
+    location: 'Pokémon League',
+    order: 62,
+    category: 'elite-four',
+    levelCap: 57,
+    team: [
+      mon('Banette', 56, ['Ghost'], { notes: 'USUM swap (SM had Sableye in this slot).' }),
+      mon('Drifblim', 56, ['Ghost', 'Flying']),
+      mon('Dhelmise', 56, ['Grass', 'Ghost']),
+      mon('Froslass', 56, ['Ice', 'Ghost']),
+      mon('Palossand', 57, ['Ghost', 'Ground'], {
+        item: 'Ghostium Z',
+        notes: 'Z-Move Never-Ending Nightmare.',
+      }),
+    ],
+    notes: 'USUM Elite Four Acerola. Swaps SM Sableye → Banette. Per-Pokémon abilities/moves not surfaced — TODO.',
+  }),
+  boss({
+    id: 'usum-e4-kahili',
+    name: 'Elite Four Kahili',
+    location: 'Pokémon League',
+    order: 63,
+    category: 'elite-four',
+    levelCap: 57,
+    team: [
+      mon('Braviary', 56, ['Normal', 'Flying'], { notes: 'USUM swap (SM had Skarmory).' }),
+      mon('Hawlucha', 56, ['Fighting', 'Flying'], { notes: 'USUM swap (SM had Crobat).' }),
+      mon('Oricorio', 56, ['Fire', 'Flying'], { notes: 'Baile Style.' }),
+      mon('Mandibuzz', 56, ['Dark', 'Flying']),
+      mon('Toucannon', 57, ['Normal', 'Flying'], {
+        item: 'Flyinium Z',
+        notes: 'Z-Move Supersonic Skystrike.',
+      }),
+    ],
+    notes: 'USUM Elite Four Kahili. Swaps SM Skarmory→Braviary, Crobat→Hawlucha. Per-Pokémon abilities/moves not surfaced — TODO.',
+  }),
 
-  // Champion — like SM, USUM has no fixed Champion; first defense is Hau again.
-  skeletonBoss('usum-champion-defense-hau', 'Champion Defense vs. Hau', 'Pokémon League', 61, 'champion',
-    'Champion Defense (Hau, first match — the player becomes Champion)'),
+  // -- Gladion Mount Lanakila (USUM Pass 5 verified) --
+  boss({
+    id: 'usum-gladion-mount-lanakila',
+    name: 'Gladion (Mount Lanakila)',
+    location: 'Mount Lanakila',
+    order: 56,
+    category: 'rival',
+    levelCap: 55,
+    baseTeam: [
+      mon('Crobat', 53, ['Poison', 'Flying']),
+      mon('Zoroark', 53, ['Dark'], {
+        ability: 'Illusion',
+        item: 'Darkinium Z',
+        notes: 'Uses Black Hole Eclipse (Darkinium Z) at the first opportunity.',
+      }),
+    ],
+    variantsByRivalStarterChoice: {
+      // Silvally's type adapts to counter the player's starter.
+      grass: [mon('Silvally', 55, ['Fire'], { notes: 'Fire-Memory Silvally (counters Grass player).' })],
+      fire: [mon('Silvally', 55, ['Water'], { notes: 'Water-Memory Silvally (counters Fire player).' })],
+      water: [mon('Silvally', 55, ['Grass'], { notes: 'Grass-Memory Silvally (counters Water player).' })],
+    },
+    notes: 'USUM Gladion Mount Lanakila pre-League battle. Silvally type adapts to counter player\'s starter. Lucario (in some sources) is variant-dependent and not added without verification.',
+  }),
+
+  // USUM Champion is Hau himself (see `usum-rival-hau-league` above); SM-style Champion Defense
+  // skeleton retained for the postgame title-defense rotation.
+  skeletonBoss('usum-champion-defense-postgame', 'Champion Defense (postgame rotation)', 'Pokémon League', 65, 'champion',
+    'Postgame title-defense rotation against rotating challengers'),
 ];
