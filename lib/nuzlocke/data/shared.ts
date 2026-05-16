@@ -81,7 +81,9 @@ export interface BossTrainer {
   locationId: string;
   location: string;
   recommendedOrder: number;
-  levelCap?: number;
+  /** Pass `null` (or omit) to mark a skeleton entry whose cap is unknown. The gen4 adapter
+   *  forwards null into the run model so the UI renders "TBD" instead of fabricating Cap 1. */
+  levelCap?: number | null;
   team: BossPokemon[];
   baseTeam?: BossPokemon[];
   variantsByRivalStarterChoice?: Partial<Record<StarterChoice, BossPokemon[]>>;

@@ -51,7 +51,8 @@ export function getGen4Bosses(gameVersion: GameVersion, starterChoice?: StarterC
     id: trainer.id,
     name: trainer.name,
     category: trainer.category,
-    levelCap: trainer.levelCap ?? 1,
+    // Null preserves TBD intent for skeleton entries (no fake Cap 1 fabrication).
+    levelCap: typeof trainer.levelCap === 'number' ? trainer.levelCap : null,
     completed: false,
     notes: trainer.notes.join(' '),
     deaths: 0,
