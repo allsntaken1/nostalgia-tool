@@ -2391,12 +2391,12 @@ function EncounterTracker({
 
   const monotype = run.runType === 'Monotype' ? run.rules?.monotype : undefined;
   const encounterOptions = (encounterOptionsByLocation[form.location] ?? []).filter((option) => speciesMatchesMonotype(option.species, monotype));
-  const isRockSmashOption = (option: { condition?: string }) => option.condition === 'Rock Smash';
+  const isRockSmashOption = (option: { condition?: string }) => Boolean(option.condition?.includes('Rock Smash'));
   const isHeadbuttOption = (option: { method?: string; condition?: string }) =>
     option.method === 'headbutt' || option.condition === 'Headbutt' || Boolean(option.condition?.startsWith('Headbutt:'));
   const canShowEncounterOption = (option: { surfMethod?: boolean; fishingMethod?: boolean; method?: string; condition?: string }) =>
-    (!option.surfMethod || showSurfEncounters)
-    && (!option.fishingMethod || showFishingEncounters)
+    (!(option.surfMethod || option.method === 'surfing') || showSurfEncounters)
+    && (!(option.fishingMethod || option.method === 'fishing') || showFishingEncounters)
     && (!isRockSmashOption(option) || showRockSmashEncounters)
     && (!isHeadbuttOption(option) || showHeadbuttEncounters);
   const getMethodChipLabel = (option: EncounterOption) => {
@@ -2542,7 +2542,10 @@ function EncounterTracker({
     };
 
     updateRun(run.id, (current) => addTimeline({ ...current, encounters: [encounter, ...(current.encounters || [])] }, encounter.status === 'Caught' ? 'Encounter Caught' : 'Encounter Logged', `${encounter.location}: ${encounter.pokemon || encounter.status}.`));
-    const nextOpenLocation = locations.find((location) => location !== form.location && !loggedByLocation.has(location)) ?? form.location;
+    const nextOpenLocation =
+      renderableLocations.find((location) => location !== form.location && !loggedByLocation.has(location))
+      ?? renderableLocations.find((location) => location !== form.location)
+      ?? form.location;
     const nextOptions = (encounterOptionsByLocation[nextOpenLocation] ?? []).filter(canShowEncounterOption);
     const firstOption = nextOptions[0];
     setForm((current) => ({
@@ -2679,7 +2682,7 @@ function EncounterTracker({
                                 ) : null}
                                 {option.condition ? (
                                   <span className={`rounded-md px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white ${
-                                    option.condition === 'Rock Smash' ? 'bg-[#8d6e63]' : isHeadbutt ? 'bg-[#795548]' : 'bg-[#546e7a]'
+                                    isRockSmashOption(option) ? 'bg-[#8d6e63]' : isHeadbutt ? 'bg-[#795548]' : 'bg-[#546e7a]'
                                   }`}>{option.condition}</span>
                                 ) : null}
                                 {versionChipLabel ? (

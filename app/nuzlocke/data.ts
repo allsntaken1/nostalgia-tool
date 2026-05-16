@@ -4,9 +4,9 @@ import { getGen2Bosses, getGen2EncounterGroupsForTypeLookup, getGen2EncounterOpt
 import { getFrlgBosses, getFrlgEncounterOptions, getFrlgLocations, supportsFrlg } from '@/lib/nuzlocke/data/gen3/frlg';
 import { getGen4Bosses, getGen4EncounterGroupsForTypeLookup, getGen4EncounterOptions, getGen4Locations, supportsGen4Data } from '@/lib/nuzlocke/data/gen4';
 import { getGen5Bosses, getGen5EncounterGroupsForTypeLookup, getGen5EncounterOptions, getGen5Locations, supportsGen5Data } from '@/lib/nuzlocke/data/gen5';
-import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
-import { getXyBosses, getXyEncounterGroupsForTypeLookup, getXyEncounterOptionsForGame, getXyLocations, supportsXyData } from '@/lib/nuzlocke/data/gen6';
+import { getGen6Bosses, getGen6EncounterOptions, getGen6Locations, getXyEncounterGroupsForTypeLookup, supportsGen6Data, supportsOrasData } from '@/lib/nuzlocke/data/gen6';
 import { getGen7Bosses, getGen7EncounterGroupsForTypeLookup, getGen7EncounterOptions, getGen7Locations, supportsGen7Data } from '@/lib/nuzlocke/data/gen7';
+import { getGen8Bosses, getGen8EncounterGroupsForTypeLookup, getGen8EncounterOptions, getGen8Locations, supportsGen8Data } from '@/lib/nuzlocke/data/gen8';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 import { getCachedPokemonSpriteUrl } from '@/lib/nuzlocke/data/pokemon-cache';
 
@@ -38,15 +38,15 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Black', 'White', 'Black 2', 'White 2'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: (name === 'Black' || name === 'White' ? 'Partial' : 'Skeleton') as GameDataStatus,
+      dataStatus: 'Partial' as GameDataStatus,
     })),
   },
   {
     generation: 'Gen 6',
     games: ['X', 'Y', 'Omega Ruby', 'Alpha Sapphire'].map((name) => ({
       name: name as GameVersion,
-      supported: name === 'X' || name === 'Y',
-      dataStatus: (name === 'X' || name === 'Y' ? 'Partial' : undefined) as 'Partial' | undefined,
+      supported: true,
+      dataStatus: 'Partial' as GameDataStatus,
     })),
   },
   { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Skeleton' as GameDataStatus })) },
@@ -954,6 +954,11 @@ const xyStarterOptions: EncounterOption[] = [
   { species: 'Fennekin', types: ['Fire'] },
   { species: 'Froakie', types: ['Water'] },
 ];
+const orasStarterOptions: EncounterOption[] = [
+  { species: 'Treecko', types: ['Grass'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+  { species: 'Torchic', types: ['Fire'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+  { species: 'Mudkip', types: ['Water'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+];
 const gen7StarterOptions: EncounterOption[] = [
   { species: 'Rowlet', types: ['Grass', 'Flying'] },
   { species: 'Litten', types: ['Fire'] },
@@ -973,6 +978,9 @@ function getStarterOptionsForGame(gameVersion: GameVersion): EncounterOption[] {
     case 'X':
     case 'Y':
       return xyStarterOptions;
+    case 'Omega Ruby':
+    case 'Alpha Sapphire':
+      return orasStarterOptions;
     case 'Sun':
     case 'Moon':
     case 'Ultra Sun':
@@ -1557,7 +1565,7 @@ function getBaseNuzlockeLocations(gameVersion: GameVersion): string[] {
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
-  if (supportsXyData(gameVersion)) return getXyLocations(gameVersion);
+  if (supportsGen6Data(gameVersion)) return getGen6Locations(gameVersion);
   if (supportsGen7Data(gameVersion)) return getGen7Locations(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8Locations(gameVersion);
   return scarletVioletLocations;
@@ -1570,7 +1578,7 @@ function getBaseNuzlockeEncounterOptions(gameVersion: GameVersion): Record<strin
   if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
-  if (supportsXyData(gameVersion)) return getXyEncounterOptionsForGame(gameVersion);
+  if (supportsGen6Data(gameVersion)) return getGen6EncounterOptions(gameVersion);
   if (supportsGen7Data(gameVersion)) return getGen7EncounterOptions(gameVersion);
   if (supportsGen8Data(gameVersion)) return getGen8EncounterOptions(gameVersion);
   return scarletVioletEncounterOptions;
@@ -1589,12 +1597,12 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
   const base = getBaseNuzlockeEncounterOptions(gameVersion) ?? {};
   const starters = getStarterOptionsForGame(gameVersion);
   if (starters.length === 0) return base;
-  if (base[STARTER_PSEUDO_LOCATION]) return base;
+  if (base[STARTER_PSEUDO_LOCATION]) return { ...base, [STARTER_PSEUDO_LOCATION]: starters };
   return { [STARTER_PSEUDO_LOCATION]: starters, ...base };
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
-  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsXyData(gameVersion) || supportsGen7Data(gameVersion);
+  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsGen6Data(gameVersion) || supportsGen7Data(gameVersion);
 }
 
 export function getEncounterDataWarning(gameVersion: GameVersion) {
@@ -1603,6 +1611,22 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
       title: 'Partial data available',
       message: 'Encounter and boss data for this game is partially complete. Some late-game areas, optional encounters, or special mechanics may still be missing.',
       emptyState: 'No listed encounters match the current filters.',
+    };
+  }
+
+  if (gameVersion === 'Black 2' || gameVersion === 'White 2') {
+    return {
+      title: 'Partial data available',
+      message: 'Black 2 / White 2 encounters and boss teams are live through Champion Iris; deferred systems and refinements remain TODO.',
+      emptyState: 'No listed encounters match the current filters.',
+    };
+  }
+
+  if (supportsOrasData(gameVersion)) {
+    return {
+      title: 'ORAS data in progress',
+      message: 'Omega Ruby / Alpha Sapphire encounters and boss teams are live through the Pokemon League; postgame and deferred encounter systems remain TODO.',
+      emptyState: 'No standard ORAS encounter is currently tracked for this location.',
     };
   }
 
@@ -1629,8 +1653,8 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
               ? getGen4Bosses(gameVersion, starterChoice)
               : supportsGen5Data(gameVersion)
                 ? getGen5Bosses(gameVersion, starterChoice)
-                : supportsXyData(gameVersion)
-                  ? getXyBosses(gameVersion, starterChoice)
+                : supportsGen6Data(gameVersion)
+                  ? getGen6Bosses(gameVersion, starterChoice)
                   : supportsGen7Data(gameVersion)
                     ? getGen7Bosses(gameVersion, starterChoice)
                     : supportsGen8Data(gameVersion)

@@ -1,6 +1,8 @@
 import type { GameVersion, NuzlockeBoss, StarterChoice } from '@/app/nuzlocke/types';
 import type { EncounterOption } from '@/app/nuzlocke/data';
 import { bossTrainerToRunBoss } from '@/lib/nuzlocke/data/gen8/types';
+import { getB2W2Bosses } from './b2w2-bosses';
+import { getB2W2EncounterOptions } from './b2w2-encounters';
 import { blackWhiteBosses } from './black-white-bosses';
 import { b2w2Routes, bwRoutes } from './gen5-routes';
 import { getGen5TrainerSkeletons } from './gen5-trainers';
@@ -8,6 +10,8 @@ import { gen5Metadata, supportsGen5Data } from './metadata';
 import { getBwEncounterOptions } from './bw-encounters';
 
 export { blackWhiteBosses } from './black-white-bosses';
+export { b2w2Bosses, getB2W2Bosses } from './b2w2-bosses';
+export { b2w2EncounterAreas, getB2W2EncounterOptions } from './b2w2-encounters';
 export { b2w2Gyms } from './b2w2-gyms';
 export { bwGyms } from './bw-gyms';
 export { gen5Encounters } from './gen5-encounters';
@@ -22,6 +26,10 @@ export { bwEncounterAreas, bwEncounterNotes, bwPostgameEncounterAreas, getBwEnco
 
 function routeSet(gameVersion: GameVersion) {
   return gameVersion === 'Black 2' || gameVersion === 'White 2' ? b2w2Routes : bwRoutes;
+}
+
+function isB2W2(gameVersion: GameVersion): gameVersion is 'Black 2' | 'White 2' {
+  return gameVersion === 'Black 2' || gameVersion === 'White 2';
 }
 
 /**
@@ -56,11 +64,8 @@ export function getGen5EncounterOptions(gameVersion: GameVersion) {
       return acc;
     }, {});
   }
-  // B2W2 still uses the skeleton fallback until structured data lands.
-  return mainStoryRoutes(gameVersion).reduce<Record<string, EncounterOption[]>>((acc, route) => {
-    acc[route.displayName] = [];
-    return acc;
-  }, {});
+  if (isB2W2(gameVersion)) return getB2W2EncounterOptions();
+  return {};
 }
 
 export function getGen5Bosses(gameVersion: GameVersion, starterChoice?: StarterChoice | null): NuzlockeBoss[] {
@@ -72,6 +77,7 @@ export function getGen5Bosses(gameVersion: GameVersion, starterChoice?: StarterC
       .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.recommendedOrder - b.recommendedOrder)
       .map((trainer) => bossTrainerToRunBoss(trainer, starterChoice));
   }
+  if (isB2W2(gameVersion)) return getB2W2Bosses(gameVersion, starterChoice);
   return getGen5TrainerSkeletons(gameVersion).map((trainer) => ({
     id: trainer.id,
     name: trainer.name,
