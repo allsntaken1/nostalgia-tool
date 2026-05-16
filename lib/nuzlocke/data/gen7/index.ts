@@ -3,7 +3,7 @@ import type { EncounterOption } from '@/app/nuzlocke/data';
 import { bossTrainerToRunBoss } from '@/lib/nuzlocke/data/gen8/types';
 import { smRoutes, usumRoutes } from './routes';
 import { getSmEncounterOptions, getSmEncounterOptionsForGame, smEncounterAreas } from './sun-moon-encounters';
-import { getUsumEncounterOptions, usumEncounterAreas } from './ultra-sun-ultra-moon-encounters';
+import { getUsumEncounterOptions, getUsumEncounterOptionsForGame, usumEncounterAreas } from './ultra-sun-ultra-moon-encounters';
 import { sunMoonBosses } from './sun-moon-bosses';
 import { ultraSunUltraMoonBosses } from './ultra-sun-ultra-moon-bosses';
 import { gen7Metadata, isSunMoon, isUltraSunUltraMoon, supportsGen7Data } from './metadata';
@@ -21,6 +21,7 @@ export {
   usumEncounterAreas,
   usumEncounterNotes,
   getUsumEncounterOptions,
+  getUsumEncounterOptionsForGame,
 } from './ultra-sun-ultra-moon-encounters';
 export { sunMoonBosses } from './sun-moon-bosses';
 export { ultraSunUltraMoonBosses } from './ultra-sun-ultra-moon-bosses';
@@ -41,7 +42,7 @@ export function getGen7Locations(gameVersion: GameVersion): string[] {
 
 export function getGen7EncounterOptions(gameVersion: GameVersion): Record<string, EncounterOption[]> {
   if (!supportsGen7Data(gameVersion)) return {};
-  if (isUltraSunUltraMoon(gameVersion)) return getUsumEncounterOptions();
+  if (isUltraSunUltraMoon(gameVersion)) return getUsumEncounterOptionsForGame(gameVersion);
   if (isSunMoon(gameVersion)) return getSmEncounterOptionsForGame(gameVersion);
   return {};
 }
