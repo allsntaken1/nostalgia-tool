@@ -715,6 +715,59 @@ const populatedAreas: UsumEncounterArea[] = [
     ],
     notes: ['USUM addition vs SM: Scraggy in grass.', 'Zygarde acquisition flow differs from SM.'],
   },
+
+  // =========================================================================================
+  // USUM Pass 4 — Late Ula'ula + Aether Paradise (Bulbapedia raw wikitext verified).
+  // =========================================================================================
+  {
+    locationId: 'alola-route-17',
+    displayName: 'Route 17',
+    encounters: [
+      // Standard grass — USUM swaps Pancham → Scraggy.
+      encounter('Alolan Raticate', ['Dark', 'Normal'], 'grass'),
+      encounter('Fearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Ledian', ['Bug', 'Flying'], 'grass'),
+      encounter('Ariados', ['Bug', 'Poison'], 'grass'),
+      encounter('Scraggy', ['Dark', 'Fighting'], 'grass', 'Both', 'USUM-new grass species (replaces SM Pancham).'),
+      encounter('Gumshoos', ['Normal'], 'grass'),
+      // Brown grass / mountainside.
+      encounter('Alolan Graveler', ['Rock', 'Electric'], 'grass', 'Both', 'Brown grass / mountainside.'),
+      encounter('Skarmory', ['Steel', 'Flying'], 'grass', 'Both', 'Brown grass / mountainside.'),
+      encounter('Bisharp', ['Dark', 'Steel'], 'grass', 'Both', 'USUM-new mountainside species (rare 5%).'),
+      encounter('Scraggy', ['Dark', 'Fighting'], 'grass', 'Both', 'USUM-new mountainside species.'),
+      berryPile('Crabrawler', ['Fighting']),
+    ],
+    notes: ['USUM replaces SM Pancham with Scraggy and adds Bisharp on the mountainside. Level range 33-36 (vs SM 31-34).', 'Weather SOS allies (Goomy rain / Castform multi-weather) omitted — SOS TODO.'],
+  },
+  {
+    locationId: 'alola-thrifty-megamart',
+    displayName: 'Thrifty Megamart (Abandoned)',
+    encounters: [
+      encounter('Golbat', ['Poison', 'Flying'], 'cave', 'Both', 'Post-trial wild encounter.'),
+      encounter('Haunter', ['Ghost', 'Poison'], 'cave', 'Both', 'Post-trial wild encounter.'),
+      encounter('Shuppet', ['Ghost'], 'cave', 'Both', 'USUM-new wild encounter (replaces SM Klefki).'),
+      encounter('Mimikyu', ['Ghost', 'Fairy'], 'cave', 'Both', 'Post-trial wild encounter (rare 5%).'),
+    ],
+    notes: ["Acerola's trial site. Wild encounters accessible after the trial.", 'USUM swaps SM Klefki → Shuppet.', 'Totem Mimikyu modeled as boss data.'],
+  },
+  {
+    locationId: 'alola-po-town',
+    displayName: 'Po Town',
+    encounters: [],
+    notes: ['No canonical wild encounter table for Po Town per Bulbapedia. Trainers and items only.'],
+  },
+  {
+    locationId: 'alola-aether-paradise',
+    displayName: 'Aether Paradise',
+    encounters: [
+      encounter('Type: Null', ['Normal'], 'gift', 'Both', 'USUM postgame gift at Lv 60 (vs SM Lv 40 at Conservation Area). Offered at Ancient Poni Path after becoming Champion, only if party AND boxes are full.'),
+    ],
+    notes: [
+      'No standard wild encounter table for Aether Paradise.',
+      'USUM postgame: Beast Balls purchasable here after defeating Ultra Necrozma.',
+      'Team Rainbow Rocket "Episode RR" occupies the facility postgame (separate boss content).',
+    ],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));

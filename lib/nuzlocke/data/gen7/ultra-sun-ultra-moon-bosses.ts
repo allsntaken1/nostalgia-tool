@@ -187,6 +187,53 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     ],
     notes: 'Optional non-mandatory Gladion battle at the Battle Royal Dome. Level +1 vs SM (20 vs 19).',
   }),
+  boss({
+    id: 'usum-gladion-aether-house',
+    name: 'Gladion (Aether House)',
+    location: 'Aether House (Route 15)',
+    order: 36,
+    category: 'rival',
+    levelCap: 43,
+    team: [
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Acrobatics', 'Flying', 55), mv('Poison Fang', 'Poison', 50), mv('Venoshock', 'Poison', 65)],
+      }),
+      mon('Zoroark', 42, ['Dark'], {
+        ability: 'Illusion',
+        moves: [mv('Snarl', 'Dark', 55), mv('Hyper Voice', 'Normal', 90)],
+        notes: 'USUM Zoroark evolves from Pass 2 Zorua; SM had Sneasel in this slot.',
+      }),
+      mon('Type: Null', 43, ['Normal'], {
+        ability: 'Battle Armor',
+        moves: [mv('Pursuit', 'Dark', 40), mv('Crush Claw', 'Normal', 75), mv('X-Scissor', 'Bug', 80)],
+      }),
+    ],
+    notes: 'USUM Gladion at Aether House. Swaps SM Sneasel → Zoroark.',
+  }),
+  boss({
+    id: 'usum-gladion-aether-paradise',
+    name: 'Gladion (Aether Paradise multi-battle)',
+    location: 'Aether Paradise',
+    order: 52,
+    category: 'rival',
+    levelCap: 44,
+    team: [
+      mon('Type: Null', 44, ['Normal'], {
+        ability: 'Battle Armor',
+        moves: [mv('Pursuit', 'Dark', 40), mv('Crush Claw', 'Normal', 75), mv('X-Scissor', 'Bug', 80), mv('Iron Head', 'Steel', 80)],
+      }),
+      mon('Golbat', 43, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Acrobatics', 'Flying', 55), mv('Poison Fang', 'Poison', 50), mv('Venoshock', 'Poison', 65), mv('Steel Wing', 'Steel', 70)],
+      }),
+      mon('Zoroark', 43, ['Dark'], {
+        ability: 'Illusion',
+        moves: [mv('Snarl', 'Dark', 55), mv('Hyper Voice', 'Normal', 90), mv('Grass Knot', 'Grass')],
+      }),
+    ],
+    notes: 'USUM Gladion partnered with the player in a multi-battle at Aether Paradise. Levels +5-6 vs SM.',
+  }),
 
   // -- Captain Ilima (USUM places the pre-trial showcase battle at Hau'oli City, not Trainers' School) --
   boss({
@@ -382,7 +429,31 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     notes: 'USUM swaps Sophocles\'s Totem from Vikavolt (SM) to Togedemaru. Full battle details TODO.',
   }),
   skeletonBoss('usum-trial-acerola', 'Trial Captain Acerola', 'Thrifty Megamart (Abandoned)', 32, 'trial-captain', 'Captain Acerola'),
-  skeletonBoss('usum-totem-mimikyu', 'Totem Mimikyu', 'Thrifty Megamart (Abandoned)', 33, 'totem', 'Totem Mimikyu'),
+  boss({
+    id: 'usum-totem-mimikyu',
+    name: 'Totem Mimikyu',
+    location: 'Thrifty Megamart (Abandoned)',
+    order: 33,
+    category: 'totem',
+    levelCap: 35,
+    team: [
+      mon('Mimikyu', 35, ['Ghost', 'Fairy'], {
+        ability: 'Disguise',
+        item: 'Lum Berry',
+        moves: [mv('Shadow Claw', 'Ghost', 70), mv('Play Rough', 'Fairy', 90), mv('Leech Life', 'Bug', 80), mv('Slash', 'Normal', 70)],
+        notes: 'Aura boost: +1 to Atk/Def/SpA/SpD/Speed. Calls Banette first; calls Jellicent if Banette faints.',
+      }),
+      mon('Banette', 32, ['Ghost'], {
+        ability: 'Insomnia',
+        notes: 'Totem ally (USUM replaces SM Haunter).',
+      }),
+      mon('Jellicent', 33, ['Water', 'Ghost'], {
+        ability: 'Cursed Body',
+        notes: 'Totem secondary ally (USUM replaces SM Gengar).',
+      }),
+    ],
+    notes: 'USUM Mimikyu Totem +2 levels vs SM (35 vs 33). Swaps ally chain Haunter/Gengar → Banette/Jellicent. Moves swap Astonish/Mimic → Leech Life/Slash.',
+  }),
 
   // -- Ula'ula Kahuna (USUM Pass 3 verified) --
   boss({
@@ -419,8 +490,45 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
   // Poni Kahuna.
   skeletonBoss('usum-kahuna-hapu', 'Kahuna Hapu', 'Exeggutor Island', 43, 'kahuna', 'Kahuna Hapu'),
 
-  // Team Skull.
-  skeletonBoss('usum-skull-plumeria', 'Plumeria (Skull Admin)', 'Various', 50, 'evil-team', 'Plumeria battles'),
+  // -- Team Skull (USUM Pass 4 verified) --
+  boss({
+    id: 'usum-skull-plumeria-1',
+    name: 'Plumeria (Akala Outskirts)',
+    location: 'Akala Outskirts',
+    order: 28,
+    category: 'evil-team',
+    levelCap: 27,
+    team: [
+      mon('Golbat', 26, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Poison Fang', 'Poison', 50), mv('Wing Attack', 'Flying', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Salandit', 27, ['Poison', 'Fire'], {
+        ability: 'Corrosion',
+        moves: [mv('Flame Burst', 'Fire', 70), mv('Dragon Rage', 'Dragon'), mv('Poison Gas', 'Poison')],
+      }),
+    ],
+    notes: 'USUM First Plumeria battle (Akala Outskirts).',
+  }),
+  boss({
+    id: 'usum-skull-plumeria-2',
+    name: 'Plumeria (Route 15)',
+    location: 'Route 15',
+    order: 35,
+    category: 'evil-team',
+    levelCap: 38,
+    team: [
+      mon('Golbat', 37, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Wing Attack', 'Flying', 60), mv('Poison Fang', 'Poison', 50)],
+      }),
+      mon('Salazzle', 38, ['Poison', 'Fire'], {
+        ability: 'Corrosion',
+        moves: [mv('Dragon Pulse', 'Dragon', 85), mv('Flamethrower', 'Fire', 90), mv('Sludge Bomb', 'Poison', 90)],
+      }),
+    ],
+    notes: 'USUM Second Plumeria battle (Route 15). Levels +3 vs SM.',
+  }),
   boss({
     id: 'usum-skull-guzma-malie',
     name: 'Guzma (Malie Garden)',
@@ -441,14 +549,116 @@ export const ultraSunUltraMoonBosses: BossTrainer[] = [
     ],
     notes: 'USUM Guzma Malie Garden battle. Swaps Ariados → Masquerain vs SM; levels +3-4.',
   }),
-  skeletonBoss('usum-skull-guzma-po-town', 'Guzma (Po Town)', 'Po Town', 51, 'evil-team', 'Guzma at Shady House'),
+  boss({
+    id: 'usum-skull-guzma-po-town',
+    name: 'Guzma (Po Town / Shady House)',
+    location: 'Po Town (Shady House)',
+    order: 39,
+    category: 'evil-team',
+    levelCap: 41,
+    team: [
+      mon('Golisopod', 41, ['Bug', 'Water'], {
+        ability: 'Emergency Exit',
+        moves: [mv('Sucker Punch', 'Dark', 70), mv('Razor Shell', 'Water', 75), mv('First Impression', 'Bug', 90)],
+      }),
+      mon('Masquerain', 41, ['Bug', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Air Slash', 'Flying', 75), mv('Bug Buzz', 'Bug', 90), mv('Icy Wind', 'Ice', 55)],
+      }),
+      mon('Pinsir', 41, ['Bug'], {
+        ability: 'Hyper Cutter',
+        moves: [mv('Throat Chop', 'Dark', 80), mv('Storm Throw', 'Fighting', 60), mv('X-Scissor', 'Bug', 80)],
+      }),
+    ],
+    notes: 'USUM Po Town battle expanded to 3 Pokémon (vs SM 2). Levels +4-5.',
+  }),
+  boss({
+    id: 'usum-skull-guzma-aether',
+    name: 'Guzma (Aether Paradise)',
+    location: 'Aether Paradise',
+    order: 52,
+    category: 'evil-team',
+    levelCap: 45,
+    team: [
+      mon('Golisopod', 45, ['Bug', 'Water'], {
+        ability: 'Emergency Exit',
+        moves: [mv('Sucker Punch', 'Dark', 70), mv('Razor Shell', 'Water', 75), mv('First Impression', 'Bug', 90)],
+      }),
+      mon('Masquerain', 45, ['Bug', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Air Slash', 'Flying', 75), mv('Bug Buzz', 'Bug', 90), mv('Icy Wind', 'Ice', 55)],
+      }),
+      mon('Pinsir', 45, ['Bug'], {
+        ability: 'Hyper Cutter',
+        moves: [mv('Throat Chop', 'Dark', 80), mv('Storm Throw', 'Fighting', 60), mv('X-Scissor', 'Bug', 80), mv('Stone Edge', 'Rock', 100)],
+      }),
+      mon('Vikavolt', 45, ['Bug', 'Electric'], {
+        ability: 'Levitate',
+        moves: [mv('Flash Cannon', 'Steel', 80), mv('Thunderbolt', 'Electric', 90), mv('Bug Buzz', 'Bug', 90), mv('Energy Ball', 'Grass', 90)],
+        notes: 'USUM-new Vikavolt slot vs SM.',
+      }),
+    ],
+    notes: 'USUM Aether Paradise Guzma — 4 Pokémon (vs SM 4); replaces SM Ariados with Vikavolt; levels +4-5.',
+  }),
 
-  // Aether — USUM reframes Lusamine.
-  skeletonBoss('usum-aether-faba', 'Aether Branch Chief Faba', 'Aether Paradise', 52, 'boss', 'Branch Chief Faba'),
-  skeletonBoss('usum-aether-lusamine-altar', 'Aether President Lusamine', 'Altar of the Sunne / Altar of the Moone', 53, 'boss',
+  // -- Aether bosses (USUM Pass 4 verified for Faba 2nd + Lusamine Aether) --
+  boss({
+    id: 'usum-aether-faba-2',
+    name: 'Aether Branch Chief Faba (Aether Paradise)',
+    location: 'Aether Paradise',
+    order: 53,
+    category: 'boss',
+    levelCap: 45,
+    team: [
+      mon('Claydol', 44, ['Ground', 'Psychic'], { ability: 'Levitate' }),
+      mon('Bruxish', 44, ['Water', 'Psychic'], { ability: 'Strong Jaw' }),
+      mon('Hypno', 45, ['Psychic'], { ability: 'Insomnia' }),
+    ],
+    notes: 'USUM Faba 2nd battle at Aether Paradise. Swaps SM Slowbro → Claydol. Partnered with an Aether Foundation Employee (Ledian 42 + Pupitar 42). Per-Pokémon move data not surfaced — TODO.',
+  }),
+  boss({
+    id: 'usum-aether-lusamine',
+    name: 'Aether President Lusamine (Aether Paradise)',
+    location: 'Aether Paradise',
+    order: 54,
+    category: 'boss',
+    levelCap: 47,
+    team: [
+      mon('Clefable', 47, ['Fairy'], {
+        ability: 'Magic Guard',
+        moves: [mv('Moonblast', 'Fairy', 95), mv('Charm', 'Fairy'), mv('Psychic', 'Psychic', 90), mv('Hyper Voice', 'Normal', 90)],
+      }),
+      mon('Lilligant', 47, ['Grass'], {
+        ability: 'Own Tempo',
+        moves: [mv('Petal Dance', 'Grass', 120), mv('Teeter Dance', 'Normal'), mv('Stun Spore', 'Grass')],
+      }),
+      mon('Lopunny', 47, ['Normal'], {
+        ability: 'Cute Charm',
+        moves: [mv('Dizzy Punch', 'Normal', 70), mv('Thunder Punch', 'Electric', 75), mv('Ice Punch', 'Ice', 75), mv('Fire Punch', 'Fire', 75)],
+        notes: 'USUM-new (replaces SM Mismagius slot).',
+      }),
+      mon('Milotic', 47, ['Water'], {
+        ability: 'Marvel Scale',
+        moves: [mv('Hydro Pump', 'Water', 110), mv('Icy Wind', 'Ice', 55), mv('Flail', 'Normal'), mv('Dragon Pulse', 'Dragon', 85)],
+      }),
+      mon('Bewear', 47, ['Normal', 'Fighting'], {
+        ability: 'Fluffy',
+        moves: [mv('Zen Headbutt', 'Psychic', 80), mv('Drain Punch', 'Fighting', 75), mv('Take Down', 'Normal', 90), mv('Dual Chop', 'Dragon', 40)],
+      }),
+    ],
+    notes: 'USUM Aether Paradise Lusamine battle. Swaps SM Mismagius → Lopunny; +6 levels (41 → 47). Not mandatory to win for story progression.',
+  }),
+
+  // Original skeleton kept (Altar) — see Pass 5 for population.
+  skeletonBoss('usum-aether-lusamine-altar', 'Aether President Lusamine (Altar)', 'Altar of the Sunne / Altar of the Moone', 55, 'boss',
     'President Lusamine at the Altar'),
 
   // Ultra Recon Squad (USUM-exclusive).
+  // Ultra Recon Squad — battle 3 (Aether Paradise during Lillie rescue). Earlier URS appearances
+  // (Seaward Cave / Paniola Ranch) and final Vast Poni Canyon battle remain skeletons until
+  // team/level data is canonically verified.
+  skeletonBoss('usum-urs-aether-paradise', 'Ultra Recon Squad (Aether Paradise)', 'Aether Paradise', 53, 'ultra-recon-squad',
+    "URS blocks the player during Lillie's rescue. Dulse (Ultra Sun) / Soliera (Ultra Moon). Levels/teams not surfaced — TODO."),
   skeletonBoss('usum-urs-dulse-zossie', 'Ultra Recon Squad (Dulse / Zossie)', 'Various', 54, 'boss',
     'Ultra Recon Squad battles (Dulse/Zossie)'),
   skeletonBoss('usum-urs-soliera-phyco', 'Ultra Recon Squad (Soliera / Phyco)', 'Various', 55, 'boss',
