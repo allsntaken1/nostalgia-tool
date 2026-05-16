@@ -344,6 +344,196 @@ const dppBosses: BossTrainer[] = [
     ],
     notes: 'Pearl Hearthome Gym (5th in DP order). Identical team to Diamond.',
   }),
+
+  // -- DPP Pass 3 (Veilstone / Pastoria / Maylene + Wake) --
+
+  // Maylene Veilstone Gym — DP Lv 27/27/30, Platinum Lv 28/29/32.
+  boss({
+    id: 'dpp-gym-maylene-d',
+    name: 'Gym Leader Maylene',
+    location: 'Veilstone City Gym',
+    order: 30,
+    category: 'gym',
+    levelCap: 30,
+    game: 'Diamond',
+    team: [
+      mon('Meditite', 27, ['Fighting', 'Psychic'], {
+        ability: 'Pure Power',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Confusion', 'Psychic', 50), mv('Detect', 'Fighting'), mv('Meditate', 'Psychic')],
+      }),
+      mon('Machoke', 27, ['Fighting'], {
+        ability: 'Guts',
+        moves: [mv('Brick Break', 'Fighting', 75), mv('Leer', 'Normal'), mv('Foresight', 'Normal'), mv('Rock Tomb', 'Rock', 60)],
+      }),
+      mon('Lucario', 30, ['Fighting', 'Steel'], {
+        ability: 'Steadfast',
+        item: 'Sitrus Berry',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Metal Claw', 'Steel', 50), mv('Bone Rush', 'Ground', 25), mv('Force Palm', 'Fighting', 60)],
+      }),
+    ],
+    notes: 'Diamond Veilstone Gym (3rd in DP order). Earns Cobble Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-maylene-p',
+    name: 'Gym Leader Maylene',
+    location: 'Veilstone City Gym',
+    order: 30,
+    category: 'gym',
+    levelCap: 30,
+    game: 'Pearl',
+    team: [
+      mon('Meditite', 27, ['Fighting', 'Psychic'], {
+        ability: 'Pure Power',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Confusion', 'Psychic', 50), mv('Detect', 'Fighting'), mv('Meditate', 'Psychic')],
+      }),
+      mon('Machoke', 27, ['Fighting'], {
+        ability: 'Guts',
+        moves: [mv('Brick Break', 'Fighting', 75), mv('Leer', 'Normal'), mv('Foresight', 'Normal'), mv('Rock Tomb', 'Rock', 60)],
+      }),
+      mon('Lucario', 30, ['Fighting', 'Steel'], {
+        ability: 'Steadfast',
+        item: 'Sitrus Berry',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Metal Claw', 'Steel', 50), mv('Bone Rush', 'Ground', 25), mv('Force Palm', 'Fighting', 60)],
+      }),
+    ],
+    notes: 'Pearl Veilstone Gym (3rd in DP order). Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-gym-maylene-pt',
+    name: 'Gym Leader Maylene',
+    location: 'Veilstone City Gym',
+    order: 32,
+    category: 'gym',
+    levelCap: 32,
+    game: 'Platinum',
+    team: [
+      mon('Meditite', 28, ['Fighting', 'Psychic'], {
+        ability: 'Pure Power',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Confusion', 'Psychic', 50), mv('Fake Out', 'Normal', 40), mv('Rock Tomb', 'Rock', 60)],
+      }),
+      mon('Machoke', 29, ['Fighting'], {
+        ability: 'Guts',
+        moves: [mv('Karate Chop', 'Fighting', 50), mv('Strength', 'Normal', 80), mv('Focus Energy', 'Normal'), mv('Rock Tomb', 'Rock', 60)],
+      }),
+      mon('Lucario', 32, ['Fighting', 'Steel'], {
+        ability: 'Steadfast',
+        moves: [mv('Drain Punch', 'Fighting', 75), mv('Metal Claw', 'Steel', 50), mv('Bone Rush', 'Ground', 25), mv('Force Palm', 'Fighting', 60)],
+      }),
+    ],
+    notes: 'Platinum Veilstone Gym (4th in Pt order, after Fantina). Levels +1-2 vs DP; Meditite swaps Detect/Meditate → Fake Out/Rock Tomb. Lucario drops Sitrus Berry.',
+  }),
+
+  // Crasher Wake Pastoria Gym — DP Lv 27/27/30, Platinum Lv 33/34/37.
+  boss({
+    id: 'dpp-gym-wake-d',
+    name: 'Gym Leader Crasher Wake',
+    location: 'Pastoria City Gym',
+    order: 38,
+    category: 'gym',
+    levelCap: 30,
+    game: 'Diamond',
+    team: [
+      mon('Gyarados', 27, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Brine', 'Water', 65), mv('Bite', 'Dark', 60), mv('Dragon Rage', 'Dragon'), mv('Swagger', 'Normal')],
+      }),
+      mon('Quagsire', 27, ['Water', 'Ground'], {
+        ability: 'Damp',
+        moves: [mv('Slam', 'Normal', 80), mv('Mud Bomb', 'Ground', 65), mv('Mud Sport', 'Ground'), mv('Tail Whip', 'Normal')],
+      }),
+      mon('Floatzel', 30, ['Water'], {
+        ability: 'Swift Swim',
+        item: 'Sitrus Berry',
+        moves: [mv('Brine', 'Water', 65), mv('Ice Fang', 'Ice', 65), mv('Pursuit', 'Dark', 40), mv('Swift', 'Normal', 60)],
+      }),
+    ],
+    notes: 'Diamond Pastoria Gym (4th in DP order). Earns Fen Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-wake-p',
+    name: 'Gym Leader Crasher Wake',
+    location: 'Pastoria City Gym',
+    order: 38,
+    category: 'gym',
+    levelCap: 30,
+    game: 'Pearl',
+    team: [
+      mon('Gyarados', 27, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Brine', 'Water', 65), mv('Bite', 'Dark', 60), mv('Dragon Rage', 'Dragon'), mv('Swagger', 'Normal')],
+      }),
+      mon('Quagsire', 27, ['Water', 'Ground'], {
+        ability: 'Damp',
+        moves: [mv('Slam', 'Normal', 80), mv('Mud Bomb', 'Ground', 65), mv('Mud Sport', 'Ground'), mv('Tail Whip', 'Normal')],
+      }),
+      mon('Floatzel', 30, ['Water'], {
+        ability: 'Swift Swim',
+        item: 'Sitrus Berry',
+        moves: [mv('Brine', 'Water', 65), mv('Ice Fang', 'Ice', 65), mv('Pursuit', 'Dark', 40), mv('Swift', 'Normal', 60)],
+      }),
+    ],
+    notes: 'Pearl Pastoria Gym (4th in DP order). Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-gym-wake-pt',
+    name: 'Gym Leader Crasher Wake',
+    location: 'Pastoria City Gym',
+    order: 38,
+    category: 'gym',
+    levelCap: 37,
+    game: 'Platinum',
+    team: [
+      mon('Gyarados', 33, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Brine', 'Water', 65), mv('Waterfall', 'Water', 80), mv('Bite', 'Dark', 60), mv('Twister', 'Dragon', 40)],
+      }),
+      mon('Quagsire', 34, ['Water', 'Ground'], {
+        ability: 'Damp',
+        moves: [mv('Water Pulse', 'Water', 60), mv('Mud Shot', 'Ground', 55), mv('Rock Tomb', 'Rock', 60), mv('Yawn', 'Normal')],
+      }),
+      mon('Floatzel', 37, ['Water'], {
+        ability: 'Swift Swim',
+        item: 'Sitrus Berry',
+        moves: [mv('Brine', 'Water', 65), mv('Crunch', 'Dark', 80), mv('Ice Fang', 'Ice', 65), mv('Aqua Jet', 'Water', 40)],
+      }),
+    ],
+    notes: 'Platinum Pastoria Gym (5th in Pt order). Levels +3-7 vs DP; expanded move pools (Waterfall, Crunch, Aqua Jet).',
+  }),
+
+  // Galactic Grunt at Valor Lakefront — Lv 25 Glameow (DP) / Lv 31 Croagunk (Platinum).
+  boss({
+    id: 'dpp-galactic-grunt-valor-d',
+    name: 'Galactic Grunt (Valor Lakefront)',
+    location: 'Valor Lakefront',
+    order: 39,
+    category: 'evil-team',
+    levelCap: 25,
+    game: 'Diamond',
+    team: [mon('Glameow', 25, ['Normal'], { ability: 'Limber' })],
+    notes: "Diamond Valor Lakefront pursuit grunt (post-Cobble + Fen badges). Per-Pokémon moves not surfaced — TODO.",
+  }),
+  boss({
+    id: 'dpp-galactic-grunt-valor-p',
+    name: 'Galactic Grunt (Valor Lakefront)',
+    location: 'Valor Lakefront',
+    order: 39,
+    category: 'evil-team',
+    levelCap: 25,
+    game: 'Pearl',
+    team: [mon('Glameow', 25, ['Normal'], { ability: 'Limber' })],
+    notes: 'Pearl Valor Lakefront pursuit grunt. Same team as Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-grunt-valor-pt',
+    name: 'Galactic Grunt (Valor Lakefront)',
+    location: 'Valor Lakefront',
+    order: 39,
+    category: 'evil-team',
+    levelCap: 31,
+    game: 'Platinum',
+    team: [mon('Croagunk', 31, ['Poison', 'Fighting'], { ability: 'Anticipation' })],
+    notes: 'Platinum Valor Lakefront pursuit grunt. Swaps Glameow → Croagunk; Lv +6 vs DP.',
+  }),
 ];
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {

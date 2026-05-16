@@ -33,6 +33,16 @@ export const gen4Routes: RouteData[] = [
   { id: 'solaceon-ruins', displayName: 'Solaceon Ruins', order: 30, region: 'sinnoh', gameSet: 'gen4', tags: ['dungeon'] },
   { id: 'route-210-south', displayName: 'Route 210 (South)', order: 31, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'route-215', displayName: 'Route 215', order: 32, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'veilstone-city', displayName: 'Veilstone City', order: 33, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'route-214', displayName: 'Route 214', order: 34, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'maniac-tunnel', displayName: 'Maniac Tunnel', order: 35, region: 'sinnoh', gameSet: 'gen4', tags: ['cave'] },
+  { id: 'valor-lakefront', displayName: 'Valor Lakefront', order: 36, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'boss-area'] },
+  { id: 'route-213', displayName: 'Route 213', order: 37, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'pastoria-city', displayName: 'Pastoria City', order: 38, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'great-marsh', displayName: 'Great Marsh', order: 39, region: 'sinnoh', gameSet: 'gen4', tags: ['area'] },
+  { id: 'route-212-south', displayName: 'Route 212 (South)', order: 40, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-212-north', displayName: 'Route 212 (North)', order: 41, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-210-north', displayName: 'Route 210 (North)', order: 42, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
 ];
 
 export const hgssRoutes: RouteData[] = [
