@@ -1738,6 +1738,7 @@ function NuzlockeDashboard({
 
   return (
     <div className="grid gap-3 pb-40 md:pb-28">
+      <CurrentObjectiveBanner run={run} />
       <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -1932,10 +1933,298 @@ function Overview({ run }: { run: NuzlockeRun }) {
   return (
     <section className="grid gap-4">
       <SmartContextPanel run={run} />
+      <RunHeroes run={run} />
+      <JourneyMap run={run} />
       <RunDashboard run={run} />
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <RuleSummary run={run} />
         <RulesReference />
+      </div>
+    </section>
+  );
+}
+
+// =================================================================================
+// Journey Map — vertical timeline of locations + bosses with completion state icons.
+// Uses ONLY the run's known location list + boss list. Never invents progression.
+// =================================================================================
+function JourneyMap({ run }: { run: NuzlockeRun }) {
+  const locations = getNuzlockeLocations(run.gameVersion);
+  const bosses = Array.isArray(run.bosses) ? run.bosses : [];
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const claimedStatuses: EncounterStatus[] = ['Caught', 'Failed', 'Skipped', 'Dead'];
+  const claimedByLocation = new Map(encounters.map((e) => [e.location, e]));
+  const claimedLocationSet = new Set(encounters.filter((e) => claimedStatuses.includes(e.status)).map((e) => e.location));
+  const firstUnclaimed = locations.find((loc) => !claimedLocationSet.has(loc));
+
+  // Boss→location heuristic: match by lowercased substring of boss.notes / categories.
+  // We don't invent positions — bosses without a clear location match render between
+  // their nearest known locations using their recommendedOrder/cap.
+  type JourneyNode =
+    | { kind: 'location'; key: string; name: string; state: 'completed' | 'current' | 'available' | 'missed' | 'future'; encounter?: NuzlockeEncounter }
+    | { kind: 'boss'; key: string; name: string; state: 'completed' | 'current' | 'available' | 'future'; cap: number | null };
+
+  const journey: JourneyNode[] = [];
+
+  if (locations.length === 0 && bosses.length === 0) {
+    return (
+      <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
+        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Journey Map</div>
+        <p className="mt-2 text-xs font-bold text-[#506078]">Journey order incomplete for this game.</p>
+      </section>
+    );
+  }
+
+  // Locations.
+  let currentSeen = false;
+  for (const loc of locations) {
+    const enc = claimedByLocation.get(loc);
+    let state: 'completed' | 'current' | 'available' | 'missed' | 'future';
+    if (enc) {
+      state = enc.status === 'Failed' || enc.status === 'Skipped' ? 'missed' : 'completed';
+    } else if (!currentSeen && loc === firstUnclaimed) {
+      state = 'current';
+      currentSeen = true;
+    } else if (!currentSeen) {
+      state = 'available';
+    } else {
+      state = 'future';
+    }
+    journey.push({ kind: 'location', key: `loc:${loc}`, name: loc, state, encounter: enc });
+  }
+
+  // Append bosses at the bottom (sorted by level cap then recommended order).
+  const sortedBosses = bosses
+    .slice()
+    .sort((a, b) => (a.levelCap ?? 0) - (b.levelCap ?? 0) || a.name.localeCompare(b.name));
+  let firstUnclearedBoss = true;
+  for (const boss of sortedBosses) {
+    let state: 'completed' | 'current' | 'available' | 'future';
+    if (boss.completed) state = 'completed';
+    else if (firstUnclearedBoss) { state = 'current'; firstUnclearedBoss = false; }
+    else state = 'future';
+    journey.push({ kind: 'boss', key: `boss:${boss.id}`, name: boss.name, state, cap: boss.levelCap });
+  }
+
+  const stateChip = (state: string) => {
+    switch (state) {
+      case 'completed': return { icon: '✓', tone: 'bg-[#d4edda] text-[#155724]' };
+      case 'current': return { icon: '→', tone: 'bg-[#cce5ff] text-[#004085] ring-2 ring-[#1976d2]' };
+      case 'available': return { icon: '○', tone: 'bg-white text-[#506078]' };
+      case 'missed': return { icon: '⚠', tone: 'bg-[#fff3cd] text-[#856404]' };
+      case 'future': return { icon: '·', tone: 'bg-[#f4f7f3] text-[#8a97aa]' };
+      default: return { icon: '?', tone: 'bg-white text-[#506078]' };
+    }
+  };
+
+  const scrollToTab = (anchor: string) => {
+    if (typeof window === 'undefined') return;
+    const el = document.getElementById(anchor);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Journey Map</div>
+          <h2 className="text-base font-black">Your run, at a glance</h2>
+        </div>
+        <div className="text-[10px] font-bold text-[#8a97aa]">{locations.length} locations · {bosses.length} bosses</div>
+      </div>
+      <ol className="grid gap-1 sm:grid-cols-2 md:grid-cols-3">
+        {journey.map((node) => {
+          const chip = stateChip(node.state);
+          return (
+            <li
+              key={node.key}
+              onClick={() => scrollToTab(node.kind === 'boss' ? 'nuzlocke-bosses' : 'nuzlocke-encounters')}
+              className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-black shadow-sm transition cursor-pointer hover:-translate-y-0.5 ${chip.tone} ${node.state === 'future' ? 'opacity-60' : ''}`}
+            >
+              <span className="grid place-items-center w-6 h-6 rounded-full bg-white/80 text-sm" aria-hidden="true">{chip.icon}</span>
+              <span className="min-w-0 flex-1 truncate">
+                <span className="block truncate">{node.name}</span>
+                {node.kind === 'boss' && node.cap ? <span className="block text-[9px] font-bold opacity-75">Cap {node.cap}</span> : null}
+                {node.kind === 'location' && node.encounter ? <span className="block text-[9px] font-bold opacity-75 truncate">{node.encounter.pokemon || node.encounter.status}</span> : null}
+              </span>
+              <span className="text-[9px] uppercase tracking-wider opacity-80">{node.state}</span>
+            </li>
+          );
+        })}
+      </ol>
+      {locations.length === 0 ? (
+        <p className="mt-2 text-[10px] font-bold text-[#8a97aa]">No route order registered for this game yet — only bosses are shown.</p>
+      ) : null}
+    </section>
+  );
+}
+
+// =================================================================================
+// Run Heroes — MVP / Survivor / Starter / Recovery candidates from existing run state.
+// Wording is intentionally cautious ("candidate", "appears to be", "currently").
+// =================================================================================
+function RunHeroes({ run }: { run: NuzlockeRun }) {
+  const team = Array.isArray(run.team) ? run.team : [];
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const timeline = Array.isArray(run.timeline) ? run.timeline : [];
+
+  if (team.length === 0) {
+    return null; // nothing to celebrate yet
+  }
+
+  const party = team.filter((p) => p.status === 'Party');
+  const dead = team.filter((p) => p.status === 'Dead');
+  const boxed = team.filter((p) => p.status === 'Boxed');
+  // Encounter order: index in encounters[] (push-on-front → earlier index = newer); reverse for chronological.
+  const earliestIndex = new Map<string, number>();
+  encounters.slice().reverse().forEach((enc, idx) => {
+    if (enc.pokemon) earliestIndex.set(enc.pokemon.toLowerCase(), idx);
+  });
+
+  const starters = ['Bulbasaur', 'Charmander', 'Squirtle', 'Pikachu', 'Chikorita', 'Cyndaquil', 'Totodile', 'Treecko', 'Torchic', 'Mudkip', 'Turtwig', 'Chimchar', 'Piplup', 'Snivy', 'Tepig', 'Oshawott', 'Chespin', 'Fennekin', 'Froakie', 'Rowlet', 'Litten', 'Popplio', 'Grookey', 'Scorbunny', 'Sobble', 'Sprigatito', 'Fuecoco', 'Quaxly'];
+  const starterMember = team.find((p) => starters.some((s) => p.species.toLowerCase() === s.toLowerCase() || p.species.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(p.species.toLowerCase())));
+
+  // MVP candidate: highest-level Party member (a rough heuristic — caveat in copy).
+  const mvp = party.slice().sort((a, b) => (b.level ?? 0) - (a.level ?? 0))[0];
+  // Longest survivor: earliest-encountered Party member who is still alive.
+  const survivor = party.slice().sort((a, b) => {
+    const ai = earliestIndex.get(a.species.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+    const bi = earliestIndex.get(b.species.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+    return ai - bi;
+  })[0];
+  // Recovery hero: appears only when run is recently struggling — last 5 timeline events have ≥2 deaths.
+  const recentEvents = timeline.slice(0, 5);
+  const recentDeathCount = recentEvents.filter((event) => event.type === 'Pokemon Died').length;
+  const inRecovery = recentDeathCount >= 2 && party.length > 0;
+  const recoveryHero = inRecovery ? party.slice().sort((a, b) => (b.level ?? 0) - (a.level ?? 0))[1] || mvp : null;
+  // Lone survivor — single party member, others dead/boxed.
+  const isLoneSurvivor = party.length === 1 && (dead.length + boxed.length) > 0;
+
+  type Hero = { pokemon: NuzlockePokemon; role: string; chips: string[]; reason: string };
+  const heroes: Hero[] = [];
+  if (mvp && mvp.id === survivor?.id) {
+    // Same Pokémon scored both — show one card with both chips.
+    const chips = ['MVP', 'Survivor'];
+    if (starterMember?.id === mvp.id) chips.push('Starter');
+    heroes.push({ pokemon: mvp, role: 'MVP & Survivor', chips, reason: `Highest level in the party and your earliest-caught active member.` });
+  } else {
+    if (mvp) heroes.push({ pokemon: mvp, role: 'MVP Candidate', chips: ['MVP', ...(starterMember?.id === mvp.id ? ['Starter'] : [])], reason: `Appears to be your strongest active Pokémon (Lv ${mvp.level}).` });
+    if (survivor && survivor.id !== mvp?.id) heroes.push({ pokemon: survivor, role: 'Longest Survivor', chips: ['Survivor', ...(starterMember?.id === survivor.id ? ['Starter'] : [])], reason: `Earliest active catch still on the team.` });
+  }
+  if (starterMember && !heroes.some((h) => h.pokemon.id === starterMember.id)) {
+    heroes.push({ pokemon: starterMember, role: `Starter Status: ${starterMember.status}`, chips: ['Starter'], reason: `Your starter pick is currently ${starterMember.status.toLowerCase()}.` });
+  }
+  if (recoveryHero && !heroes.some((h) => h.pokemon.id === recoveryHero.id)) {
+    heroes.push({ pokemon: recoveryHero, role: 'Recovery Hero', chips: ['Recovery'], reason: 'Appears to be stabilizing the team after recent losses.' });
+  }
+  if (isLoneSurvivor && !heroes.some((h) => h.pokemon.id === party[0].id)) {
+    heroes.unshift({ pokemon: party[0], role: 'Lone Survivor', chips: ['Survivor'], reason: 'Currently your only active party member.' });
+  }
+
+  if (heroes.length === 0) return null;
+
+  const chipTone = (chip: string) => {
+    if (chip === 'MVP') return 'bg-[#8b5cf6] text-white';
+    if (chip === 'Survivor') return 'bg-[#0ea5e9] text-white';
+    if (chip === 'Starter') return 'bg-[#10b981] text-white';
+    if (chip === 'Recovery') return 'bg-[#f59e0b] text-white';
+    return 'bg-[#546e7a] text-white';
+  };
+
+  return (
+    <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Run Heroes</div>
+          <h2 className="text-base font-black">Who&apos;s carrying this run</h2>
+        </div>
+        {inRecovery ? <span className="rounded-full bg-[#fff7e0] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#8b6500]">Recovering</span> : null}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {heroes.slice(0, 4).map((hero) => (
+          <div key={`${hero.pokemon.id}-${hero.role}`} className="flex items-center gap-2 rounded-xl bg-white/80 p-2 shadow-sm">
+            <MonsterToken species={hero.pokemon.species} types={hero.pokemon.types} compact />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="text-sm font-black truncate">{hero.pokemon.nickname || hero.pokemon.species}</span>
+                <span className="text-[10px] font-bold text-[#506078]">Lv {hero.pokemon.level}</span>
+              </div>
+              <div className="text-[10px] font-bold text-[#506078]">{hero.role}</div>
+              <p className="mt-0.5 text-[10px] font-bold leading-snug text-[#8a97aa]">{hero.reason}</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {hero.chips.map((chip) => (
+                  <span key={chip} className={`rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${chipTone(chip)}`}>{chip}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] font-bold leading-snug text-[#8a97aa]">Roles inferred from tracked levels, catch order, and recent timeline events. Not battle stats.</p>
+    </section>
+  );
+}
+
+// =================================================================================
+// Current Objective Banner — top-of-page compact strip answering "what now?"
+// Mounted at the top of NuzlockeDashboard, above the existing header.
+// =================================================================================
+function CurrentObjectiveBanner({ run }: { run: NuzlockeRun }) {
+  const team = Array.isArray(run.team) ? run.team : [];
+  const bosses = Array.isArray(run.bosses) ? run.bosses : [];
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const timeline = Array.isArray(run.timeline) ? run.timeline : [];
+  const party = team.filter((p) => p.status === 'Party');
+  const nextBoss = bosses.find((b) => !b.completed);
+  const locations = getNuzlockeLocations(run.gameVersion);
+  const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
+  const claimedStatuses: EncounterStatus[] = ['Caught', 'Failed', 'Skipped', 'Dead'];
+  const claimedLocations = new Set(encounters.filter((e) => claimedStatuses.includes(e.status)).map((e) => e.location));
+  const availableLocations = locations.filter((loc) => !claimedLocations.has(loc));
+  const suggestion = getDashboardEncounterSuggestion({ run, locations, encounterOptionsByLocation, claimedLocations, party, nextBoss });
+  const bestCatch = (suggestion.topRecommendations ?? [])[0];
+  const recentDeathCount = timeline.slice(0, 5).filter((event) => event.type === 'Pokemon Died').length;
+  const inRecovery = recentDeathCount >= 2 && party.length > 0;
+  const allBossesDone = bosses.length > 0 && bosses.every((b) => b.completed);
+  const wiped = party.length === 0 && team.length > 0;
+
+  // Fallback states.
+  let primaryMessage = '';
+  if (!run.gameVersion) primaryMessage = 'Choose a game to begin.';
+  else if (!run.starterChoice && bosses.some((b) => /rival/i.test(b.category || ''))) primaryMessage = 'Select a starter to resolve rival teams.';
+  else if (team.length === 0) primaryMessage = 'Add Pokémon to unlock coaching.';
+  else if (wiped) primaryMessage = 'No active Pokémon. Box recovery or restart to continue.';
+  else if (allBossesDone) primaryMessage = 'All tracked bosses cleared — run complete!';
+  else if (nextBoss) primaryMessage = `Prepare for ${nextBoss.name}`;
+  else primaryMessage = 'No next boss identified.';
+
+  return (
+    <section className="rounded-2xl border border-white/75 bg-gradient-to-r from-white/95 to-[var(--nuz-accent-soft)]/60 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <div className="min-w-0">
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Current Objective</div>
+          <div className="text-base font-black leading-tight">{primaryMessage}</div>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {nextBoss?.levelCap ? <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-black shadow-sm">Cap {nextBoss.levelCap}</span> : null}
+          <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-black shadow-sm">Team {party.length}/6</span>
+          {inRecovery ? <span className="rounded bg-[#fff7e0] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#8b6500]">Recovering</span> : null}
+          {availableLocations.length > 0 ? <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-black shadow-sm">{availableLocations.length} routes open</span> : null}
+        </div>
+      </div>
+      <div className="mt-2 grid gap-1 text-[11px] font-bold text-[#506078] sm:grid-cols-2">
+        {bestCatch?.option?.species ? (
+          <div className="truncate">→ Best catch: <span className="font-black text-[#182a40]">{bestCatch.option.species}</span> at {bestCatch.location}</div>
+        ) : null}
+        {nextBoss ? (
+          <div className="truncate">→ Next boss: <span className="font-black text-[#182a40]">{nextBoss.name}</span> · {nextBoss.category}</div>
+        ) : null}
+        {inRecovery ? (
+          <div className="truncate text-[#8b6500]">→ Run is currently recovering from recent losses.</div>
+        ) : null}
+        {availableLocations.length === 0 && bosses.length > 0 && !allBossesDone ? (
+          <div className="truncate">→ No more open routes. Push to the next boss.</div>
+        ) : null}
       </div>
     </section>
   );
