@@ -10,6 +10,7 @@ import { getItemData } from '@/lib/nuzlocke/services/itemService';
 import { applyDefensiveAbilityMultiplier, getPokemonAbilities, type PokemonAbility } from '@/lib/nuzlocke/services/abilityService';
 import { readNuzlockeApiCache, writeNuzlockeApiCache } from '@/lib/nuzlocke/services/apiCache';
 import { getAllCachedPokemonNames, getCachedPokemonAbilities, getCachedPokemonTypes } from '@/lib/nuzlocke/data/pokemon-cache';
+import { getEncounterValueProfile, getValueTierScore, REGISTRY_DISCLAIMER, type EncounterValueProfile } from '@/lib/nuzlocke/analysis/encounter-value-registry';
 import { normalizeStarterChoice, starterChoiceLabel } from '@/lib/nuzlocke/starter';
 import {
   type EncounterOption,
@@ -1930,11 +1931,142 @@ function TeamBarPopup({
 function Overview({ run }: { run: NuzlockeRun }) {
   return (
     <section className="grid gap-4">
+      <SmartContextPanel run={run} />
       <RunDashboard run={run} />
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <RuleSummary run={run} />
         <RulesReference />
       </div>
+    </section>
+  );
+}
+
+const UI_SETTINGS_KEY = 'nuzlocke-ui-settings-v1';
+type UiSettings = { smartContextMode: boolean };
+function readUiSettings(): UiSettings {
+  if (typeof window === 'undefined') return { smartContextMode: true };
+  try {
+    const raw = window.localStorage.getItem(UI_SETTINGS_KEY);
+    if (!raw) return { smartContextMode: true };
+    const parsed = JSON.parse(raw) as Partial<UiSettings>;
+    return { smartContextMode: parsed.smartContextMode !== false };
+  } catch { return { smartContextMode: true }; }
+}
+function writeUiSettings(next: UiSettings) {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(UI_SETTINGS_KEY, JSON.stringify(next)); } catch { /* ignore quota */ }
+}
+
+function SmartContextPanel({ run }: { run: NuzlockeRun }) {
+  const [enabled, setEnabled] = useState(true);
+  useEffect(() => { setEnabled(readUiSettings().smartContextMode); }, []);
+  const toggle = () => {
+    const next = !enabled;
+    setEnabled(next);
+    writeUiSettings({ smartContextMode: next });
+  };
+
+  // Derive context.
+  const team = Array.isArray(run.team) ? run.team : [];
+  const encounters = Array.isArray(run.encounters) ? run.encounters : [];
+  const bosses = Array.isArray(run.bosses) ? run.bosses : [];
+  const locations = getNuzlockeLocations(run.gameVersion);
+  const encounterOptionsByLocation = getNuzlockeEncounterOptions(run.gameVersion);
+  const party = team.filter((p) => p.status === 'Party');
+  const nextBoss = bosses.find((b) => !b.completed);
+  const claimedStatuses: EncounterStatus[] = ['Caught', 'Failed', 'Skipped', 'Dead'];
+  const claimedLocations = new Set(encounters.filter((e) => claimedStatuses.includes(e.status)).map((e) => e.location));
+  const suggestion = getDashboardEncounterSuggestion({
+    run,
+    locations,
+    encounterOptionsByLocation,
+    claimedLocations,
+    party,
+    nextBoss,
+  });
+  const topRecs = (suggestion.topRecommendations ?? []).filter((rec) => rec.option?.species);
+  const teamGapType: PokemonType | null = nextBoss
+    ? (bossAttackTypes(nextBoss).find((type) => !party.some((p) => (p.types || []).some((t) => getAttackMultiplier(type, [t]) < 1))) as PokemonType | null) ?? null
+    : null;
+
+  // Always render the toggle row so the user can find it; gate the heavy panel on `enabled`.
+  return (
+    <section className="rounded-2xl border border-white/75 bg-white/88 p-3 shadow-[0_12px_30px_rgba(24,42,64,0.08)] backdrop-blur">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--nuz-accent)]">Smart Context</div>
+          <h2 className="text-base font-black">Prepare Before Continuing</h2>
+        </div>
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-xs font-black shadow-sm">
+          <input type="checkbox" checked={enabled} onChange={toggle} aria-label="Toggle Smart Context Mode" />
+          <span>{enabled ? 'ON' : 'OFF'}</span>
+        </label>
+      </div>
+
+      {!enabled ? null : (
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl bg-[var(--nuz-accent-soft)] p-3 shadow-sm">
+            <div className="text-[10px] font-black uppercase tracking-wider text-[var(--nuz-accent)]">Current Goal</div>
+            <div className="mt-1 text-sm font-black leading-tight">
+              {nextBoss ? `Defeat ${nextBoss.name}${nextBoss.levelCap ? ` (Cap ${nextBoss.levelCap})` : ''}` : 'No active boss target'}
+            </div>
+            {teamGapType ? (
+              <div className="mt-2 text-xs font-bold text-[#506078]">
+                Team gap: nothing resists <TypeBadge type={teamGapType} />. Consider a Pokémon that can.
+              </div>
+            ) : null}
+            {party.length < 4 ? (
+              <div className="mt-2 text-xs font-bold text-[#8b6500]">
+                Party {party.length}/6 — under-resourced. Catch nearby routes before progressing.
+              </div>
+            ) : null}
+          </div>
+
+          <div className="rounded-xl bg-white/80 p-3 shadow-sm">
+            <div className="text-[10px] font-black uppercase tracking-wider text-[var(--nuz-accent)]">Best Catch to Consider</div>
+            {topRecs.length > 0 ? (
+              <ul className="mt-2 grid gap-2">
+                {topRecs.map((rec) => {
+                  const profile: EncounterValueProfile | undefined = rec.valueProfile;
+                  const types = Array.isArray(rec.option.types) ? rec.option.types : [];
+                  return (
+                    <li key={`${rec.location}-${rec.option.species}`} className="rounded-lg bg-white p-2 shadow-sm">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="text-sm font-black">{rec.option.species}</span>
+                        <span className="text-[10px] font-bold text-[#506078]">— {rec.location}</span>
+                        {profile ? (
+                          <span className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider ${
+                            profile.valueTier === 'elite' ? 'bg-[#8b5cf6] text-white'
+                            : profile.valueTier === 'high' ? 'bg-[#1976d2] text-white'
+                            : profile.valueTier === 'solid' ? 'bg-[#00838f] text-white'
+                            : 'bg-[#546e7a] text-white'
+                          }`}>{profile.valueTier}</span>
+                        ) : null}
+                        {rec.contextMatch ? <span className="rounded bg-[#fff7e0] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#8b6500]">Boss-relevant</span> : null}
+                      </div>
+                      {types.length > 0 ? <div className="mt-1 flex flex-wrap gap-1">{types.map((type) => <TypeBadge key={type} type={type} />)}</div> : null}
+                      {profile?.reasons[0] ? <p className="mt-1 text-[11px] font-bold leading-snug text-[#506078]">{profile.reasons[0]}</p> : null}
+                      {profile?.cautionNotes?.[0] ? <p className="mt-1 text-[11px] font-bold leading-snug text-[#9f2c24]">⚠ {profile.cautionNotes[0]}</p> : null}
+                      {profile?.tags?.length ? (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {profile.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="rounded bg-[#f4f7f3] px-1.5 py-0.5 text-[9px] font-black text-[#506078]">{tag}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs font-bold text-[#506078]">No unclaimed encounters available. Log catches or switch toggles in the Encounters tab to surface more.</p>
+            )}
+          </div>
+        </div>
+      )}
+      {enabled ? (
+        <p className="mt-3 text-[10px] font-bold leading-snug text-[#8a97aa]">{REGISTRY_DISCLAIMER}</p>
+      ) : null}
     </section>
   );
 }
@@ -2268,14 +2400,30 @@ function getDashboardEncounterSuggestion({
       const immuneToBoss = bossTypes.some((type) => getAttackMultiplier(type, optionTypes) === 0);
       const coversSharedWeakness = sharedWeaknesses.some((type) => getAttackMultiplier(type, optionTypes) < 1);
       const addsNewType = optionTypes.some((type) => !teamTypes.has(type));
+      // Encounter Value Registry overlay — generation-gated. Adds 1-4 points for known
+      // high-value Nuzlocke picks. Unknown species score 0 from this layer and rely on the
+      // type-matchup heuristics. Boost applies extra when the profile's context matches.
+      const valueProfile = getEncounterValueProfile(option.species, run.gameVersion);
+      const valueBase = valueProfile ? getValueTierScore(valueProfile.valueTier) : 0;
+      const contextMatch = valueProfile ? (
+        // Tag-driven nudge: certain tags pair with the current matchup.
+        (valueProfile.tags.includes('Useful Before Water Gym') && bossTypes.includes('Water')) ||
+        (valueProfile.tags.includes('Useful Before Electric Gym') && bossTypes.includes('Electric')) ||
+        (valueProfile.tags.includes('Useful Before Rock Gym') && bossTypes.includes('Rock')) ||
+        (valueProfile.tags.includes('Ground Immunity') && bossTypes.includes('Electric')) ||
+        (valueProfile.tags.includes('Bulky Water') && sharedWeaknesses.includes('Fire')) ||
+        (valueProfile.tags.includes('Status Support') && party.length >= 3 && party.length <= 4)
+      ) : false;
+      const valueBoost = contextMatch ? 1 : 0;
       const score =
         (immuneToBoss ? 3 : 0) +
         (resistsBoss ? 2 : 0) +
         (coversSharedWeakness ? 2 : 0) +
         (addsNewType ? 1 : 0) +
-        (typeof option.rate === 'number' && option.rate >= 50 ? 1 : 0);
+        (typeof option.rate === 'number' && option.rate >= 50 ? 1 : 0) +
+        valueBase + valueBoost;
 
-      return { option, location, locationIndex, score, resistsBoss, immuneToBoss, coversSharedWeakness, addsNewType };
+      return { option, location, locationIndex, score, resistsBoss, immuneToBoss, coversSharedWeakness, addsNewType, valueProfile, contextMatch };
     });
   })
     .filter((item) => item.option.species)
@@ -2287,6 +2435,7 @@ function getDashboardEncounterSuggestion({
       title: 'No available encounter data',
       detail: 'Claimed areas are skipped. Add encounters or choose a game with encounter tables for suggestions.',
       types: [] as PokemonType[],
+      topRecommendations: [] as typeof recommendations,
     };
   }
 
@@ -2295,11 +2444,14 @@ function getDashboardEncounterSuggestion({
     best.resistsBoss ? 'resists boss type' : '',
     best.coversSharedWeakness ? 'covers a shared weakness' : '',
     best.addsNewType ? 'adds a new team type' : '',
+    best.valueProfile ? `${best.valueProfile.valueTier}-tier value` : '',
   ].filter(Boolean);
   return {
     title: `${best.option.species} / ${best.location}`,
     detail: tags.length > 0 ? tags.join(' / ') : 'Potential useful encounter based on available route and type data.',
     types: Array.isArray(best.option.types) ? best.option.types : [],
+    // Surface up to 3 ranked candidates for the Smart Context panel.
+    topRecommendations: recommendations.slice(0, 3),
   };
 }
 
