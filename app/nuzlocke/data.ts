@@ -1663,7 +1663,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum') {
     return {
       title: 'Partial data available',
-      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Canalave / Byron and the Lake/Galactic story arc. Saturn (Galactic HQ), Jupiter (Lake Acuity), Cyrus, Spear Pillar, Distortion World, Candice/Volkner, and postgame areas remain TODO. Great Marsh, honey trees, Poké Radar, dual-slot, swarms, and day/night gating also remain TODO.',
+      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Snowpoint / Candice. Saturn (Galactic HQ), Cyrus, Spear Pillar, Distortion World, Volkner, Elite Four, and postgame areas remain TODO. Great Marsh, Snowpoint Temple, honey trees, Poké Radar, dual-slot, swarms, and day/night gating also remain TODO.',
       emptyState: 'No standard DPP encounter is currently tracked for this location.',
     };
   }

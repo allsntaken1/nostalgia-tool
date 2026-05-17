@@ -52,6 +52,11 @@ export const gen4Routes: RouteData[] = [
   { id: 'route-219', displayName: 'Route 219', order: 49, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'route-220', displayName: 'Route 220', order: 50, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'route-221', displayName: 'Route 221', order: 51, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-216', displayName: 'Route 216', order: 52, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'route-217', displayName: 'Route 217', order: 53, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'acuity-lakefront', displayName: 'Acuity Lakefront', order: 54, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'lake-acuity', displayName: 'Lake Acuity', order: 55, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'legendary'] },
+  { id: 'snowpoint-city', displayName: 'Snowpoint City', order: 56, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
 ];
 
 export const hgssRoutes: RouteData[] = [

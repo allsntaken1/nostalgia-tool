@@ -834,6 +834,92 @@ const populatedAreas: DppEncounterArea[] = [
     ],
     notes: ['Farfetch\'d swarm and Nidorina/Nidorino Poké Radar omitted.'],
   },
+
+  // ============================================================================================
+  // DPP Pass 5 — Snowpoint / Lake Acuity / Candice (Bulbapedia raw wikitext verified).
+  // ============================================================================================
+  {
+    locationId: 'route-216',
+    displayName: 'Route 216',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'grass'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'grass'),
+      encounter('Meditite', ['Fighting', 'Psychic'], 'grass'),
+      encounter('Medicham', ['Fighting', 'Psychic'], 'grass'),
+      encounter('Snover', ['Grass', 'Ice'], 'grass'),
+      encounter('Snorunt', ['Ice'], 'grass', 'Platinum', 'Platinum-only grass spawn (Lv 33).'),
+    ],
+    notes: ['Delibird swarm (Lv 32, 40%) intentionally omitted — schema TODO.', 'Snorunt is DP Poké Radar-only / Platinum grass-direct — only the Platinum grass slot is modeled here.'],
+  },
+  {
+    locationId: 'route-217',
+    displayName: 'Route 217',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'grass'),
+      encounter('Machoke', ['Fighting'], 'grass'),
+      encounter('Noctowl', ['Normal', 'Flying'], 'grass'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'grass'),
+      encounter('Meditite', ['Fighting', 'Psychic'], 'grass'),
+      encounter('Medicham', ['Fighting', 'Psychic'], 'grass'),
+      encounter('Snover', ['Grass', 'Ice'], 'grass'),
+      encounter('Snorunt', ['Ice'], 'grass', 'All', 'Lv 33.'),
+      encounter('Swinub', ['Ice', 'Ground'], 'grass', 'Platinum', 'Platinum-only grass spawn (35%, Lv 32-34).'),
+    ],
+    notes: ['Persistent blizzard route. DP Swinub/Delibird swarms + DP Ursaring special encounter omitted — schema TODOs.', 'Piloswine Poké Radar (Platinum) omitted.'],
+  },
+  {
+    locationId: 'acuity-lakefront',
+    displayName: 'Acuity Lakefront',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'grass'),
+      encounter('Bibarel', ['Normal', 'Water'], 'grass'),
+      encounter('Noctowl', ['Normal', 'Flying'], 'grass'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'grass'),
+      encounter('Snover', ['Grass', 'Ice'], 'grass'),
+      surf('Psyduck', ['Water']),
+      surf('Golduck', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+    ],
+    notes: ['Gateway between Route 216/217 and Lake Acuity.'],
+  },
+  {
+    locationId: 'lake-acuity',
+    displayName: 'Lake Acuity',
+    encounters: [
+      surf('Psyduck', ['Water']),
+      surf('Golduck', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      encounter('Uxie', ['Psychic'], 'legendary', 'All', 'Lake Acuity cavern static legendary (Lv 50). Accessible after Galactic story event. Respawns after Hall of Fame in Platinum if defeated.'),
+    ],
+    notes: ['Jupiter\'s Lake Acuity appearance is a cutscene (she defeats the rival off-screen) — no player battle here.'],
+  },
+  {
+    locationId: 'snowpoint-city',
+    displayName: 'Snowpoint City',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Lumineon', ['Water'], 'Super Rod'),
+    ],
+    notes: ['Snowpoint Temple is postgame-gated (Regigigas event) and intentionally not added as a main-story area this pass.'],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
