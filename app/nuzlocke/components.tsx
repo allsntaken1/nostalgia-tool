@@ -2102,14 +2102,34 @@ function RunHeroes({ run }: { run: NuzlockeRun }) {
 
   type Hero = { pokemon: NuzlockePokemon; role: string; chips: string[]; reason: string };
   const heroes: Hero[] = [];
+  // Guard MVP wording when no level data is tracked (level === 0 from normalized encounters).
+  const mvpHasLevel = mvp && typeof mvp.level === 'number' && mvp.level > 0;
   if (mvp && mvp.id === survivor?.id) {
-    // Same Pokémon scored both — show one card with both chips.
     const chips = ['MVP', 'Survivor'];
     if (starterMember?.id === mvp.id) chips.push('Starter');
-    heroes.push({ pokemon: mvp, role: 'MVP & Survivor', chips, reason: `Highest level in the party and your earliest-caught active member.` });
+    heroes.push({
+      pokemon: mvp,
+      role: 'MVP & Survivor',
+      chips,
+      reason: mvpHasLevel
+        ? `Highest level in the party and your earliest-caught active member.`
+        : 'Currently the most active Party member and your earliest-caught entry.',
+    });
   } else {
-    if (mvp) heroes.push({ pokemon: mvp, role: 'MVP Candidate', chips: ['MVP', ...(starterMember?.id === mvp.id ? ['Starter'] : [])], reason: `Appears to be your strongest active Pokémon (Lv ${mvp.level}).` });
-    if (survivor && survivor.id !== mvp?.id) heroes.push({ pokemon: survivor, role: 'Longest Survivor', chips: ['Survivor', ...(starterMember?.id === survivor.id ? ['Starter'] : [])], reason: `Earliest active catch still on the team.` });
+    if (mvp) heroes.push({
+      pokemon: mvp,
+      role: 'MVP Candidate',
+      chips: ['MVP', ...(starterMember?.id === mvp.id ? ['Starter'] : [])],
+      reason: mvpHasLevel
+        ? `Appears to be your strongest active Pokémon (Lv ${mvp.level}).`
+        : 'Currently the lead active Party member based on tracked entries.',
+    });
+    if (survivor && survivor.id !== mvp?.id) heroes.push({
+      pokemon: survivor,
+      role: 'Longest Survivor',
+      chips: ['Survivor', ...(starterMember?.id === survivor.id ? ['Starter'] : [])],
+      reason: 'Earliest active catch still on the team.',
+    });
   }
   if (starterMember && !heroes.some((h) => h.pokemon.id === starterMember.id)) {
     heroes.push({ pokemon: starterMember, role: `Starter Status: ${starterMember.status}`, chips: ['Starter'], reason: `Your starter pick is currently ${starterMember.status.toLowerCase()}.` });
@@ -2147,7 +2167,9 @@ function RunHeroes({ run }: { run: NuzlockeRun }) {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1">
                 <span className="text-sm font-black truncate">{hero.pokemon.nickname || hero.pokemon.species}</span>
-                <span className="text-[10px] font-bold text-[#506078]">Lv {hero.pokemon.level}</span>
+                {typeof hero.pokemon.level === 'number' && hero.pokemon.level > 0 ? (
+                  <span className="text-[10px] font-bold text-[#506078]">Lv {hero.pokemon.level}</span>
+                ) : null}
               </div>
               <div className="text-[10px] font-bold text-[#506078]">{hero.role}</div>
               <p className="mt-0.5 text-[10px] font-bold leading-snug text-[#8a97aa]">{hero.reason}</p>
