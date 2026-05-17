@@ -782,7 +782,300 @@ const dppBosses: BossTrainer[] = [
     ],
     notes: 'Platinum Snowpoint Gym (7th). Swaps Snover/Medicham → Piloswine/Froslass; ace +2 levels; Abomasnow drops Sitrus Berry (Froslass holds it instead).',
   }),
+
+  // -- DPP Pass 6 (Galactic HQ / Spear Pillar / Distortion World) --
+
+  // Saturn at Galactic HQ.
+  boss({
+    id: 'dpp-galactic-saturn-hq-d',
+    name: 'Commander Saturn (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 49,
+    category: 'evil-team',
+    levelCap: 40,
+    game: 'Diamond',
+    team: [
+      mon('Kadabra', 38, ['Psychic'], { ability: 'Synchronize' }),
+      mon('Bronzor', 38, ['Steel', 'Psychic'], { ability: 'Levitate' }),
+      mon('Toxicroak', 40, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Galactic HQ Saturn battle. Per-Pokémon move data not surfaced — TODO.',
+  }),
+  boss({
+    id: 'dpp-galactic-saturn-hq-p',
+    name: 'Commander Saturn (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 49,
+    category: 'evil-team',
+    levelCap: 40,
+    game: 'Pearl',
+    team: [
+      mon('Kadabra', 38, ['Psychic'], { ability: 'Synchronize' }),
+      mon('Bronzor', 38, ['Steel', 'Psychic'], { ability: 'Levitate' }),
+      mon('Toxicroak', 40, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Galactic HQ Saturn battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-saturn-hq-pt',
+    name: 'Commander Saturn (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 49,
+    category: 'evil-team',
+    levelCap: 44,
+    game: 'Platinum',
+    team: [
+      mon('Golbat', 42, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Bronzor', 42, ['Steel', 'Psychic'], { ability: 'Levitate' }),
+      mon('Toxicroak', 44, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Galactic HQ Saturn battle. Swaps Kadabra → Golbat; levels +2-4 vs DP. Per-Pokémon moves not surfaced — TODO.',
+  }),
+
+  // Cyrus at Galactic HQ.
+  boss({
+    id: 'dpp-galactic-cyrus-hq-d',
+    name: 'Galactic Boss Cyrus (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 50,
+    category: 'evil-team',
+    levelCap: 43,
+    game: 'Diamond',
+    team: [
+      mon('Murkrow', 40, ['Dark', 'Flying'], { ability: 'Insomnia' }),
+      mon('Golbat', 40, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Sneasel', 43, ['Dark', 'Ice'], { ability: 'Inner Focus', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Galactic HQ Cyrus battle.',
+  }),
+  boss({
+    id: 'dpp-galactic-cyrus-hq-p',
+    name: 'Galactic Boss Cyrus (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 50,
+    category: 'evil-team',
+    levelCap: 43,
+    game: 'Pearl',
+    team: [
+      mon('Murkrow', 40, ['Dark', 'Flying'], { ability: 'Insomnia' }),
+      mon('Golbat', 40, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Sneasel', 43, ['Dark', 'Ice'], { ability: 'Inner Focus', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Galactic HQ Cyrus battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-cyrus-hq-pt',
+    name: 'Galactic Boss Cyrus (Galactic HQ)',
+    location: 'Galactic HQ (Veilstone)',
+    order: 50,
+    category: 'evil-team',
+    levelCap: 46,
+    game: 'Platinum',
+    team: [
+      mon('Sneasel', 44, ['Dark', 'Ice'], { ability: 'Inner Focus' }),
+      mon('Crobat', 44, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
+      mon('Honchkrow', 46, ['Dark', 'Flying'], { ability: 'Insomnia', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Galactic HQ Cyrus battle. Evolved-form swaps Murkrow→Honchkrow, Golbat→Crobat; levels +3-4.',
+  }),
+
+  // Mars + Jupiter multi-battle at Spear Pillar.
+  boss({
+    id: 'dpp-galactic-mars-spear-pillar-d',
+    name: 'Commander Mars (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    category: 'evil-team',
+    levelCap: 45,
+    game: 'Diamond',
+    team: [
+      mon('Bronzor', 41, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Light Screen', 'Psychic'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 45, ['Normal'], {
+        ability: 'Thick Fat',
+        moves: [mv('Slash', 'Normal', 70), mv('Shadow Claw', 'Ghost', 70), mv('Aerial Ace', 'Flying', 60), mv('Hypnosis', 'Psychic')],
+      }),
+    ],
+    notes: 'Diamond Spear Pillar multi-battle (Mars half, paired with Jupiter).',
+  }),
+  boss({
+    id: 'dpp-galactic-mars-spear-pillar-p',
+    name: 'Commander Mars (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    category: 'evil-team',
+    levelCap: 45,
+    game: 'Pearl',
+    team: [
+      mon('Bronzor', 41, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Light Screen', 'Psychic'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 45, ['Normal'], {
+        ability: 'Thick Fat',
+        moves: [mv('Slash', 'Normal', 70), mv('Shadow Claw', 'Ghost', 70), mv('Aerial Ace', 'Flying', 60), mv('Hypnosis', 'Psychic')],
+      }),
+    ],
+    notes: 'Pearl Spear Pillar multi-battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-mars-spear-pillar-pt',
+    name: 'Commander Mars (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    category: 'evil-team',
+    levelCap: 46,
+    game: 'Platinum',
+    team: [
+      mon('Bronzor', 44, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Rock Slide', 'Rock', 75), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 44, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Sludge Bomb', 'Poison', 90), mv('Air Cutter', 'Flying', 60), mv('Giga Drain', 'Grass', 75), mv('Mean Look', 'Normal')],
+      }),
+      mon('Purugly', 46, ['Normal'], {
+        ability: 'Thick Fat',
+        moves: [mv('Slash', 'Normal', 70), mv('Shadow Claw', 'Ghost', 70), mv('Aerial Ace', 'Flying', 60), mv('Hypnosis', 'Psychic')],
+      }),
+    ],
+    notes: 'Platinum Spear Pillar multi-battle. Levels +1-3 vs DP; Bronzor swaps Light Screen → Rock Slide; Golbat moves overhauled.',
+  }),
+
+  // Jupiter Spear Pillar half — kept as skeleton (Bulbapedia raw summary didn't expose full
+  // moveset/items this pass). Levels are canonical from the Mars-side fetch context.
+  skeletonBossEntry({
+    id: 'dpp-galactic-jupiter-spear-pillar',
+    name: 'Commander Jupiter (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    todoLabel: 'Jupiter Spear Pillar multi-battle team',
+  }),
+
+  // Cyrus at Spear Pillar — DP only.
+  boss({
+    id: 'dpp-galactic-cyrus-spear-pillar-d',
+    name: 'Galactic Boss Cyrus (Spear Pillar)',
+    location: 'Spear Pillar',
+    order: 52,
+    category: 'evil-team',
+    levelCap: 48,
+    game: 'Diamond',
+    team: [
+      mon('Honchkrow', 45, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        moves: [mv('Drill Peck', 'Flying', 80), mv('Dark Pulse', 'Dark', 80), mv('Steel Wing', 'Steel', 70), mv('Embargo', 'Dark')],
+      }),
+      mon('Gyarados', 45, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Giga Impact', 'Normal', 150), mv('Aqua Tail', 'Water', 90), mv('Ice Fang', 'Ice', 65), mv('Earthquake', 'Ground', 100)],
+      }),
+      mon('Crobat', 46, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Cross Poison', 'Poison', 70), mv('Air Slash', 'Flying', 75), mv('Bite', 'Dark', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Weavile', 48, ['Dark', 'Ice'], {
+        ability: 'Pressure',
+        item: 'Sitrus Berry',
+        moves: [mv('Night Slash', 'Dark', 70), mv('Ice Punch', 'Ice', 75), mv('Brick Break', 'Fighting', 75), mv('X-Scissor', 'Bug', 80)],
+      }),
+    ],
+    notes: 'Diamond Spear Pillar Cyrus battle (final pre-Dialga summon).',
+  }),
+  boss({
+    id: 'dpp-galactic-cyrus-spear-pillar-p',
+    name: 'Galactic Boss Cyrus (Spear Pillar)',
+    location: 'Spear Pillar',
+    order: 52,
+    category: 'evil-team',
+    levelCap: 48,
+    game: 'Pearl',
+    team: [
+      mon('Honchkrow', 45, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        moves: [mv('Drill Peck', 'Flying', 80), mv('Dark Pulse', 'Dark', 80), mv('Steel Wing', 'Steel', 70), mv('Embargo', 'Dark')],
+      }),
+      mon('Gyarados', 45, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Giga Impact', 'Normal', 150), mv('Aqua Tail', 'Water', 90), mv('Ice Fang', 'Ice', 65), mv('Earthquake', 'Ground', 100)],
+      }),
+      mon('Crobat', 46, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Cross Poison', 'Poison', 70), mv('Air Slash', 'Flying', 75), mv('Bite', 'Dark', 60), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Weavile', 48, ['Dark', 'Ice'], {
+        ability: 'Pressure',
+        item: 'Sitrus Berry',
+        moves: [mv('Night Slash', 'Dark', 70), mv('Ice Punch', 'Ice', 75), mv('Brick Break', 'Fighting', 75), mv('X-Scissor', 'Bug', 80)],
+      }),
+    ],
+    notes: 'Pearl Spear Pillar Cyrus battle (final pre-Palkia summon). Identical team to Diamond.',
+  }),
+
+  // Cyrus at Distortion World — Platinum only.
+  boss({
+    id: 'dpp-galactic-cyrus-distortion-world-pt',
+    name: 'Galactic Boss Cyrus (Distortion World)',
+    location: 'Distortion World',
+    order: 53,
+    category: 'evil-team',
+    levelCap: 48,
+    game: 'Platinum',
+    team: [
+      mon('Houndoom', 45, ['Dark', 'Fire'], {
+        ability: 'Early Bird',
+        moves: [mv('Flamethrower', 'Fire', 95), mv('Dark Pulse', 'Dark', 80), mv('Will-O-Wisp', 'Fire'), mv('Thunder Fang', 'Electric', 65)],
+      }),
+      mon('Honchkrow', 47, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        moves: [mv('Drill Peck', 'Flying', 80), mv('Night Slash', 'Dark', 70), mv('Heat Wave', 'Fire', 100), mv('Psychic', 'Psychic', 90)],
+      }),
+      mon('Crobat', 46, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Cross Poison', 'Poison', 70), mv('Air Slash', 'Flying', 75), mv('Toxic', 'Poison'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Gyarados', 46, ['Water', 'Flying'], {
+        ability: 'Intimidate',
+        moves: [mv('Waterfall', 'Water', 80), mv('Ice Fang', 'Ice', 65), mv('Earthquake', 'Ground', 100), mv('Giga Impact', 'Normal', 150)],
+      }),
+      mon('Weavile', 48, ['Dark', 'Ice'], {
+        ability: 'Pressure',
+        item: 'Sitrus Berry',
+        moves: [mv('Night Slash', 'Dark', 70), mv('Ice Punch', 'Ice', 75), mv('X-Scissor', 'Bug', 80), mv('Fake Out', 'Normal', 40)],
+      }),
+    ],
+    notes: 'Platinum Distortion World Cyrus battle (pre-Giratina). Expands DP 4-mon team to 5-mon by adding Houndoom; movesets overhauled.',
+  }),
 ];
+
+// Small helper for the one skeleton boss in Pass 6 (Jupiter Spear Pillar).
+// Inlined here so we don't pollute the existing helpers.
+function skeletonBossEntry({
+  id, name, location, order, todoLabel,
+}: { id: string; name: string; location: string; order: number; todoLabel: string }): BossTrainer {
+  return {
+    id,
+    name,
+    category: 'evil-team',
+    game: 'Both',
+    location,
+    recommendedOrder: order,
+    levelCap: null,
+    notes: `TODO: Populate canonical ${todoLabel}.`,
+    baseTeam: [],
+  };
+}
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {
   return dppBosses.filter((trainer) => trainer.game === 'Both' || trainer.game === gameVersion);

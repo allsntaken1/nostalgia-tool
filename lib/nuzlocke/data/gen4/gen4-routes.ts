@@ -57,6 +57,10 @@ export const gen4Routes: RouteData[] = [
   { id: 'acuity-lakefront', displayName: 'Acuity Lakefront', order: 54, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'lake-acuity', displayName: 'Lake Acuity', order: 55, region: 'sinnoh', gameSet: 'gen4', tags: ['area', 'legendary'] },
   { id: 'snowpoint-city', displayName: 'Snowpoint City', order: 56, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'galactic-hq', displayName: 'Galactic HQ', order: 57, region: 'sinnoh', gameSet: 'gen4', tags: ['dungeon', 'boss-area'] },
+  { id: 'mt-coronet-summit', displayName: 'Mt. Coronet Summit', order: 58, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'boss-area'] },
+  { id: 'spear-pillar', displayName: 'Spear Pillar', order: 59, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area', 'legendary'] },
+  { id: 'distortion-world', displayName: 'Distortion World', order: 60, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area', 'legendary'] },
 ];
 
 export const hgssRoutes: RouteData[] = [
