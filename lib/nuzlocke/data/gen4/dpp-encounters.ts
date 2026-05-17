@@ -1069,6 +1069,143 @@ const populatedAreas: DppEncounterArea[] = [
     encounters: [],
     notes: ['No wild encounter table. Elite Four (Aaron / Bertha / Flint / Lucian) and Champion Cynthia modeled as boss data.'],
   },
+
+  // ============================================================================================
+  // DPPt Completion Sweep — postgame routes + key legendaries.
+  // ============================================================================================
+  {
+    locationId: 'fight-area',
+    displayName: 'Fight Area',
+    encounters: [],
+    notes: ['Postgame town venue (Battle Park / Battle Frontier hub). No wild encounters.'],
+  },
+  {
+    locationId: 'survival-area',
+    displayName: 'Survival Area',
+    encounters: [],
+    notes: ['Postgame town venue. Buck and other event NPCs route through here. No wild encounters.'],
+  },
+  {
+    locationId: 'resort-area',
+    displayName: 'Resort Area',
+    encounters: [],
+    notes: ['Postgame town venue (Ribbon Syndicate, Villa). No wild encounters.'],
+  },
+  {
+    locationId: 'route-224',
+    displayName: 'Route 224',
+    encounters: [
+      encounter('Oddish', ['Grass', 'Poison'], 'grass', 'All', 'Postgame area.'),
+      encounter('Gloom', ['Grass', 'Poison'], 'grass'),
+      encounter('Bellsprout', ['Grass', 'Poison'], 'grass'),
+      encounter('Weepinbell', ['Grass', 'Poison'], 'grass'),
+      encounter('Roselia', ['Grass', 'Poison'], 'grass'),
+      encounter('Beautifly', ['Bug', 'Flying'], 'grass'),
+      encounter('Dustox', ['Bug', 'Poison'], 'grass'),
+      encounter('Buizel', ['Water'], 'grass'),
+      encounter('Floatzel', ['Water'], 'grass'),
+      encounter('Shellos', ['Water'], 'grass', 'All', 'East Sea form.'),
+      encounter('Gastrodon', ['Water', 'Ground'], 'grass', 'All', 'East Sea form.'),
+      encounter('Chatot', ['Normal', 'Flying'], 'grass'),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Remoraid', ['Water'], 'Good Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Octillery', ['Water'], 'Super Rod'),
+      fish('Luvdisc', ['Water'], 'Super Rod'),
+    ],
+    notes: ['Postgame-only (requires Hall of Fame + National Dex). Oak\'s Letter event unlocks Seabreak Path → Shaymin at Flower Paradise.'],
+  },
+  {
+    locationId: 'route-225',
+    displayName: 'Route 225',
+    encounters: [],
+    notes: ['Postgame route between Pokémon League and Survival Area. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'route-226',
+    displayName: 'Route 226',
+    encounters: [],
+    notes: ['Postgame surf-only route between Survival Area and Resort Area. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'route-227',
+    displayName: 'Route 227',
+    encounters: [],
+    notes: ['Postgame mountain route leading to Stark Mountain. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'route-228',
+    displayName: 'Route 228',
+    encounters: [],
+    notes: ['Postgame sandstorm route. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'route-229',
+    displayName: 'Route 229',
+    encounters: [],
+    notes: ['Postgame forest route. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'route-230',
+    displayName: 'Route 230',
+    encounters: [],
+    notes: ['Postgame surf-only route between Resort Area and the Battle Park. TODO: Populate canonical encounter data.'],
+  },
+  {
+    locationId: 'stark-mountain',
+    displayName: 'Stark Mountain',
+    encounters: [
+      // Exterior + Interior union per Bulbapedia.
+      encounter('Fearow', ['Normal', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Machoke', ['Fighting'], 'cave'),
+      encounter('Geodude', ['Rock', 'Ground'], 'cave'),
+      encounter('Graveler', ['Rock', 'Ground'], 'cave'),
+      encounter('Onix', ['Rock', 'Ground'], 'cave'),
+      encounter('Weezing', ['Poison'], 'cave'),
+      encounter('Rhyhorn', ['Ground', 'Rock'], 'cave'),
+      encounter('Rhydon', ['Ground', 'Rock'], 'cave'),
+      encounter('Skarmory', ['Steel', 'Flying'], 'cave'),
+      encounter('Numel', ['Fire', 'Ground'], 'cave'),
+      encounter('Camerupt', ['Fire', 'Ground'], 'cave'),
+      encounter('Banette', ['Ghost'], 'cave'),
+      encounter('Slugma', ['Fire'], 'cave'),
+      encounter('Magcargo', ['Fire', 'Rock'], 'cave'),
+      // Heatran static — DP Lv 70, Pt Lv 50.
+      encounter('Heatran', ['Fire', 'Steel'], 'legendary', 'DP', 'DP Lv 70 static legendary (Scary Face/Lava Plume/Fire Spin/Iron Head). Respawns if fled.'),
+      encounter('Heatran', ['Fire', 'Steel'], 'legendary', 'Platinum', 'Platinum Lv 50 static legendary (Metal Sound/Crunch/Scary Face/Lava Plume). Respawns after Hall of Fame.'),
+    ],
+    notes: ['Accessed via Stark Mountain (Survival Area). Buck partners with the player on the second visit for double battles. Heatran level and moveset differ DP vs Platinum.'],
+  },
+  {
+    locationId: 'snowpoint-temple',
+    displayName: 'Snowpoint Temple',
+    encounters: [
+      // Cave encounters per Bulbapedia HGSS-style fact check.
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Sneasel', ['Dark', 'Ice'], 'cave'),
+      encounter('Jynx', ['Ice', 'Psychic'], 'cave'),
+      encounter('Smoochum', ['Ice', 'Psychic'], 'cave'),
+      encounter('Steelix', ['Steel', 'Ground'], 'cave'),
+      encounter('Regigigas', ['Normal'], 'legendary', 'All', 'B5F static legendary (Lv 70). Requires Regirock/Regice/Registeel in the party (transferred from Gen 3) to awaken. Respawns after Hall of Fame.'),
+    ],
+    notes: ['Postgame-gated by the Regigigas event requirements: player must have Regirock + Regice + Registeel from Gen 3 cartridges/Pal Park transferred into the party. Without them, Regigigas remains asleep and uncatchable.'],
+  },
+  {
+    locationId: 'turnback-cave',
+    displayName: 'Turnback Cave',
+    encounters: [
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Dusclops', ['Ghost'], 'cave'),
+      encounter('Magneton', ['Electric', 'Steel'], 'cave'),
+      encounter('Chimecho', ['Psychic'], 'cave'),
+      encounter('Giratina', ['Ghost', 'Dragon'], 'legendary', 'DP', 'DP Lv 70 static legendary at the back of Turnback Cave (after navigating the pillar puzzle). Only catchable form is Altered Forme in DP.'),
+    ],
+    notes: ['Accessed via Sendoff Spring near Spring Path (post-National-Dex). DP only — in Platinum Giratina is encountered at the Distortion World during the main story instead.'],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
