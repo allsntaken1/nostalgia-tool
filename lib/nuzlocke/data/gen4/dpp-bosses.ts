@@ -690,6 +690,98 @@ const dppBosses: BossTrainer[] = [
     ],
     notes: 'Platinum Lake Verity Mars second battle. Levels +1 vs DP.',
   }),
+
+  // -- DPP Pass 5 (Snowpoint / Candice) --
+
+  // Candice Snowpoint Gym — DP 4-mon (Snover/Sneasel/Medicham/Abomasnow); Platinum 4-mon
+  // (Sneasel/Piloswine/Abomasnow/Froslass — Snover/Medicham replaced).
+  boss({
+    id: 'dpp-gym-candice-d',
+    name: 'Gym Leader Candice',
+    location: 'Snowpoint City Gym',
+    order: 48,
+    category: 'gym',
+    levelCap: 42,
+    game: 'Diamond',
+    team: [
+      mon('Snover', 38, ['Grass', 'Ice'], {
+        ability: 'Snow Warning',
+        moves: [mv('Razor Leaf', 'Grass', 55), mv('Avalanche', 'Ice', 60), mv('Ingrain', 'Grass'), mv('Leer', 'Normal')],
+      }),
+      mon('Sneasel', 38, ['Dark', 'Ice'], {
+        ability: 'Inner Focus',
+        moves: [mv('Faint Attack', 'Dark', 60), mv('Slash', 'Normal', 70), mv('Taunt', 'Dark'), mv('Avalanche', 'Ice', 60)],
+      }),
+      mon('Medicham', 40, ['Fighting', 'Psychic'], {
+        ability: 'Pure Power',
+        moves: [mv('Force Palm', 'Fighting', 60), mv('Bulk Up', 'Fighting'), mv('Detect', 'Fighting'), mv('Ice Punch', 'Ice', 75)],
+      }),
+      mon('Abomasnow', 42, ['Grass', 'Ice'], {
+        ability: 'Snow Warning',
+        item: 'Sitrus Berry',
+        moves: [mv('Wood Hammer', 'Grass', 120), mv('Swagger', 'Normal'), mv('GrassWhistle', 'Grass'), mv('Avalanche', 'Ice', 60)],
+      }),
+    ],
+    notes: 'Diamond Snowpoint Gym (7th). Earns Icicle Badge.',
+  }),
+  boss({
+    id: 'dpp-gym-candice-p',
+    name: 'Gym Leader Candice',
+    location: 'Snowpoint City Gym',
+    order: 48,
+    category: 'gym',
+    levelCap: 42,
+    game: 'Pearl',
+    team: [
+      mon('Snover', 38, ['Grass', 'Ice'], {
+        ability: 'Snow Warning',
+        moves: [mv('Razor Leaf', 'Grass', 55), mv('Avalanche', 'Ice', 60), mv('Ingrain', 'Grass'), mv('Leer', 'Normal')],
+      }),
+      mon('Sneasel', 38, ['Dark', 'Ice'], {
+        ability: 'Inner Focus',
+        moves: [mv('Faint Attack', 'Dark', 60), mv('Slash', 'Normal', 70), mv('Taunt', 'Dark'), mv('Avalanche', 'Ice', 60)],
+      }),
+      mon('Medicham', 40, ['Fighting', 'Psychic'], {
+        ability: 'Pure Power',
+        moves: [mv('Force Palm', 'Fighting', 60), mv('Bulk Up', 'Fighting'), mv('Detect', 'Fighting'), mv('Ice Punch', 'Ice', 75)],
+      }),
+      mon('Abomasnow', 42, ['Grass', 'Ice'], {
+        ability: 'Snow Warning',
+        item: 'Sitrus Berry',
+        moves: [mv('Wood Hammer', 'Grass', 120), mv('Swagger', 'Normal'), mv('GrassWhistle', 'Grass'), mv('Avalanche', 'Ice', 60)],
+      }),
+    ],
+    notes: 'Pearl Snowpoint Gym (7th). Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-gym-candice-pt',
+    name: 'Gym Leader Candice',
+    location: 'Snowpoint City Gym',
+    order: 48,
+    category: 'gym',
+    levelCap: 44,
+    game: 'Platinum',
+    team: [
+      mon('Sneasel', 40, ['Dark', 'Ice'], {
+        ability: 'Keen Eye',
+        moves: [mv('Faint Attack', 'Dark', 60), mv('Ice Shard', 'Ice', 40), mv('Slash', 'Normal', 70), mv('Aerial Ace', 'Flying', 60)],
+      }),
+      mon('Piloswine', 40, ['Ice', 'Ground'], {
+        ability: 'Oblivious',
+        moves: [mv('Hail', 'Ice'), mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Avalanche', 'Ice', 60)],
+      }),
+      mon('Abomasnow', 42, ['Grass', 'Ice'], {
+        ability: 'Snow Warning',
+        moves: [mv('Wood Hammer', 'Grass', 120), mv('Focus Blast', 'Fighting', 120), mv('Water Pulse', 'Water', 60), mv('Avalanche', 'Ice', 60)],
+      }),
+      mon('Froslass', 44, ['Ice', 'Ghost'], {
+        ability: 'Snow Cloak',
+        item: 'Sitrus Berry',
+        moves: [mv('Shadow Ball', 'Ghost', 80), mv('Double Team', 'Normal'), mv('Psychic', 'Psychic', 90), mv('Blizzard', 'Ice', 110)],
+      }),
+    ],
+    notes: 'Platinum Snowpoint Gym (7th). Swaps Snover/Medicham → Piloswine/Froslass; ace +2 levels; Abomasnow drops Sitrus Berry (Froslass holds it instead).',
+  }),
 ];
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {
