@@ -66,6 +66,19 @@ export const gen4Routes: RouteData[] = [
   { id: 'route-223', displayName: 'Route 223', order: 63, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
   { id: 'victory-road-sinnoh', displayName: 'Victory Road (Sinnoh)', order: 64, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'boss-area'] },
   { id: 'pokemon-league-sinnoh', displayName: 'Pokémon League', order: 65, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area'] },
+  { id: 'fight-area', displayName: 'Fight Area', order: 66, region: 'sinnoh', gameSet: 'gen4', tags: ['town', 'postgame'] },
+  { id: 'survival-area', displayName: 'Survival Area', order: 67, region: 'sinnoh', gameSet: 'gen4', tags: ['town', 'postgame'] },
+  { id: 'resort-area', displayName: 'Resort Area', order: 68, region: 'sinnoh', gameSet: 'gen4', tags: ['town', 'postgame'] },
+  { id: 'route-224', displayName: 'Route 224', order: 69, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame', 'legendary'] },
+  { id: 'route-225', displayName: 'Route 225', order: 70, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'route-226', displayName: 'Route 226', order: 71, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'route-227', displayName: 'Route 227', order: 72, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'route-228', displayName: 'Route 228', order: 73, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'route-229', displayName: 'Route 229', order: 74, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'route-230', displayName: 'Route 230', order: 75, region: 'sinnoh', gameSet: 'gen4', tags: ['route', 'postgame'] },
+  { id: 'stark-mountain', displayName: 'Stark Mountain', order: 76, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'postgame', 'legendary'] },
+  { id: 'snowpoint-temple', displayName: 'Snowpoint Temple', order: 77, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'postgame', 'legendary'] },
+  { id: 'turnback-cave', displayName: 'Turnback Cave', order: 78, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'postgame', 'legendary'] },
 ];
 
 export const hgssRoutes: RouteData[] = [

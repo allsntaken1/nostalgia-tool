@@ -953,14 +953,81 @@ const dppBosses: BossTrainer[] = [
     notes: 'Platinum Spear Pillar multi-battle. Levels +1-3 vs DP; Bronzor swaps Light Screen → Rock Slide; Golbat moves overhauled.',
   }),
 
-  // Jupiter Spear Pillar half — kept as skeleton (Bulbapedia raw summary didn't expose full
-  // moveset/items this pass). Levels are canonical from the Mars-side fetch context.
-  skeletonBossEntry({
-    id: 'dpp-galactic-jupiter-spear-pillar',
+  // Jupiter Spear Pillar half — verified per Bulbapedia.
+  boss({
+    id: 'dpp-galactic-jupiter-spear-pillar-d',
     name: 'Commander Jupiter (Spear Pillar multi)',
     location: 'Spear Pillar',
     order: 51,
-    todoLabel: 'Jupiter Spear Pillar multi-battle team',
+    category: 'evil-team',
+    levelCap: 45,
+    game: 'Diamond',
+    team: [
+      mon('Bronzor', 41, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Light Screen', 'Psychic'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 45, ['Normal'], {
+        ability: 'Thick Fat',
+        item: 'Sitrus Berry',
+        moves: [mv('Slash', 'Normal', 70), mv('Shadow Claw', 'Ghost', 70), mv('Aerial Ace', 'Flying', 60), mv('Hypnosis', 'Psychic')],
+      }),
+    ],
+    notes: 'Diamond Spear Pillar multi-battle (Jupiter half, paired with Mars).',
+  }),
+  boss({
+    id: 'dpp-galactic-jupiter-spear-pillar-p',
+    name: 'Commander Jupiter (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    category: 'evil-team',
+    levelCap: 45,
+    game: 'Pearl',
+    team: [
+      mon('Bronzor', 41, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Light Screen', 'Psychic'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Purugly', 45, ['Normal'], {
+        ability: 'Thick Fat',
+        item: 'Sitrus Berry',
+        moves: [mv('Slash', 'Normal', 70), mv('Shadow Claw', 'Ghost', 70), mv('Aerial Ace', 'Flying', 60), mv('Hypnosis', 'Psychic')],
+      }),
+    ],
+    notes: 'Pearl Spear Pillar multi-battle. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-galactic-jupiter-spear-pillar-pt',
+    name: 'Commander Jupiter (Spear Pillar multi)',
+    location: 'Spear Pillar',
+    order: 51,
+    category: 'evil-team',
+    levelCap: 46,
+    game: 'Platinum',
+    team: [
+      mon('Bronzor', 44, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Light Screen', 'Psychic'), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Golbat', 44, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 60), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Skuntank', 46, ['Poison', 'Dark'], {
+        ability: 'Stench',
+        item: 'Sitrus Berry',
+        moves: [mv('Night Slash', 'Dark', 70), mv('Poison Jab', 'Poison', 80), mv('Flamethrower', 'Fire', 95), mv('Slash', 'Normal', 70)],
+      }),
+    ],
+    notes: 'Platinum Spear Pillar multi-battle. Pt swaps Purugly → Skuntank (her canonical ace from Eterna).',
   }),
 
   // Cyrus at Spear Pillar — DP only.
@@ -1059,23 +1126,6 @@ const dppBosses: BossTrainer[] = [
   }),
 ];
 
-// Small helper for skeleton bosses in Passes 6+. Inlined to avoid polluting top-level helpers.
-function skeletonBossEntry({
-  id, name, location, order, todoLabel, game = 'Both', category = 'evil-team',
-}: { id: string; name: string; location: string; order: number; todoLabel: string; game?: BossTrainer['game']; category?: BossTrainer['category'] }): BossTrainer {
-  return {
-    id,
-    name,
-    category,
-    game,
-    location,
-    recommendedOrder: order,
-    levelCap: null,
-    notes: `TODO: Populate canonical ${todoLabel}.`,
-    baseTeam: [],
-  };
-}
-
 // ===========================================================================================
 // Pass 7 — Sunyshore / Elite Four / Cynthia.
 // Appended via a second array merge so we don't mutate the closing `]` above repeatedly.
@@ -1092,12 +1142,12 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 49,
     game: 'Diamond',
     team: [
-      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
-      mon('Ambipom', 47, ['Normal'], { ability: 'Technician' }),
-      mon('Octillery', 47, ['Water'], { ability: 'Sniper' }),
-      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry' }),
+      mon('Raichu', 46, ['Electric'], { ability: 'Static', moves: [mv('Charge Beam', 'Electric', 50), mv('Brick Break', 'Fighting', 75), mv('Light Screen', 'Psychic'), mv('Thunder Wave', 'Electric')] }),
+      mon('Ambipom', 47, ['Normal'], { ability: 'Technician', moves: [mv('Shock Wave', 'Electric', 60), mv('Nasty Plot', 'Dark'), mv('Agility', 'Psychic'), mv('Baton Pass', 'Normal')] }),
+      mon('Octillery', 47, ['Water'], { ability: 'Sniper', moves: [mv('Charge Beam', 'Electric', 50), mv('Octazooka', 'Water', 65), mv('Aurora Beam', 'Ice', 65), mv('Bullet Seed', 'Grass', 25)] }),
+      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry', moves: [mv('Charge Beam', 'Electric', 50), mv('Thunder Wave', 'Electric'), mv('Thunder Fang', 'Electric', 65), mv('Crunch', 'Dark', 80)] }),
     ],
-    notes: 'Diamond Sunyshore Gym (8th). Earns Beacon Badge. Per-Pokémon moves not surfaced — TODO.',
+    notes: 'Diamond Sunyshore Gym (8th). Earns Beacon Badge.',
   }),
   boss({
     id: 'dpp-gym-volkner-p',
@@ -1108,10 +1158,10 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 49,
     game: 'Pearl',
     team: [
-      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
-      mon('Ambipom', 47, ['Normal'], { ability: 'Technician' }),
-      mon('Octillery', 47, ['Water'], { ability: 'Sniper' }),
-      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry' }),
+      mon('Raichu', 46, ['Electric'], { ability: 'Static', moves: [mv('Charge Beam', 'Electric', 50), mv('Brick Break', 'Fighting', 75), mv('Light Screen', 'Psychic'), mv('Thunder Wave', 'Electric')] }),
+      mon('Ambipom', 47, ['Normal'], { ability: 'Technician', moves: [mv('Shock Wave', 'Electric', 60), mv('Nasty Plot', 'Dark'), mv('Agility', 'Psychic'), mv('Baton Pass', 'Normal')] }),
+      mon('Octillery', 47, ['Water'], { ability: 'Sniper', moves: [mv('Charge Beam', 'Electric', 50), mv('Octazooka', 'Water', 65), mv('Aurora Beam', 'Ice', 65), mv('Bullet Seed', 'Grass', 25)] }),
+      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry', moves: [mv('Charge Beam', 'Electric', 50), mv('Thunder Wave', 'Electric'), mv('Thunder Fang', 'Electric', 65), mv('Crunch', 'Dark', 80)] }),
     ],
     notes: 'Pearl Sunyshore Gym (8th). Identical team to Diamond.',
   }),
@@ -1124,10 +1174,10 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 50,
     game: 'Platinum',
     team: [
-      mon('Jolteon', 46, ['Electric'], { ability: 'Volt Absorb' }),
-      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
-      mon('Luxray', 48, ['Electric'], { ability: 'Rivalry' }),
-      mon('Electivire', 50, ['Electric'], { ability: 'Motor Drive', item: 'Sitrus Berry' }),
+      mon('Jolteon', 46, ['Electric'], { ability: 'Volt Absorb', moves: [mv('Charge Beam', 'Electric', 50), mv('Thunder Wave', 'Electric'), mv('Iron Tail', 'Steel', 100), mv('Quick Attack', 'Normal', 40)] }),
+      mon('Raichu', 46, ['Electric'], { ability: 'Static', moves: [mv('Charge Beam', 'Electric', 50), mv('Signal Beam', 'Bug', 75), mv('Focus Blast', 'Fighting', 120), mv('Quick Attack', 'Normal', 40)] }),
+      mon('Luxray', 48, ['Electric'], { ability: 'Rivalry', moves: [mv('Thunder Fang', 'Electric', 65), mv('Ice Fang', 'Ice', 65), mv('Fire Fang', 'Fire', 65), mv('Crunch', 'Dark', 80)] }),
+      mon('Electivire', 50, ['Electric'], { ability: 'Motor Drive', item: 'Sitrus Berry', moves: [mv('Thunder Punch', 'Electric', 75), mv('Fire Punch', 'Fire', 75), mv('Giga Impact', 'Normal', 150), mv('Quick Attack', 'Normal', 40)] }),
     ],
     notes: 'Platinum Sunyshore Gym (8th). Swaps Ambipom/Octillery → Jolteon/Electivire (pure Electric); ace +1 level.',
   }),
@@ -1142,13 +1192,13 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 57,
     game: 'Diamond',
     team: [
-      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust' }),
-      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm' }),
-      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure' }),
-      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm' }),
-      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry' }),
+      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust', moves: [mv('Toxic', 'Poison'), mv('Bug Buzz', 'Bug', 90), mv('Double Team', 'Normal'), mv('Light Screen', 'Psychic')] }),
+      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm', moves: [mv('Energy Ball', 'Grass', 90), mv('Bug Buzz', 'Bug', 90), mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80)] }),
+      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure', moves: [mv('Attack Order', 'Bug', 90), mv('Defend Order', 'Bug'), mv('Heal Order', 'Bug'), mv('Power Gem', 'Rock', 80)] }),
+      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm', moves: [mv('Megahorn', 'Bug', 120), mv('Close Combat', 'Fighting', 120), mv('Night Slash', 'Dark', 70), mv('Stone Edge', 'Rock', 100)] }),
+      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry', moves: [mv('X-Scissor', 'Bug', 80), mv('Cross Poison', 'Poison', 70), mv('Ice Fang', 'Ice', 65), mv('Aerial Ace', 'Flying', 60)] }),
     ],
-    notes: 'Diamond Elite Four Aaron (Bug specialist). Per-Pokémon moves not surfaced this pass — TODO.',
+    notes: 'Diamond Elite Four Aaron (Bug specialist).',
   }),
   boss({
     id: 'dpp-e4-aaron-p',
@@ -1159,11 +1209,11 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 57,
     game: 'Pearl',
     team: [
-      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust' }),
-      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm' }),
-      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure' }),
-      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm' }),
-      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry' }),
+      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust', moves: [mv('Toxic', 'Poison'), mv('Bug Buzz', 'Bug', 90), mv('Double Team', 'Normal'), mv('Light Screen', 'Psychic')] }),
+      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm', moves: [mv('Energy Ball', 'Grass', 90), mv('Bug Buzz', 'Bug', 90), mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80)] }),
+      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure', moves: [mv('Attack Order', 'Bug', 90), mv('Defend Order', 'Bug'), mv('Heal Order', 'Bug'), mv('Power Gem', 'Rock', 80)] }),
+      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm', moves: [mv('Megahorn', 'Bug', 120), mv('Close Combat', 'Fighting', 120), mv('Night Slash', 'Dark', 70), mv('Stone Edge', 'Rock', 100)] }),
+      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry', moves: [mv('X-Scissor', 'Bug', 80), mv('Cross Poison', 'Poison', 70), mv('Ice Fang', 'Ice', 65), mv('Aerial Ace', 'Flying', 60)] }),
     ],
     notes: 'Pearl Elite Four Aaron. Identical team to Diamond.',
   }),
@@ -1195,13 +1245,13 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 59,
     game: 'Diamond',
     team: [
-      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp' }),
-      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head' }),
-      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy' }),
-      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation' }),
-      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp', moves: [mv('Dig', 'Ground', 80), mv('Double Team', 'Normal'), mv('Protect', 'Normal'), mv('Sandstorm', 'Rock')] }),
+      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head', moves: [mv('Earthquake', 'Ground', 100), mv('Sucker Punch', 'Dark', 70), mv('Hammer Arm', 'Fighting', 100), mv('Sandstorm', 'Rock')] }),
+      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy', moves: [mv('Earthquake', 'Ground', 100), mv('Gyro Ball', 'Steel'), mv('Brick Break', 'Fighting', 75), mv('Sandstorm', 'Rock')] }),
+      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation', moves: [mv('Fissure', 'Ground'), mv('Aqua Tail', 'Water', 90), mv('Zen Headbutt', 'Psychic', 80), mv('Rock Slide', 'Rock', 75)] }),
+      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry', moves: [mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Crunch', 'Dark', 80), mv('Curse', 'Ghost')] }),
     ],
-    notes: 'Diamond Elite Four Bertha (Ground specialist). All team members are female. Per-Pokémon moves not surfaced — TODO.',
+    notes: 'Diamond Elite Four Bertha (Ground specialist). All team members are female.',
   }),
   boss({
     id: 'dpp-e4-bertha-p',
@@ -1212,11 +1262,11 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 59,
     game: 'Pearl',
     team: [
-      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp' }),
-      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head' }),
-      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy' }),
-      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation' }),
-      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp', moves: [mv('Dig', 'Ground', 80), mv('Double Team', 'Normal'), mv('Protect', 'Normal'), mv('Sandstorm', 'Rock')] }),
+      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head', moves: [mv('Earthquake', 'Ground', 100), mv('Sucker Punch', 'Dark', 70), mv('Hammer Arm', 'Fighting', 100), mv('Sandstorm', 'Rock')] }),
+      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy', moves: [mv('Earthquake', 'Ground', 100), mv('Gyro Ball', 'Steel'), mv('Brick Break', 'Fighting', 75), mv('Sandstorm', 'Rock')] }),
+      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation', moves: [mv('Fissure', 'Ground'), mv('Aqua Tail', 'Water', 90), mv('Zen Headbutt', 'Psychic', 80), mv('Rock Slide', 'Rock', 75)] }),
+      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry', moves: [mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Crunch', 'Dark', 80), mv('Curse', 'Ghost')] }),
     ],
     notes: 'Pearl Elite Four Bertha. Identical team to Diamond.',
   }),
