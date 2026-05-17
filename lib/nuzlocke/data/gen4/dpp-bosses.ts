@@ -1059,22 +1059,352 @@ const dppBosses: BossTrainer[] = [
   }),
 ];
 
-// Small helper for the one skeleton boss in Pass 6 (Jupiter Spear Pillar).
-// Inlined here so we don't pollute the existing helpers.
+// Small helper for skeleton bosses in Passes 6+. Inlined to avoid polluting top-level helpers.
 function skeletonBossEntry({
-  id, name, location, order, todoLabel,
-}: { id: string; name: string; location: string; order: number; todoLabel: string }): BossTrainer {
+  id, name, location, order, todoLabel, game = 'Both', category = 'evil-team',
+}: { id: string; name: string; location: string; order: number; todoLabel: string; game?: BossTrainer['game']; category?: BossTrainer['category'] }): BossTrainer {
   return {
     id,
     name,
-    category: 'evil-team',
-    game: 'Both',
+    category,
+    game,
     location,
     recommendedOrder: order,
     levelCap: null,
     notes: `TODO: Populate canonical ${todoLabel}.`,
     baseTeam: [],
   };
+}
+
+// ===========================================================================================
+// Pass 7 — Sunyshore / Elite Four / Cynthia.
+// Appended via a second array merge so we don't mutate the closing `]` above repeatedly.
+// ===========================================================================================
+const pass7Bosses: BossTrainer[] = [
+  // Volkner Sunyshore Gym — DP 4-mon (Raichu/Ambipom/Octillery/Luxray); Pt 4-mon
+  // (Jolteon/Raichu/Luxray/Electivire). Per-Pokémon moves not surfaced in summary — TODO.
+  boss({
+    id: 'dpp-gym-volkner-d',
+    name: 'Gym Leader Volkner',
+    location: 'Sunyshore City Gym',
+    order: 55,
+    category: 'gym',
+    levelCap: 49,
+    game: 'Diamond',
+    team: [
+      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
+      mon('Ambipom', 47, ['Normal'], { ability: 'Technician' }),
+      mon('Octillery', 47, ['Water'], { ability: 'Sniper' }),
+      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Sunyshore Gym (8th). Earns Beacon Badge. Per-Pokémon moves not surfaced — TODO.',
+  }),
+  boss({
+    id: 'dpp-gym-volkner-p',
+    name: 'Gym Leader Volkner',
+    location: 'Sunyshore City Gym',
+    order: 55,
+    category: 'gym',
+    levelCap: 49,
+    game: 'Pearl',
+    team: [
+      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
+      mon('Ambipom', 47, ['Normal'], { ability: 'Technician' }),
+      mon('Octillery', 47, ['Water'], { ability: 'Sniper' }),
+      mon('Luxray', 49, ['Electric'], { ability: 'Rivalry', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Sunyshore Gym (8th). Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-gym-volkner-pt',
+    name: 'Gym Leader Volkner',
+    location: 'Sunyshore City Gym',
+    order: 55,
+    category: 'gym',
+    levelCap: 50,
+    game: 'Platinum',
+    team: [
+      mon('Jolteon', 46, ['Electric'], { ability: 'Volt Absorb' }),
+      mon('Raichu', 46, ['Electric'], { ability: 'Static' }),
+      mon('Luxray', 48, ['Electric'], { ability: 'Rivalry' }),
+      mon('Electivire', 50, ['Electric'], { ability: 'Motor Drive', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Sunyshore Gym (8th). Swaps Ambipom/Octillery → Jolteon/Electivire (pure Electric); ace +1 level.',
+  }),
+
+  // Elite Four — Aaron (Bug).
+  boss({
+    id: 'dpp-e4-aaron-d',
+    name: 'Elite Four Aaron',
+    location: 'Pokémon League',
+    order: 60,
+    category: 'elite-four',
+    levelCap: 57,
+    game: 'Diamond',
+    team: [
+      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust' }),
+      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm' }),
+      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure' }),
+      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm' }),
+      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Elite Four Aaron (Bug specialist). Per-Pokémon moves not surfaced this pass — TODO.',
+  }),
+  boss({
+    id: 'dpp-e4-aaron-p',
+    name: 'Elite Four Aaron',
+    location: 'Pokémon League',
+    order: 60,
+    category: 'elite-four',
+    levelCap: 57,
+    game: 'Pearl',
+    team: [
+      mon('Dustox', 53, ['Bug', 'Poison'], { ability: 'Shield Dust' }),
+      mon('Beautifly', 53, ['Bug', 'Flying'], { ability: 'Swarm' }),
+      mon('Vespiquen', 54, ['Bug', 'Flying'], { ability: 'Pressure' }),
+      mon('Heracross', 54, ['Bug', 'Fighting'], { ability: 'Swarm' }),
+      mon('Drapion', 57, ['Poison', 'Dark'], { ability: 'Battle Armor', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Elite Four Aaron. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-e4-aaron-pt',
+    name: 'Elite Four Aaron',
+    location: 'Pokémon League',
+    order: 60,
+    category: 'elite-four',
+    levelCap: 57,
+    game: 'Platinum',
+    team: [
+      mon('Yanmega', 49, ['Bug', 'Flying'], { ability: 'Speed Boost' }),
+      mon('Scizor', 49, ['Bug', 'Steel'], { ability: 'Technician' }),
+      mon('Vespiquen', 50, ['Bug', 'Flying'], { ability: 'Pressure' }),
+      mon('Heracross', 51, ['Bug', 'Fighting'], { ability: 'Guts' }),
+      mon('Drapion', 53, ['Poison', 'Dark'], { ability: 'Sniper', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Elite Four Aaron. Replaces Dustox/Beautifly with Yanmega/Scizor; ace moved down to 53 (Pt feeds excess levels to Cynthia).',
+  }),
+
+  // Elite Four — Bertha (Ground). DP species lineup verified; Pt has different species set.
+  boss({
+    id: 'dpp-e4-bertha-d',
+    name: 'Elite Four Bertha',
+    location: 'Pokémon League',
+    order: 61,
+    category: 'elite-four',
+    levelCap: 59,
+    game: 'Diamond',
+    team: [
+      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp' }),
+      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head' }),
+      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy' }),
+      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation' }),
+      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Elite Four Bertha (Ground specialist). All team members are female. Per-Pokémon moves not surfaced — TODO.',
+  }),
+  boss({
+    id: 'dpp-e4-bertha-p',
+    name: 'Elite Four Bertha',
+    location: 'Pokémon League',
+    order: 61,
+    category: 'elite-four',
+    levelCap: 59,
+    game: 'Pearl',
+    team: [
+      mon('Quagsire', 55, ['Water', 'Ground'], { ability: 'Damp' }),
+      mon('Sudowoodo', 56, ['Rock'], { ability: 'Rock Head' }),
+      mon('Golem', 56, ['Rock', 'Ground'], { ability: 'Sturdy' }),
+      mon('Whiscash', 55, ['Water', 'Ground'], { ability: 'Anticipation' }),
+      mon('Hippowdon', 59, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Elite Four Bertha. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-e4-bertha-pt',
+    name: 'Elite Four Bertha',
+    location: 'Pokémon League',
+    order: 61,
+    category: 'elite-four',
+    levelCap: 55,
+    game: 'Platinum',
+    team: [
+      mon('Whiscash', 50, ['Water', 'Ground'], { ability: 'Anticipation' }),
+      mon('Gliscor', 52, ['Ground', 'Flying'], { ability: 'Hyper Cutter' }),
+      mon('Golem', 53, ['Rock', 'Ground'], { ability: 'Sturdy' }),
+      mon('Rhyperior', 55, ['Ground', 'Rock'], { ability: 'Solid Rock' }),
+      mon('Hippowdon', 55, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Elite Four Bertha. Swaps Quagsire/Sudowoodo → Gliscor/Rhyperior; team rebalanced to Lv 50-55 (lower than DP).',
+  }),
+
+  // Elite Four — Flint (Fire). Famously mixed DP roster; Platinum corrects to pure Fire.
+  boss({
+    id: 'dpp-e4-flint-d',
+    name: 'Elite Four Flint',
+    location: 'Pokémon League',
+    order: 62,
+    category: 'elite-four',
+    levelCap: 61,
+    game: 'Diamond',
+    team: [
+      mon('Rapidash', 58, ['Fire'], { ability: 'Run Away' }),
+      mon('Steelix', 57, ['Steel', 'Ground'], { ability: 'Rock Head' }),
+      mon('Drifblim', 58, ['Ghost', 'Flying'], { ability: 'Aftermath' }),
+      mon('Lopunny', 57, ['Normal'], { ability: 'Cute Charm' }),
+      mon('Infernape', 61, ['Fire', 'Fighting'], { ability: 'Blaze', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Diamond Elite Four Flint — the notorious mixed roster. Only Rapidash and Infernape are pure Fire; the rest carry Fire-type moves but break type theme.',
+  }),
+  boss({
+    id: 'dpp-e4-flint-p',
+    name: 'Elite Four Flint',
+    location: 'Pokémon League',
+    order: 62,
+    category: 'elite-four',
+    levelCap: 61,
+    game: 'Pearl',
+    team: [
+      mon('Rapidash', 58, ['Fire'], { ability: 'Run Away' }),
+      mon('Steelix', 57, ['Steel', 'Ground'], { ability: 'Rock Head' }),
+      mon('Drifblim', 58, ['Ghost', 'Flying'], { ability: 'Aftermath' }),
+      mon('Lopunny', 57, ['Normal'], { ability: 'Cute Charm' }),
+      mon('Infernape', 61, ['Fire', 'Fighting'], { ability: 'Blaze', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Pearl Elite Four Flint. Identical to Diamond — preserves the famous mixed roster.',
+  }),
+  boss({
+    id: 'dpp-e4-flint-pt',
+    name: 'Elite Four Flint',
+    location: 'Pokémon League',
+    order: 62,
+    category: 'elite-four',
+    levelCap: 57,
+    game: 'Platinum',
+    team: [
+      mon('Houndoom', 52, ['Dark', 'Fire'], { ability: 'Early Bird' }),
+      mon('Flareon', 55, ['Fire'], { ability: 'Flash Fire' }),
+      mon('Rapidash', 53, ['Fire'], { ability: 'Run Away' }),
+      mon('Infernape', 55, ['Fire', 'Fighting'], { ability: 'Blaze' }),
+      mon('Magmortar', 57, ['Fire'], { ability: 'Flame Body', item: 'Sitrus Berry' }),
+    ],
+    notes: 'Platinum Elite Four Flint — corrected to Fire-focused (Houndoom/Flareon/Rapidash/Infernape/Magmortar). Pt levels lower than DP per Pt rebalance.',
+  }),
+
+  // Elite Four — Lucian (Psychic).
+  boss({
+    id: 'dpp-e4-lucian-d',
+    name: 'Elite Four Lucian',
+    location: 'Pokémon League',
+    order: 63,
+    category: 'elite-four',
+    levelCap: 63,
+    game: 'Diamond',
+    team: [
+      mon('Mr. Mime', 59, ['Psychic'], { ability: 'Soundproof', moves: [mv('Psychic', 'Psychic', 90), mv('Thunderbolt', 'Electric', 90), mv('Reflect', 'Psychic'), mv('Light Screen', 'Psychic')] }),
+      mon('Girafarig', 59, ['Normal', 'Psychic'], { ability: 'Inner Focus', moves: [mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80), mv('Double Hit', 'Normal', 35), mv('Crunch', 'Dark', 80)] }),
+      mon('Medicham', 60, ['Fighting', 'Psychic'], { ability: 'Pure Power', moves: [mv('Drain Punch', 'Fighting', 75), mv('Fire Punch', 'Fire', 75), mv('Thunder Punch', 'Electric', 75), mv('Ice Punch', 'Ice', 75)] }),
+      mon('Alakazam', 60, ['Psychic'], { ability: 'Synchronize', moves: [mv('Psychic', 'Psychic', 90), mv('Energy Ball', 'Grass', 90), mv('Focus Blast', 'Fighting', 120), mv('Recover', 'Normal')] }),
+      mon('Bronzong', 63, ['Steel', 'Psychic'], { ability: 'Levitate', item: 'Sitrus Berry', moves: [mv('Psychic', 'Psychic', 90), mv('Gyro Ball', 'Steel'), mv('Earthquake', 'Ground', 100), mv('Calm Mind', 'Psychic')] }),
+    ],
+    notes: 'Diamond Elite Four Lucian (Psychic specialist).',
+  }),
+  boss({
+    id: 'dpp-e4-lucian-p',
+    name: 'Elite Four Lucian',
+    location: 'Pokémon League',
+    order: 63,
+    category: 'elite-four',
+    levelCap: 63,
+    game: 'Pearl',
+    team: [
+      mon('Mr. Mime', 59, ['Psychic'], { ability: 'Soundproof', moves: [mv('Psychic', 'Psychic', 90), mv('Thunderbolt', 'Electric', 90), mv('Reflect', 'Psychic'), mv('Light Screen', 'Psychic')] }),
+      mon('Girafarig', 59, ['Normal', 'Psychic'], { ability: 'Inner Focus', moves: [mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80), mv('Double Hit', 'Normal', 35), mv('Crunch', 'Dark', 80)] }),
+      mon('Medicham', 60, ['Fighting', 'Psychic'], { ability: 'Pure Power', moves: [mv('Drain Punch', 'Fighting', 75), mv('Fire Punch', 'Fire', 75), mv('Thunder Punch', 'Electric', 75), mv('Ice Punch', 'Ice', 75)] }),
+      mon('Alakazam', 60, ['Psychic'], { ability: 'Synchronize', moves: [mv('Psychic', 'Psychic', 90), mv('Energy Ball', 'Grass', 90), mv('Focus Blast', 'Fighting', 120), mv('Recover', 'Normal')] }),
+      mon('Bronzong', 63, ['Steel', 'Psychic'], { ability: 'Levitate', item: 'Sitrus Berry', moves: [mv('Psychic', 'Psychic', 90), mv('Gyro Ball', 'Steel'), mv('Earthquake', 'Ground', 100), mv('Calm Mind', 'Psychic')] }),
+    ],
+    notes: 'Pearl Elite Four Lucian. Identical to Diamond.',
+  }),
+  boss({
+    id: 'dpp-e4-lucian-pt',
+    name: 'Elite Four Lucian',
+    location: 'Pokémon League',
+    order: 63,
+    category: 'elite-four',
+    levelCap: 59,
+    game: 'Platinum',
+    team: [
+      mon('Mr. Mime', 53, ['Psychic'], { ability: 'Soundproof' }),
+      mon('Espeon', 55, ['Psychic'], { ability: 'Synchronize', moves: [mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80), mv('Quick Attack', 'Normal', 40), mv('Signal Beam', 'Bug', 75)] }),
+      mon('Bronzong', 54, ['Steel', 'Psychic'], { ability: 'Levitate' }),
+      mon('Alakazam', 56, ['Psychic'], { ability: 'Synchronize' }),
+      mon('Gallade', 59, ['Psychic', 'Fighting'], { ability: 'Steadfast', item: 'Sitrus Berry', moves: [mv('Drain Punch', 'Fighting', 75), mv('Psycho Cut', 'Psychic', 70), mv('Leaf Blade', 'Grass', 90), mv('Stone Edge', 'Rock', 100)] }),
+    ],
+    notes: 'Platinum Elite Four Lucian. Swaps Girafarig/Medicham → Espeon/Gallade; Pt rebalanced levels (lower).',
+  }),
+
+  // Champion Cynthia.
+  boss({
+    id: 'dpp-champion-cynthia-d',
+    name: 'Champion Cynthia',
+    location: 'Pokémon League',
+    order: 64,
+    category: 'champion',
+    levelCap: 66,
+    game: 'Diamond',
+    team: [
+      mon('Spiritomb', 61, ['Ghost', 'Dark'], { ability: 'Pressure', moves: [mv('Dark Pulse', 'Dark', 80), mv('Psychic', 'Psychic', 90), mv('Silver Wind', 'Bug', 60), mv('Embargo', 'Dark')] }),
+      mon('Roserade', 60, ['Grass', 'Poison'], { ability: 'Natural Cure', moves: [mv('Energy Ball', 'Grass', 90), mv('Sludge Bomb', 'Poison', 90), mv('Shadow Ball', 'Ghost', 80), mv('Extrasensory', 'Psychic', 80)] }),
+      mon('Gastrodon', 60, ['Water', 'Ground'], { ability: 'Sticky Hold', moves: [mv('Muddy Water', 'Water', 90), mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Ice Beam', 'Ice', 95)] }),
+      mon('Lucario', 63, ['Fighting', 'Steel'], { ability: 'Steadfast', moves: [mv('Aura Sphere', 'Fighting', 80), mv('Dragon Pulse', 'Dragon', 85), mv('Psychic', 'Psychic', 90), mv('Earthquake', 'Ground', 100)] }),
+      mon('Milotic', 63, ['Water'], { ability: 'Marvel Scale', moves: [mv('Surf', 'Water', 95), mv('Ice Beam', 'Ice', 95), mv('Mirror Coat', 'Psychic'), mv('Aqua Ring', 'Water')] }),
+      mon('Garchomp', 66, ['Dragon', 'Ground'], { ability: 'Sand Veil', item: 'Sitrus Berry', moves: [mv('Dragon Rush', 'Dragon', 100), mv('Earthquake', 'Ground', 100), mv('Brick Break', 'Fighting', 75), mv('Giga Impact', 'Normal', 150)] }),
+    ],
+    notes: 'Diamond Champion Cynthia.',
+  }),
+  boss({
+    id: 'dpp-champion-cynthia-p',
+    name: 'Champion Cynthia',
+    location: 'Pokémon League',
+    order: 64,
+    category: 'champion',
+    levelCap: 66,
+    game: 'Pearl',
+    team: [
+      mon('Spiritomb', 61, ['Ghost', 'Dark'], { ability: 'Pressure', moves: [mv('Dark Pulse', 'Dark', 80), mv('Psychic', 'Psychic', 90), mv('Silver Wind', 'Bug', 60), mv('Embargo', 'Dark')] }),
+      mon('Roserade', 60, ['Grass', 'Poison'], { ability: 'Natural Cure', moves: [mv('Energy Ball', 'Grass', 90), mv('Sludge Bomb', 'Poison', 90), mv('Shadow Ball', 'Ghost', 80), mv('Extrasensory', 'Psychic', 80)] }),
+      mon('Gastrodon', 60, ['Water', 'Ground'], { ability: 'Sticky Hold', moves: [mv('Muddy Water', 'Water', 90), mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Ice Beam', 'Ice', 95)] }),
+      mon('Lucario', 63, ['Fighting', 'Steel'], { ability: 'Steadfast', moves: [mv('Aura Sphere', 'Fighting', 80), mv('Dragon Pulse', 'Dragon', 85), mv('Psychic', 'Psychic', 90), mv('Earthquake', 'Ground', 100)] }),
+      mon('Milotic', 63, ['Water'], { ability: 'Marvel Scale', moves: [mv('Surf', 'Water', 95), mv('Ice Beam', 'Ice', 95), mv('Mirror Coat', 'Psychic'), mv('Aqua Ring', 'Water')] }),
+      mon('Garchomp', 66, ['Dragon', 'Ground'], { ability: 'Sand Veil', item: 'Sitrus Berry', moves: [mv('Dragon Rush', 'Dragon', 100), mv('Earthquake', 'Ground', 100), mv('Brick Break', 'Fighting', 75), mv('Giga Impact', 'Normal', 150)] }),
+    ],
+    notes: 'Pearl Champion Cynthia. Identical team to Diamond.',
+  }),
+  boss({
+    id: 'dpp-champion-cynthia-pt',
+    name: 'Champion Cynthia',
+    location: 'Pokémon League',
+    order: 64,
+    category: 'champion',
+    levelCap: 62,
+    game: 'Platinum',
+    team: [
+      mon('Spiritomb', 58, ['Ghost', 'Dark'], { ability: 'Pressure', moves: [mv('Dark Pulse', 'Dark', 80), mv('Psychic', 'Psychic', 90), mv('Silver Wind', 'Bug', 60), mv('Shadow Ball', 'Ghost', 80)] }),
+      mon('Roserade', 58, ['Grass', 'Poison'], { ability: 'Natural Cure', moves: [mv('Energy Ball', 'Grass', 90), mv('Sludge Bomb', 'Poison', 90), mv('Toxic', 'Poison'), mv('Extrasensory', 'Psychic', 80)] }),
+      mon('Togekiss', 60, ['Normal', 'Flying'], { ability: 'Hustle', moves: [mv('Air Slash', 'Flying', 75), mv('Aura Sphere', 'Fighting', 80), mv('Water Pulse', 'Water', 60), mv('Shock Wave', 'Electric', 60)] }),
+      mon('Lucario', 60, ['Fighting', 'Steel'], { ability: 'Steadfast', moves: [mv('Aura Sphere', 'Fighting', 80), mv('ExtremeSpeed', 'Normal', 80), mv('Shadow Ball', 'Ghost', 80), mv('Stone Edge', 'Rock', 100)] }),
+      mon('Milotic', 58, ['Water'], { ability: 'Marvel Scale', moves: [mv('Surf', 'Water', 95), mv('Ice Beam', 'Ice', 95), mv('Mirror Coat', 'Psychic'), mv('Dragon Pulse', 'Dragon', 85)] }),
+      mon('Garchomp', 62, ['Dragon', 'Ground'], { ability: 'Sand Veil', item: 'Sitrus Berry', moves: [mv('Dragon Rush', 'Dragon', 100), mv('Earthquake', 'Ground', 100), mv('Flamethrower', 'Fire', 95), mv('Giga Impact', 'Normal', 150)] }),
+    ],
+    notes: 'Platinum Champion Cynthia (first battle, pre-Stark Mountain). Swaps Gastrodon → Togekiss; all six Pokémon have unique types per Pt design intent; levels lower than DP (Pt rebalanced).',
+  }),
+];
+
+frlgBossesAppend(dppBosses, pass7Bosses);
+
+function frlgBossesAppend<T>(target: T[], source: T[]): void {
+  for (const item of source) target.push(item);
 }
 
 export function getDppBossesForGame(gameVersion: 'Diamond' | 'Pearl' | 'Platinum'): BossTrainer[] {

@@ -61,6 +61,11 @@ export const gen4Routes: RouteData[] = [
   { id: 'mt-coronet-summit', displayName: 'Mt. Coronet Summit', order: 58, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'boss-area'] },
   { id: 'spear-pillar', displayName: 'Spear Pillar', order: 59, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area', 'legendary'] },
   { id: 'distortion-world', displayName: 'Distortion World', order: 60, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area', 'legendary'] },
+  { id: 'route-222', displayName: 'Route 222', order: 61, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'sunyshore-city', displayName: 'Sunyshore City', order: 62, region: 'sinnoh', gameSet: 'gen4', tags: ['city', 'gym', 'boss-area'] },
+  { id: 'route-223', displayName: 'Route 223', order: 63, region: 'sinnoh', gameSet: 'gen4', tags: ['route'] },
+  { id: 'victory-road-sinnoh', displayName: 'Victory Road (Sinnoh)', order: 64, region: 'sinnoh', gameSet: 'gen4', tags: ['cave', 'boss-area'] },
+  { id: 'pokemon-league-sinnoh', displayName: 'Pokémon League', order: 65, region: 'sinnoh', gameSet: 'gen4', tags: ['boss-area'] },
 ];
 
 export const hgssRoutes: RouteData[] = [

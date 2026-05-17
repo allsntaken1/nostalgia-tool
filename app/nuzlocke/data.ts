@@ -1663,7 +1663,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum') {
     return {
       title: 'Partial data available',
-      message: 'Diamond / Pearl / Platinum encounters and boss teams are live through Spear Pillar / Distortion World (Galactic climax). Volkner, Elite Four, Champion Cynthia, Snowpoint Temple, Battle Frontier/Pal Park postgame remain TODO. Great Marsh, honey trees, Poké Radar, dual-slot, swarms, day/night gating, and Turnback Cave also remain TODO.',
+      message: 'Diamond / Pearl / Platinum main-story encounters and boss teams are live through Champion Cynthia. Snowpoint Temple, Battle Frontier/Pal Park, postgame roams, Turnback Cave, full Great Marsh rotation, honey trees, Poké Radar, dual-slot, swarms, and day/night gating remain TODO.',
       emptyState: 'No standard DPP encounter is currently tracked for this location.',
     };
   }
