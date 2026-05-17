@@ -50,6 +50,9 @@ const surf = (species: string, types: PokemonType[], version: DppVersion = 'All'
 const fish = (species: string, types: PokemonType[], rod: DppRod, version: DppVersion = 'All', notes?: string): DppEncounter =>
   encounter(species, types, 'fishing', version, notes, { rod });
 
+const rockSmash = (species: string, types: PokemonType[], version: DppVersion = 'All', notes?: string): DppEncounter =>
+  encounter(species, types, 'special', version, notes, { condition: 'Rock Smash' });
+
 // ==============================================================================================
 // DPP Pass 1 — Twinleaf through Eterna City (Bulbapedia raw wikitext verified).
 // ==============================================================================================
@@ -966,6 +969,105 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Giratina', ['Ghost', 'Dragon'], 'legendary', 'Platinum', 'Platinum-exclusive cover legendary (Lv 47, Origin Forme during the cutscene). Storyline-mandatory; Cyrus battle precedes the Giratina battle.'),
     ],
     notes: ['Distortion World is Platinum-only and has no standard wild encounters — just navigation puzzles, the Cyrus battle, and the Giratina static.', 'Turnback Cave is postgame-gated and intentionally not added this pass.'],
+  },
+
+  // ============================================================================================
+  // DPP Pass 7 — Sunyshore / Elite Four / Cynthia cleanup sweep.
+  // ============================================================================================
+  {
+    locationId: 'route-222',
+    displayName: 'Route 222',
+    encounters: [
+      encounter('Electabuzz', ['Electric'], 'grass'),
+      encounter('Pikachu', ['Electric'], 'grass'),
+      encounter('Gastrodon', ['Water', 'Ground'], 'grass', 'All', 'East Sea form.'),
+      encounter('Floatzel', ['Water'], 'grass'),
+      encounter('Luxio', ['Electric'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Super Rod'),
+      fish('Lumineon', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+    ],
+    notes: ['Coastal road leading into Sunyshore. Trainer roster shifts in Platinum but encounter list is largely consistent.'],
+  },
+  {
+    locationId: 'sunyshore-city',
+    displayName: 'Sunyshore City',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Super Rod'),
+      fish('Lumineon', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+    ],
+    notes: ['Solar-panel city; no wild grass encounters, only surf/fishing along the beach.'],
+  },
+  {
+    locationId: 'route-223',
+    displayName: 'Route 223',
+    encounters: [
+      // Surf-only route between Sunyshore and Victory Road.
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      surf('Wailmer', ['Water'], 'All', 'Surf encounter.'),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Good Rod'),
+      fish('Finneon', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Wailord', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+    ],
+    notes: ['Surf-only route; required to reach Victory Road from Sunyshore.'],
+  },
+  {
+    locationId: 'victory-road-sinnoh',
+    displayName: 'Victory Road (Sinnoh)',
+    encounters: [
+      // Multi-floor cave; species list is the union per Bulbapedia.
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Steelix', ['Steel', 'Ground'], 'cave'),
+      encounter('Graveler', ['Rock', 'Ground'], 'cave'),
+      encounter('Onix', ['Rock', 'Ground'], 'cave'),
+      encounter('Rhyhorn', ['Ground', 'Rock'], 'cave'),
+      encounter('Rhydon', ['Ground', 'Rock'], 'cave'),
+      encounter('Kadabra', ['Psychic'], 'cave'),
+      encounter('Floatzel', ['Water'], 'cave'),
+      encounter('Magneton', ['Electric', 'Steel'], 'cave'),
+      encounter('Medicham', ['Fighting', 'Psychic'], 'cave'),
+      encounter('Lickitung', ['Normal'], 'cave', 'Platinum', 'Platinum-only addition.'),
+      surf('Golbat', ['Poison', 'Flying']),
+      surf('Floatzel', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod'),
+      rockSmash('Geodude', ['Rock', 'Ground']),
+      rockSmash('Graveler', ['Rock', 'Ground']),
+    ],
+    notes: ['Multi-floor cave collapsed into one area. Pokémon League is the next stop.'],
+  },
+  {
+    locationId: 'pokemon-league-sinnoh',
+    displayName: 'Pokémon League',
+    encounters: [],
+    notes: ['No wild encounter table. Elite Four (Aaron / Bertha / Flint / Lucian) and Champion Cynthia modeled as boss data.'],
   },
 ];
 
