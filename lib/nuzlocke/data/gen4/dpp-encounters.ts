@@ -920,6 +920,53 @@ const populatedAreas: DppEncounterArea[] = [
     ],
     notes: ['Snowpoint Temple is postgame-gated (Regigigas event) and intentionally not added as a main-story area this pass.'],
   },
+
+  // ============================================================================================
+  // DPP Pass 6 — Galactic HQ / Spear Pillar / Distortion World.
+  // ============================================================================================
+  {
+    locationId: 'galactic-hq',
+    displayName: 'Galactic HQ',
+    encounters: [],
+    notes: ['Veilstone Galactic HQ / Warehouse. No wild encounter table; trainer battles only. Saturn + Cyrus battles modeled as boss data.'],
+  },
+  {
+    locationId: 'mt-coronet-summit',
+    displayName: 'Mt. Coronet Summit',
+    encounters: [
+      // Upper-floor interior (4F / 5F+ approach to Spear Pillar).
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Machop', ['Fighting'], 'cave'),
+      encounter('Machoke', ['Fighting'], 'cave'),
+      encounter('Graveler', ['Rock', 'Ground'], 'cave'),
+      encounter('Chingling', ['Psychic'], 'cave'),
+      encounter('Nosepass', ['Rock'], 'cave', 'Platinum', 'Platinum-only addition.'),
+      encounter('Noctowl', ['Normal', 'Flying'], 'cave', 'All', 'Upper-floor encounter.'),
+      encounter('Bronzong', ['Steel', 'Psychic'], 'cave', 'All', 'Upper-floor encounter.'),
+      encounter('Absol', ['Dark'], 'cave', 'All', 'Upper-floor encounter.'),
+    ],
+    notes: ['Mt. Coronet upper floors collapsed into one area; species list is the union of 4F-summit per Bulbapedia. Snow-section / outdoor 6F not separated.'],
+  },
+  {
+    locationId: 'spear-pillar',
+    displayName: 'Spear Pillar',
+    encounters: [
+      encounter('Dialga', ['Steel', 'Dragon'], 'legendary', 'Diamond', 'Diamond-exclusive cover legendary (Lv 47). Storyline-mandatory; respawns after Hall of Fame in DP.'),
+      encounter('Palkia', ['Water', 'Dragon'], 'legendary', 'Pearl', 'Pearl-exclusive cover legendary (Lv 47). Storyline-mandatory; respawns after Hall of Fame in DP.'),
+      encounter('Dialga', ['Steel', 'Dragon'], 'legendary', 'Platinum', 'In Platinum, Dialga appears with Palkia at Spear Pillar but flees to the Distortion World after summoning Giratina — not catchable here. Capturable postgame elsewhere.'),
+      encounter('Palkia', ['Water', 'Dragon'], 'legendary', 'Platinum', 'In Platinum, Palkia appears with Dialga at Spear Pillar but flees after the Giratina cutscene. Not catchable here; capturable postgame.'),
+    ],
+    notes: ['Spear Pillar has no wild encounter table; only cover-legendary story encounters.', 'Cyrus Spear Pillar (DP only) and Mars+Jupiter multi-battle modeled as boss data.'],
+  },
+  {
+    locationId: 'distortion-world',
+    displayName: 'Distortion World',
+    encounters: [
+      encounter('Giratina', ['Ghost', 'Dragon'], 'legendary', 'Platinum', 'Platinum-exclusive cover legendary (Lv 47, Origin Forme during the cutscene). Storyline-mandatory; Cyrus battle precedes the Giratina battle.'),
+    ],
+    notes: ['Distortion World is Platinum-only and has no standard wild encounters — just navigation puzzles, the Cyrus battle, and the Giratina static.', 'Turnback Cave is postgame-gated and intentionally not added this pass.'],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
