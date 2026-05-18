@@ -1691,7 +1691,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (supportsRse(gameVersion)) {
     return {
       title: 'Hoenn support in progress',
-      message: 'Ruby / Sapphire / Emerald data is populated through Lavaridge / Flannery: Pass 1 (Littleroot → Rusturf + Roxanne), Pass 2 (Dewford → Wattson + Brawly + Wally), Pass 3 (Route 111 south → Lavaridge + Flannery) are live. Mt. Chimney leader fight + Magma Admin Tabitha, Rival Route 110, Route 111 desert (post Go-Goggles) + Mirage Tower, Routes 118+ (Fortree onward), remaining gym/E4/champion teams, full Aqua/Magma chain (Weather Institute, Mt. Pyre, Hideout, Seafloor Cavern), legendaries (Groudon/Kyogre/Rayquaza/regis), Safari Zone, Trick House, Abandoned Ship, and New Mauville interior remain TODO.',
+      message: 'Ruby / Sapphire / Emerald data: Pass 1 (Littleroot → Roxanne), Pass 2 (Dewford → Wattson), Pass 3 (Route 111 → Flannery), Pass 5 (Routes 124-128 + Mossdeep + Tate & Liza + Shoal Cave + Sootopolis + Cave of Origin + Seafloor Cavern + Aqua/Magma Hideout) are live. Groudon (Ruby) and Kyogre (Sapphire) static legendaries populated at Cave of Origin. Pass 4 (Routes 118-123, Fortree, Norman, Winona, Mt. Pyre, Weather Institute) intentionally skipped — pending follow-up. Rival Route 110/119/Lilycove teams, Mt. Chimney + Seafloor leader teams, Sky Pillar / Rayquaza, regis, Latias/Latios, Safari Zone, Trick House, Abandoned Ship, New Mauville, dive encounters, and remaining gym/E4/champion teams remain TODO.',
       emptyState: 'No standard RSE encounter is currently tracked for this location.',
     };
   }
