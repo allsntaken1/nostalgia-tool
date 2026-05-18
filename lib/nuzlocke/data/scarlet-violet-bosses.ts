@@ -374,20 +374,259 @@ export const scarletVioletBosses: CuratedBoss[] = [
     ],
   },
   {
-    id: 'rival-nemona',
-    name: 'Nemona Rival Fights',
-    category: 'Rival',
+    id: 'rival-nemona-final',
+    name: 'Nemona (Champion-rank challenge)',
+    category: 'Rival Final',
     game: 'Both',
-    location: 'Mesagoza',
-    recommendedOrder: 25,
+    location: 'Poco Path Lighthouse',
+    recommendedOrder: 28,
     levelCap: 66,
     team: [
-      { species: 'Lycanroc', level: 65, types: ['Rock'] },
-      { species: 'Goodra', level: 65, types: ['Dragon'] },
-      { species: 'Dudunsparce', level: 65, types: ['Normal'] },
-      { species: 'Orthworm', level: 65, types: ['Steel'] },
-      { species: 'Pawmot', level: 65, types: ['Electric', 'Fighting'] },
-      { species: 'Starter Ace', level: 66, types: ['Normal'], notes: 'Starter final evolution varies by your starter.' },
+      { species: 'Lycanroc (Midday)', level: 65, types: ['Rock'], ability: 'Sand Rush', moves: ['Accelerock', 'Drill Run', 'Stone Edge', 'Stealth Rock'] },
+      { species: 'Goodra', level: 65, types: ['Dragon'], ability: 'Sap Sipper', moves: ['Dragon Pulse', 'Muddy Water', 'Ice Beam', 'Sludge Bomb'] },
+      { species: 'Dudunsparce', level: 65, types: ['Normal'], ability: 'Serene Grace', moves: ['Hyper Drill', 'Drill Run', 'Dragon Rush', 'Coil'] },
+      { species: 'Orthworm', level: 65, types: ['Steel'], ability: 'Earth Eater', moves: ['Iron Tail', 'Body Press', 'Earthquake', 'Rock Blast'] },
+      { species: 'Pawmot', level: 65, types: ['Electric', 'Fighting'], ability: 'Volt Absorb', moves: ['Double Shock', 'Close Combat', 'Ice Punch', 'Quick Attack'] },
+      {
+        species: 'Starter ace (Meowscarada / Skeledirge / Quaquaval)',
+        level: 66,
+        types: ['Normal'],
+        notes:
+          "Nemona's starter is weak vs the player's starter. Player Sprigatito → Quaquaval (Water, Tera Water, Aqua Step / Brick Break / Aerial Ace / Ice Spinner). Player Fuecoco → Meowscarada (Grass, Tera Grass, Flower Trick / Thunder Punch / Shadow Claw / Play Rough). Player Quaxly → Skeledirge (Fire, Tera Fire, Torch Song / Earth Power / Shadow Ball / Snarl).",
+      },
+    ],
+  },
+  // ====================================================================================
+  // Nemona — earlier canonical rival battles. Her starter is one rotation weak vs player's:
+  //   Player Sprigatito → Nemona Quaxly line
+  //   Player Fuecoco   → Nemona Sprigatito line
+  //   Player Quaxly    → Nemona Fuecoco line
+  // ====================================================================================
+  {
+    id: 'rival-nemona-1-cabo-poco',
+    name: 'Nemona (Cabo Poco)',
+    category: 'Rival',
+    game: 'Both',
+    location: 'Cabo Poco',
+    recommendedOrder: 0,
+    levelCap: 5,
+    team: [
+      {
+        species: 'Starter (Sprigatito / Fuecoco / Quaxly)',
+        level: 5,
+        types: ['Normal'],
+        notes:
+          "Opening tutorial battle right after receiving your starter. Nemona uses the starter weak to yours: player Sprigatito → Nemona Quaxly; player Fuecoco → Nemona Sprigatito; player Quaxly → Nemona Fuecoco. Moves are the starter's default Lv 5 set.",
+      },
+    ],
+  },
+  {
+    id: 'rival-nemona-2-inlet-grotto',
+    name: 'Nemona (Inlet Grotto)',
+    category: 'Rival',
+    game: 'Both',
+    location: 'South Province (Area One)',
+    recommendedOrder: 1,
+    levelCap: 9,
+    team: [
+      { species: 'Pawmi', level: 8, types: ['Electric'], ability: 'Static', moves: ['Thunder Shock'], notes: 'Remaining moves not surfaced — TODO.' },
+      {
+        species: 'Starter Stage 1 (Floragato / Crocalor / Quaxwell)',
+        level: 9,
+        types: ['Normal'],
+        notes:
+          "Starter follows the cycle: player Sprigatito → Quaxwell; player Fuecoco → Floragato; player Quaxly → Crocalor. Movesets vary by species; full sets TODO.",
+      },
+    ],
+  },
+  {
+    id: 'rival-nemona-3-post-3rd-gym',
+    name: 'Nemona (Western Province crossroads)',
+    category: 'Rival',
+    game: 'Both',
+    location: 'West Province (Area One)',
+    recommendedOrder: 7,
+    levelCap: 22,
+    team: [
+      { species: 'Rockruff', level: 21, types: ['Rock'], ability: 'Vital Spirit', moves: ['Double Team', 'Rock Throw', 'Howl', 'Bite'] },
+      { species: 'Pawmi', level: 21, types: ['Electric'], ability: 'Static', moves: ['Charge', 'Nuzzle', 'Dig', 'Bite'] },
+      {
+        species: 'Starter Stage 2 (Floragato / Crocalor / Quaxwell)',
+        level: 22,
+        types: ['Normal'],
+        notes:
+          "Tera matches the starter's primary type. Movesets vary (e.g. Quaxwell: Double Hit / Water Pulse / Wing Attack / Work Up).",
+      },
+    ],
+  },
+  {
+    id: 'rival-nemona-4-post-5th-gym',
+    name: 'Nemona (mid-game challenge)',
+    category: 'Rival',
+    game: 'Both',
+    location: 'Casseroya area',
+    recommendedOrder: 12,
+    levelCap: 37,
+    team: [
+      { species: 'Lycanroc (Midday)', level: 36, types: ['Rock'], ability: 'Sand Rush', notes: 'Moves not surfaced — TODO.' },
+      { species: 'Goomy', level: 36, types: ['Dragon'], ability: 'Sap Sipper', notes: 'Moves not surfaced — TODO.' },
+      { species: 'Pawmo', level: 36, types: ['Electric', 'Fighting'], ability: 'Volt Absorb', notes: 'Moves not surfaced — TODO.' },
+      {
+        species: 'Starter final stage (Meowscarada / Skeledirge / Quaquaval)',
+        level: 37,
+        types: ['Normal'],
+        notes: "Tera matches starter's primary type. Movesets TODO.",
+      },
+    ],
+  },
+  {
+    id: 'rival-nemona-5-post-7th-gym',
+    name: 'Nemona (late-game challenge)',
+    category: 'Rival',
+    game: 'Both',
+    location: 'Glaseado Mountain area',
+    recommendedOrder: 15,
+    levelCap: 43,
+    team: [
+      { species: 'Lycanroc (Midday)', level: 42, types: ['Rock'], ability: 'Sand Rush', notes: 'Moves not surfaced — TODO.' },
+      { species: 'Sliggoo', level: 42, types: ['Dragon'], ability: 'Sap Sipper', notes: 'Moves not surfaced — TODO.' },
+      { species: 'Pawmot', level: 42, types: ['Electric', 'Fighting'], ability: 'Volt Absorb', notes: 'Moves not surfaced — TODO.' },
+      {
+        species: 'Starter final stage (Meowscarada / Skeledirge / Quaquaval)',
+        level: 43,
+        types: ['Normal'],
+        notes: "Tera matches starter's primary type. Movesets TODO.",
+      },
+    ],
+  },
+  // ====================================================================================
+  // Arven — Poco Path tutorial battle + Path of Legends lighthouse finale.
+  // ====================================================================================
+  {
+    id: 'arven-1-poco-path',
+    name: 'Arven (Poco Path opening)',
+    category: 'Story Boss',
+    game: 'Both',
+    location: 'Poco Path',
+    recommendedOrder: 2,
+    levelCap: 5,
+    team: [
+      { species: 'Skwovet', level: 5, types: ['Normal'], ability: 'Cheek Pouch', moves: ['Tackle', 'Tail Whip', 'Bite'], notes: 'Fourth move not surfaced — TODO.' },
+    ],
+  },
+  {
+    id: 'arven-lighthouse-finale',
+    name: 'Arven (Path of Legends finale)',
+    category: 'Path of Legends Finale',
+    game: 'Both',
+    location: 'Poco Path Lighthouse',
+    recommendedOrder: 24,
+    levelCap: 63,
+    team: [
+      { species: 'Greedent', level: 58, types: ['Normal'], ability: 'Cheek Pouch', moves: ['Bullet Seed', 'Body Slam', 'Psychic Fangs', 'Earthquake'] },
+      { species: 'Cloyster', level: 59, types: ['Water', 'Ice'], ability: 'Skill Link', moves: ['Rock Blast', 'Icicle Spear', 'Liquidation', 'Light Screen'] },
+      { species: 'Scovillain', level: 60, types: ['Grass', 'Fire'], ability: 'Chlorophyll', moves: ['Fire Blast', 'Energy Ball', 'Zen Headbutt', 'Crunch'] },
+      { species: 'Toedscruel', level: 61, types: ['Ground', 'Grass'], ability: 'Mycelium Might', moves: ['Power Whip', 'Earth Power', 'Spore', 'Sludge Bomb'] },
+      { species: 'Garganacl', level: 62, types: ['Rock'], ability: 'Purifying Salt', moves: ['Stone Edge', 'Earthquake', 'Body Press', 'Stealth Rock'] },
+      {
+        species: 'Mabosstiff',
+        level: 63,
+        types: ['Dark'],
+        ability: 'Intimidate',
+        teraType: 'Rock',
+        moves: ['Crunch', 'Psychic Fangs', 'Fire Fang', 'Play Rough'],
+        notes: 'Tera Type unverified between research source and common reference (research said Dark; community references commonly list Rock). Marked Tera Rock here — verify against cartridge if a discrepancy is reported.',
+      },
+    ],
+  },
+  // ====================================================================================
+  // Area Zero finale — Professor Sada (Scarlet) / Professor Turo (Violet) Paradox lineup,
+  // followed by the Paradise Protection Protocol battle vs Guardian Koraidon/Miraidon.
+  // All six Paradox mons are caught in Master Balls (cannot be re-fought).
+  // ====================================================================================
+  {
+    id: 'sada-zero-lab',
+    name: 'Professor Sada (Zero Lab)',
+    category: 'Area Zero Finale',
+    game: 'Scarlet',
+    location: 'Zero Lab',
+    recommendedOrder: 26,
+    levelCap: 67,
+    team: [
+      { species: 'Slither Wing', level: 66, types: ['Bug', 'Fighting'], ability: 'Protosynthesis', moves: ['Lunge', 'Leech Life', 'Low Sweep', 'Zen Headbutt'] },
+      { species: 'Scream Tail', level: 66, types: ['Fairy', 'Psychic'], ability: 'Protosynthesis', moves: ['Play Rough', 'Drain Punch', 'Ice Punch', 'Zen Headbutt'] },
+      { species: 'Brute Bonnet', level: 66, types: ['Grass', 'Dark'], ability: 'Protosynthesis', moves: ['Earth Power', 'Giga Drain', 'Payback', 'Sucker Punch'] },
+      { species: 'Flutter Mane', level: 66, types: ['Ghost', 'Fairy'], ability: 'Protosynthesis', moves: ['Power Gem', 'Mystical Fire', 'Shadow Ball', 'Thunderbolt'] },
+      { species: 'Sandy Shocks', level: 66, types: ['Electric', 'Ground'], ability: 'Protosynthesis', moves: ['Discharge', 'Earth Power', 'Flash Cannon', 'Power Gem'] },
+      {
+        species: 'Roaring Moon',
+        level: 67,
+        types: ['Dragon', 'Dark'],
+        ability: 'Protosynthesis',
+        moves: ['Dragon Claw', 'Night Slash', 'Stone Edge', 'Earthquake'],
+        notes: 'Holds Booster Energy. Tera Type not surfaced in research — verify.',
+      },
+    ],
+  },
+  {
+    id: 'turo-zero-lab',
+    name: 'Professor Turo (Zero Lab)',
+    category: 'Area Zero Finale',
+    game: 'Violet',
+    location: 'Zero Lab',
+    recommendedOrder: 26,
+    levelCap: 67,
+    team: [
+      { species: 'Iron Moth', level: 66, types: ['Fire', 'Poison'], ability: 'Quark Drive', moves: ['Sludge Wave', 'Fiery Dance', 'Discharge', 'Air Slash'] },
+      { species: 'Iron Bundle', level: 66, types: ['Ice', 'Water'], ability: 'Quark Drive', moves: ['Drill Peck', 'Water Pulse', 'Freeze-Dry', 'Snowscape'] },
+      { species: 'Iron Hands', level: 66, types: ['Fighting', 'Electric'], ability: 'Quark Drive', moves: ['Thunder Punch', 'Drain Punch', 'Iron Head', 'Fake Out'] },
+      { species: 'Iron Jugulis', level: 66, types: ['Dark', 'Flying'], ability: 'Quark Drive', moves: ['Air Slash', 'Dark Pulse', 'Flamethrower', 'Flash Cannon'] },
+      { species: 'Iron Thorns', level: 66, types: ['Rock', 'Electric'], ability: 'Quark Drive', moves: ['Thunder Punch', 'Brick Break', 'Stone Edge', 'Earthquake'] },
+      {
+        species: 'Iron Valiant',
+        level: 67,
+        types: ['Fairy', 'Fighting'],
+        ability: 'Quark Drive',
+        moves: ['Psycho Cut', 'Brick Break', 'Spirit Break', 'Poison Jab'],
+        notes: 'Holds Booster Energy. Tera Type not surfaced in research — verify.',
+      },
+    ],
+  },
+  {
+    id: 'guardian-koraidon',
+    name: 'Guardian of Paradise (Koraidon)',
+    category: 'Paradise Protection Protocol',
+    game: 'Scarlet',
+    location: 'Great Crater of Paldea',
+    recommendedOrder: 27,
+    levelCap: 72,
+    team: [
+      {
+        species: 'Koraidon',
+        level: 72,
+        types: ['Fighting', 'Dragon'],
+        ability: 'Orichalcum Pulse',
+        notes: 'Final boss — player rides their own Koraidon vs Guardian Koraidon. Moves not surfaced in research — TODO.',
+      },
+    ],
+  },
+  {
+    id: 'guardian-miraidon',
+    name: 'Guardian of Paradise (Miraidon)',
+    category: 'Paradise Protection Protocol',
+    game: 'Violet',
+    location: 'Great Crater of Paldea',
+    recommendedOrder: 27,
+    levelCap: 72,
+    team: [
+      {
+        species: 'Miraidon',
+        level: 72,
+        types: ['Electric', 'Dragon'],
+        ability: 'Hadron Engine',
+        moves: ['Hyper Beam', 'Charge', 'Taunt', 'Power Gem'],
+        notes: 'Holds Terrain Extender. Final boss — player rides their own Miraidon vs Guardian Miraidon.',
+      },
     ],
   },
 ];
