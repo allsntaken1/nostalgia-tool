@@ -21,8 +21,8 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     generation: 'Gen 3',
     games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
       name: name as GameVersion,
-      supported: name === 'FireRed' || name === 'LeafGreen',
-      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : undefined) as GameDataStatus | undefined,
+      supported: true,
+      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Skeleton') as GameDataStatus,
     })),
   },
   {
@@ -1565,10 +1565,18 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
   { id: 'penny', name: 'Penny', category: 'Finale', levelCap: 63, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Umbreon', 62), bossPokemon('Vaporeon', 62), bossPokemon('Jolteon', 62), bossPokemon('Flareon', 62), bossPokemon('Leafeon', 62), bossPokemon('Sylveon', 63)] },
 ];
 
+// Ruby/Sapphire/Emerald are selectable as Skeleton (UI shows "data coming soon" warning)
+// pending a future Hoenn data buildout. Until then, dispatchers must return empty rather than
+// fall through to the Scarlet/Violet default — otherwise selecting Ruby would show SV data.
+function supportsRse(gameVersion: GameVersion): boolean {
+  return gameVersion === 'Ruby' || gameVersion === 'Sapphire' || gameVersion === 'Emerald';
+}
+
 function getBaseNuzlockeLocations(gameVersion: GameVersion): string[] {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
   if (supportsGen2Data(gameVersion)) return getGen2Locations(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
+  if (supportsRse(gameVersion)) return [];
   if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
   if (supportsGen6Data(gameVersion)) return getGen6Locations(gameVersion);
@@ -1582,6 +1590,7 @@ function getBaseNuzlockeEncounterOptions(gameVersion: GameVersion): Record<strin
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
   if (supportsGen2Data(gameVersion)) return getGen2EncounterOptions(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
+  if (supportsRse(gameVersion)) return {};
   if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
   if (supportsGen6Data(gameVersion)) return getGen6EncounterOptions(gameVersion);
@@ -1608,7 +1617,7 @@ export function getNuzlockeEncounterOptions(gameVersion: GameVersion) {
 }
 
 export function isEncounterSkeletonGame(gameVersion: GameVersion) {
-  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsGen6Data(gameVersion) || supportsGen7Data(gameVersion);
+  return supportsFrlg(gameVersion) || supportsGen2Data(gameVersion) || supportsGen4Data(gameVersion) || supportsGen5Data(gameVersion) || supportsGen6Data(gameVersion) || supportsGen7Data(gameVersion) || supportsRse(gameVersion);
 }
 
 export function getEncounterDataWarning(gameVersion: GameVersion) {
@@ -1713,7 +1722,9 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
                     ? getGen7Bosses(gameVersion, starterChoice)
                     : supportsGen8Data(gameVersion)
                       ? getGen8Bosses(gameVersion, starterChoice)
-                      : getScarletVioletBosses(gameVersion);
+                      : supportsRse(gameVersion)
+                        ? []
+                        : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
   const starterWarning = rivalStarterChoice ? '' : 'Choose your starter type to sync rival battles.';
