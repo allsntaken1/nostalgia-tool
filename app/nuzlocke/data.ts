@@ -2,6 +2,7 @@ import type { GameVersion, NuzlockeBoss, NuzlockeBossPokemon, NuzlockeMove, Poke
 import { getScarletVioletBosses } from '@/lib/nuzlocke/data/scarlet-violet-bosses';
 import { getGen2Bosses, getGen2EncounterGroupsForTypeLookup, getGen2EncounterOptions, getGen2Locations, supportsGen2Data } from '@/lib/nuzlocke/data/gen2/johto';
 import { getFrlgBosses, getFrlgEncounterOptions, getFrlgLocations, supportsFrlg } from '@/lib/nuzlocke/data/gen3/frlg';
+import { getRseBosses, getRseEncounterOptions, getRseLocations, supportsRse } from '@/lib/nuzlocke/data/gen3/rse';
 import { getGen4Bosses, getGen4EncounterGroupsForTypeLookup, getGen4EncounterOptions, getGen4Locations, supportsGen4Data } from '@/lib/nuzlocke/data/gen4';
 import { getGen5Bosses, getGen5EncounterGroupsForTypeLookup, getGen5EncounterOptions, getGen5Locations, supportsGen5Data } from '@/lib/nuzlocke/data/gen5';
 import { getGen6Bosses, getGen6EncounterOptions, getGen6Locations, getXyEncounterGroupsForTypeLookup, supportsGen6Data, supportsOrasData } from '@/lib/nuzlocke/data/gen6';
@@ -22,7 +23,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Skeleton') as GameDataStatus,
+      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Partial') as GameDataStatus,
     })),
   },
   {
@@ -960,6 +961,11 @@ const orasStarterOptions: EncounterOption[] = [
   { species: 'Torchic', types: ['Fire'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
   { species: 'Mudkip', types: ['Water'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
 ];
+const rseStarterOptions: EncounterOption[] = [
+  { species: 'Treecko', types: ['Grass'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+  { species: 'Torchic', types: ['Fire'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+  { species: 'Mudkip', types: ['Water'], method: 'gift', version: 'Both', minLevel: 5, maxLevel: 5, rate: 100 },
+];
 const gen7StarterOptions: EncounterOption[] = [
   { species: 'Rowlet', types: ['Grass', 'Flying'] },
   { species: 'Litten', types: ['Fire'] },
@@ -990,6 +996,10 @@ function getStarterOptionsForGame(gameVersion: GameVersion): EncounterOption[] {
     case 'FireRed':
     case 'LeafGreen':
       return frlgStarterOptions;
+    case 'Ruby':
+    case 'Sapphire':
+    case 'Emerald':
+      return rseStarterOptions;
     case 'HeartGold':
     case 'SoulSilver':
       return hgssStarterOptions;
@@ -1565,18 +1575,11 @@ export const scarletVioletBosses: NuzlockeBoss[] = [
   { id: 'penny', name: 'Penny', category: 'Finale', levelCap: 63, completed: false, notes: '', deaths: 0, pokemon: [bossPokemon('Umbreon', 62), bossPokemon('Vaporeon', 62), bossPokemon('Jolteon', 62), bossPokemon('Flareon', 62), bossPokemon('Leafeon', 62), bossPokemon('Sylveon', 63)] },
 ];
 
-// Ruby/Sapphire/Emerald are selectable as Skeleton (UI shows "data coming soon" warning)
-// pending a future Hoenn data buildout. Until then, dispatchers must return empty rather than
-// fall through to the Scarlet/Violet default — otherwise selecting Ruby would show SV data.
-function supportsRse(gameVersion: GameVersion): boolean {
-  return gameVersion === 'Ruby' || gameVersion === 'Sapphire' || gameVersion === 'Emerald';
-}
-
 function getBaseNuzlockeLocations(gameVersion: GameVersion): string[] {
   if (gameVersion === 'Red' || gameVersion === 'Blue' || gameVersion === 'Yellow') return kantoLocations;
   if (supportsGen2Data(gameVersion)) return getGen2Locations(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgLocations(gameVersion);
-  if (supportsRse(gameVersion)) return [];
+  if (supportsRse(gameVersion)) return getRseLocations(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4Locations(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5Locations(gameVersion);
   if (supportsGen6Data(gameVersion)) return getGen6Locations(gameVersion);
@@ -1590,7 +1593,7 @@ function getBaseNuzlockeEncounterOptions(gameVersion: GameVersion): Record<strin
   if (gameVersion === 'Red' || gameVersion === 'Blue') return redBlueEncounterOptions;
   if (supportsGen2Data(gameVersion)) return getGen2EncounterOptions(gameVersion);
   if (supportsFrlg(gameVersion)) return getFrlgEncounterOptions(gameVersion);
-  if (supportsRse(gameVersion)) return {};
+  if (supportsRse(gameVersion)) return getRseEncounterOptions(gameVersion);
   if (supportsGen4Data(gameVersion)) return getGen4EncounterOptions(gameVersion);
   if (supportsGen5Data(gameVersion)) return getGen5EncounterOptions(gameVersion);
   if (supportsGen6Data(gameVersion)) return getGen6EncounterOptions(gameVersion);
@@ -1685,6 +1688,14 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
     };
   }
 
+  if (supportsRse(gameVersion)) {
+    return {
+      title: 'Hoenn support in progress',
+      message: 'Ruby / Sapphire / Emerald early-game data is populated through Roxanne (Rustboro Gym): Littleroot, Routes 101-104, Petalburg Woods, Rustboro, Route 116, and Rusturf Tunnel encounters live; rival Route 103 + Devon Goods grunt + Roxanne boss teams live. Later Hoenn routes, gym/E4/champion teams, evil-team branches (Aqua/Magma), legendaries (Groudon/Kyogre/Rayquaza/regis), and Safari Zone remain TODO.',
+      emptyState: 'No standard RSE encounter is currently tracked for this location.',
+    };
+  }
+
   if (supportsGen2Data(gameVersion)) {
     return {
       title: 'Partial data available',
@@ -1723,7 +1734,7 @@ export function getNuzlockeBosses(gameVersion: GameVersion, starterChoice?: Star
                     : supportsGen8Data(gameVersion)
                       ? getGen8Bosses(gameVersion, starterChoice)
                       : supportsRse(gameVersion)
-                        ? []
+                        ? getRseBosses(gameVersion, starterChoice)
                         : getScarletVioletBosses(gameVersion);
 
   const rivalStarterChoice = getRivalStarterChoice(starterChoice);
