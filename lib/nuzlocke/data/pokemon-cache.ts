@@ -81,6 +81,11 @@ const displayAliases: Record<string, string> = {
   NidoranF: 'nidoran-f',
   NidoranM: 'nidoran-m',
   Flabébé: 'flabebe',
+  HoOh: 'ho-oh',
+  'Ho-oh': 'ho-oh',
+  Porygon2: 'porygon2',
+  PorygonZ: 'porygon-z',
+  'Porygon-Z': 'porygon-z',
 };
 
 const lookup = new Map<string, CachedPokemon>();
