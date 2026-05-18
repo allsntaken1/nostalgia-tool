@@ -565,6 +565,208 @@ const populatedAreas: RseEncounterArea[] = [
       'Egg gift: Wynaut Egg available in Emerald only (RS gives Wynaut Egg at Lavaridge too — verify? deferred to TODO if version-uncertain).',
     ],
   },
+
+  // =====================================================================================
+  // RSE Pass 5 — Lilycove eastern arc through Mossdeep / Seafloor Cavern / Sootopolis.
+  // NOTE: Pass 4 (Fortree / Weather Institute / Norman) was skipped — Routes 118-123,
+  // Petalburg Gym, Winona, Mt. Pyre, etc. remain skeleton/stub pending Pass 4.
+  // =====================================================================================
+  {
+    locationId: 'route-124',
+    displayName: 'Route 124',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Open ocean between Lilycove and Mossdeep.',
+      'Dive spots (Clamperl / Chinchou / Relicanth, etc.) deferred — current encounter schema has no dive method; tracked as TODO.',
+    ],
+  },
+  {
+    locationId: 'route-125',
+    displayName: 'Route 125',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: ['Ocean north of Mossdeep, gateway to Shoal Cave.'],
+  },
+  {
+    locationId: 'shoal-cave',
+    displayName: 'Shoal Cave',
+    encounters: [
+      // Union across all four chambers + tide states per Bulbapedia.
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave', 'All', 'Deeper rooms.'),
+      encounter('Spheal', ['Ice', 'Water'], 'cave'),
+      encounter('Snorunt', ['Ice'], 'cave', 'All', 'Ice Room only (rare).'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Spheal', ['Ice', 'Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Multi-room cave with tidal mechanics — Low Tide opens Ice Room/Lower Chamber, High Tide submerges sections. Species union listed; per-room/per-tide rates deferred.',
+      'TODO: model tide mechanic + per-chamber gating once schema supports time/condition gating.',
+      'Postgame: old man Shoal Salt/Shoal Shell trade for Shell Bell (not modeled here).',
+    ],
+  },
+  {
+    locationId: 'mossdeep-city',
+    displayName: 'Mossdeep City',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Tate & Liza Gym (Psychic, double battle). Space Center on the south side.',
+      "Steven's house here gives HM08 Dive (RS) — story-gated.",
+    ],
+  },
+  {
+    locationId: 'route-127',
+    displayName: 'Route 127',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      surf('Wailmer', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Ocean east of Mossdeep, connects to Route 128.',
+      'Dive spots deferred (Clamperl/Relicanth/Chinchou) — see Route 124 note.',
+    ],
+  },
+  {
+    locationId: 'route-128',
+    displayName: 'Route 128',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      surf('Wailmer', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Luvdisc', ['Water'], 'Super Rod'),
+    ],
+    notes: [
+      'Ocean route directly above Seafloor Cavern entrance.',
+      'Dive spot leads to Seafloor Cavern.',
+    ],
+  },
+  {
+    locationId: 'seafloor-cavern',
+    displayName: 'Seafloor Cavern',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+    ],
+    notes: [
+      'Endgame cave where Aqua/Magma awaken the legendary. Multi-floor with current-puzzle gating.',
+      'Leader battle here is version-split (see boss data). Kyogre/Groudon awakening cutscene plays after the leader fight — capture happens at Cave of Origin (RS) or postgame (Emerald).',
+    ],
+  },
+  {
+    locationId: 'route-126',
+    displayName: 'Route 126',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: ['Ocean surrounding Sootopolis. Dive spot leads down into the underwater entrance to Sootopolis.'],
+  },
+  {
+    locationId: 'sootopolis-city',
+    displayName: 'Sootopolis City',
+    encounters: [
+      surf('Magikarp', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+    ],
+    notes: [
+      'Crater city accessed by Dive (or via Wallace/Juan story event). Sootopolis Gym (Water).',
+      'Emerald story: Groudon vs Kyogre clash in the city center — Rayquaza descent + Sky Pillar climb resolves it.',
+    ],
+  },
+  {
+    locationId: 'cave-of-origin',
+    displayName: 'Cave of Origin',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      encounter('Groudon', ['Ground'], 'legendary', 'Ruby', 'Ruby static legendary at Lv 45 — story-mandatory.'),
+      encounter('Kyogre', ['Water'], 'legendary', 'Sapphire', 'Sapphire static legendary at Lv 45 — story-mandatory.'),
+    ],
+    notes: [
+      'Sootopolis-floor cave. Wallace/Juan unlocks entry after the Sootopolis clash cutscene.',
+      'Ruby: Groudon Lv 45 captured here. Sapphire: Kyogre Lv 45 captured here.',
+      'Emerald: neither legendary is captured here — story shows both clashing, then both flee. Postgame captures happen at Terra Cave (Groudon) / Marine Cave (Kyogre) via roaming weather events — deferred.',
+    ],
+  },
+  {
+    locationId: 'aqua-magma-hideout',
+    displayName: 'Team Aqua / Team Magma Hideout',
+    encounters: [
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave'),
+      surf('Magikarp', ['Water']),
+    ],
+    notes: [
+      'Lilycove Aqua Hideout (Sapphire / Emerald) and Jagged Pass Magma Hideout (Emerald) collapsed into one entry. Ruby Magma Hideout is at Mt. Chimney area — separate. TODO: split if per-version layout differs meaningfully for tracking.',
+      'Wild encounter table is the same minimal Zubat/Golbat/Magikarp set across all hideouts.',
+    ],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
@@ -581,7 +783,7 @@ const stubAreas: RseEncounterArea[] = (Array.isArray(rseLocations) ? rseLocation
 export const rseEncounterAreas: RseEncounterArea[] = [...populatedAreas, ...stubAreas];
 
 export const rseEncounterNotes = [
-  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf; Pass 3 extends through Route 111 / Fiery Path / Fallarbor / Meteor Falls / Mt. Chimney / Lavaridge. Later locations are stubs awaiting future passes.',
+  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf; Pass 3 extends through Route 111 / Fiery Path / Fallarbor / Meteor Falls / Mt. Chimney / Lavaridge. Pass 5 extends through Routes 124-128 / Shoal Cave / Mossdeep / Sootopolis / Cave of Origin / Seafloor Cavern / Aqua-Magma Hideout. Pass 4 (Routes 118-123, Fortree, Norman, Winona, Mt. Pyre) is intentionally skipped pending follow-up.',
   'Honey trees (Gen 4 only), Poké Radar, Pokéblocks/Safari Zone mechanics, dual-slot, day/night gating, and trainer-rematch tables are not modeled this pass.',
   'Mirage Tower / Desert Underpass / Sky Pillar legendary placements are deferred to a later legendary-focused pass.',
   'New Mauville interior, Trick House, and Abandoned Ship require dedicated handling and are deferred.',
