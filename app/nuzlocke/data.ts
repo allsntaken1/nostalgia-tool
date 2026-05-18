@@ -23,7 +23,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Partial') as GameDataStatus,
+      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Working Complete') as GameDataStatus,
     })),
   },
   {
@@ -1690,8 +1690,8 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
 
   if (supportsRse(gameVersion)) {
     return {
-      title: 'Hoenn support in progress',
-      message: 'Ruby / Sapphire / Emerald data: Pass 1 (Littleroot → Roxanne), Pass 2 (Dewford → Wattson), Pass 3 (Route 111 → Flannery), Pass 4 (Routes 118-123 + Weather Institute + Fortree + Norman + Winona + Lilycove + Mt. Pyre), Pass 5 (Routes 124-128 + Mossdeep + Tate & Liza + Shoal Cave + Sootopolis + Cave of Origin + Seafloor Cavern) are live. Groudon (Ruby) / Kyogre (Sapphire) static legendaries populated at Cave of Origin; Castform gift at Weather Institute; Kecleon Devon Scope encounters on Routes 118/119/120. Rival Route 110/119/Lilycove teams, Mt. Chimney + Seafloor + Weather Institute admin teams, Sky Pillar / Rayquaza, regis, Latias/Latios, Safari Zone area partitioning, Route 119 Feebas tile mechanic, Trick House, Abandoned Ship, New Mauville, dive encounters, and Sootopolis Gym/E4/Champion teams remain TODO.',
+      title: 'Hoenn main-story complete',
+      message: 'Ruby / Sapphire / Emerald main-story coverage is complete: all 8 gym leaders, the full Elite Four (Sidney / Phoebe / Glacia / Drake), Champion Steven (RS) and Champion Wallace (Emerald), Wally Victory Road, all 21 main-story routes, all three Regi caves (Regirock / Regice / Registeel), Rayquaza at Sky Pillar, Groudon (Ruby) / Kyogre (Sapphire) at Cave of Origin, Eon Ticket statics at Southern Island, Castform gift, Kecleon Devon Scope encounters, fossil revival (Anorith/Lileep mutual choice), New Mauville, Abandoned Ship, and Steven Meteor Falls postgame are all populated. Remaining schema-deferred TODOs: Route 119 Feebas tile mechanic, Safari Zone per-area partitioning, Latias/Latios roaming legendary tracking, Shoal Cave per-tide gating, dive encounters (Routes 124/126/127 species), Trick House puzzle chains, full per-Pokémon movesets across all bosses, and a handful of evil-team admin team verifications (Mt. Chimney leader, Seafloor leader, Weather Institute admin).',
       emptyState: 'No standard RSE encounter is currently tracked for this location.',
     };
   }
