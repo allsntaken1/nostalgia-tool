@@ -50,6 +50,9 @@ const surf = (species: string, types: PokemonType[], version: RseVersion = 'All'
 const fish = (species: string, types: PokemonType[], rod: RseRod, version: RseVersion = 'All', notes?: string): RseEncounter =>
   encounter(species, types, 'fishing', version, notes, { rod });
 
+const devonScope = (species: string, types: PokemonType[], version: RseVersion = 'All', notes?: string): RseEncounter =>
+  encounter(species, types, 'special', version, notes, { condition: 'Devon Scope' });
+
 // =====================================================================================
 // RSE Pass 1 — Littleroot through Rusturf Tunnel (canonical Ruby/Sapphire/Emerald data).
 // =====================================================================================
@@ -567,6 +570,214 @@ const populatedAreas: RseEncounterArea[] = [
   },
 
   // =====================================================================================
+  // RSE Pass 4 — Route 118 through Fortree / Weather Institute / Norman / Lilycove / Mt. Pyre.
+  // Bridges Pass 3 (Lavaridge/Flannery) into Pass 5 (Mossdeep onward).
+  // =====================================================================================
+  {
+    locationId: 'route-118',
+    displayName: 'Route 118',
+    encounters: [
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Linoone', ['Normal'], 'grass'),
+      encounter('Electrike', ['Electric'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Kecleon', ['Normal'], 'grass'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      devonScope('Kecleon', ['Normal'], 'All', 'Invisible Kecleon blocks the bridge to Route 119 — revealed after picking up the Devon Scope from Steven. Story-mandatory encounter.'),
+    ],
+    notes: [
+      'East of Mauville. The Kecleon on the bridge is a story-mandatory Devon Scope encounter.',
+      'Steven gives the Devon Scope here — story event.',
+    ],
+  },
+  {
+    locationId: 'route-119',
+    displayName: 'Route 119',
+    encounters: [
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Linoone', ['Normal'], 'grass'),
+      encounter('Oddish', ['Grass', 'Poison'], 'grass'),
+      encounter('Wurmple', ['Bug'], 'grass'),
+      encounter('Tropius', ['Grass', 'Flying'], 'grass', 'All', 'Rare grass spawn (~1%).'),
+      encounter('Surskit', ['Bug', 'Water'], 'grass', 'Emerald', 'Emerald-only grass addition.'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Magikarp', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      fish('Carvanha', ['Water', 'Dark'], 'Super Rod', 'Emerald', 'Emerald-only Super Rod addition.'),
+      devonScope('Kecleon', ['Normal'], 'All', 'Invisible Kecleon block(s) along Route 119; revealed by Devon Scope.'),
+    ],
+    notes: [
+      'Long northbound route to Fortree, permanent rain in the upper grass section.',
+      'Feebas: Route 119 hosts the Feebas tile mechanic — only 6 of ~400 tiles spawn Feebas, deterministic per save by Trainer ID. TODO: model once tile-coordinate / Trainer-ID hashing convention exists; not faked here.',
+      'Weather Institute is a side-building off this route — separate location entry.',
+    ],
+  },
+  {
+    locationId: 'weather-institute',
+    displayName: 'Weather Institute',
+    encounters: [
+      encounter('Castform', ['Normal'], 'gift', 'All', 'Castform Lv 25 gift from the Weather Institute scientist after defeating the Aqua/Magma admin. Available in all three versions.'),
+    ],
+    notes: [
+      'Side-building on Route 119 occupied by Team Magma (Ruby) or Team Aqua (Sapphire / Emerald). Admin boss fight inside — see boss data.',
+      'No wild grass table.',
+    ],
+  },
+  {
+    locationId: 'fortree-city',
+    displayName: 'Fortree City',
+    encounters: [],
+    notes: ['Treehouse city. Winona Gym (Flying). No wild grass table. Kecleon blocks Route 120 entrance until Devon Scope.'],
+  },
+  {
+    locationId: 'route-120',
+    displayName: 'Route 120',
+    encounters: [
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Linoone', ['Normal'], 'grass'),
+      encounter('Oddish', ['Grass', 'Poison'], 'grass'),
+      encounter('Marill', ['Water', 'Fairy'], 'grass'),
+      encounter('Kecleon', ['Normal'], 'grass'),
+      encounter('Absol', ['Dark'], 'grass', 'All', 'Rare grass spawn.'),
+      encounter('Surskit', ['Bug', 'Water'], 'grass', 'Emerald', 'Emerald-only grass addition.'),
+      surf('Marill', ['Water', 'Fairy']),
+      surf('Lotad', ['Water', 'Grass'], 'Sapphire'),
+      surf('Lotad', ['Water', 'Grass'], 'Emerald'),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+      devonScope('Kecleon', ['Normal'], 'All', 'Invisible Kecleon blocks the Fortree exit bridge. Revealed by Devon Scope. Mandatory progression encounter.'),
+    ],
+    notes: ['Forest route east of Fortree. Marill typed Water/Fairy per modern-dex convention.'],
+  },
+  {
+    locationId: 'route-121',
+    displayName: 'Route 121',
+    encounters: [
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Linoone', ['Normal'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Pelipper', ['Water', 'Flying'], 'grass', 'All', 'Rare grass spawn (~1%).'),
+      encounter('Shuppet', ['Ghost'], 'grass', 'Emerald', 'Emerald-only grass addition (night/Mt.Pyre-adjacent).'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Coastal route between Route 120 and Lilycove. Safari Zone entrance is on this route — Safari Zone interior is deferred (separate area-partitioning system).',
+    ],
+  },
+  {
+    locationId: 'safari-zone',
+    displayName: 'Safari Zone',
+    encounters: [],
+    notes: [
+      'TODO: Safari Zone requires per-area partition handling (Area 1 / 2 / 3 / 4 in RS; expanded Areas 5-6 in Emerald with Doduo/Aipom/etc.). Not modeled this pass.',
+      'Notable Safari-Zone-only species: Pikachu (RS), Pinsir, Heracross (E only Areas 5-6), Phanpy, Doduo, Aipom (E), Stantler (E), Sunkern, Wobbuffet (E), etc.',
+    ],
+  },
+  {
+    locationId: 'lilycove-city',
+    displayName: 'Lilycove City',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: [
+      'Coastal hub. Department Store, Contest Hall, Pokémon Trainer Fan Club.',
+      'Aqua Hideout entrance is in Lilycove in Sapphire/Emerald — separate Hideout entry already populated.',
+      'Move Tutor for Dive (Emerald) — story-gated.',
+    ],
+  },
+  {
+    locationId: 'mt-pyre',
+    displayName: 'Mt. Pyre',
+    encounters: [
+      // Interior floors 1F-6F + exterior summit species union per Bulbapedia.
+      encounter('Shuppet', ['Ghost'], 'cave'),
+      encounter('Duskull', ['Ghost'], 'cave'),
+      encounter('Meditite', ['Fighting', 'Psychic'], 'cave', 'All', 'Exterior summit slope.'),
+      encounter('Vulpix', ['Fire'], 'cave', 'All', 'Exterior summit slope (rare).'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+    ],
+    notes: [
+      'Cemetery mountain. Interior floors (1F-6F) + exterior summit collapsed into one entry; species union listed. Per-floor rates differ.',
+      'Story event: Magma (Ruby) steals the Red Orb / Aqua (Sapphire/Emerald) steals the Blue Orb from the summit. Old Couple gives the other Orb to the player after.',
+    ],
+  },
+  {
+    locationId: 'route-122',
+    displayName: 'Route 122',
+    encounters: [
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: ['Surf-only water route between Mt. Pyre island and the surrounding sea.'],
+  },
+  {
+    locationId: 'route-123',
+    displayName: 'Route 123',
+    encounters: [
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Linoone', ['Normal'], 'grass'),
+      encounter('Oddish', ['Grass', 'Poison'], 'grass'),
+      encounter('Gloom', ['Grass', 'Poison'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Pelipper', ['Water', 'Flying'], 'grass', 'All', 'Rare grass spawn (~1%).'),
+      encounter('Shuppet', ['Ghost'], 'grass', 'Emerald', 'Emerald-only grass addition (Mt. Pyre proximity).'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+    ],
+    notes: ['Route west of Lilycove / east of Mauville-Route-118 area. Berry trees + Mt. Pyre approach.'],
+  },
+
+  // =====================================================================================
   // RSE Pass 5 — Lilycove eastern arc through Mossdeep / Seafloor Cavern / Sootopolis.
   // NOTE: Pass 4 (Fortree / Weather Institute / Norman) was skipped — Routes 118-123,
   // Petalburg Gym, Winona, Mt. Pyre, etc. remain skeleton/stub pending Pass 4.
@@ -783,7 +994,7 @@ const stubAreas: RseEncounterArea[] = (Array.isArray(rseLocations) ? rseLocation
 export const rseEncounterAreas: RseEncounterArea[] = [...populatedAreas, ...stubAreas];
 
 export const rseEncounterNotes = [
-  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf; Pass 3 extends through Route 111 / Fiery Path / Fallarbor / Meteor Falls / Mt. Chimney / Lavaridge. Pass 5 extends through Routes 124-128 / Shoal Cave / Mossdeep / Sootopolis / Cave of Origin / Seafloor Cavern / Aqua-Magma Hideout. Pass 4 (Routes 118-123, Fortree, Norman, Winona, Mt. Pyre) is intentionally skipped pending follow-up.',
+  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf; Pass 3 extends through Route 111 / Fiery Path / Fallarbor / Meteor Falls / Mt. Chimney / Lavaridge; Pass 4 extends through Routes 118-123 / Weather Institute / Fortree / Lilycove / Mt. Pyre; Pass 5 extends through Routes 124-128 / Shoal Cave / Mossdeep / Sootopolis / Cave of Origin / Seafloor Cavern / Aqua-Magma Hideout. Route 119 Feebas tile mechanic + Safari Zone area partitioning remain TODO.',
   'Honey trees (Gen 4 only), Poké Radar, Pokéblocks/Safari Zone mechanics, dual-slot, day/night gating, and trainer-rematch tables are not modeled this pass.',
   'Mirage Tower / Desert Underpass / Sky Pillar legendary placements are deferred to a later legendary-focused pass.',
   'New Mauville interior, Trick House, and Abandoned Ship require dedicated handling and are deferred.',
