@@ -392,6 +392,179 @@ const populatedAreas: RseEncounterArea[] = [
     encounters: [],
     notes: ['Town venue. No wild encounter table. Rusturf Tunnel back-exit (post Rock Smash) opens here.'],
   },
+
+  // =====================================================================================
+  // RSE Pass 3 — Mauville through Fallarbor / Meteor Falls / Lavaridge.
+  // =====================================================================================
+  {
+    locationId: 'route-111',
+    displayName: 'Route 111',
+    encounters: [
+      // South-of-desert grass section (the populated stretch before the sandstorm wall).
+      encounter('Zigzagoon', ['Normal'], 'grass'),
+      encounter('Sandshrew', ['Ground'], 'grass'),
+      surf('Goldeen', ['Water']),
+      surf('Magikarp', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+    ],
+    notes: [
+      'South stretch (grass) populated; north desert section (Trapinch/Cacnea/Baltoy/Sandshrew, gated by Go-Goggles) deferred.',
+      'Mirage Tower is Emerald-exclusive and contains an Anorith Fossil (vs Claw Fossil) choice — TODO once fossil-revival schema is in place.',
+    ],
+  },
+  {
+    locationId: 'route-112',
+    displayName: 'Route 112',
+    encounters: [
+      encounter('Numel', ['Fire', 'Ground'], 'grass'),
+      encounter('Spoink', ['Psychic'], 'grass'),
+      encounter('Machop', ['Fighting'], 'grass'),
+    ],
+    notes: ['Volcanic slope route connecting Fiery Path entrance to the Mt. Chimney cable car.'],
+  },
+  {
+    locationId: 'fiery-path',
+    displayName: 'Fiery Path',
+    encounters: [
+      encounter('Slugma', ['Fire'], 'cave'),
+      encounter('Numel', ['Fire', 'Ground'], 'cave'),
+      encounter('Torkoal', ['Fire'], 'cave'),
+      encounter('Grimer', ['Poison'], 'cave'),
+      encounter('Koffing', ['Poison'], 'cave'),
+      encounter('Machop', ['Fighting'], 'cave'),
+    ],
+    notes: ['Cave shortcut between Route 112 and Route 111 (north of Fallarbor). Strength required to access fully.'],
+  },
+  {
+    locationId: 'route-113',
+    displayName: 'Route 113',
+    encounters: [
+      encounter('Spinda', ['Normal'], 'grass'),
+      encounter('Skarmory', ['Steel', 'Flying'], 'grass'),
+      encounter('Slugma', ['Fire'], 'grass'),
+      encounter('Sandshrew', ['Ground'], 'grass'),
+    ],
+    notes: ['Permanent ash-fall route. Glass Workshop NPC trades volcanic ash for items.'],
+  },
+  {
+    locationId: 'fallarbor-town',
+    displayName: 'Fallarbor Town',
+    encounters: [],
+    notes: ['Town venue. No wild encounter table. Move Tutor (Draco Meteor — Emerald postgame), Battle Tent, Cosmo / Meteorite plot hub.'],
+  },
+  {
+    locationId: 'route-114',
+    displayName: 'Route 114',
+    encounters: [
+      encounter('Swablu', ['Normal', 'Flying'], 'grass'),
+      encounter('Seedot', ['Grass'], 'grass', 'Ruby', 'Ruby-only — Sapphire has Lotad on this route instead.'),
+      encounter('Seedot', ['Grass'], 'grass', 'Emerald'),
+      encounter('Lotad', ['Water', 'Grass'], 'grass', 'Sapphire', 'Sapphire-only — Ruby has Seedot here.'),
+      encounter('Lotad', ['Water', 'Grass'], 'grass', 'Emerald'),
+      encounter('Nuzleaf', ['Grass', 'Dark'], 'grass', 'Ruby', 'Ruby-only evolved Seedot.'),
+      encounter('Nuzleaf', ['Grass', 'Dark'], 'grass', 'Emerald'),
+      encounter('Lombre', ['Water', 'Grass'], 'grass', 'Sapphire', 'Sapphire-only evolved Lotad.'),
+      encounter('Lombre', ['Water', 'Grass'], 'grass', 'Emerald'),
+      encounter('Zangoose', ['Normal'], 'grass', 'Ruby', 'Ruby-only — Sapphire has Seviper.'),
+      encounter('Zangoose', ['Normal'], 'grass', 'Emerald'),
+      encounter('Seviper', ['Poison'], 'grass', 'Sapphire', 'Sapphire-only — Ruby has Zangoose.'),
+      encounter('Seviper', ['Poison'], 'grass', 'Emerald'),
+      surf('Marill', ['Water', 'Fairy']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+    ],
+    notes: ['Lakefront route leading to Meteor Falls. Seedot/Lotad + Zangoose/Seviper version-pair theme.'],
+  },
+  {
+    locationId: 'meteor-falls',
+    displayName: 'Meteor Falls',
+    encounters: [
+      // 1F + B1F species union per Bulbapedia.
+      encounter('Zubat', ['Poison', 'Flying'], 'cave'),
+      encounter('Golbat', ['Poison', 'Flying'], 'cave', 'All', 'Deeper floors.'),
+      encounter('Solrock', ['Rock', 'Psychic'], 'cave', 'Ruby', 'Ruby-exclusive — Sapphire swaps with Lunatone.'),
+      encounter('Solrock', ['Rock', 'Psychic'], 'cave', 'Emerald'),
+      encounter('Lunatone', ['Rock', 'Psychic'], 'cave', 'Sapphire', 'Sapphire-exclusive — Ruby swaps with Solrock.'),
+      encounter('Lunatone', ['Rock', 'Psychic'], 'cave', 'Emerald'),
+      encounter('Bagon', ['Dragon'], 'cave', 'All', 'B1F deep interior (post-Waterfall area).'),
+      surf('Goldeen', ['Water']),
+      surf('Magikarp', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Super Rod'),
+    ],
+    notes: [
+      '1F + B1F species union. Deep interior + Waterfall sections gated until later.',
+      'Solrock is Ruby-exclusive, Lunatone is Sapphire-exclusive; Emerald has both.',
+      'Bagon is in the deep interior (post-Waterfall) — accessible later but listed here for catalog completeness.',
+      'Emerald postgame: Steven Stone multi-battle happens here (not modeled in this pass — see Pass 1 skeleton).',
+    ],
+  },
+  {
+    locationId: 'route-115',
+    displayName: 'Route 115',
+    encounters: [
+      encounter('Taillow', ['Normal', 'Flying'], 'grass'),
+      encounter('Swablu', ['Normal', 'Flying'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Jigglypuff', ['Normal', 'Fairy'], 'grass', 'Emerald', 'Emerald-only grass addition.'),
+      surf('Tentacool', ['Water', 'Poison']),
+      surf('Wingull', ['Water', 'Flying']),
+      surf('Pelipper', ['Water', 'Flying']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Good Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+    ],
+    notes: [
+      'Beach route north of Rustboro. South half requires Surf; north half reaches Meteor Falls entrance.',
+      'Jigglypuff typed Normal/Fairy per modern-dex display convention.',
+    ],
+  },
+  {
+    locationId: 'jagged-pass',
+    displayName: 'Jagged Pass',
+    encounters: [
+      encounter('Numel', ['Fire', 'Ground'], 'grass'),
+      encounter('Spoink', ['Psychic'], 'grass'),
+      encounter('Machop', ['Fighting'], 'grass'),
+    ],
+    notes: ['Descent from Mt. Chimney summit to Lavaridge. Same core species as Route 112.'],
+  },
+  {
+    locationId: 'mt-chimney-summit',
+    displayName: 'Mt. Chimney',
+    encounters: [],
+    notes: [
+      'Volcanic summit. No wild encounter table — only Magma/Aqua trainer battles and the leader confrontation.',
+      'Reachable via Cable Car from Route 112; descent via Jagged Pass to Lavaridge.',
+    ],
+  },
+  {
+    locationId: 'lavaridge-town',
+    displayName: 'Lavaridge Town',
+    encounters: [
+      encounter('Wynaut', ['Psychic'], 'gift', 'Emerald', 'Wynaut Egg gift from old woman in Lavaridge (Emerald only). Wynaut typed Psychic per modern-dex convention.'),
+    ],
+    notes: [
+      'Hot springs town. Flannery Gym (Fire). No wild grass table.',
+      'Egg gift: Wynaut Egg available in Emerald only (RS gives Wynaut Egg at Lavaridge too — verify? deferred to TODO if version-uncertain).',
+    ],
+  },
 ];
 
 const populatedIds = new Set(populatedAreas.map((a) => a.locationId));
@@ -408,7 +581,7 @@ const stubAreas: RseEncounterArea[] = (Array.isArray(rseLocations) ? rseLocation
 export const rseEncounterAreas: RseEncounterArea[] = [...populatedAreas, ...stubAreas];
 
 export const rseEncounterNotes = [
-  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf. Later locations are stubs awaiting future passes.',
+  'Pass 1 covers Littleroot through Rusturf Tunnel; Pass 2 extends through Dewford / Granite Cave / Slateport / Mauville / Verdanturf; Pass 3 extends through Route 111 / Fiery Path / Fallarbor / Meteor Falls / Mt. Chimney / Lavaridge. Later locations are stubs awaiting future passes.',
   'Honey trees (Gen 4 only), Poké Radar, Pokéblocks/Safari Zone mechanics, dual-slot, day/night gating, and trainer-rematch tables are not modeled this pass.',
   'Mirage Tower / Desert Underpass / Sky Pillar legendary placements are deferred to a later legendary-focused pass.',
   'New Mauville interior, Trick House, and Abandoned Ship require dedicated handling and are deferred.',

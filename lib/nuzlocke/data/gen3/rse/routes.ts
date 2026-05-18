@@ -58,6 +58,7 @@ export const rseLocations: RseLocation[] = [
   location('route-111', 'Route 111', 23, ['route']),
   location('route-112', 'Route 112', 24, ['route']),
   location('fiery-path', 'Fiery Path', 25, ['cave']),
+  location('mt-chimney-summit', 'Mt. Chimney', 25.5, ['boss-area', 'evil-team']),
   location('route-113', 'Route 113', 26, ['route']),
   location('fallarbor-town', 'Fallarbor Town', 27, ['town']),
   location('route-114', 'Route 114', 28, ['route']),
