@@ -1691,7 +1691,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (supportsRse(gameVersion)) {
     return {
       title: 'Hoenn support in progress',
-      message: 'Ruby / Sapphire / Emerald data is populated through Mauville / Wattson: Pass 1 (Littleroot through Rusturf + Roxanne) and Pass 2 (Dewford, Granite Cave, Routes 106-109, Slateport, Route 110, Mauville, Route 117, Verdanturf + Brawly + Wally Mauville + Wattson) are live. Rival Route 110 team, later Hoenn routes (Route 111 onward), remaining gym/E4/champion teams, evil-team branches (Aqua/Magma full chain), legendaries (Groudon/Kyogre/Rayquaza/regis), Safari Zone, Trick House, Abandoned Ship, and New Mauville interior remain TODO.',
+      message: 'Ruby / Sapphire / Emerald data is populated through Lavaridge / Flannery: Pass 1 (Littleroot → Rusturf + Roxanne), Pass 2 (Dewford → Wattson + Brawly + Wally), Pass 3 (Route 111 south → Lavaridge + Flannery) are live. Mt. Chimney leader fight + Magma Admin Tabitha, Rival Route 110, Route 111 desert (post Go-Goggles) + Mirage Tower, Routes 118+ (Fortree onward), remaining gym/E4/champion teams, full Aqua/Magma chain (Weather Institute, Mt. Pyre, Hideout, Seafloor Cavern), legendaries (Groudon/Kyogre/Rayquaza/regis), Safari Zone, Trick House, Abandoned Ship, and New Mauville interior remain TODO.',
       emptyState: 'No standard RSE encounter is currently tracked for this location.',
     };
   }
