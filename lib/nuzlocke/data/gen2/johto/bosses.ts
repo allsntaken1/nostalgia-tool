@@ -148,7 +148,23 @@ export const gen2JohtoBosses: Gen2BossSkeleton[] = [
       'TODO: Add verified Gen 2 moves in a later move-normalization pass.',
     ],
   }),
-  boss({ id: 'whitney-gen2', name: 'Whitney', category: 'Gym Leader', locationId: 'goldenrod-city', location: 'Goldenrod City', order: 6 }),
+  boss({
+    id: 'whitney-gen2',
+    name: 'Whitney',
+    category: 'gym',
+    locationId: 'goldenrod-city',
+    location: 'Goldenrod Gym',
+    order: 6,
+    levelCap: 20,
+    baseTeam: [
+      mon('Clefairy', 18, ['Fairy']),
+      mon('Miltank', 20, ['Normal']),
+    ],
+    notes: [
+      'Plain Badge. Miltank Lv 20 is the infamous wall — Rollout + Attract + Stomp + Milk Drink in GSC.',
+      'TODO: Verify original G/S/C movesets before adding moves.',
+    ],
+  }),
   boss({
     id: 'rival-3-gen2',
     name: 'Rival 3',
