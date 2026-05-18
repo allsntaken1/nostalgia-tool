@@ -183,7 +183,7 @@ const GENERATION_BY_GAME: Partial<Record<GameVersion, number>> = {
   Black: 5, White: 5, 'Black 2': 5, 'White 2': 5,
   X: 6, Y: 6, 'Omega Ruby': 6, 'Alpha Sapphire': 6,
   Sun: 7, Moon: 7, 'Ultra Sun': 7, 'Ultra Moon': 7,
-  Sword: 8, Shield: 8, 'Brilliant Diamond': 8, 'Shining Pearl': 8, 'Legends: Arceus': 8,
+  Sword: 8, Shield: 8, 'Brilliant Diamond': 8, 'Shining Pearl': 8,
   Scarlet: 9, Violet: 9,
 };
 

@@ -31,7 +31,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Diamond', 'Pearl', 'Platinum', 'HeartGold', 'SoulSilver'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: name === 'HeartGold' || name === 'SoulSilver' ? 'Partial' : 'Partial',
+      dataStatus: 'Partial' as GameDataStatus,
     })),
   },
   {
@@ -53,7 +53,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
   { generation: 'Gen 7', games: ['Sun', 'Moon', 'Ultra Sun', 'Ultra Moon'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Partial' as GameDataStatus })) },
   {
     generation: 'Gen 8',
-    games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl', 'Legends: Arceus'].map((name) => ({
+    games: ['Sword', 'Shield', 'Brilliant Diamond', 'Shining Pearl'].map((name) => ({
       name: name as GameVersion,
       supported: true,
       dataStatus: 'Complete' as GameDataStatus,

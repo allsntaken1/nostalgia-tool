@@ -2,7 +2,7 @@ import type { GameVersion, NuzlockeBoss, PokemonType, StarterChoice, TrainerThre
 import type { EncounterOption } from '@/app/nuzlocke/data';
 import { getRivalStarterChoice } from '@/lib/nuzlocke/starter';
 
-export type Gen8Game = 'Sword' | 'Shield' | 'Brilliant Diamond' | 'Shining Pearl' | 'Legends: Arceus';
+export type Gen8Game = 'Sword' | 'Shield' | 'Brilliant Diamond' | 'Shining Pearl';
 
 export interface BossTrainer {
   id: string;

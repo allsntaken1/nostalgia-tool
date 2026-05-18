@@ -35,7 +35,9 @@ export function getGen5TrainerSkeletons(gameVersion: GameVersion): BossTrainer[]
     locationId: rival.locationId,
     location: rival.locationId,
     recommendedOrder: rival.order,
-    levelCap: 1,
+    // Skeleton rival: cap unknown until canonical data is populated. Adapter forwards null
+    // to the UI's TBD path instead of fabricating Cap 1 (matches gen4-trainers.ts pattern).
+    levelCap: null,
     team: [],
     baseTeam: [],
     variantsByRivalStarterChoice: rival.variantsByRivalStarterChoice,

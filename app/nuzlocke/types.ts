@@ -31,7 +31,6 @@ export type GameVersion =
   | 'Shield'
   | 'Brilliant Diamond'
   | 'Shining Pearl'
-  | 'Legends: Arceus'
   | 'Scarlet'
   | 'Violet';
 
