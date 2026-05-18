@@ -23,7 +23,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
     games: ['Ruby', 'Sapphire', 'Emerald', 'FireRed', 'LeafGreen'].map((name) => ({
       name: name as GameVersion,
       supported: true,
-      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Working Complete') as GameDataStatus,
+      dataStatus: (name === 'FireRed' || name === 'LeafGreen' ? 'In Audit' : 'Complete') as GameDataStatus,
     })),
   },
   {
@@ -1690,8 +1690,8 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
 
   if (supportsRse(gameVersion)) {
     return {
-      title: 'Hoenn main-story complete',
-      message: 'Ruby / Sapphire / Emerald main-story coverage is complete: all 8 gym leaders, the full Elite Four (Sidney / Phoebe / Glacia / Drake), Champion Steven (RS) and Champion Wallace (Emerald), Wally Victory Road, all 21 main-story routes, all three Regi caves (Regirock / Regice / Registeel), Rayquaza at Sky Pillar, Groudon (Ruby) / Kyogre (Sapphire) at Cave of Origin, Eon Ticket statics at Southern Island, Castform gift, Kecleon Devon Scope encounters, fossil revival (Anorith/Lileep mutual choice), New Mauville, Abandoned Ship, and Steven Meteor Falls postgame are all populated. Remaining schema-deferred TODOs: Route 119 Feebas tile mechanic, Safari Zone per-area partitioning, Latias/Latios roaming legendary tracking, Shoal Cave per-tide gating, dive encounters (Routes 124/126/127 species), Trick House puzzle chains, full per-Pokémon movesets across all bosses, and a handful of evil-team admin team verifications (Mt. Chimney leader, Seafloor leader, Weather Institute admin).',
+      title: 'Hoenn data complete',
+      message: 'Ruby / Sapphire / Emerald coverage is complete. Every required main-story battle is populated: all 8 gym leaders, the full Elite Four (Sidney / Phoebe / Glacia / Drake), Champion Steven (RS) + Champion Wallace (Emerald), all rival fights (Route 103, Route 110, Route 119 R/S, Wally Mauville + Victory Road — Emerald canonically removes the Route 119 rival fight), every Aqua/Magma leader + admin battle (Tabitha, Courtney Ruby, Shelly Sapphire/Emerald, Maxie/Archie at Mt. Chimney and Seafloor Cavern), all three Regi caves, Rayquaza at Sky Pillar, Groudon/Kyogre at Cave of Origin, Eon Ticket statics at Southern Island, Castform gift, Kecleon Devon Scope encounters, fossil revival (Anorith/Lileep), Beldum gift, Safari Zone species union, New Mauville, Abandoned Ship, and Steven Meteor Falls postgame. Remaining items are pure schema/UX gaps with no canonical content missing: Route 119 Feebas tile mechanic, Latias/Latios roaming legendary tracker, Shoal Cave per-tide gating, dive encounter schema (Routes 124/126/127 species), Safari Zone per-area partitioning, Trick House puzzle chains, and per-Pokémon moveset polish on populated bosses.',
       emptyState: 'No standard RSE encounter is currently tracked for this location.',
     };
   }
