@@ -1691,7 +1691,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (supportsRse(gameVersion)) {
     return {
       title: 'Hoenn support in progress',
-      message: 'Ruby / Sapphire / Emerald early-game data is populated through Roxanne (Rustboro Gym): Littleroot, Routes 101-104, Petalburg Woods, Rustboro, Route 116, and Rusturf Tunnel encounters live; rival Route 103 + Devon Goods grunt + Roxanne boss teams live. Later Hoenn routes, gym/E4/champion teams, evil-team branches (Aqua/Magma), legendaries (Groudon/Kyogre/Rayquaza/regis), and Safari Zone remain TODO.',
+      message: 'Ruby / Sapphire / Emerald data is populated through Mauville / Wattson: Pass 1 (Littleroot through Rusturf + Roxanne) and Pass 2 (Dewford, Granite Cave, Routes 106-109, Slateport, Route 110, Mauville, Route 117, Verdanturf + Brawly + Wally Mauville + Wattson) are live. Rival Route 110 team, later Hoenn routes (Route 111 onward), remaining gym/E4/champion teams, evil-team branches (Aqua/Magma full chain), legendaries (Groudon/Kyogre/Rayquaza/regis), Safari Zone, Trick House, Abandoned Ship, and New Mauville interior remain TODO.',
       emptyState: 'No standard RSE encounter is currently tracked for this location.',
     };
   }
