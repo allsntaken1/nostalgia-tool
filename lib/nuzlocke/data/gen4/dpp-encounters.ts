@@ -53,6 +53,26 @@ const fish = (species: string, types: PokemonType[], rod: DppRod, version: DppVe
 const rockSmash = (species: string, types: PokemonType[], version: DppVersion = 'All', notes?: string): DppEncounter =>
   encounter(species, types, 'special', version, notes, { condition: 'Rock Smash' });
 
+const honey = (species: string, types: PokemonType[], version: DppVersion = 'All', notes?: string): DppEncounter =>
+  encounter(species, types, 'special', version, notes, { condition: 'Honey Tree' });
+
+const radar = (species: string, types: PokemonType[], version: DppVersion = 'All', notes?: string): DppEncounter =>
+  encounter(species, types, 'special', version, notes, { condition: 'Poké Radar' });
+
+// Canonical DPPt honey-tree species table — identical across Diamond, Pearl, and Platinum.
+// Slather Honey on a Sweet-Honey tree and return after 6 in-game hours. Burmy spawns from a
+// honey tree always wears Plant Cloak (in-game cloak swaps happen via battling, not slot).
+// Munchlax is INTENTIONALLY OMITTED — Munchlax appears on exactly 4 personalized trees per save
+// determined by trainer ID / secret ID, not a universal slot. See dppEncounterNotes.
+const honeyTreeSpecies: DppEncounter[] = [
+  honey('Combee', ['Bug', 'Flying']),
+  honey('Wurmple', ['Bug']),
+  honey('Burmy', ['Bug']),
+  honey('Cherubi', ['Grass']),
+  honey('Aipom', ['Normal']),
+  honey('Heracross', ['Bug', 'Fighting'], 'All', 'Rare slot — present on every honey tree but uncommon.'),
+];
+
 // ==============================================================================================
 // DPP Pass 1 — Twinleaf through Eterna City (Bulbapedia raw wikitext verified).
 // ==============================================================================================
@@ -111,8 +131,9 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Bidoof', ['Normal'], 'grass'),
       encounter('Kricketot', ['Bug'], 'grass'),
       encounter('Shinx', ['Electric'], 'grass'),
+      radar('Sentret', ['Normal']),
     ],
-    notes: ['Swarm (Zigzagoon), Poké Radar (Sentret), and dual-slot (Growlithe) entries omitted — schema TODO.'],
+    notes: ['Swarm (Zigzagoon) and dual-slot (Growlithe) entries omitted — schema TODO. Poké Radar requires National Dex (postgame).'],
   },
   {
     locationId: 'jubilife-city',
@@ -237,10 +258,10 @@ const populatedAreas: DppEncounterArea[] = [
   {
     locationId: 'floaroma-meadow',
     displayName: 'Floaroma Meadow',
-    encounters: [],
+    encounters: [...honeyTreeSpecies],
     notes: [
-      "All Floaroma Meadow wild encounters happen via the Honey Tree mechanic, which isn't modeled this pass.",
-      'TODO: Honey-tree Combee/Burmy/etc. need future schema support.',
+      'Floaroma Meadow has no standard grass table — all wild encounters here happen via the Honey Tree mechanic.',
+      'Munchlax omitted from the universal honey-tree slot (4 personalized trees per save).',
     ],
   },
   {
@@ -265,8 +286,12 @@ const populatedAreas: DppEncounterArea[] = [
       // Drifloon static — split: DP Lv 22, Platinum Lv 15. Friday weekly availability after defeating Mars.
       encounter('Drifloon', ['Ghost', 'Flying'], 'static', 'DP', 'Outside the Windworks every Friday after defeating Commander Mars (Lv 22 in Diamond/Pearl).'),
       encounter('Drifloon', ['Ghost', 'Flying'], 'static', 'Platinum', 'Outside the Windworks every Friday after defeating Commander Mars (Lv 15 in Platinum).'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Drifloon Friday static differs Lv 22 (DP) vs Lv 15 (Platinum). Mars Commander battle modeled as boss data.'],
+    notes: [
+      'Drifloon Friday static differs Lv 22 (DP) vs Lv 15 (Platinum). Mars Commander battle modeled as boss data.',
+      'Honey-tree species available via Honey on nearby tree(s); Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'route-205-south',
@@ -276,8 +301,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Pachirisu', ['Electric'], 'grass'),
       encounter('Buizel', ['Water'], 'grass'),
       encounter('Shellos', ['Water'], 'grass'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Platinum adds several Poké Radar / Headbutt-style species not modeled this pass.'],
+    notes: [
+      'Platinum adds several Poké Radar / Headbutt-style species not modeled this pass.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'eterna-forest',
@@ -290,8 +319,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Murkrow', ['Dark', 'Flying'], 'grass'),
       encounter('Misdreavus', ['Ghost'], 'grass'),
       encounter('Hoothoot', ['Normal', 'Flying'], 'grass', 'DP', 'DP-only grass spawn (Platinum removes Hoothoot).'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Slakoth is a Platinum swarm-only species (not modeled). Old Chateau interior encounters are deferred to a later pass.'],
+    notes: [
+      'Slakoth is a Platinum swarm-only species (not modeled). Old Chateau interior encounters are deferred to a later pass.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'route-205-north',
@@ -301,8 +334,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Pachirisu', ['Electric'], 'grass'),
       encounter('Buizel', ['Water'], 'grass'),
       encounter('Shellos', ['Water'], 'grass'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Platinum expands the grass slot list significantly (Hoothoot/Wurmple line/Kricketot/Budew per Bulbapedia) — Platinum-specific additions deferred for canonical confirmation in a follow-up.'],
+    notes: [
+      'Platinum expands the grass slot list significantly (Hoothoot/Wurmple line/Kricketot/Budew per Bulbapedia) — Platinum-specific additions deferred for canonical confirmation in a follow-up.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'eterna-city',
@@ -328,8 +365,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Bronzor', ['Steel', 'Psychic'], 'grass'),
       encounter('Gligar', ['Ground', 'Flying'], 'grass', 'DP', 'DP-only grass spawn.'),
       encounter('Machop', ['Fighting'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Poké Radar / Honey-tree species (Baltoy, etc.) intentionally omitted — schema TODO.'],
+    notes: [
+      'Poké Radar species intentionally omitted — schema TODO.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'wayward-cave',
@@ -359,8 +400,14 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Kricketot', ['Bug'], 'grass'),
       encounter('Ponyta', ['Fire'], 'grass', 'DP', 'DP-only grass spawn.'),
       encounter('Gligar', ['Ground', 'Flying'], 'grass', 'DP', 'DP-only rare grass spawn.'),
+      radar('Stantler', ['Normal']),
+      radar('Larvitar', ['Rock', 'Ground']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Phanpy swarm + Poké Radar species (Stantler, Larvitar) intentionally omitted — schema TODO.'],
+    notes: [
+      'Phanpy swarm intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'mt-coronet-1f',
@@ -407,8 +454,12 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Seaking', ['Water'], 'Super Rod', 'Platinum', 'Platinum-only Super Rod addition.'),
       fish('Whiscash', ['Water', 'Ground'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Dunsparce swarm differs by version (Lv 16 DP / Lv 18 Pt); Poké Radar species omitted — schema TODO.'],
+    notes: [
+      'Dunsparce swarm differs by version (Lv 16 DP / Lv 18 Pt); Poké Radar species omitted — schema TODO.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'hearthome-city',
@@ -437,8 +488,14 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Magikarp', ['Water'], 'Super Rod'),
       fish('Seaking', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      radar('Tauros', ['Normal']),
+      radar('Miltank', ['Normal']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Tauros/Miltank Poké Radar gender splits differ DP→Pt — Poké Radar omitted.'],
+    notes: [
+      'Tauros/Miltank gender ratios on Poké Radar slots differ DP→Pt but both species appear in both versions.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic). Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'lost-tower',
@@ -481,8 +538,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Hoothoot', ['Normal', 'Flying'], 'grass', 'All', 'Night-only encounter (day/night not yet modeled).'),
       encounter('Noctowl', ['Normal', 'Flying'], 'grass', 'All', 'Night-only encounter (day/night not yet modeled).'),
       encounter('Scyther', ['Bug', 'Flying'], 'grass', 'DP', 'DP-only grass spawn (15-20%).'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Day/night gating not yet modeled — Hoothoot/Noctowl flagged in row notes.'],
+    notes: [
+      'Day/night gating not yet modeled — Hoothoot/Noctowl flagged in row notes.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'route-215',
@@ -498,8 +559,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Marill', ['Water', 'Fairy'], 'grass', 'DP', 'DP-only grass spawn.'),
       encounter('Staravia', ['Normal', 'Flying'], 'grass', 'DP', 'DP-only grass spawn.'),
       encounter('Lickitung', ['Normal'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Route 215 weather is permanent rain. Drowzee swarm omitted — schema TODO.'],
+    notes: [
+      'Route 215 weather is permanent rain. Drowzee swarm omitted — schema TODO.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
 
   // ============================================================================================
@@ -520,8 +585,12 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Houndour', ['Dark', 'Fire'], 'grass', 'DP', 'DP-only grass spawn (removed in Platinum).'),
       surf('Psyduck', ['Water']),
       surf('Golduck', ['Water']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Honey-tree species and Poké Radar additions intentionally omitted.'],
+    notes: [
+      'Poké Radar additions intentionally omitted.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'maniac-tunnel',
@@ -543,8 +612,10 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Bibarel', ['Normal', 'Water'], 'grass'),
       encounter('Kricketune', ['Bug'], 'grass'),
       encounter('Houndour', ['Dark', 'Fire'], 'grass', 'Platinum', 'Platinum-only grass spawn (Lv 27-28).'),
+      radar('Nidorina', ['Poison']),
+      radar('Nidorino', ['Poison']),
     ],
-    notes: ['Poké Radar (Nidorina/Nidorino) intentionally omitted. Pre-Lake Valor Galactic Grunt battle modeled as boss data.'],
+    notes: ['Pre-Lake Valor Galactic Grunt battle modeled as boss data. Poké Radar requires National Dex (postgame).'],
   },
   {
     locationId: 'route-213',
@@ -565,8 +636,12 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Finneon', ['Water'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Coastal beach route. Honey-tree species omitted.'],
+    notes: [
+      'Coastal beach route.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'pastoria-city',
@@ -614,8 +689,12 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Barboach', ['Water', 'Ground'], 'Super Rod', 'Platinum', 'Platinum-only Super Rod addition.'),
       fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Platinum', 'Platinum-only Super Rod addition.'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Permanent rain on south half. Pokémon Mansion is on this route (separate trainer venue).'],
+    notes: [
+      'Permanent rain on south half. Pokémon Mansion is on this route (separate trainer venue).',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'route-212-north',
@@ -625,8 +704,13 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Ralts', ['Psychic', 'Fairy'], 'grass', 'DP', 'DP-only grass spawn (removed in Platinum).'),
       encounter('Bibarel', ['Normal', 'Water'], 'grass'),
       encounter('Kricketune', ['Bug'], 'grass'),
+      radar('Smeargle', ['Normal']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Marill consolidated to single slot in Platinum; Ralts removed; Smeargle Poké Radar level shifted (not modeled).'],
+    notes: [
+      'Marill consolidated to single slot in Platinum; Ralts removed. Smeargle Poké Radar level shifts DP→Pt but species presence is unchanged.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic). Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-210-north',
@@ -649,8 +733,14 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Magikarp', ['Water'], 'Super Rod'),
       fish('Whiscash', ['Water', 'Ground'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      radar('Kecleon', ['Normal']),
+      radar('Bagon', ['Dragon']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Foggy half accessed after Secret Medicine cures the Psyduck blockade. Poké Radar species (Kecleon/Bagon/Zangoose/Seviper) omitted.'],
+    notes: [
+      'Foggy half accessed after Secret Medicine cures the Psyduck blockade. Zangoose/Seviper appear here via Gen-III dual-slot insertion (Ruby/Sapphire) — deferred to dual-slot pass.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic). Poké Radar requires National Dex (postgame).',
+    ],
   },
 
   // ============================================================================================
@@ -678,8 +768,13 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Finneon', ['Water'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      radar('Ditto', ['Normal']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Poké Radar (Ditto) and swarm (Voltorb) omitted.'],
+    notes: [
+      'Swarm (Voltorb) omitted — schema TODO.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic). Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'canalave-city',
@@ -697,8 +792,15 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Staryu', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
+      // Cresselia quest — accessed via Canalave sailor's son nightmare cutscene; sail to Fullmoon Island
+      // (postgame, National Dex required). Cresselia awakens at Lv 50 and immediately roams Sinnoh —
+      // catchable thereafter via the Marking Map. Mirrors the Mesprit roamer pattern.
+      encounter('Cresselia', ['Psychic'], 'legendary', 'All', 'Postgame roamer (Lv 50). Triggered via the Canalave Sailor\'s son nightmare quest — sail to Fullmoon Island, where Cresselia flees and becomes a roaming legendary. Track via Marking Map.'),
     ],
-    notes: ['Surf-only access to the harbor. Sailor NPCs route to Iron Island and (postgame) Newmoon Island.'],
+    notes: [
+      'Surf-only access to the harbor. Sailor NPCs route to Iron Island and (postgame) Newmoon Island for Darkrai.',
+      'Cresselia roamer awakens on Fullmoon Island after the Canalave nightmare quest; entry placed here since Canalave is the quest hub. Newmoon Island Darkrai is event-key only (Member Card) — deferred.',
+    ],
   },
   {
     locationId: 'iron-island',
@@ -724,8 +826,10 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
       encounter('Riolu', ['Fighting'], 'gift', 'All', 'Egg gift from Riley after defeating Team Galactic Grunts on B2F.'),
+      radar('Sableye', ['Dark', 'Ghost']),
+      radar('Mawile', ['Steel', 'Fairy']),
     ],
-    notes: ['Cave floors collapsed into one area. Sableye/Mawile Poké Radar omitted — schema TODO.'],
+    notes: ['Cave floors collapsed into one area. Poké Radar requires National Dex (postgame).'],
   },
   {
     locationId: 'fuego-ironworks',
@@ -743,8 +847,12 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Shellder', ['Water'], 'Super Rod', 'DP', 'DP-only Super Rod 15%.'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Accessed by surfing west on Route 205. Platinum trims grass + Tentacruel/Shellder fishing; Mr. Fuego trades star pieces for shards instead of a one-time Fire Stone.'],
+    notes: [
+      'Accessed by surfing west on Route 205. Platinum trims grass + Tentacruel/Shellder fishing; Mr. Fuego trades star pieces for shards instead of a one-time Fire Stone.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'lake-valor',
@@ -834,8 +942,14 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Finneon', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
+      radar('Nidorina', ['Poison']),
+      radar('Nidorino', ['Poison']),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Farfetch\'d swarm and Nidorina/Nidorino Poké Radar omitted.'],
+    notes: [
+      'Farfetch\'d swarm omitted — schema TODO.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic). Poké Radar requires National Dex (postgame).',
+    ],
   },
 
   // ============================================================================================
@@ -851,8 +965,9 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Medicham', ['Fighting', 'Psychic'], 'grass'),
       encounter('Snover', ['Grass', 'Ice'], 'grass'),
       encounter('Snorunt', ['Ice'], 'grass', 'Platinum', 'Platinum-only grass spawn (Lv 33).'),
+      radar('Snorunt', ['Ice'], 'DP', 'In DP, Snorunt is Poké Radar-only here (no grass slot). Platinum moves Snorunt into the standard grass table above.'),
     ],
-    notes: ['Delibird swarm (Lv 32, 40%) intentionally omitted — schema TODO.', 'Snorunt is DP Poké Radar-only / Platinum grass-direct — only the Platinum grass slot is modeled here.'],
+    notes: ['Delibird swarm (Lv 32, 40%) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).'],
   },
   {
     locationId: 'route-217',
@@ -867,8 +982,9 @@ const populatedAreas: DppEncounterArea[] = [
       encounter('Snover', ['Grass', 'Ice'], 'grass'),
       encounter('Snorunt', ['Ice'], 'grass', 'All', 'Lv 33.'),
       encounter('Swinub', ['Ice', 'Ground'], 'grass', 'Platinum', 'Platinum-only grass spawn (35%, Lv 32-34).'),
+      radar('Piloswine', ['Ice', 'Ground'], 'Platinum', 'Platinum-only Poké Radar slot.'),
     ],
-    notes: ['Persistent blizzard route. DP Swinub/Delibird swarms + DP Ursaring special encounter omitted — schema TODOs.', 'Piloswine Poké Radar (Platinum) omitted.'],
+    notes: ['Persistent blizzard route. DP Swinub/Delibird swarms + DP Ursaring special encounter omitted — schema TODOs. Poké Radar requires National Dex (postgame).'],
   },
   {
     locationId: 'acuity-lakefront',
@@ -993,8 +1109,12 @@ const populatedAreas: DppEncounterArea[] = [
       fish('Finneon', ['Water'], 'Super Rod'),
       fish('Lumineon', ['Water'], 'Super Rod'),
       fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      ...honeyTreeSpecies,
     ],
-    notes: ['Coastal road leading into Sunyshore. Trainer roster shifts in Platinum but encounter list is largely consistent.'],
+    notes: [
+      'Coastal road leading into Sunyshore. Trainer roster shifts in Platinum but encounter list is largely consistent.',
+      'Honey-tree species available; Munchlax omitted (personalized 4-tree mechanic).',
+    ],
   },
   {
     locationId: 'sunyshore-city',
@@ -1121,38 +1241,210 @@ const populatedAreas: DppEncounterArea[] = [
   {
     locationId: 'route-225',
     displayName: 'Route 225',
-    encounters: [],
-    notes: ['Postgame route between Pokémon League and Survival Area. TODO: Populate canonical encounter data.'],
+    encounters: [
+      encounter('Rattata', ['Normal'], 'grass'),
+      encounter('Raticate', ['Normal'], 'grass'),
+      encounter('Spearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Fearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Machoke', ['Fighting'], 'grass'),
+      encounter('Graveler', ['Rock', 'Ground'], 'grass'),
+      encounter('Roselia', ['Grass', 'Poison'], 'grass'),
+      encounter('Skuntank', ['Poison', 'Dark'], 'grass'),
+      encounter('Banette', ['Ghost'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      surf('Golduck', ['Water']),
+      surf('Psyduck', ['Water'], 'DP', 'DP-only surf entry.'),
+      surf('Poliwhirl', ['Water'], 'DP', 'DP-only surf entry.'),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Poliwag', ['Water'], 'Good Rod', 'DP', 'DP-only Good Rod slot (replaced by Barboach in Platinum).'),
+      fish('Barboach', ['Water', 'Ground'], 'Good Rod', 'Platinum', 'Platinum-only Good Rod slot.'),
+      fish('Poliwhirl', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod', 'DP', 'DP-only Super Rod slot.'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod', 'Platinum', 'Platinum-only Super Rod slot.'),
+      radar('Mankey', ['Fighting']),
+      radar('Primeape', ['Fighting']),
+    ],
+    notes: [
+      'Postgame route between Fight Area and Survival Area.',
+      'Swarm (Makuhita) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-226',
     displayName: 'Route 226',
-    encounters: [],
-    notes: ['Postgame surf-only route between Survival Area and Resort Area. TODO: Populate canonical encounter data.'],
+    encounters: [
+      // Grass — eastern strip near Survival Area.
+      encounter('Rattata', ['Normal'], 'grass'),
+      encounter('Raticate', ['Normal'], 'grass'),
+      encounter('Spearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Fearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Golduck', ['Water'], 'grass'),
+      encounter('Machoke', ['Fighting'], 'grass'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass'),
+      encounter('Graveler', ['Rock', 'Ground'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      encounter('Banette', ['Ghost'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      // Surf — version splits per Bulbapedia.
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Pelipper', ['Water', 'Flying'], 'All', 'Surf rate drops from 60% (DP) to 30% (Platinum).'),
+      surf('Wingull', ['Water', 'Flying'], 'DP', 'DP-only surf addition.'),
+      surf('Seel', ['Water'], 'DP', 'DP-only surf addition.'),
+      surf('Dewgong', ['Water', 'Ice'], 'DP', 'DP-only surf addition.'),
+      surf('Spheal', ['Ice', 'Water'], 'Platinum', 'Platinum-only surf addition.'),
+      surf('Sealeo', ['Ice', 'Water'], 'Platinum', 'Platinum-only surf addition.'),
+      // Fishing — shared across all three versions.
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Horsea', ['Water'], 'Good Rod'),
+      fish('Seadra', ['Water'], 'Super Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Relicanth', ['Water', 'Rock'], 'Super Rod'),
+      // Meister NPC trade — foreign-OT Magikarp (German "Foppa") for the player's Finneon.
+      encounter('Magikarp', ['Water'], 'trade', 'All', 'One-time NPC trade with Meister on his islet (German OT "Foppa") — give a Finneon to receive Magikarp.'),
+      radar('Mankey', ['Fighting']),
+      radar('Primeape', ['Fighting']),
+    ],
+    notes: [
+      'Postgame surf-heavy route south of Survival Area with a small grass strip on the eastern shore. Meister island in the center.',
+      'Swarm (Krabby) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-227',
     displayName: 'Route 227',
-    encounters: [],
-    notes: ['Postgame mountain route leading to Stark Mountain. TODO: Populate canonical encounter data.'],
+    encounters: [
+      encounter('Fearow', ['Normal', 'Flying'], 'grass'),
+      encounter('Graveler', ['Rock', 'Ground'], 'grass'),
+      encounter('Weezing', ['Poison'], 'grass'),
+      encounter('Rhyhorn', ['Ground', 'Rock'], 'grass'),
+      encounter('Rhydon', ['Ground', 'Rock'], 'grass'),
+      encounter('Skarmory', ['Steel', 'Flying'], 'grass'),
+      encounter('Numel', ['Fire', 'Ground'], 'grass'),
+      encounter('Camerupt', ['Fire', 'Ground'], 'grass'),
+      encounter('Golbat', ['Poison', 'Flying'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      encounter('Banette', ['Ghost'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      // Surf — accessible via Rock Climb to inner valley ponds.
+      surf('Poliwag', ['Water']),
+      surf('Poliwhirl', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Good Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod'),
+      radar('Torkoal', ['Fire']),
+    ],
+    notes: [
+      'Postgame volcanic-ash mountain route leading to Stark Mountain. Continuous ash-fall weather.',
+      'Surfing accessible only in inner valley ponds reached via Rock Climb.',
+      'Swarm (Spinda) and dual-slot species (Gligar/Magby) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-228',
     displayName: 'Route 228',
-    encounters: [],
-    notes: ['Postgame sandstorm route. TODO: Populate canonical encounter data.'],
+    encounters: [
+      encounter('Diglett', ['Ground'], 'grass'),
+      encounter('Dugtrio', ['Ground'], 'grass'),
+      encounter('Rhydon', ['Ground', 'Rock'], 'grass'),
+      encounter('Cacnea', ['Grass'], 'grass'),
+      encounter('Cacturne', ['Grass', 'Dark'], 'grass'),
+      encounter('Hippowdon', ['Ground'], 'grass'),
+      surf('Poliwag', ['Water']),
+      surf('Poliwhirl', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Barboach', ['Water', 'Ground'], 'Good Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Good Rod', 'Platinum', 'Platinum-only Good Rod 5%.'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Whiscash', ['Water', 'Ground'], 'Super Rod'),
+      radar('Trapinch', ['Ground']),
+      radar('Vibrava', ['Ground', 'Dragon']),
+    ],
+    notes: [
+      'Postgame desert route with permanent sandstorm. All battles affected by sandstorm weather.',
+      'Rock Peak Ruins (Regirock, Platinum-only event) intentionally omitted — event-key legendaries are a schema gap (Shaymin/Darkrai/Arceus same family).',
+      'Swarm (Beldum) and dual-slot Sandslash intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-229',
     displayName: 'Route 229',
-    encounters: [],
-    notes: ['Postgame forest route. TODO: Populate canonical encounter data.'],
+    encounters: [
+      encounter('Pidgey', ['Normal', 'Flying'], 'grass'),
+      encounter('Oddish', ['Grass', 'Poison'], 'grass'),
+      encounter('Gloom', ['Grass', 'Poison'], 'grass'),
+      encounter('Bellsprout', ['Grass', 'Poison'], 'grass'),
+      encounter('Weepinbell', ['Grass', 'Poison'], 'grass'),
+      encounter('Scyther', ['Bug', 'Flying'], 'grass'),
+      encounter('Pinsir', ['Bug'], 'grass'),
+      encounter('Beautifly', ['Bug', 'Flying'], 'grass'),
+      encounter('Dustox', ['Bug', 'Poison'], 'grass'),
+      encounter('Volbeat', ['Bug'], 'grass'),
+      encounter('Illumise', ['Bug'], 'grass'),
+      encounter('Roselia', ['Grass', 'Poison'], 'grass', 'All', 'Rate jumps from ~10% (DP) to ~45% (Platinum).'),
+      encounter('Purugly', ['Normal'], 'grass'),
+      // Ledian appears in Diamond + Platinum but not Pearl (schema lacks D+Pt union, so split into two rows).
+      encounter('Ledian', ['Bug', 'Flying'], 'grass', 'Diamond', 'Diamond half of D+Pt grass slot (absent in Pearl).'),
+      encounter('Ledian', ['Bug', 'Flying'], 'grass', 'Platinum', 'Platinum half of D+Pt grass slot (absent in Pearl).'),
+      encounter('Ariados', ['Bug', 'Poison'], 'grass', 'Platinum', 'Platinum-only grass spawn.'),
+      // Surf — DP table verified; Platinum surf table flagged ambiguous in research pass and deferred.
+      surf('Wingull', ['Water', 'Flying'], 'DP', 'DP surf table.'),
+      surf('Pelipper', ['Water', 'Flying'], 'DP', 'DP surf table.'),
+      surf('Surskit', ['Bug', 'Water'], 'DP', 'DP surf table.'),
+      surf('Masquerain', ['Bug', 'Water'], 'DP', 'DP surf table.'),
+      // Fishing — DP and Pt differ; Pt collapses Good/Super Rod tables to Magikarp/Gyarados only.
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod', 'DP', 'DP-only Good Rod slot (Pt Good Rod is Magikarp only).'),
+      fish('Seaking', ['Water'], 'Super Rod', 'DP', 'DP-only Super Rod slot (Pt Super Rod is Gyarados only).'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      radar('Venonat', ['Bug', 'Poison']),
+      radar('Venomoth', ['Bug', 'Poison']),
+    ],
+    notes: [
+      'Postgame seaside forest route connecting Route 228, Route 230, and Resort Area.',
+      'Pearl has noticeably higher Pidgey/Gloom/Weepinbell rates vs Diamond/Platinum — rate splits not yet modeled.',
+      'Platinum surf table flagged ambiguous in source verification pass — TODO: confirm Pt surf species against secondary canonical source before adding.',
+      'Swarm (Pidgey/Pinsir) and dual-slot species (Pineco/Nuzleaf/Lombre) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'route-230',
     displayName: 'Route 230',
-    encounters: [],
-    notes: ['Postgame surf-only route between Resort Area and the Battle Park. TODO: Populate canonical encounter data.'],
+    encounters: [
+      // Grass — small central island only (reached via Surf + Rock Smash).
+      encounter('Oddish', ['Grass', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Gloom', ['Grass', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Golduck', ['Water'], 'grass', 'All', 'Island grass only.'),
+      encounter('Bellsprout', ['Grass', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Weepinbell', ['Grass', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Beautifly', ['Bug', 'Flying'], 'grass', 'All', 'Island grass only.'),
+      encounter('Dustox', ['Bug', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Wingull', ['Water', 'Flying'], 'grass', 'All', 'Island grass only.'),
+      encounter('Pelipper', ['Water', 'Flying'], 'grass', 'All', 'Island grass only.'),
+      encounter('Roselia', ['Grass', 'Poison'], 'grass', 'All', 'Island grass only.'),
+      encounter('Floatzel', ['Water'], 'grass', 'All', 'Island grass only.'),
+      encounter('Gastrodon', ['Water', 'Ground'], 'grass', 'All', 'Island grass only — East Sea form.'),
+      // Surf.
+      surf('Tentacruel', ['Water', 'Poison']),
+      surf('Pelipper', ['Water', 'Flying'], 'All', 'Surf rate drops from 60% (DP) to 30% (Platinum).'),
+      surf('Sealeo', ['Ice', 'Water'], 'All', 'Surf rate jumps from 5% (DP) to 60% (Platinum).'),
+      surf('Seel', ['Water'], 'DP', 'DP-only surf addition.'),
+      surf('Dewgong', ['Water', 'Ice'], 'DP', 'DP-only surf addition.'),
+      surf('Spheal', ['Ice', 'Water'], 'Platinum', 'Platinum-only surf addition.'),
+      // Fishing — shared across all three versions.
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Remoraid', ['Water'], 'Good Rod'),
+      fish('Gyarados', ['Water', 'Flying'], 'Super Rod'),
+      fish('Octillery', ['Water'], 'Super Rod'),
+      fish('Wailmer', ['Water'], 'Super Rod'),
+      fish('Wailord', ['Water'], 'Super Rod'),
+      radar('Togepi', ['Fairy']),
+    ],
+    notes: [
+      'Postgame surf route connecting Fight Area, Resort Area, and Route 229. Central island grass requires Surf + Rock Smash to reach.',
+      'Swarm (Corsola) intentionally omitted — schema TODO. Poké Radar requires National Dex (postgame).',
+    ],
   },
   {
     locationId: 'stark-mountain',
@@ -1222,9 +1514,11 @@ const stubAreas: DppEncounterArea[] = (Array.isArray(gen4Routes) ? gen4Routes : 
 export const dppEncounterAreas: DppEncounterArea[] = [...populatedAreas, ...stubAreas];
 
 export const dppEncounterNotes = [
-  'Honey-tree, Poké Radar, dual-slot (Gen III cartridge insertion), swarm, and Pal Park species are intentionally not modeled this pass.',
+  'Honey-tree species are now modeled across canonical Sinnoh honey-tree locations using method "special" / condition "Honey Tree". Slather Honey on a Sweet-Honey tree and return after ~6 in-game hours to trigger an encounter.',
+  'Munchlax is intentionally NOT included in the universal honey-tree row. Munchlax appears on only 4 out of 21 honey trees per save file, determined by the player\'s trainer ID + secret ID — TODO if a "personalized rare tree" convention is ever added.',
+  'Poké Radar species are populated where canonically sourced (postgame — Prof. Rowan gives the Poké Radar after the National Dex is completed). Coverage is partial: locations whose Poké Radar slots were not explicitly verified retain TODOs. Use condition "Poké Radar" for filtering.',
+  'Dual-slot (Gen III cartridge insertion), swarms, and Pal Park species remain intentionally not modeled.',
   'Old Chateau Rotom and other story-gated statics are deferred until canonical timing/Gym-prereq handling is in place.',
-  'DPP Pass 1 covers Twinleaf through Eterna City; later passes expand the rest of Sinnoh.',
 ];
 
 function matchesVersion(rowVersion: DppVersion, game: 'Diamond' | 'Pearl' | 'Platinum'): boolean {

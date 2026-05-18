@@ -10,7 +10,7 @@ export const gen4Metadata: GenerationMetadata = {
   games: gen4Games,
   supportsStarterChoice: true,
   starterChoiceMode: 'type-only',
-  dataStatus: 'Skeleton',
+  dataStatus: 'Partial',
 };
 
 export function supportsGen4Data(gameVersion: GameVersion) {
