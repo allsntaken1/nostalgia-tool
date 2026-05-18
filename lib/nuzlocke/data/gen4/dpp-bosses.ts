@@ -795,11 +795,21 @@ const dppBosses: BossTrainer[] = [
     levelCap: 40,
     game: 'Diamond',
     team: [
-      mon('Kadabra', 38, ['Psychic'], { ability: 'Synchronize' }),
-      mon('Bronzor', 38, ['Steel', 'Psychic'], { ability: 'Levitate' }),
-      mon('Toxicroak', 40, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+      mon('Kadabra', 38, ['Psychic'], {
+        ability: 'Synchronize',
+        moves: [mv('Psychic', 'Psychic', 90), mv('Shock Wave', 'Electric', 60), mv('Recover', 'Normal'), mv('Embargo', 'Dark')],
+      }),
+      mon('Bronzor', 38, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Shadow Ball', 'Ghost', 80), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Toxicroak', 40, ['Poison', 'Fighting'], {
+        ability: 'Anticipation',
+        item: 'Sitrus Berry',
+        moves: [mv('Poison Jab', 'Poison', 80), mv('Brick Break', 'Fighting', 75), mv('X-Scissor', 'Bug', 80), mv('Swagger', 'Normal')],
+      }),
     ],
-    notes: 'Diamond Galactic HQ Saturn battle. Per-Pokémon move data not surfaced — TODO.',
+    notes: 'Diamond Galactic HQ Saturn battle.',
   }),
   boss({
     id: 'dpp-galactic-saturn-hq-p',
@@ -810,9 +820,19 @@ const dppBosses: BossTrainer[] = [
     levelCap: 40,
     game: 'Pearl',
     team: [
-      mon('Kadabra', 38, ['Psychic'], { ability: 'Synchronize' }),
-      mon('Bronzor', 38, ['Steel', 'Psychic'], { ability: 'Levitate' }),
-      mon('Toxicroak', 40, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+      mon('Kadabra', 38, ['Psychic'], {
+        ability: 'Synchronize',
+        moves: [mv('Psychic', 'Psychic', 90), mv('Shock Wave', 'Electric', 60), mv('Recover', 'Normal'), mv('Embargo', 'Dark')],
+      }),
+      mon('Bronzor', 38, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Shadow Ball', 'Ghost', 80), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Toxicroak', 40, ['Poison', 'Fighting'], {
+        ability: 'Anticipation',
+        item: 'Sitrus Berry',
+        moves: [mv('Poison Jab', 'Poison', 80), mv('Brick Break', 'Fighting', 75), mv('X-Scissor', 'Bug', 80), mv('Swagger', 'Normal')],
+      }),
     ],
     notes: 'Pearl Galactic HQ Saturn battle. Identical team to Diamond.',
   }),
@@ -825,11 +845,21 @@ const dppBosses: BossTrainer[] = [
     levelCap: 44,
     game: 'Platinum',
     team: [
-      mon('Golbat', 42, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
-      mon('Bronzor', 42, ['Steel', 'Psychic'], { ability: 'Levitate' }),
-      mon('Toxicroak', 44, ['Poison', 'Fighting'], { ability: 'Anticipation', item: 'Sitrus Berry' }),
+      mon('Golbat', 42, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 55), mv('Bite', 'Dark', 60), mv('Poison Fang', 'Poison', 50), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Bronzor', 42, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Gyro Ball', 'Steel'), mv('Extrasensory', 'Psychic', 80), mv('Shadow Ball', 'Ghost', 80), mv('Confuse Ray', 'Ghost')],
+      }),
+      mon('Toxicroak', 44, ['Poison', 'Fighting'], {
+        ability: 'Anticipation',
+        item: 'Sitrus Berry',
+        moves: [mv('Poison Jab', 'Poison', 80), mv('Brick Break', 'Fighting', 75), mv('X-Scissor', 'Bug', 80), mv('Faint Attack', 'Dark', 60)],
+      }),
     ],
-    notes: 'Platinum Galactic HQ Saturn battle. Swaps Kadabra → Golbat; levels +2-4 vs DP. Per-Pokémon moves not surfaced — TODO.',
+    notes: 'Platinum Galactic HQ Saturn battle. Swaps Kadabra → Golbat; levels +2-4 vs DP.',
   }),
 
   // Cyrus at Galactic HQ.
@@ -842,9 +872,19 @@ const dppBosses: BossTrainer[] = [
     levelCap: 43,
     game: 'Diamond',
     team: [
-      mon('Murkrow', 40, ['Dark', 'Flying'], { ability: 'Insomnia' }),
-      mon('Golbat', 40, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
-      mon('Sneasel', 43, ['Dark', 'Ice'], { ability: 'Inner Focus', item: 'Sitrus Berry' }),
+      mon('Murkrow', 40, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        moves: [mv('Night Shade', 'Ghost'), mv('Embargo', 'Dark'), mv('Drill Peck', 'Flying', 80), mv('Astonish', 'Ghost', 30)],
+      }),
+      mon('Golbat', 40, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 55), mv('Poison Fang', 'Poison', 50), mv('Supersonic', 'Normal'), mv('Bite', 'Dark', 60)],
+      }),
+      mon('Sneasel', 43, ['Dark', 'Ice'], {
+        ability: 'Inner Focus',
+        item: 'Sitrus Berry',
+        moves: [mv('Screech', 'Normal'), mv('Ice Punch', 'Ice', 75), mv('Slash', 'Normal', 70), mv('Quick Attack', 'Normal', 40)],
+      }),
     ],
     notes: 'Diamond Galactic HQ Cyrus battle.',
   }),
@@ -857,9 +897,19 @@ const dppBosses: BossTrainer[] = [
     levelCap: 43,
     game: 'Pearl',
     team: [
-      mon('Murkrow', 40, ['Dark', 'Flying'], { ability: 'Insomnia' }),
-      mon('Golbat', 40, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
-      mon('Sneasel', 43, ['Dark', 'Ice'], { ability: 'Inner Focus', item: 'Sitrus Berry' }),
+      mon('Murkrow', 40, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        moves: [mv('Night Shade', 'Ghost'), mv('Embargo', 'Dark'), mv('Drill Peck', 'Flying', 80), mv('Astonish', 'Ghost', 30)],
+      }),
+      mon('Golbat', 40, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 55), mv('Poison Fang', 'Poison', 50), mv('Supersonic', 'Normal'), mv('Bite', 'Dark', 60)],
+      }),
+      mon('Sneasel', 43, ['Dark', 'Ice'], {
+        ability: 'Inner Focus',
+        item: 'Sitrus Berry',
+        moves: [mv('Screech', 'Normal'), mv('Ice Punch', 'Ice', 75), mv('Slash', 'Normal', 70), mv('Quick Attack', 'Normal', 40)],
+      }),
     ],
     notes: 'Pearl Galactic HQ Cyrus battle. Identical team to Diamond.',
   }),
@@ -872,9 +922,19 @@ const dppBosses: BossTrainer[] = [
     levelCap: 46,
     game: 'Platinum',
     team: [
-      mon('Sneasel', 44, ['Dark', 'Ice'], { ability: 'Inner Focus' }),
-      mon('Crobat', 44, ['Poison', 'Flying'], { ability: 'Inner Focus' }),
-      mon('Honchkrow', 46, ['Dark', 'Flying'], { ability: 'Insomnia', item: 'Sitrus Berry' }),
+      mon('Sneasel', 44, ['Dark', 'Ice'], {
+        ability: 'Inner Focus',
+        moves: [mv('Screech', 'Normal'), mv('Ice Punch', 'Ice', 75), mv('Slash', 'Normal', 70), mv('Quick Attack', 'Normal', 40)],
+      }),
+      mon('Crobat', 44, ['Poison', 'Flying'], {
+        ability: 'Inner Focus',
+        moves: [mv('Air Cutter', 'Flying', 55), mv('Poison Fang', 'Poison', 50), mv('Supersonic', 'Normal'), mv('Bite', 'Dark', 60)],
+      }),
+      mon('Honchkrow', 46, ['Dark', 'Flying'], {
+        ability: 'Insomnia',
+        item: 'Sitrus Berry',
+        moves: [mv('Night Shade', 'Ghost'), mv('Faint Attack', 'Dark', 60), mv('Drill Peck', 'Flying', 80), mv('Astonish', 'Ghost', 30)],
+      }),
     ],
     notes: 'Platinum Galactic HQ Cyrus battle. Evolved-form swaps Murkrow→Honchkrow, Golbat→Crobat; levels +3-4.',
   }),
@@ -1132,7 +1192,7 @@ const dppBosses: BossTrainer[] = [
 // ===========================================================================================
 const pass7Bosses: BossTrainer[] = [
   // Volkner Sunyshore Gym — DP 4-mon (Raichu/Ambipom/Octillery/Luxray); Pt 4-mon
-  // (Jolteon/Raichu/Luxray/Electivire). Per-Pokémon moves not surfaced in summary — TODO.
+  // (Jolteon/Raichu/Luxray/Electivire). All movesets populated below.
   boss({
     id: 'dpp-gym-volkner-d',
     name: 'Gym Leader Volkner',
@@ -1226,11 +1286,27 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 57,
     game: 'Platinum',
     team: [
-      mon('Yanmega', 49, ['Bug', 'Flying'], { ability: 'Speed Boost' }),
-      mon('Scizor', 49, ['Bug', 'Steel'], { ability: 'Technician' }),
-      mon('Vespiquen', 50, ['Bug', 'Flying'], { ability: 'Pressure' }),
-      mon('Heracross', 51, ['Bug', 'Fighting'], { ability: 'Guts' }),
-      mon('Drapion', 53, ['Poison', 'Dark'], { ability: 'Sniper', item: 'Sitrus Berry' }),
+      mon('Yanmega', 49, ['Bug', 'Flying'], {
+        ability: 'Speed Boost',
+        moves: [mv('Bug Buzz', 'Bug', 90), mv('Air Slash', 'Flying', 75), mv('U-turn', 'Bug', 70), mv('Double Team', 'Normal')],
+      }),
+      mon('Scizor', 49, ['Bug', 'Steel'], {
+        ability: 'Technician',
+        moves: [mv('X-Scissor', 'Bug', 80), mv('Iron Head', 'Steel', 80), mv('Night Slash', 'Dark', 70), mv('Quick Attack', 'Normal', 40)],
+      }),
+      mon('Vespiquen', 50, ['Bug', 'Flying'], {
+        ability: 'Pressure',
+        moves: [mv('Attack Order', 'Bug', 90), mv('Defend Order', 'Bug'), mv('Heal Order', 'Bug'), mv('Power Gem', 'Rock', 80)],
+      }),
+      mon('Heracross', 51, ['Bug', 'Fighting'], {
+        ability: 'Guts',
+        moves: [mv('Megahorn', 'Bug', 120), mv('Close Combat', 'Fighting', 120), mv('Night Slash', 'Dark', 70), mv('Stone Edge', 'Rock', 100)],
+      }),
+      mon('Drapion', 53, ['Poison', 'Dark'], {
+        ability: 'Sniper',
+        item: 'Sitrus Berry',
+        moves: [mv('X-Scissor', 'Bug', 80), mv('Cross Poison', 'Poison', 70), mv('Ice Fang', 'Ice', 65), mv('Aerial Ace', 'Flying', 60)],
+      }),
     ],
     notes: 'Platinum Elite Four Aaron. Replaces Dustox/Beautifly with Yanmega/Scizor; ace moved down to 53 (Pt feeds excess levels to Cynthia).',
   }),
@@ -1279,11 +1355,27 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 55,
     game: 'Platinum',
     team: [
-      mon('Whiscash', 50, ['Water', 'Ground'], { ability: 'Anticipation' }),
-      mon('Gliscor', 52, ['Ground', 'Flying'], { ability: 'Hyper Cutter' }),
-      mon('Golem', 53, ['Rock', 'Ground'], { ability: 'Sturdy' }),
-      mon('Rhyperior', 55, ['Ground', 'Rock'], { ability: 'Solid Rock' }),
-      mon('Hippowdon', 55, ['Ground'], { ability: 'Sand Stream', item: 'Sitrus Berry' }),
+      mon('Whiscash', 50, ['Water', 'Ground'], {
+        ability: 'Anticipation',
+        moves: [mv('Earth Power', 'Ground', 90), mv('Aqua Tail', 'Water', 90), mv('Zen Headbutt', 'Psychic', 80), mv('Sandstorm', 'Rock')],
+      }),
+      mon('Gliscor', 52, ['Ground', 'Flying'], {
+        ability: 'Hyper Cutter',
+        moves: [mv('Earthquake', 'Ground', 100), mv('Ice Fang', 'Ice', 65), mv('Fire Fang', 'Fire', 65), mv('Thunder Fang', 'Electric', 65)],
+      }),
+      mon('Golem', 53, ['Rock', 'Ground'], {
+        ability: 'Sturdy',
+        moves: [mv('Earthquake', 'Ground', 100), mv('Fire Punch', 'Fire', 75), mv('Thunder Punch', 'Electric', 75), mv('Sandstorm', 'Rock')],
+      }),
+      mon('Rhyperior', 55, ['Ground', 'Rock'], {
+        ability: 'Solid Rock',
+        moves: [mv('Earthquake', 'Ground', 100), mv('Rock Wrecker', 'Rock', 150), mv('Megahorn', 'Bug', 120), mv('Avalanche', 'Ice', 60)],
+      }),
+      mon('Hippowdon', 55, ['Ground'], {
+        ability: 'Sand Stream',
+        item: 'Sitrus Berry',
+        moves: [mv('Earthquake', 'Ground', 100), mv('Stone Edge', 'Rock', 100), mv('Crunch', 'Dark', 80), mv('Yawn', 'Normal')],
+      }),
     ],
     notes: 'Platinum Elite Four Bertha. Swaps Quagsire/Sudowoodo → Gliscor/Rhyperior; team rebalanced to Lv 50-55 (lower than DP).',
   }),
@@ -1298,11 +1390,27 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 61,
     game: 'Diamond',
     team: [
-      mon('Rapidash', 58, ['Fire'], { ability: 'Run Away' }),
-      mon('Steelix', 57, ['Steel', 'Ground'], { ability: 'Rock Head' }),
-      mon('Drifblim', 58, ['Ghost', 'Flying'], { ability: 'Aftermath' }),
-      mon('Lopunny', 57, ['Normal'], { ability: 'Cute Charm' }),
-      mon('Infernape', 61, ['Fire', 'Fighting'], { ability: 'Blaze', item: 'Sitrus Berry' }),
+      mon('Rapidash', 58, ['Fire'], {
+        ability: 'Run Away',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Solar Beam', 'Grass', 120), mv('Bounce', 'Flying', 85), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Steelix', 57, ['Steel', 'Ground'], {
+        ability: 'Rock Head',
+        moves: [mv('Fire Fang', 'Fire', 65), mv('Rock Tomb', 'Rock', 50), mv('Screech', 'Normal'), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Drifblim', 58, ['Ghost', 'Flying'], {
+        ability: 'Aftermath',
+        moves: [mv('Will-O-Wisp', 'Fire'), mv('Ominous Wind', 'Ghost', 60), mv('Double Team', 'Normal'), mv('Baton Pass', 'Normal')],
+      }),
+      mon('Lopunny', 57, ['Normal'], {
+        ability: 'Cute Charm',
+        moves: [mv('Fire Punch', 'Fire', 75), mv('Charm', 'Fairy'), mv('Mirror Coat', 'Psychic'), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Infernape', 61, ['Fire', 'Fighting'], {
+        ability: 'Blaze',
+        item: 'Sitrus Berry',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Thunder Punch', 'Electric', 75), mv('Mach Punch', 'Fighting', 40), mv('Earthquake', 'Ground', 100)],
+      }),
     ],
     notes: 'Diamond Elite Four Flint — the notorious mixed roster. Only Rapidash and Infernape are pure Fire; the rest carry Fire-type moves but break type theme.',
   }),
@@ -1315,11 +1423,27 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 61,
     game: 'Pearl',
     team: [
-      mon('Rapidash', 58, ['Fire'], { ability: 'Run Away' }),
-      mon('Steelix', 57, ['Steel', 'Ground'], { ability: 'Rock Head' }),
-      mon('Drifblim', 58, ['Ghost', 'Flying'], { ability: 'Aftermath' }),
-      mon('Lopunny', 57, ['Normal'], { ability: 'Cute Charm' }),
-      mon('Infernape', 61, ['Fire', 'Fighting'], { ability: 'Blaze', item: 'Sitrus Berry' }),
+      mon('Rapidash', 58, ['Fire'], {
+        ability: 'Run Away',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Solar Beam', 'Grass', 120), mv('Bounce', 'Flying', 85), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Steelix', 57, ['Steel', 'Ground'], {
+        ability: 'Rock Head',
+        moves: [mv('Fire Fang', 'Fire', 65), mv('Rock Tomb', 'Rock', 50), mv('Screech', 'Normal'), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Drifblim', 58, ['Ghost', 'Flying'], {
+        ability: 'Aftermath',
+        moves: [mv('Will-O-Wisp', 'Fire'), mv('Ominous Wind', 'Ghost', 60), mv('Double Team', 'Normal'), mv('Baton Pass', 'Normal')],
+      }),
+      mon('Lopunny', 57, ['Normal'], {
+        ability: 'Cute Charm',
+        moves: [mv('Fire Punch', 'Fire', 75), mv('Charm', 'Fairy'), mv('Mirror Coat', 'Psychic'), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Infernape', 61, ['Fire', 'Fighting'], {
+        ability: 'Blaze',
+        item: 'Sitrus Berry',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Thunder Punch', 'Electric', 75), mv('Mach Punch', 'Fighting', 40), mv('Earthquake', 'Ground', 100)],
+      }),
     ],
     notes: 'Pearl Elite Four Flint. Identical to Diamond — preserves the famous mixed roster.',
   }),
@@ -1332,11 +1456,27 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 57,
     game: 'Platinum',
     team: [
-      mon('Houndoom', 52, ['Dark', 'Fire'], { ability: 'Early Bird' }),
-      mon('Flareon', 55, ['Fire'], { ability: 'Flash Fire' }),
-      mon('Rapidash', 53, ['Fire'], { ability: 'Run Away' }),
-      mon('Infernape', 55, ['Fire', 'Fighting'], { ability: 'Blaze' }),
-      mon('Magmortar', 57, ['Fire'], { ability: 'Flame Body', item: 'Sitrus Berry' }),
+      mon('Houndoom', 52, ['Dark', 'Fire'], {
+        ability: 'Early Bird',
+        moves: [mv('Flamethrower', 'Fire', 95), mv('Sludge Bomb', 'Poison', 90), mv('Dark Pulse', 'Dark', 80), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Flareon', 55, ['Fire'], {
+        ability: 'Flash Fire',
+        moves: [mv('Overheat', 'Fire', 140), mv('Giga Impact', 'Normal', 150), mv('Quick Attack', 'Normal', 40), mv('Will-O-Wisp', 'Fire')],
+      }),
+      mon('Rapidash', 53, ['Fire'], {
+        ability: 'Run Away',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Solar Beam', 'Grass', 120), mv('Bounce', 'Flying', 85), mv('Sunny Day', 'Fire')],
+      }),
+      mon('Infernape', 55, ['Fire', 'Fighting'], {
+        ability: 'Blaze',
+        moves: [mv('Flare Blitz', 'Fire', 120), mv('Thunder Punch', 'Electric', 75), mv('Mach Punch', 'Fighting', 40), mv('Earthquake', 'Ground', 100)],
+      }),
+      mon('Magmortar', 57, ['Fire'], {
+        ability: 'Flame Body',
+        item: 'Sitrus Berry',
+        moves: [mv('Flamethrower', 'Fire', 95), mv('Thunderbolt', 'Electric', 90), mv('Solar Beam', 'Grass', 120), mv('Hyper Beam', 'Normal', 150)],
+      }),
     ],
     notes: 'Platinum Elite Four Flint — corrected to Fire-focused (Houndoom/Flareon/Rapidash/Infernape/Magmortar). Pt levels lower than DP per Pt rebalance.',
   }),
@@ -1385,10 +1525,19 @@ const pass7Bosses: BossTrainer[] = [
     levelCap: 59,
     game: 'Platinum',
     team: [
-      mon('Mr. Mime', 53, ['Psychic'], { ability: 'Soundproof' }),
+      mon('Mr. Mime', 53, ['Psychic'], {
+        ability: 'Soundproof',
+        moves: [mv('Psychic', 'Psychic', 90), mv('Thunderbolt', 'Electric', 90), mv('Reflect', 'Psychic'), mv('Light Screen', 'Psychic')],
+      }),
       mon('Espeon', 55, ['Psychic'], { ability: 'Synchronize', moves: [mv('Psychic', 'Psychic', 90), mv('Shadow Ball', 'Ghost', 80), mv('Quick Attack', 'Normal', 40), mv('Signal Beam', 'Bug', 75)] }),
-      mon('Bronzong', 54, ['Steel', 'Psychic'], { ability: 'Levitate' }),
-      mon('Alakazam', 56, ['Psychic'], { ability: 'Synchronize' }),
+      mon('Bronzong', 54, ['Steel', 'Psychic'], {
+        ability: 'Levitate',
+        moves: [mv('Psychic', 'Psychic', 90), mv('Gyro Ball', 'Steel'), mv('Earthquake', 'Ground', 100), mv('Calm Mind', 'Psychic')],
+      }),
+      mon('Alakazam', 56, ['Psychic'], {
+        ability: 'Synchronize',
+        moves: [mv('Psychic', 'Psychic', 90), mv('Energy Ball', 'Grass', 90), mv('Focus Blast', 'Fighting', 120), mv('Recover', 'Normal')],
+      }),
       mon('Gallade', 59, ['Psychic', 'Fighting'], { ability: 'Steadfast', item: 'Sitrus Berry', moves: [mv('Drain Punch', 'Fighting', 75), mv('Psycho Cut', 'Psychic', 70), mv('Leaf Blade', 'Grass', 90), mv('Stone Edge', 'Rock', 100)] }),
     ],
     notes: 'Platinum Elite Four Lucian. Swaps Girafarig/Medicham → Espeon/Gallade; Pt rebalanced levels (lower).',

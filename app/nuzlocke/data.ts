@@ -58,7 +58,7 @@ export const gameGroups: { generation: string; games: { name: GameVersion; suppo
       dataStatus: 'Complete' as GameDataStatus,
     })),
   },
-  { generation: 'Gen 9', games: ['Scarlet', 'Violet'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Complete' as GameDataStatus })) },
+  { generation: 'Gen 9', games: ['Scarlet', 'Violet'].map((name) => ({ name: name as GameVersion, supported: true, dataStatus: 'Partial' as GameDataStatus })) },
 ];
 
 export const runTypes: RunType[] = [
@@ -1663,7 +1663,7 @@ export function getEncounterDataWarning(gameVersion: GameVersion) {
   if (gameVersion === 'Diamond' || gameVersion === 'Pearl' || gameVersion === 'Platinum') {
     return {
       title: 'Partial data available',
-      message: 'Diamond / Pearl / Platinum main-story encounters and boss teams are live through Champion Cynthia. Postgame: Stark Mountain (+ Heatran), Snowpoint Temple (+ Regigigas), Turnback Cave (+ Giratina DP), and Route 224 are now populated. Battle Frontier/Pal Park, full Routes 225-230 encounter tables, Cresselia/Shaymin/Darkrai events, full Great Marsh rotation, honey trees, Poké Radar, dual-slot, swarms, and day/night gating remain TODO.',
+      message: 'Diamond / Pearl / Platinum main-story encounters and boss teams are live through Champion Cynthia. Postgame: Stark Mountain (+ Heatran), Snowpoint Temple (+ Regigigas), Turnback Cave (+ Giratina DP), Route 224, and Battle Zone Routes 225-230 are populated. Honey-tree encounters are live across canonical Sinnoh honey-tree sites; Poké Radar species are populated where canonically sourced (partial coverage). Munchlax personalized 4-tree mechanic, remaining Poké Radar gaps, Battle Frontier / Pal Park, event-key mythicals/legendaries (Shaymin / Darkrai / Arceus, plus Regirock-Pt), full Great Marsh rotation, swarms, dual-slot, day/night gating, and a few minor boss/encounter detail gaps remain TODO.',
       emptyState: 'No standard DPP encounter is currently tracked for this location.',
     };
   }

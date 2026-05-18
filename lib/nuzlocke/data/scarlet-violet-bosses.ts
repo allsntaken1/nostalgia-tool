@@ -358,8 +358,8 @@ export const scarletVioletBosses: CuratedBoss[] = [
   },
   {
     id: 'penny',
-    name: 'Penny',
-    category: 'Finale',
+    name: 'Penny (Cassiopeia)',
+    category: 'Starfall Street Finale',
     game: 'Both',
     location: 'Academy Schoolyard',
     recommendedOrder: 24,
