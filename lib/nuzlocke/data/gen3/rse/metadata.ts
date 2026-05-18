@@ -10,7 +10,7 @@ export const rseMetadata: GenerationMetadata = {
   games: rseGames,
   supportsStarterChoice: true,
   starterChoiceMode: 'type-only',
-  dataStatus: 'Working Complete',
+  dataStatus: 'Complete',
 };
 
 export function supportsRse(gameVersion: GameVersion): gameVersion is 'Ruby' | 'Sapphire' | 'Emerald' {

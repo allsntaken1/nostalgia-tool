@@ -352,21 +352,66 @@ export const rseBosses: BossTrainer[] = [
     ],
     notes: 'Heat Badge (Fire). Emerald expands to 4 mons (adds Numel + Camerupt; Torkoal ace bumped to Lv 29). Significant difficulty bump vs RS. Movesets TODO.',
   }),
-  // Rival Route 119 (Brendan/May) — third rival battle, on the rain-soaked north stretch.
+  // Rival Route 119 (Brendan/May) — third rival battle in Ruby/Sapphire, blocking the path
+  // to Fortree. Trainer name flips Brendan/May based on player gender; team is identical
+  // between Brendan and May (Pokémon gender flips ♂/♀). Verified via Bulbapedia trainer pages.
+  // STRUCTURAL DIFFERENCE: Emerald removes this battle entirely — no Route 119 rival exists
+  // in Emerald (player goes directly from Route 110 rival to the postgame Lilycove encounter).
   boss({
-    id: 'rival-route-119-rse',
+    id: 'rival-route-119-r',
     name: 'Rival 3 (Route 119)',
     category: 'rival',
+    game: 'Ruby',
     location: 'Route 119',
     order: 22,
-    levelCap: null,
+    levelCap: 31,
     baseTeam: [],
     variantsByRivalStarterChoice: {
-      grass: [],
-      fire: [],
-      water: [],
+      grass: [
+        mon('Wailmer', 29, ['Water'], { ability: 'Water Veil' }),
+        mon('Shroomish', 29, ['Grass'], { ability: 'Effect Spore' }),
+        mon('Combusken', 31, ['Fire', 'Fighting'], { ability: 'Blaze' }),
+      ],
+      fire: [
+        mon('Shroomish', 29, ['Grass'], { ability: 'Effect Spore' }),
+        mon('Numel', 29, ['Fire', 'Ground'], { ability: 'Oblivious' }),
+        mon('Marshtomp', 31, ['Water', 'Ground'], { ability: 'Torrent' }),
+      ],
+      water: [
+        mon('Numel', 29, ['Fire', 'Ground'], { ability: 'Oblivious' }),
+        mon('Wailmer', 29, ['Water'], { ability: 'Water Veil' }),
+        mon('Grovyle', 31, ['Grass'], { ability: 'Overgrow' }),
+      ],
     },
-    notes: 'Third rival battle on Route 119, blocking the path to Fortree. TODO: verify version-specific teams — known to include the rival\'s Stage-2 starter (~Lv 25) plus supporting Pokémon (Wingull / Magcargo / Tropius / Wailmer variants by version).',
+    notes: 'Third rival battle blocking the path to Fortree. Ruby variant. Strong-vs-player starter cycle. Supporting Pokémon rotate to drop the one weak to your starter (e.g. Wailmer absent if you picked Mudkip-water). Trainer label flips Brendan/May per player gender; team identical. Movesets sourced from Bulbapedia trainer pages.',
+  }),
+  boss({
+    id: 'rival-route-119-s',
+    name: 'Rival 3 (Route 119)',
+    category: 'rival',
+    game: 'Sapphire',
+    location: 'Route 119',
+    order: 22,
+    levelCap: 31,
+    baseTeam: [],
+    variantsByRivalStarterChoice: {
+      grass: [
+        mon('Wailmer', 29, ['Water'], { ability: 'Water Veil' }),
+        mon('Shroomish', 29, ['Grass'], { ability: 'Effect Spore' }),
+        mon('Combusken', 31, ['Fire', 'Fighting'], { ability: 'Blaze' }),
+      ],
+      fire: [
+        mon('Shroomish', 29, ['Grass'], { ability: 'Effect Spore' }),
+        mon('Numel', 29, ['Fire', 'Ground'], { ability: 'Oblivious' }),
+        mon('Marshtomp', 31, ['Water', 'Ground'], { ability: 'Torrent' }),
+      ],
+      water: [
+        mon('Numel', 29, ['Fire', 'Ground'], { ability: 'Oblivious' }),
+        mon('Wailmer', 29, ['Water'], { ability: 'Water Veil' }),
+        mon('Grovyle', 31, ['Grass'], { ability: 'Overgrow' }),
+      ],
+    },
+    notes: 'Sapphire variant — identical team to Ruby. Movesets sourced from Bulbapedia trainer pages.',
   }),
 
   // Weather Institute admin — Magma Courtney (Ruby) / Aqua Shelly (Sapphire + Emerald).
