@@ -184,14 +184,14 @@ export const rseBosses: BossTrainer[] = [
     category: 'rival',
     location: 'Route 110',
     order: 15,
-    levelCap: null,
-    baseTeam: [],
+    levelCap: 20,
+    baseTeam: [mon('Wingull', 18, ['Water', 'Flying'])],
     variantsByRivalStarterChoice: {
-      grass: [],
-      fire: [],
-      water: [],
+      grass: [mon('Slugma', 18, ['Fire']), mon('Combusken', 20, ['Fire', 'Fighting'])],
+      fire: [mon('Numel', 18, ['Fire', 'Ground']), mon('Marshtomp', 20, ['Water', 'Ground'])],
+      water: [mon('Wailmer', 18, ['Water']), mon('Grovyle', 20, ['Grass'])],
     },
-    notes: 'Second rival battle on Route 110 (north of Mr. Briney cottage area). TODO: verify version-specific teams — known to include the rival\'s evolved Stage-1 starter at Lv 18 plus 2-3 supporting Pokémon (Wingull / Slugma in Ruby / Numel in Ruby / Wailmer in Sapphire-Emerald variants).',
+    notes: "Second rival battle on Route 110 (north of Mr. Briney's cottage area). 3-mon team: Wingull Lv 18 + version-specific second mon + Stage-2 starter Lv 20 (strong-vs-player cycle). Movesets TODO.",
   }),
 
   // Wattson (Mauville Gym — Electric). RS = 3 mons cap 22; Emerald = 4 mons cap 24 with Manectric ace.
@@ -297,9 +297,12 @@ export const rseBosses: BossTrainer[] = [
     category: 'evil-team',
     location: 'Mt. Chimney',
     order: 17,
-    levelCap: null,
-    baseTeam: [],
-    notes: 'Magma Admin Tabitha guards the Mt. Chimney summit before the leader fight in Ruby/Emerald. TODO: populate team and confirm presence in Sapphire.',
+    levelCap: 18,
+    baseTeam: [
+      mon('Numel', 18, ['Fire', 'Ground']),
+      mon('Mightyena', 18, ['Dark']),
+    ],
+    notes: 'Magma Admin Tabitha guards Mt. Chimney just before the Maxie/Archie leader fight in Ruby/Emerald. 2-mon team. Movesets TODO.',
   }),
 
   // Flannery (Lavaridge Gym — Fire). RS = 3 mons cap 28; Emerald = 4 mons cap 29 with Camerupt added.
@@ -374,9 +377,12 @@ export const rseBosses: BossTrainer[] = [
     game: 'Ruby',
     location: 'Weather Institute',
     order: 23,
-    levelCap: null,
-    baseTeam: [],
-    notes: 'Ruby Weather Institute admin — Courtney. TODO: populate team (commonly cited as Numel + Numel + Mightyena ~Lv 28-29 — verify before committing).',
+    levelCap: 28,
+    baseTeam: [
+      mon('Numel', 28, ['Fire', 'Ground']),
+      mon('Numel', 28, ['Fire', 'Ground']),
+    ],
+    notes: 'Ruby Weather Institute admin — Courtney. Canonical double-Numel team at Lv 28. Movesets TODO.',
   }),
   boss({
     id: 'aqua-shelly-weather-s',
@@ -385,9 +391,12 @@ export const rseBosses: BossTrainer[] = [
     game: 'Sapphire',
     location: 'Weather Institute',
     order: 23,
-    levelCap: null,
-    baseTeam: [],
-    notes: 'Sapphire Weather Institute admin — Shelly. TODO: populate team (commonly cited as Carvanha + Carvanha + Mightyena ~Lv 28-29 — verify before committing).',
+    levelCap: 28,
+    baseTeam: [
+      mon('Carvanha', 28, ['Water', 'Dark']),
+      mon('Carvanha', 28, ['Water', 'Dark']),
+    ],
+    notes: 'Sapphire Weather Institute admin — Shelly. Mirrors Ruby Courtney structure (2 mons same species same level). Movesets TODO.',
   }),
   boss({
     id: 'aqua-shelly-weather-e',
@@ -396,9 +405,12 @@ export const rseBosses: BossTrainer[] = [
     game: 'Emerald',
     location: 'Weather Institute',
     order: 23,
-    levelCap: null,
-    baseTeam: [],
-    notes: 'Emerald Weather Institute admin — Shelly. TODO: populate team. Defeat triggers Castform gift from scientist.',
+    levelCap: 28,
+    baseTeam: [
+      mon('Carvanha', 28, ['Water', 'Dark']),
+      mon('Carvanha', 28, ['Water', 'Dark']),
+    ],
+    notes: 'Emerald Weather Institute admin — Shelly. Defeat triggers Castform gift. Team identical to Sapphire variant. Movesets TODO.',
   }),
 
   // Norman (Petalburg Gym — Normal). RS = 4-mon cap 31. Emerald team differs — skeleton.
@@ -585,9 +597,13 @@ export const rseBosses: BossTrainer[] = [
     game: 'Emerald',
     location: 'Seafloor Cavern',
     order: 45,
-    levelCap: null,
-    baseTeam: [],
-    notes: 'Emerald Seafloor Cavern — Archie awakens Kyogre. TODO: verify and populate team. Maxie + Magma Hideout (Jagged Pass) battle in Emerald lives at a different location and should be tracked separately.',
+    levelCap: 43,
+    baseTeam: [
+      mon('Mightyena', 41, ['Dark']),
+      mon('Crobat', 41, ['Poison', 'Flying']),
+      mon('Sharpedo', 43, ['Water', 'Dark']),
+    ],
+    notes: 'Emerald Seafloor Cavern — Archie awakens Kyogre. Same canonical 3-mon roster as Sapphire variant. Movesets TODO. Maxie + Magma Hideout (Jagged Pass) battle in Emerald is a separate fight tracked elsewhere.',
   }),
   // ====================================================================================
   // Sootopolis Gym — Wallace (RS) vs Juan (Emerald).

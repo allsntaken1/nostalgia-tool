@@ -692,10 +692,42 @@ const populatedAreas: RseEncounterArea[] = [
   {
     locationId: 'safari-zone',
     displayName: 'Safari Zone',
-    encounters: [],
+    encounters: [
+      // RS Areas 1-4 species union (all 3 games share these).
+      encounter('Pikachu', ['Electric'], 'grass'),
+      encounter('Doduo', ['Normal', 'Flying'], 'grass'),
+      encounter('Oddish', ['Grass', 'Poison'], 'grass'),
+      encounter('Gloom', ['Grass', 'Poison'], 'grass'),
+      encounter('Sunkern', ['Grass'], 'grass'),
+      encounter('Sunflora', ['Grass'], 'grass'),
+      encounter('Pinsir', ['Bug'], 'grass'),
+      encounter('Wobbuffet', ['Psychic'], 'grass'),
+      encounter('Phanpy', ['Ground'], 'grass'),
+      encounter('Rhyhorn', ['Ground', 'Rock'], 'grass'),
+      encounter('Girafarig', ['Normal', 'Psychic'], 'grass'),
+      encounter('Natu', ['Psychic', 'Flying'], 'grass'),
+      encounter('Xatu', ['Psychic', 'Flying'], 'grass'),
+      encounter('Dodrio', ['Normal', 'Flying'], 'grass'),
+      // Emerald-only additions (Areas 5-6, unlocked after Hall of Fame).
+      encounter('Stantler', ['Normal'], 'grass', 'Emerald', 'Emerald-only Area 5/6 (postgame Hall of Fame unlock).'),
+      encounter('Aipom', ['Normal'], 'grass', 'Emerald', 'Emerald-only Area 5/6.'),
+      encounter('Heracross', ['Bug', 'Fighting'], 'grass', 'Emerald', 'Emerald-only Area 5/6.'),
+      encounter('Miltank', ['Normal'], 'grass', 'Emerald', 'Emerald-only Area 5/6.'),
+      encounter('Houndour', ['Dark', 'Fire'], 'grass', 'Emerald', 'Emerald-only Area 5/6.'),
+      // Surf/Fish areas (ponds inside the Safari Zone).
+      surf('Psyduck', ['Water']),
+      surf('Golduck', ['Water']),
+      fish('Magikarp', ['Water'], 'Old Rod'),
+      fish('Goldeen', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Good Rod'),
+      fish('Magikarp', ['Water'], 'Super Rod'),
+      fish('Goldeen', ['Water'], 'Super Rod'),
+      fish('Seaking', ['Water'], 'Super Rod'),
+    ],
     notes: [
-      'TODO: Safari Zone requires per-area partition handling (Area 1 / 2 / 3 / 4 in RS; expanded Areas 5-6 in Emerald with Doduo/Aipom/etc.). Not modeled this pass.',
-      'Notable Safari-Zone-only species: Pikachu (RS), Pinsir, Heracross (E only Areas 5-6), Phanpy, Doduo, Aipom (E), Stantler (E), Sunkern, Wobbuffet (E), etc.',
+      'Safari Zone species union across all areas. Per-area partitioning (RS Areas 1-4, Emerald Areas 5-6) collapsed into one location with version-gated additions.',
+      'Areas 5-6 are Emerald-exclusive postgame expansion (unlocked after Hall of Fame).',
+      'Safari Ball mechanic / step counter / flee mechanic intentionally not modeled.',
     ],
   },
   {
@@ -856,10 +888,12 @@ const populatedAreas: RseEncounterArea[] = [
       fish('Magikarp', ['Water'], 'Super Rod'),
       fish('Wailmer', ['Water'], 'Super Rod'),
       fish('Tentacool', ['Water', 'Poison'], 'Super Rod'),
+      encounter('Beldum', ['Steel', 'Psychic'], 'gift', 'All', "Postgame gift from Steven's house in Mossdeep. After becoming Champion, return to Steven's vacated house — Beldum Lv 5 left on the desk with a note. Available in all three versions."),
     ],
     notes: [
       'Tate & Liza Gym (Psychic, double battle). Space Center on the south side.',
       "Steven's house here gives HM08 Dive (RS) — story-gated.",
+      "Postgame Beldum gift from Steven's vacated house (all 3 games).",
     ],
   },
   {
